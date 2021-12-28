@@ -28,6 +28,9 @@ class Socket extends EventEmitter {
   constructor (options) {
     super()
 
+    this.serverId = null
+    this.clientId = null
+
     this.state = {
       recvBufferSize: options.recvBufferSize,
       sendBufferSize: options.sendBufferSize,
@@ -120,26 +123,30 @@ class Socket extends EventEmitter {
       options.address = dataLookup.ip
     }
 
-    const { err } = await window._ipc.send('udpConnect', {
+    const { err, data } = await window._ipc.send('udpBind', {
       address: options.address,
       port: port || 0,
       reuseAddr: options.reuseAddr, // UV_UDP_REUSEADDR
       ipv6Only: options.ipv6Only // UV_UDP_IPV6ONLY
     })
 
+    this.serverId = data.serverId
+
     if (err) {
       this.emit('error', err)
       return { err }
     }
 
-    const { data } = await this._getSockData()
+    const { data } = await this._getSockData({
+      connectionId: this.serverId
+    })
 
     this._address = data.address
     this._port = data.port
     this._family = data.family
 
     if (cb) cb(null)
-    return {}
+    return { data }
   }
 
   //
@@ -153,11 +160,6 @@ class Socket extends EventEmitter {
   // 'connect' event is emitted and the optional callback function is called.
   // In case of failure, the callback is called or, failing this, an 'error'
   // event is emitted.
-  //
-  // - bind on port 0
-  // - perform a dns look up on the hostname
-  // - connect to the specified address and port
-  // - emit error if there is one otherwise emit connect
   //
   async connect (arg1, arg2, cb) {
     if (this.clientId) {
@@ -174,7 +176,17 @@ class Socket extends EventEmitter {
       address = undefined
     }
 
-    await this.bind({ port: 0 }, null)
+    const {
+      err: errBind,
+      data: dataBind
+    } = await this.bind({ port: 0 }, null)
+
+    if (errBind) {
+      if (cb) return cb(errBind)
+      return { err: errBind }
+    }
+
+    this.serverId = data.serverId
 
     this.once('connect', cb)
 
@@ -188,7 +200,10 @@ class Socket extends EventEmitter {
       return { err: errLookup }
     }
 
-    const { err: errConnect } = await window._ipc.send('udpConnect', {
+    const {
+      err: errConnect,
+      dataConnect
+    } = await window._ipc.send('udpConnect', {
       ip: dataLookup.ip,
       port: port || 0
     })
@@ -199,13 +214,16 @@ class Socket extends EventEmitter {
     }
 
     this.state.connectState = 2
+    this.clientId = dataConnect.clientId
 
     self.emit('connect')
 
+    // TODO udpConnect could return the peer data instead of putting it
+    // into a different call and we could shave off a bit of time here.
     const {
       err: errGetPeerData,
       data: dataPeerData
-    } = await this._getPeerData()
+    } = await this._getPeerData({ clientId: dataConnect.clientId })
 
     if (errGetPeerData) {
       this.emit('error', errGetPeerData)
@@ -277,11 +295,6 @@ class Socket extends EventEmitter {
   // They are supported only when the first argument is a Buffer, a TypedArray,
   // or a DataView.
   //
-  // - bind on port 0
-  // - perform a dns look up on the hostname
-  // - send the data
-  // - call the callback if it exists
-  //
   send (buffer, ...args) {
     let offset, length, port, address, cb
     const connected = this.state.connectState === 2
@@ -320,7 +333,14 @@ class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
-    await this.bind({ port: 0 }, null)
+    const { err: errBind, data: dataBind } = await this.bind({ port: 0 }, null)
+
+    if (errBind) {
+      if (cb) return cb(errBind)
+      return { err: errBind }
+    }
+
+    this.serverId = dataBind.serverId
 
     if (list.length === 0) {
       list.push(Buffer.alloc(0))
@@ -341,6 +361,7 @@ class Socket extends EventEmitter {
     }
 
     const { err: errSend } = await window._ipc.send('udpSend', {
+      state: this.state,
       address,
       port,
       list
@@ -392,6 +413,37 @@ class Socket extends EventEmitter {
     }
   }
 
+  //
+  // Sets the SO_RCVBUF socket option. Sets the maximum socket receive buffer in
+  // bytes.
+  //
+  setRecvBufferSize (size) {
+    this.state.recvBufferSize = size
+  }
+
+  //
+  // Sets the SO_SNDBUF socket option. Sets the maximum socket send buffer in
+  // bytes.
+  //
+  setSendBufferSize (size) {
+    this.state.sendBufferSize = size
+  }
+
+  getRecvBufferSize () {
+    return this.state.recvBufferSize
+  }
+
+  getSendBufferSize () {
+    return this.state.sendBufferSize
+  }
+
+  //
+  // For now wer aren't going to implement any of the multicast options,
+  // mainly because 1. we don't need it in hyper and 2. if a user wants
+  // to deploy their app to the app store, they will need to request the
+  // multicast entitlement from apple. If someone really wants this they
+  // can implement it.
+  //
   setBroadcast () {
     throw new Error('not implemented')
   }
@@ -438,18 +490,6 @@ class Socket extends EventEmitter {
 
   unref () {
     return this
-  }
-
-  setRecvBufferSize () {
-  }
-
-  setSendBufferSize () {
-  }
-
-  getRecvBufferSize () {
-  }
-
-  getSendBufferSize () {
   }
 }
 

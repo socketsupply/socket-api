@@ -262,6 +262,9 @@ class Socket extends Duplex {
     cb()
   }
 
+  //
+  // This is called internally when there is data to insert to the stream.
+  //
   __write (data) {
     if (data.length && !stream.destroyed) {
       this.push(data)
