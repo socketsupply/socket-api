@@ -127,6 +127,58 @@ class Socket extends Duplex {
     }
   }
 
+  // -------------------------------------------------------------
+  _onTimeout () {
+    const handle = this._handle
+    const lastWriteQueueSize = this[kLastWriteQueueSize]
+
+    if (lastWriteQueueSize > 0 && handle) {
+      // `lastWriteQueueSize !== writeQueueSize` means there is
+      // an active write in progress, so we suppress the timeout.
+      const { writeQueueSize } = handle
+
+      if (lastWriteQueueSize !== writeQueueSize) {
+        this[kLastWriteQueueSize] = writeQueueSize
+        this._unrefTimer()
+        return
+      }
+    }
+
+    debug('_onTimeout')
+    this.emit('timeout')
+  }
+
+  setStreamTimeout (msecs, callback) {
+    if (this.destroyed)
+      return this;
+
+    this.timeout = msecs;
+
+    // Type checking identical to timers.enroll()
+    msecs = getTimerDuration(msecs, 'msecs');
+
+    // Attempt to clear an existing timer in both cases -
+    //  even if it will be rescheduled we don't want to leak an existing timer.
+    clearTimeout(this[kTimeout]);
+
+    if (msecs === 0) {
+      if (callback !== undefined) {
+        validateCallback(callback);
+        this.removeListener('timeout', callback);
+      }
+    } else {
+      this[kTimeout] = setUnrefTimeout(this._onTimeout.bind(this), msecs);
+      if (this[kSession]) this[kSession][kUpdateTimer]();
+
+      if (callback !== undefined) {
+        validateCallback(callback);
+        this.once('timeout', callback);
+      }
+    }
+    return this;
+  }
+  // -------------------------------------------------------------
+
   async setTimeout () {
     const params = {
       clientId: this.clientId
@@ -159,7 +211,7 @@ class Socket extends Duplex {
 
     // eslint-disable-next-line no-restricted-syntax
     const err = new Error('Socket has been ended by the other party')
-    err.code = 'EPIPE';
+    err.code = 'EPIPE'
 
     if (typeof cb === 'function') {
       cb(err)
@@ -170,7 +222,7 @@ class Socket extends Duplex {
     return false
   }
 
-  async _final (cb) {
+  _final (cb) {
     if (this.pending) {
       return this.once('connect', () => this._final(cb))
     }
@@ -183,11 +235,9 @@ class Socket extends Duplex {
 
     if (err && cb) return cb(err)
     if (cb) return cb(null, data)
-
-    return data
   }
 
-  async _destroy (exception, cb) {
+  _destroy (exception, cb) {
     if (this.destroyed) return
 
     cb(exception)
@@ -213,8 +263,8 @@ class Socket extends Duplex {
 
   async _writev (data, cb) {
     const allBuffers = data.allBuffers
+    let chunks
 
-    let chunks;
     if (allBuffers) {
       chunks = data
       for (let i = 0; i < data.length; i++) {
@@ -241,7 +291,12 @@ class Socket extends Duplex {
       requests.push(window._ipc.send('tcpSend', params))
     }
 
-    await Promise.all(requests)
+    try {
+      await Promise.all(requests)
+    } catch (err) {
+      if (cb) return cb(err)
+    }
+
     return cb()
   }
 
@@ -293,20 +348,30 @@ class Socket extends Duplex {
       address = null
     }
 
-    const { err, data } = await window._ipc.send('tcpConnect', { port, address })
+    async function connect () {
+      const params = {
+        port,
+        address
+      }
 
-    if (err && cb) return cb(err)
-    if (err) return this.emit('error', err)
+      const { err, data } = await window._ipc.send('tcpConnect', params)
 
-    this.remotePort = data.port
-    this.remoteAddress = data.address
-    this.clientId = data.clientId
-    this.port = port
-    this.address = address
+      if (err && cb) return cb(err)
+      if (err) return this.emit('error', err)
 
-    window._ipc.streams[data.serverId] = this
+      this.remotePort = data.port
+      this.remoteAddress = data.address
+      this.clientId = data.clientId
+      this.port = port
+      this.address = address
 
-    if (cb) cb(null, data)
+      window._ipc.streams[data.clientId] = this
+
+      if (cb) cb(null, data)
+    }
+
+    connect()
+    return this
   }
 
   async end (data, encoding, cb) {
