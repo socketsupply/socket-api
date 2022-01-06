@@ -7,6 +7,8 @@ function assert_type (name, expected, actual, code) {
   throw err
 }
 
+// lifted from nodejs/node/
+
 // Returns an array [options, cb], where options is an object,
 // cb is either a function or null.
 // Used to normalize arguments of Socket.prototype.connect() and
@@ -275,7 +277,7 @@ class Socket extends Duplex {
       clientId: this.clientId
     }
     ;(async () => {
-      const { err, data } = await window._ipc.send('tcpClose', params)
+      const { err, data } = await window._ipc.send('tcpShutdown', params)
       
       if (cb) cb(err, data)
     })()
@@ -348,10 +350,10 @@ class Socket extends Duplex {
     })()
   }
 
-  _write (data, encoding, cb) {
+  _write (data, cb) {
+    console.log("_write", data, cb)
     const params = {
       clientId: this.clientId,
-      encoding,
       data
     }
     ;(async () => {
@@ -372,17 +374,19 @@ class Socket extends Duplex {
     }
   }
 
-  async _read (n) {
+  async _read (cb) {
     const params = {
-      bytes: n,
       clientId: this.clientId
     }
+    
+    ;(async () => {
+      const { err } = await window._ipc.send('tcpRead', params)
 
-    const { err } = await window._ipc.send('tcpRead', params)
-
-    if (err) {
-      socket.destroy()
-    }
+      if (err) {
+        socket.destroy()
+      }
+      else cb()
+    })()
   }
 
   async connect (...args) {
@@ -416,16 +420,15 @@ class Socket extends Duplex {
     })()
     return this
   }
-
+/*
   async end (data, encoding, cb) {
     Duplex.prototype.end.call(this, data)
 
     const params = {
-      clientId: this.clientId,
-      encoding
+      clientId: this.clientId
     }
 
-    const { err } = await window._ipc.send('tcpClose', params)
+    const { err } = await window._ipc.send('tcpShutdown', params)
     delete window._ipc.streams[this.clientId]
 
     if (err && cb) return cb(err)
@@ -433,7 +436,7 @@ class Socket extends Duplex {
     this.emit('closed', !!err)
     if (cb) return cb(null)
   }
-
+*/
   unref () {
     return this // for compatibility with the net module
   }
