@@ -1,6 +1,8 @@
 const STREAM_DESTROYED = new Error('Stream was destroyed')
 const PREMATURE_CLOSE = new Error('Premature close')
 
+const EventEmitter = require('./events')
+
 class FixedFIFO {
   constructor (hwm) {
     if (!(hwm > 0) || ((hwm - 1) & hwm) !== 0) throw new Error('Max size for a FixedFIFO should be a power of two')
@@ -62,6 +64,8 @@ class FastFIFO {
   }
 }
 
+
+var FIFO = FastFIFO
 /* eslint-disable no-multi-spaces */
 
 const MAX = ((1 << 25) - 1)
@@ -1030,7 +1034,7 @@ function abort () {
   this.destroy(new Error('Stream aborted.'))
 }
 
-export {
+module.exports = {
   pipeline,
   pipelinePromise,
   isStream,

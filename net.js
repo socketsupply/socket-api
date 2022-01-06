@@ -1,13 +1,68 @@
 const { EventEmitter } = require('./events')
-const { Duplex } = require('./streams')
+const { Duplex, FIFO } = require('./streams')
+
+function assert_type (name, expected, actual, code) {
+  var err = new TypeError(name + ' must be a ' + expected + ', Received '+actual)
+  err.code = code
+  throw err
+}
+
+// Returns an array [options, cb], where options is an object,
+// cb is either a function or null.
+// Used to normalize arguments of Socket.prototype.connect() and
+// Server.prototype.listen(). Possible combinations of parameters:
+//   (options[...][, cb])
+//   (path[...][, cb])
+//   ([port][, host][...][, cb])
+// For Socket.prototype.connect(), the [...] part is ignored
+// For Server.prototype.listen(), the [...] part is [, backlog]
+// but will not be handled here (handled in listen())
+const normalizedArgsSymbol = Symbol('normalizedArgsSymbol')
+function normalizeArgs(args) {
+  let arr;
+
+  if (args.length === 0) {
+    arr = [{}, null];
+    arr[normalizedArgsSymbol] = true;
+    return arr;
+  }
+
+  const arg0 = args[0];
+  let options = {};
+  if (typeof arg0 === 'object' && arg0 !== null) {
+    // (options[...][, cb])
+    options = arg0;
+
+  //not supported: pipes
+  //  } else if (isPipeName(arg0)) {
+  //    // (path[...][, cb])
+  //    options.path = arg0;
+  } else {
+    // ([port][, host][...][, cb])
+    options.port = arg0;
+    if (args.length > 1 && typeof args[1] === 'string') {
+      options.host = args[1];
+    }
+  }
+
+  const cb = args[args.length - 1];
+  if (typeof cb !== 'function')
+    arr = [options, null];
+  else
+    arr = [options, cb];
+
+  arr[normalizedArgsSymbol] = true;
+  return arr;
+}
+
 
 class Server extends EventEmitter {
-  constructor (args) {
+  constructor (options, handler) {
     super()
-
-    Object.assign(this, args)
+    if(!options)
+      handler = options, options = {}
     this._connections = 0
-    this.serverId = null
+    this._serverId = null
   }
 
   onconnection (data) {
@@ -24,63 +79,61 @@ class Server extends EventEmitter {
     self.emit('connection', socket)
   }
 
-  listen () {
-    const connect = async o => {
-      const { err, data } = await window._ipc.send('tcpCreateServer', o)
+  listen (port, address, cb) {        
+    ;(async opts => {
+      const { err, data } = await window._ipc.send('tcpCreateServer', opts)
 
-      if (err && cb) return cb(err)
-      if (err) return server.emit('error', err)
-
-      this.port = data.port
-      this.address = data.address
-      this.family = data.family
+      if (err && !cb) {
+        this.emit('error', err)
+        return
+      }
+      this._serverId = data.serverId
+      this._address = {port: data.port, address: data.address, family: data.family}
       this.connections = {}
 
       window._ipc.streams[data.serverId] = this
 
       if (cb) return cb(null, data)
-      server.emit('listening', data)
-    }
-
-    connect()
+      this.emit('listening', data)
+    })({port, address})
 
     return this
   }
 
-  async close (cb) {
+  address () {
+    return  this._address
+  }
+
+  close (cb) {
     const params = {
-      serverId: this.serverId
+      serverId: this._serverId
     }
-
-    const { err, data } = await window._ipc.send('tcpClose', params)
-    delete window._ipc.streams[data.serverId]
-
-    if (err && cb) return cb(err)
-    if (err) this.emit('error', err)
+    ;(async () => {
+      const { err, data } = await window._ipc.send('tcpClose', params)
+      delete window._ipc.streams[this._serverId]
+      if (err && !cb) this.emit('error', err)
+      else if(cb) cb(err)
+    })()
   }
 
   address () {
-    return {
-      port: this.port,
-      family: this.family,
-      address: this.address
-    }
+    return {...this._address}
   }
 
-  async getConnections (cb) {
+  getConnections (cb) {
+    assert_type('Callback', 'function', typeof cb, "ERR_INVALID_CALLBACK")
     const params = {
-      serverId: this.serverId
+      serverId: this._serverId
     }
 
-    const {
-      err,
-      data
-    } = await window._ipc.send('tcpServerGetConnections', params)
+    ;(async () => {
+      const {
+        err,
+        data
+      } = await window._ipc.send('tcpServerGetConnections', params)
 
-    if (err && cb) return cb(err)
-    if (cb) return cb(null, data)
-
-    return data
+      if(cb) cb(err, data)
+    })()
   }
 
   unref () {
@@ -90,6 +143,7 @@ class Server extends EventEmitter {
 
 class Socket extends Duplex {
   constructor (...args) {
+    super()
     Object.assign(this, args)
 
     this._server = null
@@ -103,28 +157,25 @@ class Socket extends Duplex {
     })
   }
 
-  async setNoDelay () {
+  //note: this is not an async method on node, so it's not here
+  //thus the ipc response is not awaited. since _ipc.send is async
+  //but the messages are handled in order, you do not need to wait
+  //for it before sending data, noDelay will be set correctly before the
+  //next data is sent.
+  setNoDelay (enable) {
     const params = {
-      clientId: this.clientId
+      clientId: this.clientId, enable
     }
-
-    const { err } = await window._ipc.send('tcpSetNoDelay', params)
-
-    if (err) {
-      throw new Error(err)
-    }
+    window._ipc.send('tcpSetNoDelay', params)
   }
 
-  async setKeepAlive () {
+  //note: see note for setNoDelay
+  setKeepAlive (enabled) {
     const params = {
-      clientId: this.clientId
+      clientId: this.clientId, enable
     }
 
-    const { err } = await window._ipc.send('tcpSetKeepAlive', params)
-
-    if (err) {
-      throw new Error(err)
-    }
+    window._ipc.send('tcpSetKeepAlive', params)
   }
 
   // -------------------------------------------------------------
@@ -179,24 +230,17 @@ class Socket extends Duplex {
   }
   // -------------------------------------------------------------
 
-  async setTimeout () {
+  // not async in node.
+  setTimeout (timeout) {
     const params = {
-      clientId: this.clientId
+      clientId: this.clientId, timeout
     }
 
-    const { err } = await window._ipc.send('tcpSetTimeout', params)
-
-    if (err) {
-      throw new Error(err)
-    }
+    window._ipc.send('tcpSetTimeout', params)
   }
 
   address () {
-    return {
-      port: this.port,
-      family: this.family,
-      address: this.address
-    }
+    return this._address
   }
 
   _writeAfterFIN (chunk, encoding, cb) {
@@ -230,11 +274,11 @@ class Socket extends Duplex {
     const params = {
       clientId: this.clientId
     }
-
-    const { err, data } = await window._ipc.send('tcpClose', params)
-
-    if (err && cb) return cb(err)
-    if (cb) return cb(null, data)
+    ;(async () => {
+      const { err, data } = await window._ipc.send('tcpClose', params)
+      
+      if (cb) cb(err, data)
+    })()
   }
 
   _destroy (exception, cb) {
@@ -261,64 +305,63 @@ class Socket extends Duplex {
     }
   }
 
-  async _writev (data, cb) {
-    const allBuffers = data.allBuffers
-    let chunks
+  _writev (data, cb) {
+    ;(async () => {
+      const allBuffers = data.allBuffers
+      let chunks
 
-    if (allBuffers) {
-      chunks = data
-      for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].chunk
-      }
-    } else {
-      chunks = new Array(data.length << 1)
+      if (allBuffers) {
+        chunks = data
+        for (let i = 0; i < data.length; i++) {
+          data[i] = data[i].chunk
+        }
+      } else {
+        chunks = new Array(data.length << 1)
 
-      for (let i = 0; i < data.length; i++) {
-        const entry = data[i]
-        chunks[i * 2] = entry.chunk
-        chunks[i * 2 + 1] = entry.encoding
-      }
-    }
-
-    const requests = []
-
-    for (const chunk of chunks) {
-      const params = {
-        clientId: this.clientId,
-        data: chunk
+        for (let i = 0; i < data.length; i++) {
+          const entry = data[i]
+          chunks[i * 2] = entry.chunk
+          chunks[i * 2 + 1] = entry.encoding
+        }
       }
 
-      requests.push(window._ipc.send('tcpSend', params))
-    }
+      const requests = []
 
-    try {
-      await Promise.all(requests)
-    } catch (err) {
-      if (cb) return cb(err)
-    }
+      for (const chunk of chunks) {
+        const params = {
+          clientId: this.clientId,
+          data: chunk
+        }
+        //sent in order so could just await the last one?
+        requests.push(window._ipc.send('tcpSend', params))
+      }
 
-    return cb()
+      try {
+        await Promise.all(requests)
+      } catch (err) {
+        this.destroy(err)
+        cb(err)
+        return
+      }
+
+      cb()
+    })()
   }
 
-  async _write (data, encoding, cb) {
+  _write (data, encoding, cb) {
     const params = {
       clientId: this.clientId,
       encoding,
       data
     }
-
-    const { err } = await window._ipc.send('tcpSend', params)
-
-    if (err) {
-      this.destroy(err)
-      return cb(err)
-    }
-
-    cb()
+    ;(async () => {
+      const { err } = await window._ipc.send('tcpSend', params)
+      cb(err)
+    })()
   }
 
   //
-  // This is called internally when there is data to insert to the stream.
+  // This is called internally by incoming _ipc message when there is data to insert to the stream.
   //
   __write (data) {
     if (data.length && !stream.destroyed) {
@@ -342,35 +385,35 @@ class Socket extends Duplex {
     }
   }
 
-  async connect (port, address, cb) {
-    if (typeof address === 'function') {
-      cb = address
-      address = null
-    }
+  async connect (...args) {
+    const [options, cb] = normalizeArgs(args)
 
-    async function connect () {
+    ;(async () => {
       const params = {
-        port,
-        address
+        port: options.port,
+        address: options.host
       }
+
+      //TODO: if host is a ip address
+      //      connect, if it is a dns name, lookup
 
       const { err, data } = await window._ipc.send('tcpConnect', params)
 
-      if (err && cb) return cb(err)
-      if (err) return this.emit('error', err)
-
+      if (err) {
+        if(cb) cb(err)
+        else this.emit('error', err)
+        return
+      }
       this.remotePort = data.port
       this.remoteAddress = data.address
       this.clientId = data.clientId
-      this.port = port
-      this.address = address
+      //this.port = port
+      //this.address = address
 
       window._ipc.streams[data.clientId] = this
 
-      if (cb) cb(null, data)
-    }
-
-    connect()
+      if (cb) cb(null, this)
+    })()
     return this
   }
 
@@ -396,23 +439,22 @@ class Socket extends Duplex {
   }
 }
 
-const connect = (value, cb) => {
-  let options = {}
-  if (typeof value === 'number') {
-    options.port = value
-  } else if (typeof value === 'object') {
-    options = value
-  } else {
-    throw new Error('Invalid argument')
-  }
+const connect = (...args) => {
+  const [options, callback] = normalizeArgs(args)
+  
+  //supported by node but not here: localAddress, localHost, hints, lookup
 
   const socket = new Socket(options)
 
+  //undocumented node js feature.
+  //I think we should not support this.
   if (options.timeout) {
     socket.setTimeout(options.timeout);
   }
 
-  socket.connect(options.port, options.address, cb)
+  socket.connect(options, callback)
+
+  return socket
 }
 
 const createServer = (...args) => {

@@ -2,7 +2,6 @@
   "name": "@operatortc/mobile",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,5 +15,8 @@
     "url": "https://github.com/operatortc/mobile/issues"
   },
   "homepage": "https://github.com/operatortc/mobile#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "tape": "^5.4.0"
+  }
 }
