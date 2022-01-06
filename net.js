@@ -352,7 +352,6 @@ class Socket extends Duplex {
     
     ;(async () => {
       const { err } = await window._ipc.send('tcpReadStart', params)
-      console.log("_read", err)
       if (err) {
         socket.destroy()
       }
