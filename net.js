@@ -150,13 +150,15 @@ class Socket extends Duplex {
 
     this._server = null
 
-    this.port = null
-    this.family = null
-    this.address = null
-
+    this._address = null
+    this.allowHalfOpen = false    
+    /*
     this.on('end', () => {
-      if (!this.allowHalfOpen) this.write = _writeAfterFIN;
+      if (!this.allowHalfOpen)
+        this.writable = false
+        //this.write = this._writeAfterFIN;
     })
+    */
   }
 
   //note: this is not an async method on node, so it's not here
@@ -245,6 +247,7 @@ class Socket extends Duplex {
     return this._address
   }
 
+  /*
   _writeAfterFIN (chunk, encoding, cb) {
     if (!this.writableEnded) {
       return Duplex.prototype.write.call(this, chunk, encoding, cb)
@@ -267,6 +270,7 @@ class Socket extends Duplex {
 
     return false
   }
+  */
 
   _final (cb) {
     if (this.pending) {
@@ -283,18 +287,20 @@ class Socket extends Duplex {
     })()
   }
 
-  _destroy (exception, cb) {
+  _destroy (cb) {
     if (this.destroyed) return
+    ;(async () => {
+      await window._ipc.send('tcpClose', {clientId: this.clientId})
+      if (this._server) {
+        this._server._connections--
 
-    cb(exception)
-
-    if (this._server) {
-      this._server._connections--
-
-      if (this._server._connections === 0) {
-        this._server.emit('close')
+        if (this._server._connections === 0) {
+          this._server.emit('close')
+        }
       }
-    }
+      cb()
+    })()
+    
   }
 
   destroySoon () {
@@ -351,7 +357,6 @@ class Socket extends Duplex {
   }
 
   _write (data, cb) {
-    console.log("_write", data, cb)
     const params = {
       clientId: this.clientId,
       data
@@ -369,8 +374,14 @@ class Socket extends Duplex {
     if (data.length && !stream.destroyed) {
       this.push(data)
     } else {
-      stream.push(null)
-      stream.read(0)
+      //if this stream is not full duplex,
+      //then mark as not writable.
+      if (!this.allowHalfOpen) {
+//        this._writableState = null
+        this.destroySoon()
+      }
+      this.push(null)
+      this.read(0)
     }
   }
 
