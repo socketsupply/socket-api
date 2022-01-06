@@ -144,14 +144,14 @@ class Server extends EventEmitter {
 }
 
 class Socket extends Duplex {
-  constructor (...args) {
+  constructor (options) {
     super()
-    Object.assign(this, args)
+//    Object.assign(this, args)
 
     this._server = null
 
     this._address = null
-    this.allowHalfOpen = false    
+    this.allowHalfOpen = options.allowHalfOpen === true    
     /*
     this.on('end', () => {
       if (!this.allowHalfOpen)
@@ -203,46 +203,7 @@ class Socket extends Duplex {
     this.emit('timeout')
   }
 
-  setStreamTimeout (msecs, callback) {
-    if (this.destroyed)
-      return this;
-
-    this.timeout = msecs;
-
-    // Type checking identical to timers.enroll()
-    msecs = getTimerDuration(msecs, 'msecs');
-
-    // Attempt to clear an existing timer in both cases -
-    //  even if it will be rescheduled we don't want to leak an existing timer.
-    clearTimeout(this[kTimeout]);
-
-    if (msecs === 0) {
-      if (callback !== undefined) {
-        validateCallback(callback);
-        this.removeListener('timeout', callback);
-      }
-    } else {
-      this[kTimeout] = setUnrefTimeout(this._onTimeout.bind(this), msecs);
-      if (this[kSession]) this[kSession][kUpdateTimer]();
-
-      if (callback !== undefined) {
-        validateCallback(callback);
-        this.once('timeout', callback);
-      }
-    }
-    return this;
-  }
   // -------------------------------------------------------------
-
-  // not async in node.
-  setTimeout (timeout) {
-    const params = {
-      clientId: this.clientId, timeout
-    }
-
-    window._ipc.send('tcpSetTimeout', params)
-  }
-
   address () {
     return this._address
   }
@@ -377,7 +338,6 @@ class Socket extends Duplex {
       //if this stream is not full duplex,
       //then mark as not writable.
       if (!this.allowHalfOpen) {
-//        this._writableState = null
         this.destroySoon()
       }
       this.push(null)
@@ -391,8 +351,8 @@ class Socket extends Duplex {
     }
     
     ;(async () => {
-      const { err } = await window._ipc.send('tcpRead', params)
-
+      const { err } = await window._ipc.send('tcpReadStart', params)
+      console.log("_read", err)
       if (err) {
         socket.destroy()
       }
@@ -400,7 +360,7 @@ class Socket extends Duplex {
     })()
   }
 
-  async connect (...args) {
+  connect (...args) {
     const [options, cb] = normalizeArgs(args)
 
     ;(async () => {
@@ -459,12 +419,6 @@ const connect = (...args) => {
   //supported by node but not here: localAddress, localHost, hints, lookup
 
   const socket = new Socket(options)
-
-  //undocumented node js feature.
-  //I think we should not support this.
-  if (options.timeout) {
-    socket.setTimeout(options.timeout);
-  }
 
   socket.connect(options, callback)
 
