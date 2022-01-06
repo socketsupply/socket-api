@@ -128,3 +128,50 @@ tape('net.connect', (t) => {
   })
   t.ok(_stream)  
 })
+
+tape.only('net.connect', (t) => {
+  var ID = createId()
+  var HELLO = 'Hello, World!\n'
+  var ended = false
+  mocks.tcpConnect = [Expect(t,
+    {port: 9000, address: '127.0.0.1'}, 
+    { data: {
+      clientId: ID
+    }}
+  )]
+  var _stream = net.connect(9000, '127.0.0.1', function (err, stream) {
+    t.equal(_stream, stream)
+    t.equal(err, null)
+    t.equal(stream.allowHalfOpen, false)
+    // creating a new stream calls _read
+    // which does `send('tcpRead'` but in libuv it's `uv_tcp_read_start`
+    // in node _read calls tryReadStart.
+    
+    // It looks like the code in `_read` came from tryReadStart
+    // (because of the way it checks the error) but I didn't see
+    // a tcpRead defined in the ios code I currently have available.
+    // I'm guessing that tcpRead is intended to call uv_tcp_read_start
+    // then uv_tcp_read_stop once it's received bytes?
+
+    stream.on('end', function () {
+      ended = true
+    })
+    mocks.tcpShutdown = [Expect(t,
+      {clientId: ID}, 
+      {}
+    )]
+    mocks.tcpClose = [Expect(t,
+      {clientId: ID}, 
+      {}
+    )]
+    stream.end()
+    stream.__write('')
+    
+    stream.on('close', () => {
+      t.ok(ended)
+      t.deepEqual(mocks, {}, 'no uncalled mocks')
+      t.end()
+    })
+  })
+  t.ok(_stream)  
+})
