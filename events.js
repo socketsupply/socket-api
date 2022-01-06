@@ -494,7 +494,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
   }
 }
 
-export {
-  EventEmitter,
-  once
-}
+module.exports = EventEmitter
+
+EventEmitter.EventEmitter = EventEmitter
+EventEmitter.once = once
