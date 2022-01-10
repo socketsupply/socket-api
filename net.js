@@ -146,12 +146,12 @@ class Server extends EventEmitter {
 class Socket extends Duplex {
   constructor (options) {
     super()
-//    Object.assign(this, args)
 
     this._server = null
 
     this._address = null
     this.allowHalfOpen = options.allowHalfOpen === true    
+    this.flowing = false
     /*
     this.on('end', () => {
       if (!this.allowHalfOpen)
@@ -323,7 +323,8 @@ class Socket extends Duplex {
       data
     }
     ;(async () => {
-      const { err } = await window._ipc.send('tcpSend', params)
+      const { err, data } = await window._ipc.send('tcpSend', params)
+      console.log('_write', err, data)
       cb(err)
     })()
   }
@@ -333,7 +334,13 @@ class Socket extends Duplex {
   //
   __write (data) {
     if (data.length && !stream.destroyed) {
-      this.push(data)
+      if(!this.push(data)) {
+        const params = {
+          clientId: this.clientId
+        }
+        this.flowing = false
+        window._ipc.send('tcpReadStop', params)
+      }
     } else {
       //if this stream is not full duplex,
       //then mark as not writable.
@@ -346,16 +353,21 @@ class Socket extends Duplex {
   }
 
   async _read (cb) {
+    if(this.flowing) return cb()
+    this.flowing = true
+
     const params = {
       clientId: this.clientId
     }
-    
+
     ;(async () => {
       const { err } = await window._ipc.send('tcpReadStart', params)
       if (err) {
         socket.destroy()
       }
-      else cb()
+      else {
+        cb()
+      }
     })()
   }
 
