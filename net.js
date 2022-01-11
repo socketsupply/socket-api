@@ -151,7 +151,7 @@ class Socket extends Duplex {
 
     this._address = null
     this.allowHalfOpen = options.allowHalfOpen === true    
-    this.flowing = false
+    this._flowing = false
     /*
     this.on('end', () => {
       if (!this.allowHalfOpen)
@@ -338,7 +338,7 @@ class Socket extends Duplex {
         const params = {
           clientId: this.clientId
         }
-        this.flowing = false
+        this._flowing = false
         window._ipc.send('tcpReadStop', params)
       }
     } else {
@@ -353,8 +353,8 @@ class Socket extends Duplex {
   }
 
   _read (cb) {
-    if(this.flowing) return cb()
-    this.flowing = true
+    if(this._flowing) return cb()
+    this._flowing = true
 
     const params = {
       clientId: this.clientId
@@ -374,8 +374,21 @@ class Socket extends Duplex {
   pause () {
     Duplex.prototype.pause.call(this)
     //send a ReadStop but do not wait for a confirmation.
+    //ipc is async, but it's ordered,
+    if(this._flowing) {
+      this._flowing = false
+      window._ipc.send('tcpReadStop', {clientId: this.clientId})
+    }
+    return this
+  }
+  resume () {
+    Duplex.prototype.resume.call(this)
+    //send a ReadStop but do not wait for a confirmation.
     //ipc is async, but it's ordered, 
-    window._ipc.send('tcpReadStop', {clientId: this.clientId})
+    if(!this._flowing) { 
+      this._flowing = true
+      window._ipc.send('tcpReadStart', {clientId: this.clientId})
+    }
     return this
   }
 
