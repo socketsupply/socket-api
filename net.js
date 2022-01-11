@@ -352,7 +352,7 @@ class Socket extends Duplex {
     }
   }
 
-  async _read (cb) {
+  _read (cb) {
     if(this.flowing) return cb()
     this.flowing = true
 
@@ -369,6 +369,14 @@ class Socket extends Duplex {
         cb()
       }
     })()
+  }
+
+  pause () {
+    Duplex.prototype.pause.call(this)
+    //send a ReadStop but do not wait for a confirmation.
+    //ipc is async, but it's ordered, 
+    window._ipc.send('tcpReadStop', {clientId: this.clientId})
+    return this
   }
 
   connect (...args) {
