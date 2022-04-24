@@ -9,6 +9,8 @@ function assert_type (name, expected, actual, code) {
   throw err
 }
 
+// lifted from nodejs/node/
+
 // Returns an array [options, cb], where options is an object,
 // cb is either a function or null.
 // Used to normalize arguments of Socket.prototype.connect() and
@@ -149,19 +151,21 @@ class Server extends EventEmitter {
 }
 
 class Socket extends Duplex {
-  constructor (...args) {
+  constructor (options) {
     super()
-    Object.assign(this, args)
 
     this._server = null
 
-    this.port = null
-    this.family = null
-    this.address = null
-
+    this._address = null
+    this.allowHalfOpen = options.allowHalfOpen === true    
+    this._flowing = false
+    /*
     this.on('end', () => {
-      if (!this.allowHalfOpen) this.write = _writeAfterFIN
+      if (!this.allowHalfOpen)
+        this.writable = false
+        //this.write = this._writeAfterFIN;
     })
+    */
   }
 
   // note: this is not an async method on node, so it's not here
@@ -206,49 +210,12 @@ class Socket extends Duplex {
     this.emit('timeout')
   }
 
-  setStreamTimeout (msecs, callback) {
-    if (this.destroyed) { return this }
-
-    this.timeout = msecs
-
-    // Type checking identical to timers.enroll()
-    msecs = getTimerDuration(msecs, 'msecs')
-
-    // Attempt to clear an existing timer in both cases -
-    //  even if it will be rescheduled we don't want to leak an existing timer.
-    clearTimeout(this[kTimeout])
-
-    if (msecs === 0) {
-      if (callback !== undefined) {
-        validateCallback(callback)
-        this.removeListener('timeout', callback)
-      }
-    } else {
-      this[kTimeout] = setUnrefTimeout(this._onTimeout.bind(this), msecs)
-      if (this[kSession]) this[kSession][kUpdateTimer]()
-
-      if (callback !== undefined) {
-        validateCallback(callback)
-        this.once('timeout', callback)
-      }
-    }
-    return this
-  }
   // -------------------------------------------------------------
-
-  // not async in node.
-  setTimeout (timeout) {
-    const params = {
-      clientId: this.clientId, timeout
-    }
-
-    window._ipc.send('tcpSetTimeout', params)
-  }
-
   address () {
     return this._address
   }
 
+  /*
   _writeAfterFIN (chunk, encoding, cb) {
     if (!this.writableEnded) {
       return Duplex.prototype.write.call(this, chunk, encoding, cb)
@@ -271,6 +238,7 @@ class Socket extends Duplex {
 
     return false
   }
+  */
 
   _final (cb) {
     if (this.pending) {
@@ -281,24 +249,25 @@ class Socket extends Duplex {
       clientId: this.clientId
     }
     ;(async () => {
-      const { err, data } = await window._ipc.send('tcpClose', params)
-
+      const { err, data } = await window._ipc.send('tcpShutdown', params)
       if (cb) cb(err, data)
     })()
   }
 
-  _destroy (exception, cb) {
+  _destroy (cb) {
     if (this.destroyed) return
+    ;(async () => {
+      await window._ipc.send('tcpClose', {clientId: this.clientId})
+      if (this._server) {
+        this._server._connections--
 
-    cb(exception)
-
-    if (this._server) {
-      this._server._connections--
-
-      if (this._server._connections === 0) {
-        this._server.emit('close')
+        if (this._server._connections === 0) {
+          this._server.emit('close')
+        }
       }
-    }
+      cb()
+    })()
+    
   }
 
   destroySoon () {
@@ -354,14 +323,14 @@ class Socket extends Duplex {
     })()
   }
 
-  _write (data, encoding, cb) {
+  _write (data, cb) {
     const params = {
       clientId: this.clientId,
-      encoding,
       data
     }
     ;(async () => {
-      const { err } = await window._ipc.send('tcpSend', params)
+      const { err, data } = await window._ipc.send('tcpSend', params)
+      console.log('_write', err, data)
       cb(err)
     })()
   }
@@ -371,27 +340,65 @@ class Socket extends Duplex {
   //
   __write (data) {
     if (data.length && !stream.destroyed) {
-      this.push(data)
+      if(!this.push(data)) {
+        const params = {
+          clientId: this.clientId
+        }
+        this._flowing = false
+        window._ipc.send('tcpReadStop', params)
+      }
     } else {
-      stream.push(null)
-      stream.read(0)
+      //if this stream is not full duplex,
+      //then mark as not writable.
+      if (!this.allowHalfOpen) {
+        this.destroySoon()
+      }
+      this.push(null)
+      this.read(0)
     }
   }
 
-  async _read (n) {
+  _read (cb) {
+    if(this._flowing) return cb()
+    this._flowing = true
+
     const params = {
-      bytes: n,
       clientId: this.clientId
     }
 
-    const { err } = await window._ipc.send('tcpRead', params)
-
-    if (err) {
-      socket.destroy()
-    }
+    ;(async () => {
+      const { err } = await window._ipc.send('tcpReadStart', params)
+      if (err) {
+        socket.destroy()
+      }
+      else {
+        cb()
+      }
+    })()
   }
 
-  async connect (...args) {
+  pause () {
+    Duplex.prototype.pause.call(this)
+    //send a ReadStop but do not wait for a confirmation.
+    //ipc is async, but it's ordered,
+    if(this._flowing) {
+      this._flowing = false
+      window._ipc.send('tcpReadStop', {clientId: this.clientId})
+    }
+    return this
+  }
+  resume () {
+    Duplex.prototype.resume.call(this)
+    //send a ReadStop but do not wait for a confirmation.
+    //ipc is async, but it's ordered, 
+    if(!this._flowing) { 
+      this._flowing = true
+      window._ipc.send('tcpReadStart', {clientId: this.clientId})
+    }
+    return this
+  }
+
+  connect (...args) {
     const [options, cb] = normalizeArgs(args)
 
     ;(async () => {
@@ -422,16 +429,15 @@ class Socket extends Duplex {
     })()
     return this
   }
-
+/*
   async end (data, encoding, cb) {
     Duplex.prototype.end.call(this, data)
 
     const params = {
-      clientId: this.clientId,
-      encoding
+      clientId: this.clientId
     }
 
-    const { err } = await window._ipc.send('tcpClose', params)
+    const { err } = await window._ipc.send('tcpShutdown', params)
     delete window._ipc.streams[this.clientId]
 
     if (err && cb) return cb(err)
@@ -439,7 +445,7 @@ class Socket extends Duplex {
     this.emit('closed', !!err)
     if (cb) return cb(null)
   }
-
+*/
   unref () {
     return this // for compatibility with the net module
   }
@@ -451,13 +457,6 @@ const connect = (...args) => {
   // supported by node but not here: localAddress, localHost, hints, lookup
 
   const socket = new Socket(options)
-
-  // undocumented node js feature.
-  // I think we should not support this.
-  if (options.timeout) {
-    socket.setTimeout(options.timeout)
-  }
-
   socket.connect(options, callback)
 
   return socket

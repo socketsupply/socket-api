@@ -1,8 +1,8 @@
 'use strict'
 
-const mocks = {}
 const test = require('node:test')
 
+const mocks = {}
 const createId = () => Math.random()
 const P = value => new Promise(resolve => resolve(value))
 
@@ -66,7 +66,9 @@ test('net.createServer', t => {
 // net.connect returns socket, write data, receive data, end stream
 
 test('net.connect', t => {
-  const ID = createId()
+  var ID = createId()
+  var HELLO = 'Hello, World!\n'
+
   mocks.tcpConnect = [Expect(t,
     { port: 9000, address: '127.0.0.1' },
     {
@@ -77,11 +79,305 @@ test('net.connect', t => {
   )]
 
   const _stream = net.connect(9000, '127.0.0.1', function (err, stream) {
-    console.log('CONNECT', err, stream)
     t.equal(_stream, stream)
-    t.deepEqual(mocks, {}, 'no uncalled mocks')
-    t.end()
+    t.equal(err, null)
+    t.equal(stream.allowHalfOpen, false)
+
+    mocks.tcpSend = [Expect(t,
+      {clientId: ID, data: HELLO}, 
+      {}
+    )]
+    mocks.tcpReadStart = [(q) => {
+      t.deepEqual(q, {clientId: ID})
+      return (async () => {
+        return {}
+      })()
+    }]
+
+    //using setTimeout here is a sign we don't understand something.
+    //
+    setTimeout(() => {
+      t.deepEqual(mocks, {}, 'no uncalled mocks')
+      mocks.tcpShutdown = [Expect(t,
+        {clientId: ID}, 
+        {}
+      )]
+      mocks.tcpClose = [Expect(t,
+        {clientId: ID}, 
+        {}
+      )]
+      stream.__write('')
+
+      stream.end()
+      stream.on('close', () => {
+        t.deepEqual(mocks, {}, 'no uncalled mocks')
+        t.end()
+      })
+    }, 100)
+    stream.write(HELLO)
   })
 
   t.ok(_stream)
+})
+
+test('net.connect, allowHalfOpen=false', (t) => {
+  var ID = createId()
+  var ended = false
+  mocks.tcpConnect = [Expect(t,
+    {port: 9000, address: '127.0.0.1'}, 
+    { data: {
+      clientId: ID
+    }}
+  )]
+  var _stream = net.connect(9000, '127.0.0.1', function (err, stream) {
+    t.equal(_stream, stream)
+    t.equal(err, null)
+    t.equal(stream.allowHalfOpen, false)
+
+    stream.on('end', function () {
+      ended = true
+    })
+    mocks.tcpShutdown = [Expect(t,
+      {clientId: ID}, 
+      {}
+    )]
+    mocks.tcpClose = [Expect(t,
+      {clientId: ID}, 
+      {}
+    )]
+    stream.end()
+    stream.__write('')
+    
+    stream.on('close', () => {
+      t.ok(ended)
+      t.deepEqual(mocks, {}, 'no uncalled mocks')
+      t.end()
+    })
+  })
+  t.ok(_stream)  
+})
+
+test('net.connect allowHalfOpen=true', (t) => {
+  var ID = createId()
+  var HELLO = 'Hello, World!\n'
+  var ended = false
+  mocks.tcpConnect = [Expect(t,
+    {port: 9000, address: '127.0.0.1'}, 
+    { data: {
+      clientId: ID
+    }}
+  )]
+  var _stream = net.connect({
+      port:9000,
+      host:'127.0.0.1',
+      allowHalfOpen: true
+    }, function (err, stream) {
+    t.equal(_stream, stream)
+    t.equal(err, null)
+    t.equal(stream.allowHalfOpen, true)
+
+    stream.on('end', function () {
+      ended = true
+      stream.end()
+    })
+    mocks.tcpShutdown = [Expect(t,
+      {clientId: ID}, 
+      {}
+    )]
+    mocks.tcpClose = [Expect(t,
+      {clientId: ID}, 
+      {}
+    )]
+    stream.__write('')
+    
+    stream.on('close', () => {
+      t.ok(ended)
+      t.deepEqual(mocks, {}, 'no uncalled mocks')
+      t.end()
+    })
+  })
+  t.ok(_stream)  
+})
+
+test('net.connect allowHalfOpen=true, write write write', (t) => {
+  var ID = createId()
+  var HELLO = 'Hello, World!\n'
+  var ended = false
+  mocks.tcpConnect = [Expect(t,
+    {port: 9000, address: '127.0.0.1'}, 
+    { data: {
+      clientId: ID
+    }}
+  )]
+  var _stream = net.connect({
+      port:9000,
+      host:'127.0.0.1',
+      allowHalfOpen: true
+    }, function (err, stream) {
+    t.equal(_stream, stream)
+    t.equal(err, null)
+    t.equal(stream.allowHalfOpen, true)
+    //to just test writes, end the read side immediately
+    //(by simulated end receive '')
+    stream.__write('')
+
+    stream.on('end', function () {
+      ended = true
+    })
+
+    var waiting = []
+    
+    function next (data) {
+      var p = new Promise((resolve)=>{
+        waiting.push(resolve)
+      })
+      return (args) => {
+        t.equal(args.clientId, ID)
+        t.equal(data, args.data)
+        return p
+      }
+    }
+
+    mocks.tcpSend = [
+      next(HELLO+1),
+      next(HELLO+2),
+      next(HELLO+3),
+      next(HELLO+4),
+      next(HELLO+5),
+      next(HELLO+6),
+      next(HELLO+7)
+    ]
+    
+    stream.write(HELLO+1)
+    stream.write(HELLO+2)
+    stream.write(HELLO+3)
+    stream.write(HELLO+4)
+    stream.write(HELLO+5)
+    stream.write(HELLO+6)
+    stream.write(HELLO+7)
+    
+    stream.end()
+
+    var int = setInterval(() => {
+      waiting.shift()({})
+      if(!waiting.length) {
+        clearInterval(int)
+      }
+    }, 100)
+
+    
+    mocks.tcpShutdown = [Expect(t,
+      {clientId: ID}, 
+      {}
+    )]
+    mocks.tcpClose = [Expect(t,
+      {clientId: ID}, 
+      {}
+    )]
+    
+    stream.on('close', () => {
+      t.ok(ended)
+      t.deepEqual(mocks, {}, 'no uncalled mocks')
+      t.end()
+    })
+  })
+  t.ok(_stream)  
+})
+
+test.skip('net.connect', (t) => {
+  var ID = createId()
+  var HELLO = 'Hello, World!\n'
+  mocks.tcpConnect = [Expect(t,
+    {port: 9000, address: '127.0.0.1'}, 
+    { data: {
+      clientId: ID
+    }}
+  )]
+  var _stream = net.connect(9000, '127.0.0.1', function (err, stream) {
+    t.equal(_stream, stream)
+    t.equal(err, null)
+    t.equal(stream.allowHalfOpen, false)
+
+//    mocks.tcpSend = [Expect(t,
+//      {clientId: ID, data: HELLO}, 
+//      {}
+//    )]
+    mocks.tcpReadStart = [(q) => {
+      t.deepEqual(q, {clientId: ID})
+      return (async () => {
+        return {}
+      })()
+    }]
+
+    //using setTimeout here is a sign we don't understand something.
+    //
+    setTimeout(() => {
+      t.deepEqual(mocks, {}, 'no uncalled mocks')
+      mocks.tcpShutdown = [Expect(t,
+        {clientId: ID}, 
+        {}
+      )]
+      mocks.tcpClose = [Expect(t,
+        {clientId: ID}, 
+        {}
+      )]
+      stream.__write('')
+
+      stream.end()
+      stream.on('close', () => {
+        t.deepEqual(mocks, {}, 'no uncalled mocks')
+        t.end()
+      })
+    }, 100)
+//    stream.write(HELLO)
+  })
+  t.ok(_stream)  
+})
+
+
+
+test('net.connect allowHalfOpen=true readStart readStop', (t) => {
+    var ID = createId()
+  var HELLO = 'Hello, World!\n'
+  mocks.tcpConnect = [Expect(t,
+    {port: 9000, address: '127.0.0.1'}, 
+    { data: {
+      clientId: ID
+    }}
+  )]
+  var _stream = net.connect({
+    port: 9000,
+    host:'127.0.0.1',
+    allowHalfOpen: true
+  }, function (err, stream) {
+    t.equal(_stream, stream)
+    t.equal(err, null)
+    t.equal(stream.allowHalfOpen, true)
+//    stream.end()
+    mocks.tcpReadStart = [(q) => {
+      t.deepEqual(q, {clientId: ID})
+      return (async () => {
+        return {data: HELLO}
+      })()
+    }]
+    
+    //trigger flow?
+    var fn = () => {}
+    stream.on('data', fn)
+
+    mocks.tcpReadStop = [(q) => {
+      t.deepEqual(q, {clientId: ID})
+      return (async () => {
+
+            return {}
+      })()
+    }]
+
+    setTimeout(()=>{
+      stream.pause()
+      t.deepEqual(mocks, {}, 'no uncalled mocks')
+      t.end()
+    }, 1000)
+
+  })
 })
