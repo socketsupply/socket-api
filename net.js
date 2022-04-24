@@ -1,8 +1,8 @@
 const { EventEmitter } = require('./events')
 const { Duplex, FIFO } = require('./streams')
 
-function assert_type (name, expected, actual, code) {
-  var err = new TypeError(name + ' must be a ' + expected + ', Received '+actual)
+function assert_type(name, expected, actual, code) {
+  const err = new TypeError(name + ' must be a ' + expected + ', Received '+actual)
   err.code = code
   throw err
 }
@@ -18,49 +18,55 @@ function assert_type (name, expected, actual, code) {
 // For Server.prototype.listen(), the [...] part is [, backlog]
 // but will not be handled here (handled in listen())
 const normalizedArgsSymbol = Symbol('normalizedArgsSymbol')
+
 function normalizeArgs(args) {
-  let arr;
+  let arr
 
   if (args.length === 0) {
-    arr = [{}, null];
-    arr[normalizedArgsSymbol] = true;
-    return arr;
+    arr = [{}, null]
+    arr[normalizedArgsSymbol] = true
+    return arr
   }
 
-  const arg0 = args[0];
-  let options = {};
+  const arg0 = args[0]
+  let options = {}
+
   if (typeof arg0 === 'object' && arg0 !== null) {
     // (options[...][, cb])
-    options = arg0;
+    options = arg0
 
   //not supported: pipes
   //  } else if (isPipeName(arg0)) {
   //    // (path[...][, cb])
-  //    options.path = arg0;
+  //    options.path = arg0
   } else {
     // ([port][, host][...][, cb])
-    options.port = arg0;
+    options.port = arg0
+
     if (args.length > 1 && typeof args[1] === 'string') {
-      options.host = args[1];
+      options.host = args[1]
     }
   }
 
-  const cb = args[args.length - 1];
-  if (typeof cb !== 'function')
-    arr = [options, null];
-  else
-    arr = [options, cb];
+  const cb = args[args.length - 1]
+  if (typeof cb !== 'function') {
+    arr = [options, null]
+  } else {
+    arr = [options, cb]
+  }
 
-  arr[normalizedArgsSymbol] = true;
-  return arr;
+  arr[normalizedArgsSymbol] = true
+  return arr
 }
 
 
 class Server extends EventEmitter {
   constructor (options, handler) {
     super()
-    if(!options)
+    if (!options) {
       handler = options, options = {}
+    }
+
     this._connections = 0
     this._serverId = null
   }
@@ -79,7 +85,7 @@ class Server extends EventEmitter {
     self.emit('connection', socket)
   }
 
-  listen (port, address, cb) {        
+  listen (port, address, cb) {
     ;(async opts => {
       const { err, data } = await window._ipc.send('tcpCreateServer', opts)
 
@@ -153,7 +159,7 @@ class Socket extends Duplex {
     this.address = null
 
     this.on('end', () => {
-      if (!this.allowHalfOpen) this.write = _writeAfterFIN;
+      if (!this.allowHalfOpen) this.write = _writeAfterFIN
     })
   }
 
@@ -201,32 +207,32 @@ class Socket extends Duplex {
 
   setStreamTimeout (msecs, callback) {
     if (this.destroyed)
-      return this;
+      return this
 
-    this.timeout = msecs;
+    this.timeout = msecs
 
     // Type checking identical to timers.enroll()
-    msecs = getTimerDuration(msecs, 'msecs');
+    msecs = getTimerDuration(msecs, 'msecs')
 
     // Attempt to clear an existing timer in both cases -
     //  even if it will be rescheduled we don't want to leak an existing timer.
-    clearTimeout(this[kTimeout]);
+    clearTimeout(this[kTimeout])
 
     if (msecs === 0) {
       if (callback !== undefined) {
-        validateCallback(callback);
-        this.removeListener('timeout', callback);
+        validateCallback(callback)
+        this.removeListener('timeout', callback)
       }
     } else {
-      this[kTimeout] = setUnrefTimeout(this._onTimeout.bind(this), msecs);
-      if (this[kSession]) this[kSession][kUpdateTimer]();
+      this[kTimeout] = setUnrefTimeout(this._onTimeout.bind(this), msecs)
+      if (this[kSession]) this[kSession][kUpdateTimer]()
 
       if (callback !== undefined) {
-        validateCallback(callback);
-        this.once('timeout', callback);
+        validateCallback(callback)
+        this.once('timeout', callback)
       }
     }
-    return this;
+    return this
   }
   // -------------------------------------------------------------
 
@@ -276,7 +282,7 @@ class Socket extends Duplex {
     }
     ;(async () => {
       const { err, data } = await window._ipc.send('tcpClose', params)
-      
+
       if (cb) cb(err, data)
     })()
   }
@@ -441,7 +447,7 @@ class Socket extends Duplex {
 
 const connect = (...args) => {
   const [options, callback] = normalizeArgs(args)
-  
+
   //supported by node but not here: localAddress, localHost, hints, lookup
 
   const socket = new Socket(options)
@@ -449,7 +455,7 @@ const connect = (...args) => {
   //undocumented node js feature.
   //I think we should not support this.
   if (options.timeout) {
-    socket.setTimeout(options.timeout);
+    socket.setTimeout(options.timeout)
   }
 
   socket.connect(options, callback)
