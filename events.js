@@ -46,9 +46,7 @@ function ProcessEmitWarning (warning) {
   if (console && console.warn) console.warn(warning)
 }
 
-const NumberIsNaN = Number.isNaN || function NumberIsNaN (value) {
-  return value !== value
-}
+const NumberIsNaN = Number.isNaN
 
 function EventEmitter () {
   EventEmitter.init.call(this)
@@ -115,7 +113,7 @@ EventEmitter.prototype.getMaxListeners = function getMaxListeners () {
 
 EventEmitter.prototype.emit = function emit (type) {
   const args = []
-  for (var i = 1; i < arguments.length; i++) args.push(arguments[i])
+  for (let i = 1; i < arguments.length; i++) args.push(arguments[i])
   let doError = (type === 'error')
 
   const events = this._events
@@ -145,7 +143,7 @@ EventEmitter.prototype.emit = function emit (type) {
   } else {
     const len = handler.length
     const listeners = arrayClone(handler, len)
-    for (var i = 0; i < len; ++i) { ReflectApply(listeners[i], this, args) }
+    for (let i = 0; i < len; ++i) { ReflectApply(listeners[i], this, args) }
   }
 
   return true
@@ -257,14 +255,14 @@ EventEmitter.prototype.prependOnceListener =
 // Emits a 'removeListener' event if and only if the listener was removed.
 EventEmitter.prototype.removeListener =
     function removeListener (type, listener) {
-      let list, events, position, i, originalListener
+      let position, i, originalListener
 
       checkListener(listener)
 
-      events = this._events
+      const events = this._events
       if (events === undefined) { return this }
 
-      list = events[type]
+      const list = events[type]
       if (list === undefined) { return this }
 
       if (list === listener || list.listener === listener) {
@@ -301,9 +299,9 @@ EventEmitter.prototype.off = EventEmitter.prototype.removeListener
 
 EventEmitter.prototype.removeAllListeners =
     function removeAllListeners (type) {
-      let listeners, events, i
+      let i
 
-      events = this._events
+      const events = this._events
       if (events === undefined) { return this }
 
       // not listening for removeListener, no need to emit
@@ -332,7 +330,7 @@ EventEmitter.prototype.removeAllListeners =
         return this
       }
 
-      listeners = events[type]
+      const listeners = events[type]
 
       if (typeof listeners === 'function') {
         this.removeListener(type, listeners)

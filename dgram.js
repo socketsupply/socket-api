@@ -108,7 +108,11 @@ class Socket extends EventEmitter {
     this.on('listening', onListening)
 
     if (!options.address) {
-      if (this.type === 'udp4') { options.address = '0.0.0.0' } else { options.address = '::' }
+      if (this.type === 'udp4') {
+        options.address = '0.0.0.0'
+      } else {
+        options.address = '::'
+      }
     } else if (!isIPv4(options.address)) {
       const {
         err: errLookup,
@@ -125,7 +129,7 @@ class Socket extends EventEmitter {
 
     const { err, data } = await window._ipc.send('udpBind', {
       address: options.address,
-      port: port || 0,
+      port: options.port || 0,
       reuseAddr: options.reuseAddr, // UV_UDP_REUSEADDR
       ipv6Only: options.ipv6Only // UV_UDP_IPV6ONLY
     })
@@ -216,7 +220,7 @@ class Socket extends EventEmitter {
     this.state.connectState = 2
     this.clientId = dataConnect.clientId
 
-    self.emit('connect')
+    this.emit('connect')
 
     // TODO udpConnect could return the peer data instead of putting it
     // into a different call and we could shave off a bit of time here.
@@ -324,7 +328,7 @@ class Socket extends EventEmitter {
       if (typeof buffer === 'string') {
         list = [Buffer.from(buffer)]
       } else if (!isArrayBufferView(buffer)) {
-        throw new Error('Invalid buffer')
+        // throw new Error('Invalid buffer')
         list = Buffer.from(buffer)
       } else {
         list = [buffer]
@@ -388,7 +392,7 @@ class Socket extends EventEmitter {
     if (err && cb) return cb(err)
     if (err) return { err }
 
-    self.emit('close')
+    this.emit('close')
     return {}
   }
 

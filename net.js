@@ -82,10 +82,10 @@ class Server extends EventEmitter {
       return
     }
 
-    self._connections++
+    this._connections++
     socket._server = this
 
-    self.emit('connection', socket)
+    this.emit('connection', socket)
   }
 
   listen (port, address, cb) {

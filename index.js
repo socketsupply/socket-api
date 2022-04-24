@@ -6,7 +6,7 @@ const dgram = require('./dgram')
 const utp = require('./utp')
 const streams = require('./streams')
 
-export {
+module.exports = {
   events,
   net,
   utp,
