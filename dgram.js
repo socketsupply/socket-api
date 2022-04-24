@@ -2,6 +2,7 @@
 
 const { EventEmitter } = require('./events')
 const { isIPv4 } = require('./net')
+const dns = require('./dns')
 const Buffer = require('./buffer')
 
 const isArrayBufferView = buf => {
@@ -71,7 +72,7 @@ class Socket extends EventEmitter {
   // If binding fails, an 'error' event is emitted.
   //
   async bind (arg1, arg2, cb) {
-    const options = {}
+    let options = {}
 
     if (typeof arg2 === 'function') {
       cb = arg2

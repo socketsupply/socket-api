@@ -157,7 +157,7 @@ class Socket extends Duplex {
     this._server = null
 
     this._address = null
-    this.allowHalfOpen = options.allowHalfOpen === true    
+    this.allowHalfOpen = options.allowHalfOpen === true
     this._flowing = false
     /*
     this.on('end', () => {
@@ -257,7 +257,7 @@ class Socket extends Duplex {
   _destroy (cb) {
     if (this.destroyed) return
     ;(async () => {
-      await window._ipc.send('tcpClose', {clientId: this.clientId})
+      await window._ipc.send('tcpClose', { clientId: this.clientId })
       if (this._server) {
         this._server._connections--
 
@@ -267,7 +267,6 @@ class Socket extends Duplex {
       }
       cb()
     })()
-    
   }
 
   destroySoon () {
@@ -340,7 +339,7 @@ class Socket extends Duplex {
   //
   __write (data) {
     if (data.length && !stream.destroyed) {
-      if(!this.push(data)) {
+      if (!this.push(data)) {
         const params = {
           clientId: this.clientId
         }
@@ -348,8 +347,8 @@ class Socket extends Duplex {
         window._ipc.send('tcpReadStop', params)
       }
     } else {
-      //if this stream is not full duplex,
-      //then mark as not writable.
+      // if this stream is not full duplex,
+      // then mark as not writable.
       if (!this.allowHalfOpen) {
         this.destroySoon()
       }
@@ -359,7 +358,7 @@ class Socket extends Duplex {
   }
 
   _read (cb) {
-    if(this._flowing) return cb()
+    if (this._flowing) return cb()
     this._flowing = true
 
     const params = {
@@ -370,8 +369,7 @@ class Socket extends Duplex {
       const { err } = await window._ipc.send('tcpReadStart', params)
       if (err) {
         socket.destroy()
-      }
-      else {
+      } else {
         cb()
       }
     })()
@@ -379,21 +377,22 @@ class Socket extends Duplex {
 
   pause () {
     Duplex.prototype.pause.call(this)
-    //send a ReadStop but do not wait for a confirmation.
-    //ipc is async, but it's ordered,
-    if(this._flowing) {
+    // send a ReadStop but do not wait for a confirmation.
+    // ipc is async, but it's ordered,
+    if (this._flowing) {
       this._flowing = false
-      window._ipc.send('tcpReadStop', {clientId: this.clientId})
+      window._ipc.send('tcpReadStop', { clientId: this.clientId })
     }
     return this
   }
+
   resume () {
     Duplex.prototype.resume.call(this)
-    //send a ReadStop but do not wait for a confirmation.
-    //ipc is async, but it's ordered, 
-    if(!this._flowing) { 
+    // send a ReadStop but do not wait for a confirmation.
+    // ipc is async, but it's ordered,
+    if (!this._flowing) {
       this._flowing = true
-      window._ipc.send('tcpReadStart', {clientId: this.clientId})
+      window._ipc.send('tcpReadStart', { clientId: this.clientId })
     }
     return this
   }
@@ -429,7 +428,8 @@ class Socket extends Duplex {
     })()
     return this
   }
-/*
+
+  /*
   async end (data, encoding, cb) {
     Duplex.prototype.end.call(this, data)
 
