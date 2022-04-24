@@ -1,3 +1,5 @@
+'use strict'
+
 const STREAM_DESTROYED = new Error('Stream was destroyed')
 const PREMATURE_CLOSE = new Error('Premature close')
 
@@ -64,8 +66,7 @@ class FastFIFO {
   }
 }
 
-
-var FIFO = FastFIFO
+const FIFO = FastFIFO
 /* eslint-disable no-multi-spaces */
 
 const MAX = ((1 << 25) - 1)
@@ -1040,6 +1041,7 @@ module.exports = {
   isStream,
   isStreamx,
   Stream,
+  PassThrough,
   Writable,
   Readable,
   Duplex,

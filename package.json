@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "npr standardx -v"
+    "test": "standardx -v"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
   "homepage": "https://github.com/socketsupply/mobile#readme",
   "description": "",
   "devDependencies": {
+    "standardx": "7.0.0",
     "tape": "^5.4.0"
   },
   "standardx": {
@@ -40,8 +41,5 @@
         "global"
       ]
     }
-  },
-  "binDependencies": {
-    "standardx": "github:standard/standardx#a261ab881f55c6845720f950451fe5e22d7bbdcf"
   }
 }

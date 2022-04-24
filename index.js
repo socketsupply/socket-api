@@ -1,3 +1,5 @@
+'use strict'
+
 const events = require('./events')
 const net = require('./net')
 const dgram = require('./dgram')
