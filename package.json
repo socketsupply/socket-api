@@ -1,22 +1,45 @@
 {
-  "name": "@operatortc/mobile",
-  "version": "1.0.0",
+  "name": "@socketsupply/mobile",
+  "version": "1.0.1",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standardx -v"
   },
   "author": "",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/operatortc/mobile.git"
+    "url": "git+https://github.com/socketsupply/mobile.git"
   },
   "bugs": {
-    "url": "https://github.com/operatortc/mobile/issues"
+    "url": "https://github.com/socketsupply/mobile/issues"
   },
-  "homepage": "https://github.com/operatortc/mobile#readme",
+  "homepage": "https://github.com/socketsupply/mobile#readme",
   "description": "",
   "devDependencies": {
+    "standardx": "7.0.0",
     "tape": "^5.4.0"
+  },
+  "standardx": {
+    "ignore": [
+      "src/main/logger/vendor/*.js",
+      "src/vendor/*.js",
+      "test/example-app/dist",
+      "index.d.ts"
+    ]
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "eslintConfig": {
+    "parserOptions": {
+      "sourceType": "script"
+    },
+    "rules": {
+      "strict": [
+        "error",
+        "global"
+      ]
+    }
   }
 }

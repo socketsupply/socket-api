@@ -1,3 +1,5 @@
+'use strict'
+
 const { EventEmitter } = require('./events')
 const { isIPv4 } = require('./net')
 const Buffer = require('./buffer')
@@ -21,7 +23,7 @@ const fixBufferList = list => {
     }
   }
 
-  return newlist;
+  return newlist
 }
 
 class Socket extends EventEmitter {
@@ -105,10 +107,7 @@ class Socket extends EventEmitter {
     this.on('listening', onListening)
 
     if (!options.address) {
-      if (this.type === 'udp4')
-        options.address = '0.0.0.0'
-      else
-        options.address = '::'
+      if (this.type === 'udp4') { options.address = '0.0.0.0' } else { options.address = '::' }
     } else if (!isIPv4(options.address)) {
       const {
         err: errLookup,
@@ -137,13 +136,13 @@ class Socket extends EventEmitter {
       return { err }
     }
 
-    const { data } = await this._getSockData({
+    const { data: sockData } = await this._getSockData({
       connectionId: this.serverId
     })
 
-    this._address = data.address
-    this._port = data.port
-    this._family = data.family
+    this._address = sockData.address
+    this._port = sockData.port
+    this._family = sockData.family
 
     if (cb) cb(null)
     return { data }
@@ -295,7 +294,7 @@ class Socket extends EventEmitter {
   // They are supported only when the first argument is a Buffer, a TypedArray,
   // or a DataView.
   //
-  send (buffer, ...args) {
+  async send (buffer, ...args) {
     let offset, length, port, address, cb
     const connected = this.state.connectState === 2
 

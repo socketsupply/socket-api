@@ -1,3 +1,5 @@
+'use strict'
+
 const lookup = async (address, cb) => {
   const params = {
     address

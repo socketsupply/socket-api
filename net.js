@@ -1,8 +1,10 @@
+'use strict'
+
 const { EventEmitter } = require('./events')
 const { Duplex, FIFO } = require('./streams')
 
 function assert_type (name, expected, actual, code) {
-  var err = new TypeError(name + ' must be a ' + expected + ', Received '+actual)
+  const err = new TypeError(name + ' must be a ' + expected + ', Received ' + actual)
   err.code = code
   throw err
 }
@@ -20,49 +22,54 @@ function assert_type (name, expected, actual, code) {
 // For Server.prototype.listen(), the [...] part is [, backlog]
 // but will not be handled here (handled in listen())
 const normalizedArgsSymbol = Symbol('normalizedArgsSymbol')
-function normalizeArgs(args) {
-  let arr;
+
+function normalizeArgs (args) {
+  let arr
 
   if (args.length === 0) {
-    arr = [{}, null];
-    arr[normalizedArgsSymbol] = true;
-    return arr;
+    arr = [{}, null]
+    arr[normalizedArgsSymbol] = true
+    return arr
   }
 
-  const arg0 = args[0];
-  let options = {};
+  const arg0 = args[0]
+  let options = {}
+
   if (typeof arg0 === 'object' && arg0 !== null) {
     // (options[...][, cb])
-    options = arg0;
+    options = arg0
 
-  //not supported: pipes
+  // not supported: pipes
   //  } else if (isPipeName(arg0)) {
   //    // (path[...][, cb])
-  //    options.path = arg0;
+  //    options.path = arg0
   } else {
     // ([port][, host][...][, cb])
-    options.port = arg0;
+    options.port = arg0
+
     if (args.length > 1 && typeof args[1] === 'string') {
-      options.host = args[1];
+      options.host = args[1]
     }
   }
 
-  const cb = args[args.length - 1];
-  if (typeof cb !== 'function')
-    arr = [options, null];
-  else
-    arr = [options, cb];
+  const cb = args[args.length - 1]
+  if (typeof cb !== 'function') {
+    arr = [options, null]
+  } else {
+    arr = [options, cb]
+  }
 
-  arr[normalizedArgsSymbol] = true;
-  return arr;
+  arr[normalizedArgsSymbol] = true
+  return arr
 }
-
 
 class Server extends EventEmitter {
   constructor (options, handler) {
     super()
-    if(!options)
+    if (!options) {
       handler = options, options = {}
+    }
+
     this._connections = 0
     this._serverId = null
   }
@@ -81,7 +88,7 @@ class Server extends EventEmitter {
     self.emit('connection', socket)
   }
 
-  listen (port, address, cb) {        
+  listen (port, address, cb) {
     ;(async opts => {
       const { err, data } = await window._ipc.send('tcpCreateServer', opts)
 
@@ -90,20 +97,20 @@ class Server extends EventEmitter {
         return
       }
       this._serverId = data.serverId
-      this._address = {port: data.port, address: data.address, family: data.family}
+      this._address = { port: data.port, address: data.address, family: data.family }
       this.connections = {}
 
       window._ipc.streams[data.serverId] = this
 
       if (cb) return cb(null, data)
       this.emit('listening', data)
-    })({port, address})
+    })({ port, address })
 
     return this
   }
 
   address () {
-    return  this._address
+    return this._address
   }
 
   close (cb) {
@@ -114,16 +121,16 @@ class Server extends EventEmitter {
       const { err, data } = await window._ipc.send('tcpClose', params)
       delete window._ipc.streams[this._serverId]
       if (err && !cb) this.emit('error', err)
-      else if(cb) cb(err)
+      else if (cb) cb(err)
     })()
   }
 
   address () {
-    return {...this._address}
+    return { ...this._address }
   }
 
   getConnections (cb) {
-    assert_type('Callback', 'function', typeof cb, "ERR_INVALID_CALLBACK")
+    assert_type('Callback', 'function', typeof cb, 'ERR_INVALID_CALLBACK')
     const params = {
       serverId: this._serverId
     }
@@ -134,7 +141,7 @@ class Server extends EventEmitter {
         data
       } = await window._ipc.send('tcpServerGetConnections', params)
 
-      if(cb) cb(err, data)
+      if (cb) cb(err, data)
     })()
   }
 
@@ -161,11 +168,11 @@ class Socket extends Duplex {
     */
   }
 
-  //note: this is not an async method on node, so it's not here
-  //thus the ipc response is not awaited. since _ipc.send is async
-  //but the messages are handled in order, you do not need to wait
-  //for it before sending data, noDelay will be set correctly before the
-  //next data is sent.
+  // note: this is not an async method on node, so it's not here
+  // thus the ipc response is not awaited. since _ipc.send is async
+  // but the messages are handled in order, you do not need to wait
+  // for it before sending data, noDelay will be set correctly before the
+  // next data is sent.
   setNoDelay (enable) {
     const params = {
       clientId: this.clientId, enable
@@ -173,7 +180,7 @@ class Socket extends Duplex {
     window._ipc.send('tcpSetNoDelay', params)
   }
 
-  //note: see note for setNoDelay
+  // note: see note for setNoDelay
   setKeepAlive (enabled) {
     const params = {
       clientId: this.clientId, enable
@@ -243,7 +250,6 @@ class Socket extends Duplex {
     }
     ;(async () => {
       const { err, data } = await window._ipc.send('tcpShutdown', params)
-      
       if (cb) cb(err, data)
     })()
   }
@@ -301,7 +307,7 @@ class Socket extends Duplex {
           clientId: this.clientId,
           data: chunk
         }
-        //sent in order so could just await the last one?
+        // sent in order so could just await the last one?
         requests.push(window._ipc.send('tcpSend', params))
       }
 
@@ -401,21 +407,21 @@ class Socket extends Duplex {
         address: options.host
       }
 
-      //TODO: if host is a ip address
+      // TODO: if host is a ip address
       //      connect, if it is a dns name, lookup
 
       const { err, data } = await window._ipc.send('tcpConnect', params)
 
       if (err) {
-        if(cb) cb(err)
+        if (cb) cb(err)
         else this.emit('error', err)
         return
       }
       this.remotePort = data.port
       this.remoteAddress = data.address
       this.clientId = data.clientId
-      //this.port = port
-      //this.address = address
+      // this.port = port
+      // this.address = address
 
       window._ipc.streams[data.clientId] = this
 
@@ -447,11 +453,10 @@ class Socket extends Duplex {
 
 const connect = (...args) => {
   const [options, callback] = normalizeArgs(args)
-  
-  //supported by node but not here: localAddress, localHost, hints, lookup
+
+  // supported by node but not here: localAddress, localHost, hints, lookup
 
   const socket = new Socket(options)
-
   socket.connect(options, callback)
 
   return socket
