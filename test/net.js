@@ -12,11 +12,12 @@ function P (value) {
 function _mockResponse (name, promise) {
   mocks[name] = promise
 }
+
 global.window = {
   _ipc: {
     send (name, value) {
       var mock
-      console.log("call mock:", name, value)      
+      console.log("call mock:", name, value)
       if(mocks[name] == null || mocks[name].length == 0)
         throw new Error('unexpected send:'+name+', '+JSON.stringify(value))
       if(Array.isArray(mocks[name])) {
@@ -45,7 +46,7 @@ var net = require('../net')
 //createServer, call listen, close server
 tape('net.createServer', (t) => {
   var server = net.createServer(stream => {
-    //no actual connections on this test  
+    //no actual connections on this test
   })
   var ID = createId()
   //should not have sent a message yet
@@ -56,11 +57,11 @@ tape('net.createServer', (t) => {
 
   //unref does nothing, but returns self
   t.equal(server.unref(), server)
-  
+
   //the default behaviour seems to be to listen on IPv6,
   //guessing that probably depends on the system though.
   server.listen(9000, '127.0.0.1', function () {
-  
+
     t.deepEqual(
       server.address(),
       {port: 9000, address: '127.0.0.1', family: 'IPv4'}
@@ -69,7 +70,7 @@ tape('net.createServer', (t) => {
     mocks.tcpClose = [Expect(t, {serverId: ID}, {})]
 
       server.close(function () {
-      
+
       t.deepEqual(mocks, {}, 'no uncalled mocks')
       t.end()
     })
@@ -81,7 +82,7 @@ tape('net.createServer', (t) => {
 tape('net.connect', (t) => {
   var ID = createId()
   mocks.tcpConnect = [Expect(t,
-    {port: 9000, address: '127.0.0.1'}, 
+    {port: 9000, address: '127.0.0.1'},
     { data: {
       clientId: ID
     }}
@@ -92,5 +93,5 @@ tape('net.connect', (t) => {
     t.deepEqual(mocks, {}, 'no uncalled mocks')
     t.end()
   })
-  t.ok(_stream)  
+  t.ok(_stream)
 })
