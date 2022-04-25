@@ -1,10 +1,9 @@
 'use strict'
 const EventEmitter = require('./events')
 
-const rand64 = () => BigInt(
-  ((Math.random() * Number.MAX_SAFE_INTEGER) >>> 0).toString(2) +
-  ((Math.random() * Number.MAX_SAFE_INTEGER) >>> 0).toString(2)
-)
+function rand64 () {
+  return crypto.getRandomValues(new BigUint64Array(1))[0]
+}
 
 class FileHandle extends EventEmitter {
   constructor (id) {
