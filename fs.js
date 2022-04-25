@@ -2,7 +2,8 @@
 const EventEmitter = require('./events')
 
 const rand64 = () => BigInt(
-  ((Math.random() * Number.MAX_SAFE_INTEGER) >>> 0).toString(2).repeat(2)
+  ((Math.random() * Number.MAX_SAFE_INTEGER) >>> 0).toString(2) +
+  ((Math.random() * Number.MAX_SAFE_INTEGER) >>> 0).toString(2)
 )
 
 class FileHandle extends EventEmitter {
