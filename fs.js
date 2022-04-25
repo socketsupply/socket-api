@@ -8,7 +8,7 @@ class FileHandle extends EventEmitter {
   }
 
   async close (cb) {
-    const { err } = await winow._ipc.send('fsClose', { id: this.fd })
+    const { err } = await window._ipc.send('fsClose', { id: this.fd })
     if (err) throw err
 
     cb()
@@ -17,7 +17,7 @@ class FileHandle extends EventEmitter {
 
 const open = async (...args) => {
   const id = BigInt(Number.MAX_SAFE_INTEGER)
-  const { err } = await winow._ipc.send('fsOpen', args)
+  const { err } = await window._ipc.send('fsOpen', args)
   if (err) throw err
   return new FileHandle(id)
 }
