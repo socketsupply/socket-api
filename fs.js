@@ -4,17 +4,19 @@ const Buffer = require('./buffer')
 
 const _require = typeof require !== 'undefined' && require
 
+// so this is re-used instead of creating new one each rand64() call
+const bui64arr = new BigUint64Array(1)
 const rand64 = () => {
-  const method = globalThis.crypto ? globalThis.crypto : _require('crypto')
-  return method.getRandomValues(new BigUint64Array(1))[0]
+  const method = globalThis.crypto ? globalThis.crypto : _require('crypto').webcrypto
+  return method.getRandomValues(bui64arr)[0]
 }
 
 class FileHandle extends EventEmitter {
-  constructor (id) {
+  constructor () {
     super()
     // this id will be used to identify the file handle that is a reference
     // stored in a map container on the objective-c side of the bridge.
-    this.id = id
+    this.fd = rand64()
   }
 
   async close () {
@@ -91,15 +93,15 @@ const mkdir = async (path, options) => {
 }
 
 const open = async (path, flags, mode) => {
-  const id = rand64()
+  const fd = new FileHandle()
 
   // this id will be the key in the map that stores the file handle on the
   // objective-c side of the bridge.
-  const { err } = await window._ipc.send('fsOpen', { id, path, flags, mode })
+  const { err } = await window._ipc.send('fsOpen', { id: fd.fd, path, flags, mode })
 
   if (err) throw err
 
-  return new FileHandle(id)
+  return fd
 }
 
 const readdir = async (path, _) => {
@@ -128,6 +130,46 @@ const unlink = async (path) => {
   if (err) throw err
 }
 
+/**
+ * Node.js-like API below
+ * https://nodejs.org/api/fs.html#filehandlewritefiledata-options
+ * @param {string | FileHandle} file - filename or FileHandle
+ * @param {string | Buffer} data
+ * @param {Object} options
+ * @param {string} options.encoding - default: 'utf8'
+ * @param {number} options.mode - default: 0o666
+ * @param {string} options.flag - default: 'w'
+ * @param {AbortSignal} options.signal
+ * @returns {Promise<undefined>}
+ */
+const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = 'w', signal }) => {
+  // TODO: implement AbortSignal support
+
+  const { fd } = new FileHandle()
+
+  // open a file
+  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fd, path: file, flags: flag })
+  if (fsOpenErr) throw fsOpenErr
+
+  // `data` is one of <string> | <Buffer> | <TypedArray> | <DataView> | <AsyncIterable> | <Iterable> | <Stream>
+  // TODO: we support only <string> and <Buffer>  at the moment
+  let ipcEncodedData
+  if (typeof data === 'string') {
+    ipcEncodedData = data
+  } else if (Buffer.isBuffer(data)) {
+    ipcEncodedData = data.toString()
+  } else {
+    throw new Error('Unsupported data type ', typeof data)
+  }
+  // write to a file
+  const { err: fsWriteErr } = await window._ipc.send('fsWrite', { id: fd, data: ipcEncodedData, offset: 0 })
+  if (fsOpenErr) throw fsWriteErr
+  // close a file
+  const { err: fsCloseErr } = await window._ipc.send('fsCloseErr', { id: fd })
+  if (fsCloseErr) throw fsCloseErr
+}
+// End of Node.js-like API
+
 module.exports = {
   copy,
   mkdir,
@@ -136,5 +178,10 @@ module.exports = {
   readdir,
   rename,
   rmdir,
-  unlink
+  unlink,
+
+  // Node.js-like API exposed below
+  fsPromises: {
+    writeFile
+  }
 }

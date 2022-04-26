@@ -12,8 +12,8 @@ test('fsOpen', async t => {
   )
 
   try {
-    const handle = await fs.open('/foo/bar/bazz.txt')
-    t.ok(handle.id.length > 8, 'handle provides an id')
+    const handle = await fs.open('./foo.txt')
+    t.ok(handle.fd.toString() > 8, 'handle provides an fd')
     t.end()
   } catch (err) {
     t.fail(err)
