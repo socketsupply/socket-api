@@ -160,7 +160,7 @@ test('net.connect allowHalfOpen=true', (t) => {
       stream.end()
     })
 
-    mock.creaate(t, 'tcpShutdown',
+    mock.create(t, 'tcpShutdown',
       { clientId: ID },
       {}
     )
