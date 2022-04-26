@@ -1,10 +1,10 @@
 'use strict'
 const EventEmitter = require('./events')
+const _require = require
 
-function rand64 () {
-  return typeof crypto !== 'undefined'
-    ? crypto.getRandomValues(new BigUint64Array(1))[0]
-    : Math.random().toString(32).slice(2)
+const rand64 = () => {
+  const method = globalThis.crypto ? globalThis.crypto : _require('crypto')
+  return method.getRandomValues(new BigUint64Array(1))[0]
 }
 
 class FileHandle extends EventEmitter {
@@ -53,7 +53,7 @@ class FileHandle extends EventEmitter {
 
     const params = {
       id: this.fd,
-      data,
+      data: buffer,
       offset,
       length,
       position

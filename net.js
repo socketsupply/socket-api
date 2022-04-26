@@ -3,27 +3,24 @@
 const { EventEmitter } = require('./events')
 const { Duplex, FIFO } = require('./streams')
 
-function assert_type (name, expected, actual, code) {
-  const err = new TypeError(name + ' must be a ' + expected + ', Received ' + actual)
+const _require = require
+
+const rand64 = () => {
+  const method = globalThis.crypto ? globalThis.crypto : _require('crypto')
+  return method.getRandomValues(new BigUint64Array(1))[0]
+}
+
+const assertType = (name, expected, actual, code) => {
+  const msg = `'${name}' must be a '${expected}', received '${actual}'`
+  const err = new TypeError(msg)
   err.code = code
   throw err
 }
 
 // lifted from nodejs/node/
-
-// Returns an array [options, cb], where options is an object,
-// cb is either a function or null.
-// Used to normalize arguments of Socket.prototype.connect() and
-// Server.prototype.listen(). Possible combinations of parameters:
-//   (options[...][, cb])
-//   (path[...][, cb])
-//   ([port][, host][...][, cb])
-// For Socket.prototype.connect(), the [...] part is ignored
-// For Server.prototype.listen(), the [...] part is [, backlog]
-// but will not be handled here (handled in listen())
 const normalizedArgsSymbol = Symbol('normalizedArgsSymbol')
 
-function normalizeArgs (args) {
+const normalizeArgs = (args) => {
   let arr
 
   if (args.length === 0) {
@@ -66,12 +63,13 @@ function normalizeArgs (args) {
 class Server extends EventEmitter {
   constructor (options, handler) {
     super()
-    if (!options) {
-      handler = options, options = {}
+
+    if (typeof options === 'undefined') {
+      options = handler
     }
 
     this._connections = 0
-    this._serverId = null
+    this._serverId = rand64()
   }
 
   onconnection (data) {
@@ -96,15 +94,15 @@ class Server extends EventEmitter {
         this.emit('error', err)
         return
       }
-      this._serverId = data.serverId
+
       this._address = { port: data.port, address: data.address, family: data.family }
       this.connections = {}
 
-      window._ipc.streams[data.serverId] = this
+      window._ipc.streams[opts.serverId] = this
 
       if (cb) return cb(null, data)
       this.emit('listening', data)
-    })({ port, address })
+    })({ port, address, serverId: this.serverId })
 
     return this
   }
@@ -117,6 +115,7 @@ class Server extends EventEmitter {
     const params = {
       serverId: this._serverId
     }
+
     ;(async () => {
       const { err, data } = await window._ipc.send('tcpClose', params)
       delete window._ipc.streams[this._serverId]
@@ -125,12 +124,8 @@ class Server extends EventEmitter {
     })()
   }
 
-  address () {
-    return { ...this._address }
-  }
-
   getConnections (cb) {
-    assert_type('Callback', 'function', typeof cb, 'ERR_INVALID_CALLBACK')
+    assertType('Callback', 'function', typeof cb, 'ERR_INVALID_CALLBACK')
     const params = {
       serverId: this._serverId
     }
@@ -206,13 +201,12 @@ class Socket extends Duplex {
       }
     }
 
-    debug('_onTimeout')
     this.emit('timeout')
   }
 
   // -------------------------------------------------------------
   address () {
-    return this._address
+    return { ...this._address }
   }
 
   /*
@@ -406,6 +400,8 @@ class Socket extends Duplex {
         address: options.host
       }
 
+      this.clientId = rand64()
+
       // TODO: if host is a ip address
       //      connect, if it is a dns name, lookup
 
@@ -418,11 +414,10 @@ class Socket extends Duplex {
       }
       this.remotePort = data.port
       this.remoteAddress = data.address
-      this.clientId = data.clientId
       // this.port = port
       // this.address = address
 
-      window._ipc.streams[data.clientId] = this
+      window._ipc.streams[this.clientId] = this
 
       if (cb) cb(null, this)
     })()
@@ -477,6 +472,7 @@ const isIPv4 = s => {
 }
 
 module.exports = {
+  rand64,
   Socket,
   Server,
   connect,

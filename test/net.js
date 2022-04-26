@@ -9,7 +9,7 @@ test('net.createServer', t => {
   const server = net.createServer(() => {
     // no actual connections on this test
   })
-  const ID = util.rand64()
+  const ID = net.rand64()
   // should not have sent a message yet
   mock.create(t, 'tcpCreateServer',
     { port: 9000, address: '127.0.0.1' },
@@ -27,7 +27,7 @@ test('net.createServer', t => {
       { port: 9000, address: '127.0.0.1', family: 'IPv4' }
     )
 
-    mock.create(t, 'tcpClose', { serverId: ID }, {})]
+    mock.create(t, 'tcpClose', { serverId: ID }, {})
 
     server.close(function () {
       t.deepEqual(mock.methods, {}, 'no uncalled methods')
@@ -39,7 +39,7 @@ test('net.createServer', t => {
 // net.connect returns socket, write data, receive data, end stream
 
 test('net.connect', t => {
-  const ID = util.rand64()
+  const ID = net.rand64()
   const HELLO = 'Hello, World!\n'
 
   mock.create(t, 'tcpConnect',
@@ -95,7 +95,7 @@ test('net.connect', t => {
 })
 
 test('net.connect, allowHalfOpen=false', (t) => {
-  const ID = util.rand64()
+  const ID = net.rand64()
   let ended = false
   mock.create(t, 'tcpConnect',
     { port: 9000, address: '127.0.0.1' },
@@ -135,7 +135,7 @@ test('net.connect, allowHalfOpen=false', (t) => {
 })
 
 test('net.connect allowHalfOpen=true', (t) => {
-  const ID = util.rand64()
+  const ID = net.rand64()
   let ended = false
 
   mock.create(t, 'tcpConnect',
@@ -182,7 +182,7 @@ test('net.connect allowHalfOpen=true', (t) => {
 })
 
 test('net.connect allowHalfOpen=true, write write write', (t) => {
-  const ID = util.rand64()
+  const ID = net.rand64()
   const HELLO = 'Hello, World!\n'
   let ended = false
   mock.create(t, 'tcpConnect',
@@ -269,7 +269,7 @@ test('net.connect allowHalfOpen=true, write write write', (t) => {
 })
 
 test.skip('net.connect', (t) => {
-  const ID = util.rand64()
+  const ID = net.rand64()
   mock.create(t, 'tcpConnect',
     { port: 9000, address: '127.0.0.1' },
     {
@@ -319,7 +319,7 @@ test.skip('net.connect', (t) => {
 })
 
 test('net.connect allowHalfOpen=true readStart readStop', (t) => {
-  const ID = util.rand64()
+  const ID = net.rand64()
   const HELLO = 'Hello, World!\n'
 
   mock.create(t, 'tcpConnect',
