@@ -1,9 +1,8 @@
 'use strict'
 const EventEmitter = require('./events')
-const _require = require
 
 const rand64 = () => {
-  const method = globalThis.crypto ? globalThis.crypto : _require('crypto')
+  const method = globalThis.crypto ? globalThis.crypto : require('crypto')
   return method.getRandomValues(new BigUint64Array(1))[0]
 }
 
