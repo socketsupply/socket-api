@@ -1,6 +1,6 @@
 {
   "name": "@socketsupply/mobile",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "scripts": {
     "test": "standardx -v"
