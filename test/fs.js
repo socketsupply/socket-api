@@ -13,7 +13,7 @@ test('fsOpen', async t => {
 
   try {
     const handle = await fs.open('./foo.txt')
-    t.ok(handle.fd.toString() > 8, 'handle provides an fd')
+    t.ok(handle.fd.toString().length > 8, 'handle provides an fd')
     t.end()
   } catch (err) {
     t.fail(err)
