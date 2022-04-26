@@ -2,8 +2,10 @@
 const EventEmitter = require('./events')
 const Buffer = require('./buffer')
 
+const _require = typeof require !== 'undefined' && require
+
 const rand64 = () => {
-  const method = globalThis.crypto ? globalThis.crypto : require('crypto')
+  const method = globalThis.crypto ? globalThis.crypto : _require('crypto')
   return method.getRandomValues(new BigUint64Array(1))[0]
 }
 
