@@ -1,13 +1,10 @@
 'use strict'
 
-const test = require('node:test')
-const fs = require('../fs')
+const { test } = require('tape')
 const util = require('./util')
 
-const createId = () => fs.rand64()
-
 const mocks = {}
-global.window._ipc = util.mockIPCObject()
+global.window = { _ipc: util.mockIPCObject(mocks) }
 
 const net = require('../net')
 
@@ -16,7 +13,7 @@ test('net.createServer', t => {
   const server = net.createServer(() => {
     // no actual connections on this test
   })
-  const ID = createId()
+  const ID = util.rand64()
   // should not have sent a message yet
   mocks.tcpCreateServer = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
@@ -46,7 +43,7 @@ test('net.createServer', t => {
 // net.connect returns socket, write data, receive data, end stream
 
 test('net.connect', t => {
-  const ID = createId()
+  const ID = util.rand64()
   const HELLO = 'Hello, World!\n'
 
   mocks.tcpConnect = [util.expect(t,
@@ -101,7 +98,7 @@ test('net.connect', t => {
 })
 
 test('net.connect, allowHalfOpen=false', (t) => {
-  const ID = createId()
+  const ID = util.rand64()
   let ended = false
   mocks.tcpConnect = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
@@ -141,7 +138,7 @@ test('net.connect, allowHalfOpen=false', (t) => {
 })
 
 test('net.connect allowHalfOpen=true', (t) => {
-  const ID = createId()
+  const ID = util.rand64()
   let ended = false
 
   mocks.tcpConnect = [util.expect(t,
@@ -185,7 +182,7 @@ test('net.connect allowHalfOpen=true', (t) => {
 })
 
 test('net.connect allowHalfOpen=true, write write write', (t) => {
-  const ID = createId()
+  const ID = util.rand64()
   const HELLO = 'Hello, World!\n'
   let ended = false
   mocks.tcpConnect = [util.expect(t,
@@ -271,7 +268,7 @@ test('net.connect allowHalfOpen=true, write write write', (t) => {
 })
 
 test.skip('net.connect', (t) => {
-  const ID = createId()
+  const ID = util.rand64()
   mocks.tcpConnect = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
     {
@@ -322,7 +319,7 @@ test.skip('net.connect', (t) => {
 })
 
 test('net.connect allowHalfOpen=true readStart readStop', (t) => {
-  const ID = createId()
+  const ID = util.rand64()
   const HELLO = 'Hello, World!\n'
   mocks.tcpConnect = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },

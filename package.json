@@ -18,7 +18,7 @@
   "description": "",
   "devDependencies": {
     "standardx": "7.0.0",
-    "tape": "^5.4.0"
+    "tape": "5.5.3"
   },
   "standardx": {
     "ignore": [

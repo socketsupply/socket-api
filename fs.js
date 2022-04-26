@@ -2,7 +2,9 @@
 const EventEmitter = require('./events')
 
 function rand64 () {
-  return crypto.getRandomValues(new BigUint64Array(1))[0]
+  return typeof crypto !== 'undefined'
+    ? crypto.getRandomValues(new BigUint64Array(1))[0]
+    : Math.random().toString(32).slice(2)
 }
 
 class FileHandle extends EventEmitter {
@@ -20,7 +22,7 @@ class FileHandle extends EventEmitter {
 
   async read (options) {
     const {
-      buffer: data,
+      buffer,
       offset,
       length,
       position
@@ -36,9 +38,11 @@ class FileHandle extends EventEmitter {
     const { err, data } = await window._ipc.send('fsRead', params)
     if (err) throw err
 
+    Buffer.from(data.buffer).copy(buffer)
+
     return {
       bytesRead: data.bytesRead,
-      buffer: data.buffer
+      buffer: buffer
     }
   }
 
