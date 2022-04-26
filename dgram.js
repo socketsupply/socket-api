@@ -37,8 +37,8 @@ class Socket extends EventEmitter {
   constructor (options) {
     super()
 
-    this.serverId = null
-    this.clientId = null
+    this.serverId = rand64()
+    this.clientId = rand64()
 
     this.state = {
       recvBufferSize: options.recvBufferSize,
@@ -134,13 +134,12 @@ class Socket extends EventEmitter {
     }
 
     const { err, data } = await window._ipc.send('udpBind', {
+      serverId: this.serverId,
       address: options.address,
       port: options.port || 0,
       reuseAddr: options.reuseAddr, // UV_UDP_REUSEADDR
       ipv6Only: options.ipv6Only // UV_UDP_IPV6ONLY
     })
-
-    this.serverId = data.serverId
 
     if (err) {
       this.emit('error', err)
@@ -187,16 +186,13 @@ class Socket extends EventEmitter {
     }
 
     const {
-      err: errBind,
-      data: dataBind
+      err: errBind
     } = await this.bind({ port: 0 }, null)
 
     if (errBind) {
       if (cb) return cb(errBind)
       return { err: errBind }
     }
-
-    this.serverId = data.serverId
 
     this.once('connect', cb)
 
@@ -224,7 +220,6 @@ class Socket extends EventEmitter {
     }
 
     this.state.connectState = 2
-    this.clientId = dataConnect.clientId
 
     this.emit('connect')
 
@@ -250,8 +245,8 @@ class Socket extends EventEmitter {
 
   async disconnect () {
     const { err: errConnect } = await window._ipc.send('udpDisconnect', {
-      ip: dataLookup.ip,
-      port: port || 0
+      ip: this._remoteAddress,
+      port: this._remotePort || 0
     })
 
     if (errConnect) {
@@ -343,14 +338,12 @@ class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
-    const { err: errBind, data: dataBind } = await this.bind({ port: 0 }, null)
+    const { err: errBind } = await this.bind({ port: 0 }, null)
 
     if (errBind) {
       if (cb) return cb(errBind)
       return { err: errBind }
     }
-
-    this.serverId = dataBind.serverId
 
     if (list.length === 0) {
       list.push(Buffer.alloc(0))
@@ -363,7 +356,7 @@ class Socket extends EventEmitter {
       } = await dns.lookup(address)
 
       if (errLookup) {
-        if (cb) return cb(err)
+        if (cb) return cb(errLookup)
         return { err: errLookup }
       }
 
@@ -388,7 +381,7 @@ class Socket extends EventEmitter {
 
   async close (cb) {
     if (typeof cb === 'function') {
-      this.on('close', callback)
+      this.on('close', cb)
     }
 
     const { err } = await window._ipc.send('udpClose', {

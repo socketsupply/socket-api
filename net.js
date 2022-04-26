@@ -1,7 +1,7 @@
 'use strict'
 
 const { EventEmitter } = require('./events')
-const { Duplex, FIFO } = require('./streams')
+const { Duplex } = require('./streams')
 
 const _require = require
 
@@ -19,6 +19,7 @@ const assertType = (name, expected, actual, code) => {
 
 // lifted from nodejs/node/
 const normalizedArgsSymbol = Symbol('normalizedArgsSymbol')
+const kLastWriteQueueSize = Symbol('lastWriteQueueSize')
 
 const normalizeArgs = (args) => {
   let arr
@@ -117,7 +118,7 @@ class Server extends EventEmitter {
     }
 
     ;(async () => {
-      const { err, data } = await window._ipc.send('tcpClose', params)
+      const { err } = await window._ipc.send('tcpClose', params)
       delete window._ipc.streams[this._serverId]
       if (err && !cb) this.emit('error', err)
       else if (cb) cb(err)
@@ -178,7 +179,8 @@ class Socket extends Duplex {
   // note: see note for setNoDelay
   setKeepAlive (enabled) {
     const params = {
-      clientId: this.clientId, enable
+      clientId: this.clientId,
+      enabled
     }
 
     window._ipc.send('tcpSetKeepAlive', params)
@@ -332,7 +334,7 @@ class Socket extends Duplex {
   // This is called internally by incoming _ipc message when there is data to insert to the stream.
   //
   __write (data) {
-    if (data.length && !stream.destroyed) {
+    if (data.length && !this.destroyed) {
       if (!this.push(data)) {
         const params = {
           clientId: this.clientId
@@ -361,8 +363,9 @@ class Socket extends Duplex {
 
     ;(async () => {
       const { err } = await window._ipc.send('tcpReadStart', params)
+
       if (err) {
-        socket.destroy()
+        this._destroy()
       } else {
         cb()
       }
