@@ -3,7 +3,8 @@
   "version": "1.0.7",
   "main": "index.js",
   "scripts": {
-    "test": "standardx -v"
+    "lint": "standardx -v",
+    "test": "tape ./test/*.js"
   },
   "author": "",
   "license": "ISC",

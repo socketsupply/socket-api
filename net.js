@@ -6,7 +6,7 @@ const { Duplex } = require('./streams')
 const _require = typeof require !== 'undefined' && require
 
 const rand64 = () => {
-  const method = globalThis.crypto ? globalThis.crypto : _require('crypto')
+  const method = globalThis.crypto ? globalThis.crypto : _require('crypto').webcrypto
   return method.getRandomValues(new BigUint64Array(1))[0]
 }
 
