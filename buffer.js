@@ -8,8 +8,8 @@
 
 'use strict'
 
-const base64 = require('base64-js')
-const ieee754 = require('ieee754')
+const base64 = require('./base64-js')
+const ieee754 = require('./ieee754')
 const customInspectSymbol =
   (typeof Symbol === 'function' && typeof Symbol['for'] === 'function') // eslint-disable-line dot-notation
     ? Symbol['for']('nodejs.util.inspect.custom') // eslint-disable-line dot-notation
