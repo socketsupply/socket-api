@@ -19,3 +19,31 @@ test('fsOpen', async t => {
     t.fail(err)
   }
 })
+
+test('fsClose', async t => {
+  t.fail(true)
+})
+
+test('fsWrite', async t => {
+  t.fail(true)
+})
+
+test('fsRead', async t => {
+  t.fail(true)
+})
+
+test('fsRmDir', async t => {
+  t.fail(true)
+})
+
+test('fsReadDir', async t => {
+  t.fail(true)
+})
+
+test('fsUnlink', async t => {
+  t.fail(true)
+})
+
+test('fsCopy', async t => {
+  t.fail(true)
+})
