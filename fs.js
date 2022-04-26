@@ -1,5 +1,6 @@
 'use strict'
 const EventEmitter = require('./events')
+const Buffer = require('./buffer')
 
 const rand64 = () => {
   const method = globalThis.crypto ? globalThis.crypto : require('crypto')
