@@ -1,33 +1,13 @@
 'use strict'
 
 const test = require('node:test')
+const fs = require('../fs')
+const util = require('./util')
+
+const createId = () => fs.rand64()
 
 const mocks = {}
-const createId = () => Math.random()
-const P = value => new Promise(resolve => resolve(value))
-
-global.window = {
-  _ipc: {
-    send (name, value) {
-      let mock
-      console.log('call mock:', name, value)
-      if (mocks[name] === null || mocks[name].length === 0) { throw new Error('unexpected send:' + name + ', ' + JSON.stringify(value)) }
-      if (Array.isArray(mocks[name])) {
-        mock = mocks[name].shift()
-        if (mocks[name].length === 0) { delete mocks[name] }
-      } else { mock = mocks[name] }
-      return mock(value)
-    },
-    streams: {}
-  }
-}
-
-function Expect (t, args, result) {
-  return (_args) => {
-    for (const k in args) { t.equal(_args[k], args[k], 'property:' + k) }
-    return P(result)
-  }
-}
+global.window._ipc = util.mockIPCObject()
 
 const net = require('../net')
 
@@ -38,7 +18,7 @@ test('net.createServer', t => {
   })
   const ID = createId()
   // should not have sent a message yet
-  mocks.tcpCreateServer = [Expect(t,
+  mocks.tcpCreateServer = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
     { data: { serverId: ID, port: 9000, address: '127.0.0.1', family: 'IPv4' } }
   )]
@@ -54,7 +34,7 @@ test('net.createServer', t => {
       { port: 9000, address: '127.0.0.1', family: 'IPv4' }
     )
 
-    mocks.tcpClose = [Expect(t, { serverId: ID }, {})]
+    mocks.tcpClose = [util.expect(t, { serverId: ID }, {})]
 
     server.close(function () {
       t.deepEqual(mocks, {}, 'no uncalled mocks')
@@ -69,7 +49,7 @@ test('net.connect', t => {
   const ID = createId()
   const HELLO = 'Hello, World!\n'
 
-  mocks.tcpConnect = [Expect(t,
+  mocks.tcpConnect = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
     {
       data: {
@@ -83,7 +63,7 @@ test('net.connect', t => {
     t.equal(err, null)
     t.equal(stream.allowHalfOpen, false)
 
-    mocks.tcpSend = [Expect(t,
+    mocks.tcpSend = [util.expect(t,
       { clientId: ID, data: HELLO },
       {}
     )]
@@ -98,11 +78,11 @@ test('net.connect', t => {
     //
     setTimeout(() => {
       t.deepEqual(mocks, {}, 'no uncalled mocks')
-      mocks.tcpShutdown = [Expect(t,
+      mocks.tcpShutdown = [util.expect(t,
         { clientId: ID },
         {}
       )]
-      mocks.tcpClose = [Expect(t,
+      mocks.tcpClose = [util.expect(t,
         { clientId: ID },
         {}
       )]
@@ -123,7 +103,7 @@ test('net.connect', t => {
 test('net.connect, allowHalfOpen=false', (t) => {
   const ID = createId()
   let ended = false
-  mocks.tcpConnect = [Expect(t,
+  mocks.tcpConnect = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
     {
       data: {
@@ -131,6 +111,7 @@ test('net.connect, allowHalfOpen=false', (t) => {
       }
     }
   )]
+
   const _stream = net.connect(9000, '127.0.0.1', function (err, stream) {
     t.equal(_stream, stream)
     t.equal(err, null)
@@ -139,11 +120,11 @@ test('net.connect, allowHalfOpen=false', (t) => {
     stream.on('end', function () {
       ended = true
     })
-    mocks.tcpShutdown = [Expect(t,
+    mocks.tcpShutdown = [util.expect(t,
       { clientId: ID },
       {}
     )]
-    mocks.tcpClose = [Expect(t,
+    mocks.tcpClose = [util.expect(t,
       { clientId: ID },
       {}
     )]
@@ -163,7 +144,7 @@ test('net.connect allowHalfOpen=true', (t) => {
   const ID = createId()
   let ended = false
 
-  mocks.tcpConnect = [Expect(t,
+  mocks.tcpConnect = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
     {
       data: {
@@ -184,11 +165,11 @@ test('net.connect allowHalfOpen=true', (t) => {
       ended = true
       stream.end()
     })
-    mocks.tcpShutdown = [Expect(t,
+    mocks.tcpShutdown = [util.expect(t,
       { clientId: ID },
       {}
     )]
-    mocks.tcpClose = [Expect(t,
+    mocks.tcpClose = [util.expect(t,
       { clientId: ID },
       {}
     )]
@@ -207,7 +188,7 @@ test('net.connect allowHalfOpen=true, write write write', (t) => {
   const ID = createId()
   const HELLO = 'Hello, World!\n'
   let ended = false
-  mocks.tcpConnect = [Expect(t,
+  mocks.tcpConnect = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
     {
       data: {
@@ -271,11 +252,11 @@ test('net.connect allowHalfOpen=true, write write write', (t) => {
       }
     }, 100)
 
-    mocks.tcpShutdown = [Expect(t,
+    mocks.tcpShutdown = [util.expect(t,
       { clientId: ID },
       {}
     )]
-    mocks.tcpClose = [Expect(t,
+    mocks.tcpClose = [util.expect(t,
       { clientId: ID },
       {}
     )]
@@ -291,7 +272,7 @@ test('net.connect allowHalfOpen=true, write write write', (t) => {
 
 test.skip('net.connect', (t) => {
   const ID = createId()
-  mocks.tcpConnect = [Expect(t,
+  mocks.tcpConnect = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
     {
       data: {
@@ -304,7 +285,7 @@ test.skip('net.connect', (t) => {
     t.equal(err, null)
     t.equal(stream.allowHalfOpen, false)
 
-    //    mocks.tcpSend = [Expect(t,
+    //    mocks.tcpSend = [util.expect(t,
     //      {clientId: ID, data: HELLO},
     //      {}
     //    )]
@@ -319,11 +300,11 @@ test.skip('net.connect', (t) => {
     //
     setTimeout(() => {
       t.deepEqual(mocks, {}, 'no uncalled mocks')
-      mocks.tcpShutdown = [Expect(t,
+      mocks.tcpShutdown = [util.expect(t,
         { clientId: ID },
         {}
       )]
-      mocks.tcpClose = [Expect(t,
+      mocks.tcpClose = [util.expect(t,
         { clientId: ID },
         {}
       )]
@@ -343,7 +324,7 @@ test.skip('net.connect', (t) => {
 test('net.connect allowHalfOpen=true readStart readStop', (t) => {
   const ID = createId()
   const HELLO = 'Hello, World!\n'
-  mocks.tcpConnect = [Expect(t,
+  mocks.tcpConnect = [util.expect(t,
     { port: 9000, address: '127.0.0.1' },
     {
       data: {

@@ -126,6 +126,7 @@ module.exports = {
   copy,
   mkdir,
   open,
+  rand64,
   readdir,
   rename,
   rmdir,
