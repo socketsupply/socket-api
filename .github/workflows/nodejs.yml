@@ -14,9 +14,7 @@ jobs:
       with:
         node-version: 16.x
     - name: npm install
-      run: npm install && ./node_modules/.bin/npr which standardx
-    - name: fix github actions file system
-      run: sudo chown -R $USER:$USER ${{ github.workspace }}
+      run: npm install
     - name: npm test
       run: |
         git config --global user.email "devops@optool.co"
