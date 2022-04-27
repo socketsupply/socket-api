@@ -130,9 +130,11 @@ const unlink = async (path) => {
   if (err) throw err
 }
 
+// Node.js-like API below
+
 /**
- * Node.js-like API below
  * https://nodejs.org/api/fs.html#filehandlewritefiledata-options
+ * 
  * @param {string | FileHandle} file - filename or FileHandle
  * @param {string | Buffer} data
  * @param {Object} options
@@ -168,6 +170,66 @@ const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = '
   const { err: fsCloseErr } = await window._ipc.send('fsCloseErr', { id: fd })
   if (fsCloseErr) throw fsCloseErr
 }
+/**
+ * https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
+ * 
+ * @param {string | Buffer} path 
+ * @param {string} flags - default: 'r' 
+ * @param {string} mode - default: 0o666 
+ * @returns {Promise<FileHandle>}
+ */
+const fsPromisesOpen = async (path, flags, mode) => {
+  const { fd } = new FileHandle()
+
+  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fd, path: file, flags: flag })
+  if (fsOpenErr) throw fsOpenErr
+
+  return fd
+}
+/**
+ * https://nodejs.org/api/fs.html#fspromisesreadfilepath-options
+ * 
+ * @param {string | FileHandle} file - filename or FileHandle
+ * @param {Object} options
+ * @param {string} options.encoding - default: 'utf8'
+ * @param {string} options.flag - default: 'r'
+ * @param {AbortSignal} options.signal
+ * @returns {Promise<string>}
+ */
+const readFile = async (file, { encoding = 'utf8',flag = 'r', signal }) => {
+  // TODO: implement AbortSignal support
+
+  const { fd } = new FileHandle()
+
+  // open a file
+  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fd, path: file, flags: flag })
+  if (fsOpenErr) throw fsOpenErr
+
+  const { err: fsStatErr, result } = await window._ipc.send('fsStat', { path: file })
+  if (fsStatErr) throw fsStatErr
+
+  const { err: fsReadErr, data } = await window._ipc.send('fsRead', { id: fd, offset: 0, length: result.st_size })
+  if (fsReadErr) throw fsReadErr
+
+  return data
+}
+/**
+ * https://nodejs.org/api/fs.html#fspromisesrmpath-options
+ * 
+ * @param {string} path
+ * @param {Object} options
+ * @param {boolean} options.force - default: false
+ * @param {number} options.maxRetries - default: 0
+ * @param {boolean} options.recursive - default: false
+ * @param {number} options.retryDelay - default: 100
+ * @returns {Promise<undefined>}
+ */
+const rm = async (path, { force = false, maxRetries = 0, recursive = false, retryDelay = 100 }) => {
+  // TODO: use params?
+  const { err } = await window._ipc.send('fsUnlink', { path })
+  if (err) throw err
+}
+
 // End of Node.js-like API
 
 module.exports = {
@@ -182,6 +244,10 @@ module.exports = {
 
   // Node.js-like API exposed below
   fsPromises: {
-    writeFile
+    writeFile,
+    open: fsPromisesOpen,
+    readFile,
+    rm,
+    unlink: rm // alias for now
   }
 }
