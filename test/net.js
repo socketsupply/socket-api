@@ -9,7 +9,7 @@ test('net.createServer', t => {
   const server = net.createServer(() => {
     // no actual connections on this test
   })
-  const ID = net.rand64()
+  const ID = server._serverId
   // should not have sent a message yet
   mock.create(t, 'tcpCreateServer',
     { port: 9000, address: '127.0.0.1' },
