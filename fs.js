@@ -134,7 +134,7 @@ const unlink = async (path) => {
 
 /**
  * https://nodejs.org/api/fs.html#filehandlewritefiledata-options
- * 
+ *
  * @param {string | FileHandle} file - filename or FileHandle
  * @param {string | Buffer} data
  * @param {Object} options
@@ -172,23 +172,23 @@ const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = '
 }
 /**
  * https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
- * 
- * @param {string | Buffer} path 
- * @param {string} flags - default: 'r' 
- * @param {string} mode - default: 0o666 
+ *
+ * @param {string | Buffer} path
+ * @param {string} flags - default: 'r'
+ * @param {string} mode - default: 0o666
  * @returns {Promise<FileHandle>}
  */
 const fsPromisesOpen = async (path, flags, mode) => {
   const { fd } = new FileHandle()
 
-  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fd, path: file, flags: flag })
+  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fd, path, flags })
   if (fsOpenErr) throw fsOpenErr
 
   return fd
 }
 /**
  * https://nodejs.org/api/fs.html#fspromisesreadfilepath-options
- * 
+ *
  * @param {string | FileHandle} file - filename or FileHandle
  * @param {Object} options
  * @param {string} options.encoding - default: 'utf8'
@@ -196,7 +196,7 @@ const fsPromisesOpen = async (path, flags, mode) => {
  * @param {AbortSignal} options.signal
  * @returns {Promise<string>}
  */
-const readFile = async (file, { encoding = 'utf8',flag = 'r', signal }) => {
+const readFile = async (file, { encoding = 'utf8', flag = 'r', signal }) => {
   // TODO: implement AbortSignal support
 
   const { fd } = new FileHandle()
@@ -215,7 +215,7 @@ const readFile = async (file, { encoding = 'utf8',flag = 'r', signal }) => {
 }
 /**
  * https://nodejs.org/api/fs.html#fspromisesrmpath-options
- * 
+ *
  * @param {string} path
  * @param {Object} options
  * @param {boolean} options.force - default: false
