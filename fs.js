@@ -22,6 +22,8 @@ class FileHandle extends EventEmitter {
   async close () {
     const { err } = await window._ipc.send('fsClose', { id: this.fd })
     if (err) throw err
+
+    this.emit('close')
   }
 
   async read (options) {
