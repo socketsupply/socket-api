@@ -28,8 +28,6 @@ global.window = {
 }
 
 const create = (t, name, args, result) => {
-  const P = value => new Promise(resolve => resolve(value))
-
   methods[name] = methods[name] || []
 
   methods[name].push((_args) => {
@@ -37,7 +35,7 @@ const create = (t, name, args, result) => {
       t.equal(_args[k], args[k], `property: ${k}`)
     }
 
-    return P(result)
+    return Promise.resolve(result)
   })
 }
 

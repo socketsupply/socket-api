@@ -4,23 +4,18 @@ const mock = require('./mock')
 const fs = require('../fs')
 const { test } = require('tape')
 
-test('fsOpen', async t => {
+test('FileHandler', async t => {
   // TODO write this test...
   mock.create(t, 'fsOpen',
     {},
     {}
   )
 
-  try {
-    const handle = await fs.open('./foo.txt')
-    t.ok(handle.fd.toString().length > 8, 'handle provides an fd')
-    t.end()
-  } catch (err) {
-    t.fail(err)
-  }
+  const handle = await fs.open('./foo.txt')
+  t.ok(handle.fd.toString().length, 'handle provides an fd')
 })
 
-test('fsClose', async t => {
+test('fsOpen', async t => {
   t.fail(true)
 })
 
