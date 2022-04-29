@@ -134,24 +134,56 @@ const copy = async (src, dest, options) => {
   if (err) throw err
 }
 
+/**
+ * https://nodejs.org/api/fs.html#fspromisesmkdirpath-options
+ * 
+ * @param {string | Buffer} path
+ * @param {object} options
+ * @param {boolean} options.recursive
+ * @param {string} options.mode
+ * @returns {Promise<void>}
+ */
 const mkdir = async (path, options) => {
   const {
     recursive, // TODO support on the objective-c++ side
     mode
   } = options
 
+  if (Buffer.isBuffer(path)) {
+    path = path.toString()
+  }
+
   const { err } = await window._ipc.send('fsMkDir', { path, mode, recursive })
   if (err) throw err
 }
-
-const readdir = async (path, _) => {
+/**
+ * https://nodejs.org/api/fs.html#fspromisesreaddirpath-options
+ * 
+ * @param {string | Buffer} path 
+ * @param {Object} options 
+ * @returns {Promise<Array<string>>}
+ */
+const readdir = async (path, options) => {
   // TODO document that "options" (arg at index=1) is unused
   const { err, data } = await window._ipc.send('fsReadDir', { path })
   if (err) throw err
   return data
 }
 
+/**
+ * https://nodejs.org/api/fs.html#fspromisesrenameoldpath-newpath
+ * 
+ * @param {string | Buffer} oldPath
+ * @param {string | Buffer} newPath
+ * @returns {Promise<void>}
+ */
 const rename = async (oldPath, newPath) => {
+  if (Buffer.isBuffer(oldPath)) {
+    oldPath = oldPath.toString()
+  }
+  if (Buffer.isBuffer(newPath)) {
+    newPath = newPath.toString()
+  }
   const { err } = await window._ipc.send('fsRename', { oldPath, newPath })
   if (err) throw err
 }
@@ -177,7 +209,7 @@ const rmdir = async (path, options) => {
  * @param {number} options.mode - default: 0o666
  * @param {string} options.flag - default: 'w'
  * @param {AbortSignal} options.signal
- * @returns {Promise<undefined>}
+ * @returns {Promise<void>}
  */
 const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = 'w', signal }) => {
   // TODO: implement AbortSignal support
@@ -257,7 +289,7 @@ const readFile = async (path, { encoding = 'utf8', flag = 'r', signal }) => {
  * @param {number} options.maxRetries - default: 0
  * @param {boolean} options.recursive - default: false
  * @param {number} options.retryDelay - default: 100
- * @returns {Promise<undefined>}
+ * @returns {Promise<void>}
  */
 const unlink = async (path, { force = false, maxRetries = 0, recursive = false, retryDelay = 100 }) => {
   // TODO: use params?
@@ -269,18 +301,18 @@ const unlink = async (path, { force = false, maxRetries = 0, recursive = false, 
 
 module.exports = {
   copy,
-  mkdir,
   rand64,
-  readdir,
-  rename,
   rmdir,
 
   // Node.js-like API exposed below
   fsPromises: {
+    mkdir,
     open,
+    readdir,
     readFile,
-    rm: unlink,
-    unlink, // alias for now
+    rename,
+    rm: unlink, // alias for now
+    unlink,
     writeFile,
   }
 }
