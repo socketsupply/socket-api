@@ -117,8 +117,7 @@ class FileHandle extends EventEmitter {
     if (err) throw err
   }
 
-  async stat (opts) {
-    const bigint = opts?.bigint ?? false
+  async stat ({ bigint = false } = {}) {
     const { err, result } = await window._ipc.send('fsStat', { bigint })
     if (err) throw err
     return new Stats(result, bigint)
