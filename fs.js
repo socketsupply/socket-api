@@ -4,7 +4,6 @@ const Buffer = require('./buffer')
 
 const _require = typeof require !== 'undefined' && require
 
-
 const constants = {
   /*
    * This flag can be used with uv_fs_copyfile() to return an error if the
@@ -20,7 +19,7 @@ const constants = {
    * This flag can be used with uv_fs_copyfile() to attempt to create a reflink.
    * If copy-on-write is not supported, an error is returned.
    */
-  COPYFILE_FICLONE_FORCE: 0x0004,
+  COPYFILE_FICLONE_FORCE: 0x0004
 }
 
 // so this is re-used instead of creating new one each rand64() call
@@ -31,7 +30,7 @@ const rand64 = () => {
 }
 
 class Stats {
-  constructor(libuvStatResult, isBigint) {
+  constructor (libuvStatResult, isBigint) {
     if (!isBigint) {
       this.dev = libuvStatResult.st_dev
       this.ino = libuvStatResult.st_ino
@@ -145,7 +144,7 @@ class FileHandle extends EventEmitter {
 
 /**
  * https://nodejs.org/api/fs.html#fspromisescopyfilesrc-dest-mode
- * 
+ *
  * @param {string | Buffer} src source filename to copy
  * @param {string | Buffer} dest destination filename of the copy operation
  * @param {number} mode defaults to constants.COPYFILE_EXCL
@@ -164,7 +163,7 @@ const copyFile = async (src, dest, mode = 0) => {
 
 /**
  * https://nodejs.org/api/fs.html#fspromisesmkdirpath-options
- * 
+ *
  * @param {string | Buffer} path
  * @param {object} options
  * @param {boolean} options.recursive
@@ -184,11 +183,35 @@ const mkdir = async (path, options) => {
   const { err } = await window._ipc.send('fsMkDir', { path, mode, recursive })
   if (err) throw err
 }
+
+/**
+ * https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
+ *
+ * @param {string | Buffer} path
+ * @param {string} flags - default: 'r'
+ * @param {string} mode - default: 0o666
+ * @returns {Promise<FileHandle>}
+ */
+const open = async (path, flags = 'r', mode = 0o666) => {
+  const fileHandle = new FileHandle()
+
+  if (Buffer.isBuffer(path)) {
+    path = path.toString()
+  }
+
+  // this id will be the key in the map that stores the file handle on the
+  // objective-c side of the bridge.
+  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fileHandle.fd, path, flags })
+  if (fsOpenErr) throw fsOpenErr
+
+  return fileHandle
+}
+
 /**
  * https://nodejs.org/api/fs.html#fspromisesreaddirpath-options
- * 
- * @param {string | Buffer} path 
- * @param {Object} options 
+ *
+ * @param {string | Buffer} path
+ * @param {Object} options
  * @returns {Promise<Array<string>>}
  */
 const readdir = async (path, options) => {
@@ -199,8 +222,31 @@ const readdir = async (path, options) => {
 }
 
 /**
+ * https://nodejs.org/api/fs.html#fspromisesreadfilepath-options
+ *
+ * @param {string | FileHandle} file - filename or FileHandle
+ * @param {Object} options
+ * @param {string} options.encoding - default: 'utf8'
+ * @param {string} options.flag - default: 'r'
+ * @param {AbortSignal} options.signal
+ * @returns {Promise<string>}
+ */
+const readFile = async (path, { encoding = 'utf8', flag = 'r', signal }) => {
+  // TODO: implement AbortSignal support
+
+  const fileHandle = await open(path, flag)
+
+  const { size } = fileHandle.stat()
+
+  const { err: fsReadErr, data } = await window._ipc.send('fsRead', { id: fileHandle.fd, offset: 0, length: size })
+  if (fsReadErr) throw fsReadErr
+
+  return encoding ? data : Buffer.from(data)
+}
+
+/**
  * https://nodejs.org/api/fs.html#fspromisesrenameoldpath-newpath
- * 
+ *
  * @param {string | Buffer} oldPath
  * @param {string | Buffer} newPath
  * @returns {Promise<void>}
@@ -218,7 +264,7 @@ const rename = async (oldPath, newPath) => {
 
 /**
  * https://nodejs.org/api/fs.html#fspromisesrmdirpath-options
- * 
+ *
  * @param {string | Buffer} path
  * @param {Object} options
  * @param {boolean} options.recursive
@@ -234,6 +280,23 @@ const rmdir = async (path, options) => {
   }
 
   const { err } = await window._ipc.send('fsRmDir', { path, recursive })
+  if (err) throw err
+}
+
+/**
+ * https://nodejs.org/api/fs.html#fspromisesrmpath-options
+ *
+ * @param {string} path
+ * @param {Object} options
+ * @param {boolean} options.force - default: false
+ * @param {number} options.maxRetries - default: 0
+ * @param {boolean} options.recursive - default: false
+ * @param {number} options.retryDelay - default: 100
+ * @returns {Promise<void>}
+ */
+const unlink = async (path, { force = false, maxRetries = 0, recursive = false, retryDelay = 100 }) => {
+  // TODO: use params?
+  const { err } = await window._ipc.send('fsUnlink', { path })
   if (err) throw err
 }
 
@@ -270,69 +333,8 @@ const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = '
   }
 
   await fileHandle.write(ipcEncodedData, 0, ipcEncodedData.length, 0)
-  
+
   await fileHandle.close()
-}
-
-/**
- * https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
- *
- * @param {string | Buffer} path
- * @param {string} flags - default: 'r'
- * @param {string} mode - default: 0o666
- * @returns {Promise<FileHandle>}
- */
-const open = async (path, flags = 'r', mode = 0o666) => {
-  const fileHandle = new FileHandle()
-
-  if (Buffer.isBuffer(path)) {
-    path = path.toString()
-  }
-
-  // this id will be the key in the map that stores the file handle on the
-  // objective-c side of the bridge.
-  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fileHandle.fd, path, flags })
-  if (fsOpenErr) throw fsOpenErr
-
-  return fileHandle
-}
-/**
- * https://nodejs.org/api/fs.html#fspromisesreadfilepath-options
- *
- * @param {string | FileHandle} file - filename or FileHandle
- * @param {Object} options
- * @param {string} options.encoding - default: 'utf8'
- * @param {string} options.flag - default: 'r'
- * @param {AbortSignal} options.signal
- * @returns {Promise<string>}
- */
-const readFile = async (path, { encoding = 'utf8', flag = 'r', signal }) => {
-  // TODO: implement AbortSignal support
-
-  const fileHandle = await open(path, flag)
-
-  const { size } = fileHandle.stat()
-
-  const { err: fsReadErr, data } = await window._ipc.send('fsRead', { id: fileHandle.fd, offset: 0, length: size })
-  if (fsReadErr) throw fsReadErr
-
-  return encoding ? data : Buffer.from(data)
-}
-/**
- * https://nodejs.org/api/fs.html#fspromisesrmpath-options
- *
- * @param {string} path
- * @param {Object} options
- * @param {boolean} options.force - default: false
- * @param {number} options.maxRetries - default: 0
- * @param {boolean} options.recursive - default: false
- * @param {number} options.retryDelay - default: 100
- * @returns {Promise<void>}
- */
-const unlink = async (path, { force = false, maxRetries = 0, recursive = false, retryDelay = 100 }) => {
-  // TODO: use params?
-  const { err } = await window._ipc.send('fsUnlink', { path })
-  if (err) throw err
 }
 
 module.exports = {
@@ -349,6 +351,6 @@ module.exports = {
     rm: unlink, // alias for now
     rmdir,
     unlink,
-    writeFile,
+    writeFile
   }
 }
