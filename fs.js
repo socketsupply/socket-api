@@ -230,12 +230,12 @@ const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = '
  * @returns {Promise<FileHandle>}
  */
 const fsPromisesOpen = async (path, flags, mode) => {
-  const { fd } = new FileHandle()
+  const fileHandle = new FileHandle()
 
   const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fd, path, flags })
   if (fsOpenErr) throw fsOpenErr
 
-  return fd
+  return fileHandle
 }
 /**
  * https://nodejs.org/api/fs.html#fspromisesreadfilepath-options
