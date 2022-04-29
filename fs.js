@@ -165,11 +165,6 @@ const rmdir = async (path, options) => {
   if (err) throw err
 }
 
-const unlink = async (path) => {
-  const { err } = await window._ipc.send('fsUnlink', { path })
-  if (err) throw err
-}
-
 // Node.js-like API below
 
 /**
@@ -264,7 +259,7 @@ const readFile = async (path, { encoding = 'utf8', flag = 'r', signal }) => {
  * @param {number} options.retryDelay - default: 100
  * @returns {Promise<undefined>}
  */
-const rm = async (path, { force = false, maxRetries = 0, recursive = false, retryDelay = 100 }) => {
+const unlink = async (path, { force = false, maxRetries = 0, recursive = false, retryDelay = 100 }) => {
   // TODO: use params?
   const { err } = await window._ipc.send('fsUnlink', { path })
   if (err) throw err
@@ -275,19 +270,17 @@ const rm = async (path, { force = false, maxRetries = 0, recursive = false, retr
 module.exports = {
   copy,
   mkdir,
-  open,
   rand64,
   readdir,
   rename,
   rmdir,
-  unlink,
 
   // Node.js-like API exposed below
   fsPromises: {
     open,
     readFile,
-    rm,
-    unlink: rm, // alias for now
+    rm: unlink,
+    unlink, // alias for now
     writeFile,
   }
 }
