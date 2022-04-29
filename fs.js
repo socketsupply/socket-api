@@ -11,6 +11,54 @@ const rand64 = () => {
   return method.getRandomValues(bui64arr)[0]
 }
 
+class Stats {
+  constructor(libuvStatResult, isBigint) {
+    if (!isBigint) {
+      this.dev = libuvStatResult.st_dev
+      this.ino = libuvStatResult.st_ino
+      this.mode = libuvStatResult.st_mode
+      this.nlink = libuvStatResult.st_nlink
+      this.uid = libuvStatResult.st_uid
+      this.gid = libuvStatResult.st_gid
+      this.rdev = libuvStatResult.st_rdev
+      this.size = libuvStatResult.st_size
+      this.blksize = libuvStatResult.st_blksize
+      this.blocks = libuvStatResult.st_blocks
+      this.atimeMs = libuvStatResult.st_atim.tv_sec * 1000 + libuvStatResult.st_atim.tv_nsec / 1000_000
+      this.mtimeMs = libuvStatResult.st_mtim.tv_sec * 1000 + libuvStatResult.st_mtim.tv_nsec / 1000_000
+      this.ctimeMs = libuvStatResult.st_ctim.tv_sec * 1000 + libuvStatResult.st_ctim.tv_nsec / 1000_000
+      this.birthtimeMs = libuvStatResult.st_birthtim.tv_sec * 1000 + libuvStatResult.st_birthtim.tv_nsec / 1000_000
+      this.atim = new Date(this.atimeMs)
+      this.mtim = new Date(this.mtimeMs)
+      this.ctim = new Date(this.ctimeMs)
+      this.birthtim = new Date(this.birthtimeMs)
+    } else {
+      this.dev = BigInt(libuvStatResult.st_dev)
+      this.ino = BigInt(libuvStatResult.st_ino)
+      this.mode = BigInt(libuvStatResult.st_mode)
+      this.nlink = BigInt(libuvStatResult.st_nlink)
+      this.uid = BigInt(libuvStatResult.st_uid)
+      this.gid = BigInt(libuvStatResult.st_gid)
+      this.rdev = BigInt(libuvStatResult.st_rdev)
+      this.size = BigInt(libuvStatResult.st_size)
+      this.blksize = BigInt(libuvStatResult.st_blksize)
+      this.blocks = BigInt(libuvStatResult.st_blocks)
+      this.atimeMs = BigInt(libuvStatResult.st_atim.tv_sec) * 1000n + BigInt(libuvStatResult.st_atim.tv_nsec) / 1000_000n
+      this.mtimeMs = BigInt(libuvStatResult.st_mtim.tv_sec) * 1000n + BigInt(libuvStatResult.st_mtim.tv_nsec) / 1000_000n
+      this.ctimeMs = BigInt(libuvStatResult.st_ctim.tv_sec) * 1000n + BigInt(libuvStatResult.st_ctim.tv_nsec) / 1000_000n
+      this.birthtimeMs = BigInt(libuvStatResult.st_birthtim.tv_sec) * 1000n + BigInt(libuvStatResult.st_birthtim.tv_nsec) / 1000_000n
+      this.atimNs = BigInt(libuvStatResult.st_atim.tv_sec) * 1000_000_000n + BigInt(libuvStatResult.st_atim.tv_nsec)
+      this.mtimNs = BigInt(libuvStatResult.st_mtim.tv_sec) * 1000_000_000n + BigInt(libuvStatResult.st_mtim.tv_nsec)
+      this.ctimNs = BigInt(libuvStatResult.st_ctim.tv_sec) * 1000_000_000n + BigInt(libuvStatResult.st_ctim.tv_nsec)
+      this.birthtimNs = BigInt(libuvStatResult.st_birthtim.tv_sec) * 1000_000_000n + BigInt(libuvStatResult.st_birthtim.tv_nsec)
+      this.atim = new Date(this.atimeMs)
+      this.mtim = new Date(this.mtimeMs)
+      this.ctim = new Date(this.ctimeMs)
+      this.birthtim = new Date(this.birthtimeMs)
+    }
+  }
+}
+
 class FileHandle extends EventEmitter {
   constructor () {
     super()
@@ -70,8 +118,10 @@ class FileHandle extends EventEmitter {
   }
 
   async stat (opts) {
-    const { err } = await window._ipc.send('fsStat', { bigint: opts.bigint })
+    const bigint = opts?.bigint ?? false
+    const { err, result } = await window._ipc.send('fsStat', { bigint })
     if (err) throw err
+    return new Stats(result, bigint)
   }
 }
 
@@ -201,16 +251,15 @@ const fsPromisesOpen = async (path, flags, mode) => {
 const readFile = async (file, { encoding = 'utf8', flag = 'r', signal }) => {
   // TODO: implement AbortSignal support
 
-  const { fd } = new FileHandle()
+  const fileHandle = new FileHandle()
 
   // open a file
-  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fd, path: file, flags: flag })
+  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fileHandle.fd, path: file, flags: flag })
   if (fsOpenErr) throw fsOpenErr
 
-  const { err: fsStatErr, result } = await window._ipc.send('fsStat', { path: file })
-  if (fsStatErr) throw fsStatErr
+  const { size } = fileHandle.stat()
 
-  const { err: fsReadErr, data } = await window._ipc.send('fsRead', { id: fd, offset: 0, length: result.st_size })
+  const { err: fsReadErr, data } = await window._ipc.send('fsRead', { id: fileHandle.fd, offset: 0, length: size })
   if (fsReadErr) throw fsReadErr
 
   return data
