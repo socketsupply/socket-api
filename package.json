@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "standardx -v",
-    "test": "tape ./test/*.js"
+    "test": "tape ./test/*.js",
+    "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
   "author": "",
   "license": "ISC",
@@ -28,9 +29,6 @@
       "test/example-app/dist",
       "index.d.ts"
     ]
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   },
   "eslintConfig": {
     "parserOptions": {
