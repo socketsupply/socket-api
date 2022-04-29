@@ -14,31 +14,3 @@ test('FileHandler', async t => {
   const handle = await fs.open('./foo.txt')
   t.ok(handle.fd.toString().length, 'handle provides an fd')
 })
-
-test('fsOpen', async t => {
-  t.fail(true)
-})
-
-test('fsWrite', async t => {
-  t.fail(true)
-})
-
-test('fsRead', async t => {
-  t.fail(true)
-})
-
-test('fsRmDir', async t => {
-  t.fail(true)
-})
-
-test('fsReadDir', async t => {
-  t.fail(true)
-})
-
-test('fsUnlink', async t => {
-  t.fail(true)
-})
-
-test('fsCopy', async t => {
-  t.fail(true)
-})
