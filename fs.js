@@ -188,10 +188,22 @@ const rename = async (oldPath, newPath) => {
   if (err) throw err
 }
 
+/**
+ * https://nodejs.org/api/fs.html#fspromisesrmdirpath-options
+ * 
+ * @param {string | Buffer} path
+ * @param {Object} options
+ * @param {boolean} options.recursive
+ * @returns {Promise<void>}
+ */
 const rmdir = async (path, options) => {
   const {
     recursive // TODO support on the objective-c++ side
   } = options
+
+  if (Buffer.isBuffer(path)) {
+    path = path.toString()
+  }
 
   const { err } = await window._ipc.send('fsRmDir', { path, recursive })
   if (err) throw err
@@ -302,7 +314,6 @@ const unlink = async (path, { force = false, maxRetries = 0, recursive = false, 
 module.exports = {
   copy,
   rand64,
-  rmdir,
 
   // Node.js-like API exposed below
   fsPromises: {
@@ -312,6 +323,7 @@ module.exports = {
     readFile,
     rename,
     rm: unlink, // alias for now
+    rmdir,
     unlink,
     writeFile,
   }
