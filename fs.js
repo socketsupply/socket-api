@@ -1,6 +1,7 @@
 'use strict'
 const EventEmitter = require('./events')
 const Buffer = require('./buffer')
+const { write } = require('./ieee754')
 
 const _require = typeof require !== 'undefined' && require
 
@@ -186,11 +187,11 @@ const unlink = async (path) => {
 const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = 'w', signal }) => {
   // TODO: implement AbortSignal support
 
-  const { fd } = new FileHandle()
+  if (Buffer.isBuffer(file)) {
+    file = file.toString()
+  }
 
-  // open a file
-  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fd, path: file, flags: flag })
-  if (fsOpenErr) throw fsOpenErr
+  const fileHandle = typeof file === 'string' ? new FileHandle() : file
 
   // `data` is one of <string> | <Buffer> | <TypedArray> | <DataView> | <AsyncIterable> | <Iterable> | <Stream>
   // TODO: we support only <string> and <Buffer>  at the moment
@@ -198,16 +199,14 @@ const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = '
   if (typeof data === 'string') {
     ipcEncodedData = data
   } else if (Buffer.isBuffer(data)) {
-    ipcEncodedData = data.toString()
+    ipcEncodedData = data.toString(encoding)
   } else {
     throw new Error('Unsupported data type ', typeof data)
   }
-  // write to a file
-  const { err: fsWriteErr } = await window._ipc.send('fsWrite', { id: fd, data: ipcEncodedData, offset: 0 })
-  if (fsOpenErr) throw fsWriteErr
-  // close a file
-  const { err: fsCloseErr } = await window._ipc.send('fsCloseErr', { id: fd })
-  if (fsCloseErr) throw fsCloseErr
+
+  await fileHandle.write(ipcEncodedData, 0, ipcEncodedData.length, 0)
+  
+  await fileHandle.close()
 }
 
 /**
@@ -285,10 +284,10 @@ module.exports = {
 
   // Node.js-like API exposed below
   fsPromises: {
-    writeFile,
     open,
     readFile,
     rm,
-    unlink: rm // alias for now
+    unlink: rm, // alias for now
+    writeFile,
   }
 }
