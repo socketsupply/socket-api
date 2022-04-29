@@ -143,18 +143,6 @@ const mkdir = async (path, options) => {
   if (err) throw err
 }
 
-const open = async (path, flags, mode) => {
-  const fd = new FileHandle()
-
-  // this id will be the key in the map that stores the file handle on the
-  // objective-c side of the bridge.
-  const { err } = await window._ipc.send('fsOpen', { id: fd.fd, path, flags, mode })
-
-  if (err) throw err
-
-  return fd
-}
-
 const readdir = async (path, _) => {
   // TODO document that "options" (arg at index=1) is unused
   const { err, data } = await window._ipc.send('fsReadDir', { path })
@@ -221,6 +209,7 @@ const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = '
   const { err: fsCloseErr } = await window._ipc.send('fsCloseErr', { id: fd })
   if (fsCloseErr) throw fsCloseErr
 }
+
 /**
  * https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
  *
@@ -229,10 +218,16 @@ const writeFile = async (file, data, { encoding = 'utf8', mode = 0o666, flag = '
  * @param {string} mode - default: 0o666
  * @returns {Promise<FileHandle>}
  */
-const fsPromisesOpen = async (path, flags, mode) => {
+const open = async (path, flags = 'r', mode = 0o666) => {
   const fileHandle = new FileHandle()
 
-  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fd, path, flags })
+  if (Buffer.isBuffer(path)) {
+    path = path.toString()
+  }
+
+  // this id will be the key in the map that stores the file handle on the
+  // objective-c side of the bridge.
+  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fileHandle.fd, path, flags })
   if (fsOpenErr) throw fsOpenErr
 
   return fileHandle
@@ -295,7 +290,7 @@ module.exports = {
   // Node.js-like API exposed below
   fsPromises: {
     writeFile,
-    open: fsPromisesOpen,
+    open,
     readFile,
     rm,
     unlink: rm // alias for now
