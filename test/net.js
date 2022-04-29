@@ -56,6 +56,8 @@ test('net.connect', t => {
     t.equal(err, null)
     t.equal(stream.allowHalfOpen, false)
 
+    const ID = _stream.clientId
+
     mock.create(t, 'tcpSend',
       { clientId: ID, data: HELLO },
       {}
@@ -111,6 +113,8 @@ test('net.connect, allowHalfOpen=false', (t) => {
     t.equal(err, null)
     t.equal(stream.allowHalfOpen, false)
 
+    const ID = _stream.clientId
+
     stream.on('end', function () {
       ended = true
     })
@@ -154,6 +158,8 @@ test('net.connect allowHalfOpen=true', (t) => {
     t.equal(_stream, stream)
     t.equal(err, null)
     t.equal(stream.allowHalfOpen, true)
+
+    const ID = _stream.clientId
 
     stream.on('end', function () {
       ended = true
@@ -210,6 +216,8 @@ test('net.connect allowHalfOpen=true, write write write', (t) => {
     })
 
     const waiting = []
+
+    const ID = _stream.clientId
 
     function next (data) {
       const p = new Promise((resolve) => {
@@ -284,6 +292,8 @@ test.skip('net.connect', (t) => {
     t.equal(err, null)
     t.equal(stream.allowHalfOpen, false)
 
+    const ID = _stream.clientId
+
     mock.methods.tcpReadStart = [(q) => {
       t.deepEqual(q, { clientId: ID })
       return (async () => {
@@ -339,6 +349,9 @@ test('net.connect allowHalfOpen=true readStart readStop', (t) => {
     t.equal(_stream, stream)
     t.equal(err, null)
     t.equal(stream.allowHalfOpen, true)
+
+    const ID = _stream.clientId
+
     //    stream.end()
     mock.methods.tcpReadStart = [(q) => {
       t.deepEqual(q, { clientId: ID })

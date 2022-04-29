@@ -1,6 +1,6 @@
 'use strict'
 const EventEmitter = require('./events')
-const Buffer = require('./buffer')
+const { Buffer } = require('./buffer')
 
 const _require = typeof require !== 'undefined' && require
 
@@ -341,7 +341,7 @@ module.exports = {
   rand64,
   constants,
   // Node.js-like API exposed below
-  fsPromises: {
+  promises: {
     copyFile,
     mkdir,
     open,
