@@ -1,9 +1,27 @@
 'use strict'
 const EventEmitter = require('./events')
 const Buffer = require('./buffer')
-const { write } = require('./ieee754')
 
 const _require = typeof require !== 'undefined' && require
+
+
+const constants = {
+  /*
+   * This flag can be used with uv_fs_copyfile() to return an error if the
+   * destination already exists.
+   */
+  COPYFILE_EXCL: 0x0001,
+  /*
+   * This flag can be used with uv_fs_copyfile() to attempt to create a reflink.
+   * If copy-on-write is not supported, a fallback copy mechanism is used.
+   */
+  COPYFILE_FICLONE: 0x0002,
+  /*
+   * This flag can be used with uv_fs_copyfile() to attempt to create a reflink.
+   * If copy-on-write is not supported, an error is returned.
+   */
+  COPYFILE_FICLONE_FORCE: 0x0004,
+}
 
 // so this is re-used instead of creating new one each rand64() call
 const bui64arr = new BigUint64Array(1)
@@ -125,12 +143,22 @@ class FileHandle extends EventEmitter {
   }
 }
 
-const copy = async (src, dest, options) => {
-  const {
-    recursive // TODO support on the objective-c++ side
-  } = options
-
-  const { err } = await window._ipc.send('fsCopy', { src, dest, recursive })
+/**
+ * https://nodejs.org/api/fs.html#fspromisescopyfilesrc-dest-mode
+ * 
+ * @param {string | Buffer} src source filename to copy
+ * @param {string | Buffer} dest destination filename of the copy operation
+ * @param {number} mode defaults to constants.COPYFILE_EXCL
+ * @returns {Promise<void>}
+ */
+const copyFile = async (src, dest, mode = 0) => {
+  if (Buffer.isBuffer(src)) {
+    src = src.toString()
+  }
+  if (Buffer.isBuffer(dest)) {
+    dest = dest.toString()
+  }
+  const { err } = await window._ipc.send('fsCopyFile', { src, dest, mode })
   if (err) throw err
 }
 
@@ -208,8 +236,6 @@ const rmdir = async (path, options) => {
   const { err } = await window._ipc.send('fsRmDir', { path, recursive })
   if (err) throw err
 }
-
-// Node.js-like API below
 
 /**
  * https://nodejs.org/api/fs.html#filehandlewritefiledata-options
@@ -309,14 +335,12 @@ const unlink = async (path, { force = false, maxRetries = 0, recursive = false, 
   if (err) throw err
 }
 
-// End of Node.js-like API
-
 module.exports = {
-  copy,
   rand64,
-
+  constants,
   // Node.js-like API exposed below
   fsPromises: {
+    copyFile,
     mkdir,
     open,
     readdir,
