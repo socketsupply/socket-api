@@ -242,21 +242,17 @@ const open = async (path, flags = 'r', mode = 0o666) => {
  * @param {AbortSignal} options.signal
  * @returns {Promise<string>}
  */
-const readFile = async (file, { encoding = 'utf8', flag = 'r', signal }) => {
+const readFile = async (path, { encoding = 'utf8', flag = 'r', signal }) => {
   // TODO: implement AbortSignal support
 
-  const fileHandle = new FileHandle()
-
-  // open a file
-  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fileHandle.fd, path: file, flags: flag })
-  if (fsOpenErr) throw fsOpenErr
+  const fileHandle = await open(path, flag)
 
   const { size } = fileHandle.stat()
 
   const { err: fsReadErr, data } = await window._ipc.send('fsRead', { id: fileHandle.fd, offset: 0, length: size })
   if (fsReadErr) throw fsReadErr
 
-  return data
+  return encoding ? data : Buffer.from(data)
 }
 /**
  * https://nodejs.org/api/fs.html#fspromisesrmpath-options
