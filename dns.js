@@ -1,8 +1,13 @@
 'use strict'
 
-const lookup = async (hostname, cb) => {
+const lookup = async (hostname, opts, cb) => {
   const params = {
     hostname
+  }
+
+  if (typeof opts === 'function') {
+    cb = opts
+    opts = {}
   }
 
   const { err, data } = await window._ipc.send('dnsLookup', params)
