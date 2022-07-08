@@ -1,10 +1,12 @@
 'use strict'
+
 const EventEmitter = require('./events')
 const { Buffer } = require('./buffer')
+const ipc = require('./ipc')
 
 const _require = typeof require !== 'undefined' && require
 
-const constants = {
+const constants = Object.assign(Object.create(null), {
   /*
    * This flag can be used with uv_fs_copyfile() to return an error if the
    * destination already exists.
@@ -20,13 +22,17 @@ const constants = {
    * If copy-on-write is not supported, an error is returned.
    */
   COPYFILE_FICLONE_FORCE: 0x0004
+})
+
+for (const [k, v] of new URLSearchParams(String(ipc.sendSync('fsConstants')))) {
+  constants[k] = parseInt(v)
 }
 
 // so this is re-used instead of creating new one each rand64() call
 const bui64arr = new BigUint64Array(1)
-const rand64 = () => {
-  const method = globalThis.crypto ? globalThis.crypto : _require('crypto').webcrypto
-  return method.getRandomValues(bui64arr)[0]
+function rand64 () {
+  const crypto = globalThis.crypto ? globalThis.crypto : _require('crypto').webcrypto
+  return crypto.getRandomValues(bui64arr)[0]
 }
 
 class Stats {
@@ -77,44 +83,145 @@ class Stats {
   }
 }
 
+function ipcRequest (command, data) {
+  const params = { ...data }
+
+  for (const key in params) {
+    if (params[key] === undefined) {
+      delete params[key]
+    }
+  }
+
+  const promise = globalThis._ipc.send(command, params)
+  const { seq, index } = promise
+  const resolved = promise.then((result) => {
+    const value = result?.value || result
+
+    if (value?.err) {
+      throw Object.assign(new Error(value.err.message), value.err)
+    }
+
+    if (value && 'data' in value) {
+      if (value.data instanceof ArrayBuffer) {
+        return new Uint8Array(value.data)
+      }
+    }
+
+    return value
+  })
+
+  return Object.assign(resolved, { seq, index })
+}
+
+function convertOpenFlagStringToFlags (flags) {
+  switch (flags) {
+    case 'r':
+      return constants.O_RDONLY
+
+    case 'rs': case 'sr':
+      return constants.O_RDONLY | constants.O_SYNC
+
+    case 'r+':
+      return constants.O_RDWR;
+
+    case 'rs+': case 'sr+':
+      return constants.O_RDWR | constants.O_SYNC
+
+    case 'w':
+      return constants.O_TRUNC | constants.O_CREAT | constants.O_WRONLY
+
+    case 'wx': case 'xw':
+      return constants.O_TRUNC | constants.O_CREAT | constants.O_WRONLY | constants.O_EXCL
+
+    case 'w+':
+      return constants.O_TRUNC | constants.O_CREAT | constants.O_RDWR
+
+    case 'wx+': case 'xw+':
+      return constants.O_TRUNC | constants.O_CREAT | constants.O_RDWR | constants.O_EXCL
+
+    case 'a':
+      return constants.O_APPEND | constants.O_CREAT | constants.O_WRONLY
+
+    case 'ax': case 'xa':
+      return constants.O_APPEND | constants.O_CREAT | constants.O_WRONLY | constants.O_EXCL
+
+    case 'as': case 'sa':
+      return constants.O_APPEND | constants.O_CREAT | constants.O_WRONLY | constants.O_SYNC
+
+    case 'a+':
+      return constants.O_APPEND | constants.O_CREAT | constants.O_RDWR
+
+    case 'ax+': case 'xa+':
+      return constants.O_APPEND | constants.O_CREAT | constants.O_RDWR | constants.O_EXCL
+
+    case 'as+': case 'sa+':
+      return constants.O_APPEND | constants.O_CREAT | constants.O_RDWR | constants.O_SYNC
+  }
+
+  return constants.O_RDONLY
+}
+
+function makeErrBack (fn) {
+  return (...args) {
+    const callback = args.pop()
+    if (typeof callback !== 'function') {
+      throw new TypeError('Expecting callback to be a function.')
+    }
+
+    try {
+      fn(...args)
+        .then((result) => {
+          if (Array.isArray(result)) {
+            callback(null, ...results)
+          } else {
+            callback(null, result)
+          }
+        })
+        .catch((err) => callback(err))
+    } catch (err) {
+      callback(err)
+    }
+  }
+}
+
 class FileHandle extends EventEmitter {
   constructor () {
     super()
+    this.path = null
     // this id will be used to identify the file handle that is a reference
     // stored in a map container on the objective-c side of the bridge.
-    this.fd = rand64()
+    this.id = rand64()
+    this.fd = null // internal file descriptor
   }
 
   async close () {
-    const { err } = await window._ipc.send('fsClose', { id: this.fd })
-    if (err) throw err
-
+    await ipcRequest('fsClose', this)
+    this.fd = null
     this.emit('close')
   }
 
   async read (options) {
-    const {
-      buffer,
-      offset,
-      length,
-      position
-    } = options
+    const { buffer, offset, length, position } = options
+    const params = { id: this.id, offset, length, position }
 
-    const params = {
-      id: this.fd,
-      offset,
-      length,
-      position
+    const request = ipcRequest('fsRead', params)
+    const { seq } = request
+
+    if (seq) {
+      globalThis.addEventListener('data', ondata)
     }
 
-    const { err, data } = await window._ipc.send('fsRead', params)
-    if (err) throw err
+    return request
 
-    Buffer.from(data.buffer).copy(buffer)
-
-    return {
-      bytesRead: data.bytesRead,
-      buffer: buffer
+    function ondata (event) {
+      const { data, params } = event.detail || {}
+      if (data && parseInt(params?.seq) === parseInt(seq)) {
+        window.removeEventListener('data', ondata)
+        ipc.resolve(seq, 0 /* OK */, {
+          bytesRead: data.length,
+          buffer: Buffer.from(data)
+        })
+      }
     }
   }
 
@@ -192,19 +299,28 @@ const mkdir = async (path, options) => {
  * @param {string} mode - default: 0o666
  * @returns {Promise<FileHandle>}
  */
-const open = async (path, flags = 'r', mode = 0o666) => {
-  const fileHandle = new FileHandle()
+async function open (path, flags = 'r', mode = 0o666) {
+  const handle = new FileHandle()
 
   if (Buffer.isBuffer(path)) {
     path = path.toString()
   }
 
-  // this id will be the key in the map that stores the file handle on the
-  // objective-c side of the bridge.
-  const { err: fsOpenErr } = await window._ipc.send('fsOpen', { id: fileHandle.fd, path, flags })
-  if (fsOpenErr) throw fsOpenErr
+  if (typeof flags === 'string' ) {
+    flags = convertOpenFlagStringToFlags(flags)
+  }
 
-  return fileHandle
+  const result = await ipcRequest('fsOpen', {
+    id: handle.id,
+    path,
+    mode,
+    flags
+  })
+
+  handle.fd = result.fd
+  handle.path = path
+
+  return handle
 }
 
 /**
