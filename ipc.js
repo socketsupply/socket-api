@@ -1,10 +1,23 @@
+'use strict'
+/* global XMLHttpRequest, window */
+
+const OK = 0
+const ERROR = 1
+
 async function ready () {
-  return await new Promise((resolve) => {
+  return await new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') {
+      return reject(new TypeError('Global window is not defined.'))
+    }
+
     return loop()
 
     function loop () {
-      if (window._ipc) { resolve() }
-      else { queueMicrotask(loop) }
+      if (window._ipc) {
+        return resolve()
+      }
+
+      queueMicrotask(loop)
     }
   })
 }
@@ -24,6 +37,12 @@ function sendSync (command, params) {
   request.open('GET', uri + query, false)
   request.send(null)
 
+  try {
+    return JSON.parse(request.response)
+  } catch (err) {
+    console.warn(err.message || err)
+  }
+
   return request.response
 }
 
@@ -42,10 +61,61 @@ async function send (...args) {
   return await window._ipc.send(...args)
 }
 
+async function request (command, data) {
+  await ready()
+
+  const params = { ...data }
+
+  for (const key in params) {
+    if (params[key] === undefined) {
+      delete params[key]
+    }
+  }
+
+  const promise = globalThis._ipc.send(command, params)
+  const { seq, index } = promise
+  const resolved = promise.then((result) => {
+    const value = result?.value || result
+
+    if (value?.err) {
+      throw Object.assign(new Error(value.err.message), value.err)
+    }
+
+    if (value && 'data' in value) {
+      if (value.data instanceof ArrayBuffer) {
+        return new Uint8Array(value.data)
+      }
+
+      return value.data
+    }
+
+    return value
+  })
+
+  // handle async resolution from IPC over XHR
+  window.addEventListener('data', ondata)
+
+  return Object.assign(resolved, { seq, index })
+
+  function ondata (event) {
+    if (event.detail?.data) {
+      const { data, params } = event.detail
+      if (parseInt(params.seq) === parseInt(seq)) {
+        window.removeEventListener('data', ondata)
+        resolve(seq, OK, data)
+      }
+    }
+  }
+}
+
 module.exports = {
+  OK,
+  ERROR,
+
   emit,
   ready,
   resolve,
+  request,
   send,
   sendSync
 }
