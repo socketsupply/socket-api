@@ -113,6 +113,54 @@ function close (fd, callback) {
 function copyFile (src, dest, mode, callback) {
 }
 
+function createReadStream (path, options) {
+  if (path?.fd) {
+    options = path
+    path = options?.path || null
+  }
+
+  const stream = new ReadStream(options)
+  let handle = null
+
+  if (options?.fd) {
+    handle = FileHandle.from(options.fd)
+  } else {
+    handle = new FileHandle({ path, ...options })
+    handle.open().catch((err) => stream.emit('error', err))
+    stream.once('close', () => {
+      handle.close().catch((err) => stream.emit('error', err))
+    })
+  }
+
+  stream.setHandle(handle)
+
+  return stream
+}
+
+function createWriteStream (path, options) {
+  if (path?.fd) {
+    options = path
+    path = options?.path || null
+  }
+
+  const stream = new WriteStream(options)
+  let handle = null
+
+  if (options?.fd) {
+    handle = FileHandle.from(options.fd)
+  } else {
+    handle = new FileHandle({ path, ...options })
+    handle.open().catch((err) => stream.emit('error', err))
+    stream.once('close', () => {
+      handle.close().catch((err) => stream.emit('error', err))
+    })
+  }
+
+  stream.setHandle(handle)
+
+  return stream
+}
+
 function fstat (fd, options, callback) {
   if (typeof options === 'function') {
     callback = options
@@ -400,6 +448,8 @@ module.exports = {
   chown,
   close,
   copyFile,
+  createReadStream,
+  createWriteStream,
   fstat,
   lchmod,
   lchown,

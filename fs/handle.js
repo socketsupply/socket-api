@@ -1,4 +1,5 @@
 const { isBufferLike, isTypedArray, rand64 } = require('../util')
+const { ReadStream, WriteStream } = require('./stream')
 const { normalizeFlags } = require('./flags')
 const { EventEmitter } = require('../events')
 const { Buffer } = require('../buffer')
@@ -30,13 +31,7 @@ class FileHandle extends EventEmitter {
       throw new Error('Invalid file descriptor.')
     }
 
-    const handle = new this({ fd, id })
-
-    handle.flags = null
-    handle.path = null
-    handle.mode = null
-
-    return handle
+    return new this({ fd, id })
   }
 
   /**
@@ -77,16 +72,7 @@ class FileHandle extends EventEmitter {
       throw new TypeError('Expecting path to be a string, Buffer, or URL.')
     }
 
-    const request = await ipc.request('fsOpen', {
-      id: handle.id,
-      flags: handle.flags,
-      mode: handle.mode,
-      path: handle.path
-    })
-
-    handle.fd = request.fd
-
-    fds.set(handle.id, handle.fd)
+    await handle.open()
 
     return handle
   }
@@ -111,6 +97,14 @@ class FileHandle extends EventEmitter {
     // stored in a map container on the objective-c side of the bridge.
     this.id = options.id || String(rand64())
     this.fd = options.fd || null // internal file descriptor
+  }
+
+  get closed () {
+    return !fds.get(this.id)
+  }
+
+  get opened () {
+    return !this.closed
   }
 
   /**
@@ -145,18 +139,36 @@ class FileHandle extends EventEmitter {
    * @TODO
    */
   createReadStream (options) {
+    return new ReadStream({ handle: this, ...options })
   }
 
   /**
    * @TODO
    */
   createWriteStream (options) {
+    return new WriteStream({ handle: this, ...options })
   }
 
   /**
    * @TODO
    */
   async datasync () {
+  }
+
+  async open () {
+    const { flags, mode, path, id } = this
+    const request = await ipc.request('fsOpen', {
+      id: id,
+      flags: flags,
+      mode: mode,
+      path: path
+    })
+
+    this.fd = request.fd
+
+    fds.set(this.id, this.fd)
+
+    this.emit('open', this.fd)
   }
 
   /**
@@ -219,7 +231,7 @@ class FileHandle extends EventEmitter {
     const response = await ipc.request('fsRead', {
       id,
       size: length,
-      offset
+      offset: position
     })
 
     if (response instanceof ArrayBuffer) {
