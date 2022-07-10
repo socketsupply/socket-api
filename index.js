@@ -1,6 +1,6 @@
 'use strict'
 
-const { Buffer } = require('./buffer')
+const buffer = require('./buffer')
 const dgram = require('./dgram')
 const dns = require('./dns')
 const events = require('./events')
@@ -11,6 +11,8 @@ const os = require('./os')
 const stream = require('./stream')
 
 module.exports = {
+  buffer,
+  Buffer: buffer.Buffer,
   dgram,
   dns,
   events,

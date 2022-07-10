@@ -20,7 +20,28 @@ exports.SlowBuffer = SlowBuffer
 exports.INSPECT_MAX_BYTES = 50
 
 const K_MAX_LENGTH = 0x7fffffff
+const K_MAX_STRING_LENGTH = 0x1fffffe8
+
+if (typeof window === 'object') {
+  if (typeof window.atob === 'function') {
+    exports.atob = window.atob
+  }
+
+  if (typeof window.btoa === 'function') {
+    exports.btoa = window.btoa
+  }
+
+  if (typeof window.Blob === 'function') {
+    exports.Blob = window.Blob
+  }
+}
+
 exports.kMaxLength = K_MAX_LENGTH
+exports.kMaxStringLength = K_MAX_STRING_LENGTH
+exports.constants = {
+  MAX_LENGTH: K_MAX_LENGTH,
+  MAX_STRING_LENGTH: K_MAX_STRING_LENGTH
+}
 
 /**
  * If `Buffer.TYPED_ARRAY_SUPPORT`:
