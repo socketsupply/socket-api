@@ -1,15 +1,25 @@
 'use strict'
 
+const { toProperCase } = require('./util')
 const ipc = require('./ipc')
 
 const UNKNOWN = 'unknown'
 
 function arch () {
-  return (
-    window.process.arch ||
+  const value = (
+    window.process?.arch ||
     ipc.sendSync('getPlatformArch')?.value?.data ||
     UNKNOWN
   )
+
+  if (value === 'arm64') {
+    return value
+  }
+
+  return value
+    .replace('x86_64', 'x64')
+    .replace('x86', 'ia32')
+    .replace(/arm.*/, 'arm')
 }
 
 function networkInterfaces () {
@@ -81,19 +91,21 @@ function networkInterfaces () {
 
 function platform () {
   return (
-    window.process.os ||
+    window.process?.os ||
     ipc.sendSync('getPlatformOS')?.value?.data ||
-    window.process.platform ||
+    window.process?.platform ||
     UNKNOWN
   )
 }
 
 function type () {
-  return (
-    window.process.platform ||
+  const value = (
+    window.process?.platform ||
     ipc.sendSync('getPlatformType')?.value?.data ||
     UNKNOWN
   )
+
+  return toProperCase(value)
 }
 
 module.exports = {
@@ -103,7 +115,7 @@ module.exports = {
   type,
 
   get EOL () {
-    if (/win/.test(type())) {
+    if (/win/i.test(type())) {
       return '\r\n'
     }
 

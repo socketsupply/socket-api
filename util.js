@@ -22,6 +22,10 @@ function toBuffer (object) {
   return Buffer.from(object)
 }
 
+function toProperCase (string) {
+  return string[0].toUpperCase() + string.slice(1)
+}
+
 // so this is re-used instead of creating new one each rand64() call
 const tmp = new BigUint64Array(1)
 function rand64 () {
@@ -33,5 +37,6 @@ module.exports = {
   isBufferLike,
   isTypedArray,
   rand64,
-  toBuffer
+  toBuffer,
+  toProperCase
 }

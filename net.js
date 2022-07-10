@@ -1,7 +1,7 @@
 'use strict'
 
 const { EventEmitter } = require('./events')
-const { Duplex } = require('./streams')
+const { Duplex } = require('./stream')
 
 const _require = typeof require !== 'undefined' && require
 

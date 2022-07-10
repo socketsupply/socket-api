@@ -159,7 +159,7 @@ const WRITE_ACTIVE_AND_SYNC = WRITE_ACTIVE | WRITE_SYNC
 const WRITE_FINISHING_STATUS = OPEN_STATUS | WRITE_FINISHING | WRITE_QUEUED
 const WRITE_BACKPRESSURE_STATUS = WRITE_UNDRAINED | DESTROY_STATUS | WRITE_FINISHING | WRITE_DONE
 
-const asyncIterator = Symbol.asyncIterator || Symbol('asyncIterator')
+const asyncIterator = Symbol.asyncIterator || Symbol.for('asyncIterator')
 
 class WritableState {
   constructor (stream, { highWaterMark = 16384, map = null, mapWritable, byteLength, byteLengthWritable } = {}) {
