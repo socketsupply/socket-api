@@ -1,8 +1,8 @@
 'use strict'
 
-const fs = require('../fs').promises
+const fs = require('../../node/fs').promises
 const { test } = require('tape')
-const mock = require('./mock')
+const mock = require('../mock')
 
 test('FileHandler', async t => {
   mock.create(t, 'fsOpen',
