@@ -1,6 +1,6 @@
 {
-  "name": "@socketsupply/mobile",
-  "version": "1.0.10",
+  "name": "@socketsupply/io",
+  "version": "0.1.0",
   "main": "index.js",
   "scripts": {
     "lint": "standardx -v",
@@ -11,12 +11,12 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/socketsupply/mobile.git"
+    "url": "git+https://github.com/socketsupply/io.git"
   },
   "bugs": {
-    "url": "https://github.com/socketsupply/mobile/issues"
+    "url": "https://github.com/socketsupply/io/issues"
   },
-  "homepage": "https://github.com/socketsupply/mobile#readme",
+  "homepage": "https://github.com/socketsupply/io#readme",
   "description": "",
   "devDependencies": {
     "standardx": "7.0.0",
