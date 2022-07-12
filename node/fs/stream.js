@@ -45,7 +45,7 @@ class ReadStream extends Readable {
    * @TODO
    */
   setHandle (handle) {
-    setHandle(handle)
+    setHandle(this, handle)
   }
 
   /**
@@ -116,7 +116,7 @@ class WriteStream extends Writable {
    * @TODO
    */
   setHandle (handle) {
-    setHandle(handle)
+    setHandle(this, handle)
   }
 
   /**
