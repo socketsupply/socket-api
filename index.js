@@ -1,15 +1,9 @@
-'use strict'
-
-const events = require('./events')
-const net = require('./net')
-const dgram = require('./dgram')
-const fs = require('./fs')
-const dns = require('./dns')
+const node = require('./node')
+const web = require('./web')
+const ipc = require('./ipc')
 
 module.exports = {
-  events,
-  net,
-  dgram,
-  fs,
-  dns
+  ipc,
+  node,
+  web
 }

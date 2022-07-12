@@ -1,10 +1,10 @@
 {
-  "name": "@socketsupply/mobile",
+  "name": "@socketsupply/io",
   "version": "1.0.10",
   "main": "index.js",
   "scripts": {
     "lint": "standardx -v",
-    "test": "tape ./test/*.js",
+    "test": "tape ./test/node/*.js",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
   "author": "",

@@ -2,8 +2,8 @@
 
 const { EventEmitter } = require('./events')
 const { isIPv4 } = require('./net')
-const dns = require('./dns')
 const { Buffer } = require('./buffer')
+const dns = require('./dns')
 
 const isArrayBufferView = buf => {
   return !Buffer.isBuffer(buf) && ArrayBuffer.isView(buf)
