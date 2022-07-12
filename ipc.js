@@ -1,5 +1,5 @@
 'use strict'
-/* global XMLHttpRequest, window */
+/* global window */
 
 const OK = 0
 const ERROR = 1

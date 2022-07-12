@@ -2,7 +2,7 @@
 
 const mock = require('./mock')
 
-const fs = require('../fs').promises
+const fs = require('../../node/fs/promises')
 const { test } = require('tape')
 
 test('FileHandle', async t => {

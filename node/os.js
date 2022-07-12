@@ -1,7 +1,7 @@
 'use strict'
 
-const { toProperCase } = require('./util')
-const ipc = require('./ipc')
+const { toProperCase } = require('../util')
+const ipc = require('../ipc')
 
 const UNKNOWN = 'unknown'
 

@@ -1,3 +1,5 @@
+'use strict'
+
 const constants = require('./constants')
 
 function normalizeFlags (flags) {

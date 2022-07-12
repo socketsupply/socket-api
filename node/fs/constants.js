@@ -1,6 +1,6 @@
 'use strict'
 
-const ipc = require('../ipc')
+const ipc = require('../../ipc')
 
 function getNativeConstants () {
   return ipc.sendSync('getFSConstants')?.value?.data || {}

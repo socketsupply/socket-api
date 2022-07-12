@@ -1,7 +1,7 @@
 'use strict'
 
 const { ReadStream, WriteStream } = require('./fs/stream')
-const { isBufferLike } = require('./util')
+const { isBufferLike } = require('../util')
 const { Dir, Dirent } = require('./fs/dir')
 const { FileHandle } = require('./fs/handle')
 const { Stats } = require('./fs/stats')

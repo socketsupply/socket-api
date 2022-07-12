@@ -1,4 +1,4 @@
-const { Buffer } = require('./buffer')
+const { Buffer } = require('./node/buffer')
 
 const _require = typeof require !== 'undefined' && require
 

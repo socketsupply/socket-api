@@ -3,7 +3,7 @@
 const mock = require('./mock')
 
 const { test } = require('tape')
-const net = require('../net')
+const net = require('../../node/net')
 
 // createServer, call listen, close server
 test('net.createServer', t => {

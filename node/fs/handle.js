@@ -1,11 +1,13 @@
-const { isBufferLike, isTypedArray, rand64 } = require('../util')
+'use strict'
+
+const { isBufferLike, isTypedArray, rand64 } = require('../../util')
 const { ReadStream, WriteStream } = require('./stream')
 const { normalizeFlags } = require('./flags')
 const { EventEmitter } = require('../events')
 const { Buffer } = require('../buffer')
 const { Stats } = require('./stats')
 const constants = require('./constants')
-const ipc = require('../ipc')
+const ipc = require('../../ipc')
 const fds = require('./fds')
 
 /**
