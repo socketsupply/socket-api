@@ -7,7 +7,7 @@ const ERROR = 1
 async function ready () {
   return await new Promise((resolve, reject) => {
     if (typeof window === 'undefined') {
-      return reject(new TypeError('Global window is not defined.'))
+      return reject(new TypeError('Global window object is not defined.'))
     }
 
     return loop()
@@ -23,7 +23,12 @@ async function ready () {
 }
 
 function sendSync (command, params) {
-  const request = new XMLHttpRequest()
+  if (typeof window === 'undefined') {
+    console.warn('Global window object is not defined')
+    return {}
+  }
+
+  const request = new window.XMLHttpRequest()
   const index = window.process ? window.process.index : 0
   const seq = window._ipc ? window._ipc.nextSeq++ : 0
   const uri = `ipc://${command}`
@@ -72,7 +77,9 @@ async function request (command, data) {
     }
   }
 
-  const promise = globalThis._ipc.send(command, params)
+  const parent = typeof window === 'object' ? window : globalThis
+  const promise = parent._ipc.send(command, params)
+
   const { seq, index } = promise
   const resolved = promise.then((result) => {
     const value = result?.value || result
@@ -93,7 +100,7 @@ async function request (command, data) {
   })
 
   // handle async resolution from IPC over XHR
-  window.addEventListener('data', ondata)
+  parent.addEventListener('data', ondata)
 
   return Object.assign(resolved, { seq, index })
 

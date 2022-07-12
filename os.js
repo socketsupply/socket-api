@@ -6,6 +6,14 @@ const ipc = require('./ipc')
 const UNKNOWN = 'unknown'
 
 function arch () {
+  if (typeof window !== 'object') {
+    if (typeof process === 'object' && typeof process.arch === 'string') {
+      return process.arch
+    }
+
+    return UNKNOWN
+  }
+
   const value = (
     window.process?.arch ||
     ipc.sendSync('getPlatformArch')?.value?.data ||
@@ -90,6 +98,14 @@ function networkInterfaces () {
 }
 
 function platform () {
+  if (typeof window !== 'object') {
+    if (typeof process === 'object' && typeof process.platform === 'string') {
+      return process.platform
+    }
+
+    return UNKNOWN
+  }
+
   return (
     window.process?.os ||
     ipc.sendSync('getPlatformOS')?.value?.data ||
@@ -99,6 +115,16 @@ function platform () {
 }
 
 function type () {
+  if (typeof window !== 'object') {
+    switch (platform()) {
+      case 'linux': return 'Linux'
+      case 'darnwin': return 'Darwin'
+      case 'win32': return 'Windows' // Windows_NT?
+    }
+
+    return UNKNOWN
+  }
+
   const value = (
     window.process?.platform ||
     ipc.sendSync('getPlatformType')?.value?.data ||

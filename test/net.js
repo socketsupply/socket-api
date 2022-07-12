@@ -1,7 +1,8 @@
 'use strict'
 
-const { test } = require('tape')
 const mock = require('./mock')
+
+const { test } = require('tape')
 const net = require('../net')
 
 // createServer, call listen, close server
