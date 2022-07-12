@@ -3,7 +3,7 @@
 const ipc = require('../../ipc')
 
 function getNativeConstants () {
-  return ipc.sendSync('getFSConstants')?.value?.data || {}
+  return ipc.sendSync('getFSConstants')?.data || {}
 }
 
 module.exports = Object.assign(Object.create(null), {

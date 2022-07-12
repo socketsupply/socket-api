@@ -5,7 +5,17 @@ const ipc = require('../ipc')
 
 const UNKNOWN = 'unknown'
 
+const cache = {
+  arch: UNKNOWN,
+  type: UNKNOWN,
+  platform: UNKNOWN
+}
+
 function arch () {
+  if (cache.arch !== UNKNOWN) {
+    return cache.arch
+  }
+
   if (typeof window !== 'object') {
     if (typeof process === 'object' && typeof process.arch === 'string') {
       return process.arch
@@ -16,7 +26,7 @@ function arch () {
 
   const value = (
     window.process?.arch ||
-    ipc.sendSync('getPlatformArch')?.value?.data ||
+    ipc.sendSync('getPlatformArch')?.data ||
     UNKNOWN
   )
 
@@ -24,14 +34,16 @@ function arch () {
     return value
   }
 
-  return value
+  cache.arch = value
     .replace('x86_64', 'x64')
     .replace('x86', 'ia32')
     .replace(/arm.*/, 'arm')
+
+  return cache.arch
 }
 
 function networkInterfaces () {
-  const { ipv4, ipv6 } = ipc.sendSync('getNetworkInterfaces')?.value.data || {}
+  const { ipv4, ipv6 } = ipc.sendSync('getNetworkInterfaces')?.data || {}
   const interfaces = {}
 
   for (const type in ipv4) {
@@ -98,6 +110,10 @@ function networkInterfaces () {
 }
 
 function platform () {
+  if (cache.platform !== UNKNOWN) {
+    return cache.platform
+  }
+
   if (typeof window !== 'object') {
     if (typeof process === 'object' && typeof process.platform === 'string') {
       return process.platform
@@ -106,15 +122,21 @@ function platform () {
     return UNKNOWN
   }
 
-  return (
+  cache.platform = (
     window.process?.os ||
-    ipc.sendSync('getPlatformOS')?.value?.data ||
+    ipc.sendSync('getPlatformOS')?.data ||
     window.process?.platform ||
     UNKNOWN
   )
+
+  return cache.platform
 }
 
 function type () {
+  if (cache.type !== UNKNOWN) {
+    return cache.type
+  }
+
   if (typeof window !== 'object') {
     switch (platform()) {
       case 'linux': return 'Linux'
@@ -127,11 +149,12 @@ function type () {
 
   const value = (
     window.process?.platform ||
-    ipc.sendSync('getPlatformType')?.value?.data ||
+    ipc.sendSync('getPlatformType')?.data ||
     UNKNOWN
   )
 
-  return toProperCase(value)
+  cache.type = toProperCase(value)
+  return cache.type
 }
 
 module.exports = {

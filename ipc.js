@@ -82,21 +82,19 @@ async function request (command, data) {
 
   const { seq, index } = promise
   const resolved = promise.then((result) => {
-    const value = result?.value || result
-
-    if (value?.err) {
-      throw Object.assign(new Error(value.err.message), value.err)
+    if (result?.err) {
+      throw Object.assign(new Error(result.err.message), result.err)
     }
 
-    if (value && 'data' in value) {
-      if (value.data instanceof ArrayBuffer) {
-        return new Uint8Array(value.data)
+    if (result && 'data' in result) {
+      if (result.data instanceof ArrayBuffer) {
+        return new Uint8Array(result.data)
       }
 
-      return value.data
+      return result.data
     }
 
-    return value
+    return result
   })
 
   // handle async resolution from IPC over XHR
