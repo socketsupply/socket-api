@@ -1,7 +1,7 @@
 'use strict'
 
 const { ReadStream, WriteStream } = require('./fs/stream')
-const { isBufferLike } = require('../util')
+const { isBufferLike, isFunction } = require('../util')
 const { Dir, Dirent } = require('./fs/dir')
 const { FileHandle } = require('./fs/handle')
 const { Stats } = require('./fs/stats')
@@ -476,4 +476,11 @@ module.exports = {
   write,
   writeFile,
   writev
+}
+
+for (const key in module.exports) {
+  const value = module.exports[key]
+  if (key in promises && isFunction(value) && isFunction(promises[key])) {
+    value[Symbol.for('nodejs.util.promisify.custom')] = promises[key]
+  }
 }
