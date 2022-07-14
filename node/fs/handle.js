@@ -200,6 +200,14 @@ class FileHandle extends EventEmitter {
       length = buffer.byteLength - offset
     }
 
+    if (position === null) {
+      position = -1
+    }
+
+    if (typeof position !== 'number') {
+      position = 0
+    }
+
     if (typeof offset !== 'number') {
       throw new TypeError(`Expecting offset to be a number. Got ${typeof offset}`)
     }
@@ -212,6 +220,10 @@ class FileHandle extends EventEmitter {
       throw new RangeError(
         `Expecting offset to be greater than or equal to 0: Got ${offset}`
       )
+    }
+
+    if (offset + length > buffer.length) {
+      throw new RangeError('Offset + length cannot be larger than buffer length.')
     }
 
     if (length < 0) {
@@ -300,16 +312,27 @@ class FileHandle extends EventEmitter {
    * @TODO
    */
   async write (buffer, offset, length, position) {
+    if (typeof buffer === 'object' && !isBufferLike(buffer)) {
+      offset = buffer.offset
+      length = buffer.length
+      position = buffer.position
+      buffer = buffer.buffer
+    }
+
     if (typeof buffer !== 'string' && !isBufferLike(buffer)) {
       throw new TypeError('Expecting buffer to be a string or Buffer.')
     }
 
-    if (typeof offset !== 'number') {
+    if (offset === undefined) {
       offset = 0
     }
 
-    if (typeof length !== 'number') {
+    if (length === undefined) {
       length = buffer.length
+    }
+
+    if (position === null) {
+      position = -1
     }
 
     if (typeof position !== 'number') {
@@ -335,7 +358,7 @@ class FileHandle extends EventEmitter {
 
     return {
       buffer: data,
-      bytesWritten: parseInt(response.data.result)
+      bytesWritten: parseInt(response.result)
     }
   }
 
