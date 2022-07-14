@@ -100,13 +100,18 @@ async function write (command, params, buffer) {
     })
   })
 
+  let response = request.response
   try {
-    return JSON.parse(request.response)
+    response = JSON.parse(request.response)
   } catch (err) {
     console.warn(err.message || err)
   }
 
-  return request.response
+  if (response?.err) {
+    throw new Error(response.err.message || response.err)
+  }
+
+  return response?.data || response
 }
 
 async function request (command, data) {

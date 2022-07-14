@@ -125,7 +125,11 @@ function createReadStream (path, options) {
   if (options?.fd) {
     handle = FileHandle.from(options.fd)
   } else {
-    handle = new FileHandle({ path, ...options })
+    handle = new FileHandle({
+      path,
+      flags: 'r',
+      ...options
+    })
     handle.open().catch((err) => stream.emit('error', err))
     stream.once('close', () => {
       handle.close().catch((err) => stream.emit('error', err))
@@ -149,7 +153,11 @@ function createWriteStream (path, options) {
   if (options?.fd) {
     handle = FileHandle.from(options.fd)
   } else {
-    handle = new FileHandle({ path, ...options })
+    handle = new FileHandle({
+      path,
+      flags: 'w',
+      ...options
+    })
     handle.open().catch((err) => stream.emit('error', err))
     stream.once('close', () => {
       handle.close().catch((err) => stream.emit('error', err))
