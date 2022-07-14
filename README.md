@@ -1,11 +1,11 @@
 # SYNOPSIS
 
-Operator Framework JavaScript adaptor for network and file IO on iOS and Android
+Socket Supply JavaScript adaptor for network and file IO on Desktop, iOS, and Android.
 
 # DESCRIPTION
 
-This provides a Node.js compatible interface for events, net, dgram, fs and dns
+This provides a Node.js compatible interface for events, net, dgram, fs, and dns.
 
 # DOCUMENTATION
 
-https://operatorframework.dev/mobile/
+https://socket-sdk.dev
