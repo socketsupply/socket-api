@@ -155,6 +155,17 @@ class Socket extends EventEmitter {
     this._port = sockData.port
     this._family = sockData.family
 
+    const listener = e => {
+      if (e.detail.params.serverId === this.serverId) {
+        this.emit('message', e.detail.data)
+        if (e.detal.params.EOF) window.removeListener('data', listener)
+      }
+    }
+
+    window.addEventListener('data', listener)
+
+    const { err } = await window._ipc.send('updReadStart', { serverId: this.serverId })
+
     if (cb) cb(null)
     return { data }
   }
