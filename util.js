@@ -16,6 +16,10 @@ function isFunction (value) {
   return typeof value === 'function' && !/class/.test(value.toString())
 }
 
+function isPromiseLike (object) {
+  return isFunction(object?.then)
+}
+
 function toBuffer (object) {
   if (Buffer.isBuffer(object)) {
     return object
@@ -40,6 +44,7 @@ function rand64 () {
 module.exports = {
   isBufferLike,
   isFunction,
+  isPromiseLike,
   isTypedArray,
   rand64,
   toBuffer,

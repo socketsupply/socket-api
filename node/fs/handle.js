@@ -101,12 +101,12 @@ class FileHandle extends EventEmitter {
     this.fd = options.fd || null // internal file descriptor
   }
 
-  get closed () {
-    return !fds.get(this.id)
-  }
-
+  /**
+   * `true` if the FileHandle instance has been opened.
+   * @type {boolean}
+   */
   get opened () {
-    return !this.closed
+    return this.fd !== null && this.fd === fds.get(this.id)
   }
 
   /**
@@ -272,8 +272,7 @@ class FileHandle extends EventEmitter {
    * @TODO
    */
   async stat (options) {
-    const { id } = this
-    const response = await ipc.request('fsFStat', { id })
+    const response = await ipc.request('fsFStat', { id: this.id })
     const stats = Stats.from(response, Boolean(options?.bigint))
     stats.handle = this
     return stats
@@ -301,6 +300,43 @@ class FileHandle extends EventEmitter {
    * @TODO
    */
   async write (buffer, offset, length, position) {
+    if (typeof buffer !== 'string' && !isBufferLike(buffer)) {
+      throw new TypeError('Expecting buffer to be a string or Buffer.')
+    }
+
+    if (typeof offset !== 'number') {
+      offset = 0
+    }
+
+    if (typeof length !== 'number') {
+      length = buffer.length
+    }
+
+    if (typeof position !== 'number') {
+      position = 0
+    }
+
+    if (length > buffer.length) {
+      throw new RangeError('Length cannot be larger than buffer length.')
+    }
+
+    if (offset > buffer.length) {
+      throw new RangeError('Offset cannot be larger than buffer length.')
+    }
+
+    if (offset + length > buffer.length) {
+      throw new RangeError('Offset + length cannot be larger than buffer length.')
+    }
+
+    const data = Buffer.from(buffer).slice(offset, offset + length)
+    const params = { id: this.id, offset: position }
+
+    const response = await ipc.write('fsWrite', params, data)
+
+    return {
+      buffer: data,
+      bytesWritten: parseInt(response.data.result)
+    }
   }
 
   /**

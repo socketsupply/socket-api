@@ -66,6 +66,49 @@ async function send (...args) {
   return await window._ipc.send(...args)
 }
 
+async function write (command, params, buffer) {
+  if (typeof window === 'undefined') {
+    console.warn('Global window object is not defined')
+    return {}
+  }
+
+  const request = new window.XMLHttpRequest()
+  const index = window.process ? window.process.index : 0
+  const seq = window._ipc ? window._ipc.nextSeq++ : 0
+  const uri = `ipc://${command}`
+
+  params = new URLSearchParams(params)
+  params.set('index', index)
+  params.set('seq', seq)
+
+  const query = `?${params}`
+
+  request.open('PUT', uri + query, true)
+  request.send(buffer || null)
+
+  await new Promise((resolve, reject) => {
+    Object.assign(request, {
+      onreadystatechange () {
+        if (request.readyState === window.XMLHttpRequest.DONE) {
+          resolve()
+        }
+      },
+
+      onerror () {
+        reject(new Error(request.responseText))
+      }
+    })
+  })
+
+  try {
+    return JSON.parse(request.response)
+  } catch (err) {
+    console.warn(err.message || err)
+  }
+
+  return request.response
+}
+
 async function request (command, data) {
   await ready()
 
@@ -122,5 +165,6 @@ module.exports = {
   resolve,
   request,
   send,
-  sendSync
+  sendSync,
+  write
 }

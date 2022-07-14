@@ -34,6 +34,7 @@ class ReadStream extends Readable {
     super(options)
 
     this.handle = null
+    this.buffer = Buffer.alloc(this._readableState.highWaterMark)
     this.bytesRead = 0
 
     if (options?.handle) {
@@ -68,20 +69,20 @@ class ReadStream extends Readable {
   }
 
   async _read (callback) {
-    if (!this.handle || this.handle.closed) {
+    if (!this.handle || !this.handle.opened) {
       return callback(new Error('File handle not opened'))
     }
 
-    const { handle, bytesRead } = this
-    const { highWaterMark } = this._readableState
-    const buffer = Buffer.alloc(highWaterMark)
+    const { buffer, handle, bytesRead } = this
+
+    buffer.fill(0)
 
     try {
       const result = await handle.read(buffer, 0, buffer.length, bytesRead)
 
       if (result.bytesRead > 0) {
         this.bytesRead += result.bytesRead
-        this.push(buffer)
+        this.push(buffer.slice(0, result.bytesRead))
       } else {
         this.push(null)
       }
