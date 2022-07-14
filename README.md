@@ -8,4 +8,4 @@ This provides a Node.js compatible interface for events, net, dgram, fs, and dns
 
 # DOCUMENTATION
 
-https://socket-sdk.dev
+https://sockets.sh
