@@ -9,8 +9,10 @@ const ipc = require('../ipc')
 const net = require('./net')
 const os = require('./os')
 const stream = require('./stream')
+const bluetooth = require('./bluetooth')
 
 module.exports = {
+  bluetooth,
   buffer,
   Buffer: buffer.Buffer,
   dgram,
