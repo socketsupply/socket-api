@@ -5,16 +5,20 @@ const { EventEmitter } = require('./events')
 let isInitialized = false
 
 class Bluetooth extends EventEmitter {
-  constructor (uuid) {
-    if (!isInitialized) {
-      window.external.invoke(`ipc://bluetooth-subscribe?uuid=${uuid}`)
-    }
-
+  constructor () {
     window.addEventListener('data', e => {
       if (e.detail.params.source === 'bluetooth') {
         this.emit('data', e.detail.data)
       }
     })
+  }
+
+  init (uuid = '') {
+    if (isInitialized) {
+      throw new Error('Bluetooth already initialized')
+    }
+
+    window.external.invoke(`ipc://bluetooth-subscribe?uuid=${uuid}`)
   }
 
   advertise (data, params = {}) {
