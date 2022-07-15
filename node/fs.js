@@ -113,62 +113,75 @@ function close (fd, callback) {
 function copyFile (src, dest, mode, callback) {
 }
 
+/**
+ * @TODO
+ */
 function createReadStream (path, options) {
   if (path?.fd) {
     options = path
     path = options?.path || null
   }
 
-  const stream = new ReadStream(options)
   let handle = null
+  const stream = new ReadStream({
+    autoClose: typeof options?.fd !== 'number',
+    ...options
+  })
 
   if (options?.fd) {
     handle = FileHandle.from(options.fd)
   } else {
-    handle = new FileHandle({
-      path,
-      flags: 'r',
-      ...options
-    })
+    handle = new FileHandle({ flags: 'r', path, ...options })
     handle.open().catch((err) => stream.emit('error', err))
-    stream.once('close', () => {
-      handle.close().catch((err) => stream.emit('error', err))
-    })
   }
+
+  stream.once('end', () => {
+    if (options?.autoClose !== false) {
+      handle.close().catch((err) => stream.emit('error', err))
+    }
+  })
 
   stream.setHandle(handle)
 
   return stream
 }
 
+/**
+ * @TODO
+ */
 function createWriteStream (path, options) {
   if (path?.fd) {
     options = path
     path = options?.path || null
   }
 
-  const stream = new WriteStream(options)
   let handle = null
+  const stream = new WriteStream({
+    autoClose: typeof options?.fd !== 'number',
+    ...options
+  })
 
-  if (options?.fd) {
+  if (typeof options?.fd === 'number') {
     handle = FileHandle.from(options.fd)
   } else {
-    handle = new FileHandle({
-      path,
-      flags: 'w',
-      ...options
-    })
+    handle = new FileHandle({ flags: 'w', path, ...options })
     handle.open().catch((err) => stream.emit('error', err))
-    stream.once('close', () => {
-      handle.close().catch((err) => stream.emit('error', err))
-    })
   }
+
+  stream.once('finish', () => {
+    if (options?.autoClose !== false) {
+      handle.close().catch((err) => stream.emit('error', err))
+    }
+  })
 
   stream.setHandle(handle)
 
   return stream
 }
 
+/**
+ * @TODO
+ */
 function fstat (fd, options, callback) {
   if (typeof options === 'function') {
     callback = options

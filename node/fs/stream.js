@@ -3,6 +3,8 @@
 const { Readable, Writable } = require('../stream')
 const { Buffer } = require('../buffer')
 
+const DEFAULT_HIGH_WATER_MARK = 16 * 1024
+
 /**
  * A `Readable` stream for a `FileHandle`.
  */
@@ -14,11 +16,16 @@ class ReadStream extends Readable {
   constructor (options) {
     super(options)
 
+    if (typeof options?.highWaterMark !== 'number') {
+      this._readableState.highWaterMark = this.constructor.highWaterMark
+    }
+
     this.end = typeof options?.end === 'number' ? options.end : Infinity
     this.start = typeof options?.start === 'number' ? options.start : 0
     this.handle = null
     this.buffer = Buffer.alloc(this._readableState.highWaterMark)
     this.bytesRead = 0
+    this.shouldEmitClose = options?.emitClose !== false
 
     if (this.start < 0) {
       this.start = 0
@@ -55,12 +62,37 @@ class ReadStream extends Readable {
     return this.handle?.opened !== true
   }
 
-  _open (callback) {
+  /**
+   * Handles `shouldEmitClose` setting from `options.emitClose` in constructor.
+   * @protected
+   */
+  emit (event, ...args) {
+    if (event === 'close' && this.shouldEmitClose === false) {
+      return false
+    }
+
+    return super.emit(event, ...args)
+  }
+
+  async _open (callback) {
+    if (!this.handle) {
+      return callback(new Error('Handle not set in ReadStream'))
+    }
+
     if (this.handle?.opened) {
       return callback(null)
     }
 
     this.once('ready', () => callback(null))
+
+    // open if not opening already
+    if (!this.handle.opening) {
+      try {
+        await this.handle.open()
+      } catch (err) {
+        return callback(err)
+      }
+    }
   }
 
   async _read (callback) {
@@ -72,12 +104,12 @@ class ReadStream extends Readable {
 
     buffer.fill(0)
 
-    try {
-      const position = this.start + this.bytesRead
-      const length = this.end < Infinity
-        ? Math.min(this.end - position, buffer.length)
-        : buffer.length
+    const position = Math.max(0, this.start) + this.bytesRead
+    const length = Math.max(0, this.end) < Infinity
+      ? Math.min(this.end - position, buffer.length)
+      : buffer.length
 
+    try {
       const result = await handle.read(buffer, 0, length, position)
 
       if (typeof result.bytesRead === 'number' && result.bytesRead > 0) {
@@ -109,9 +141,14 @@ class WriteStream extends Writable {
   constructor (options) {
     super(options)
 
+    if (typeof options?.highWaterMark !== 'number') {
+      this._writableState.highWaterMark = this.constructor.highWaterMark
+    }
+
     this.start = typeof options?.start === 'number' ? options.start : 0
     this.handle = null
     this.bytesWritten = 0
+    this.shouldEmitClose = options?.emitClose !== false
 
     if (this.start < 0) {
       this.start = 0
@@ -123,7 +160,7 @@ class WriteStream extends Writable {
   }
 
   /**
-   * Sets file handle for the ReadStream.
+   * Sets file handle for the WriteStream.
    * @param {FileHandle} handle
    */
   setHandle (handle) {
@@ -144,12 +181,37 @@ class WriteStream extends Writable {
     return this.handle?.opened !== true
   }
 
-  _open (callback) {
+  async _open (callback) {
+    if (!this.handle) {
+      return callback(new Error('Handle not set in WriteStream'))
+    }
+
     if (this.handle?.opened) {
       return callback(null)
     }
 
     this.once('ready', () => callback(null))
+
+    // open if not opening already
+    if (!this.handle.opening) {
+      try {
+        await this.handle.open()
+      } catch (err) {
+        return callback(err)
+      }
+    }
+  }
+
+  /**
+   * Handles `shouldEmitClose` setting from `options.emitClose` in constructor.
+   * @protected
+   */
+  emit (event, ...args) {
+    if (event === 'close' && this.shouldEmitClose === false) {
+      return false
+    }
+
+    return super.emit(event, ...args)
   }
 
   async _write (buffer, callback) {
@@ -181,23 +243,35 @@ class WriteStream extends Writable {
 function setHandle (stream, handle) {
   if (!handle) return
 
+  if (stream.handle) {
+    throw new Error('Stream handle already set.')
+  }
+
   stream.handle = handle
 
   if (handle.opened) {
     queueMicrotask(() => stream.emit('ready'))
   } else {
     handle.once('open', (fd) => {
-      stream.emit('open', fd)
-      stream.emit('ready')
+      if (stream.handle === handle) {
+        stream.emit('open', fd)
+        stream.emit('ready')
+      }
     })
   }
 
   stream.once('ready', () => {
-    handle.once('close', () => stream.emit('close'))
+    handle.once('close', () => {
+      stream.emit('close')
+    })
   })
 }
 
+ReadStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
+WriteStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
+
 module.exports = {
+  DEFAULT_HIGH_WATER_MARK,
   ReadStream,
   WriteStream
 }
