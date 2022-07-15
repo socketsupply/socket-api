@@ -1,6 +1,12 @@
 'use strict'
 
-const { isBufferLike, isTypedArray, rand64 } = require('../../util')
+const {
+  InvertedPromise,
+  isBufferLike,
+  isTypedArray,
+  rand64
+} = require('../../util')
+
 const { ReadStream, WriteStream } = require('./stream')
 const { normalizeFlags } = require('./flags')
 const { EventEmitter } = require('../events')
@@ -9,6 +15,9 @@ const { Stats } = require('./stats')
 const constants = require('./constants')
 const ipc = require('../../ipc')
 const fds = require('./fds')
+
+const kFileHandleOpening = Symbol.for('fs.FileHandle.opening')
+const kFileHandleClosing = Symbol.for('fs.FileHandle.closing')
 
 /**
  * @TODO
@@ -92,21 +101,43 @@ class FileHandle extends EventEmitter {
       options.path = options.path.toString()
     }
 
+    this[kFileHandleOpening] = null
+    this[kFileHandleClosing] = null
+
     this.flags = normalizeFlags(options?.flags)
     this.path = options?.path || null
     this.mode = options?.mode || FileHandle.DEFAULT_ACCESS_MODE
-    // this id will be used to identify the file handle that is a reference
-    // stored in a map container on the objective-c side of the bridge.
+
+    // this id will be used to identify the file handle that is a
+    // reference stored in the native side
     this.id = options.id || String(rand64())
     this.fd = options.fd || null // internal file descriptor
   }
 
   /**
-   * `true` if the FileHandle instance has been opened.
+   * `true` if the `FileHandle` instance has been opened.
    * @type {boolean}
    */
   get opened () {
     return this.fd !== null && this.fd === fds.get(this.id)
+  }
+
+  /**
+   * `true` if the `FileHandle` is opening.
+   * @type {boolean}
+   */
+  get opening () {
+    const opening = this[kFileHandleOpening]
+    return opening?.value !== true
+  }
+
+  /**
+   * `true` if the `FileHandle` is closing.
+   * @type {boolean}
+   */
+  get closing () {
+    const closing = this[kFileHandleClosing]
+    return closing?.value !== true
   }
 
   /**
@@ -131,10 +162,33 @@ class FileHandle extends EventEmitter {
    * @TODO
    */
   async close () {
-    await ipc.request('fsClose', { id: this.id })
+    // wait for opening to finish before proceeding to close
+    if (this[kFileHandleOpening]) {
+      await this[kFileHandleOpening]
+    }
+
+    if (this[kFileHandleClosing]) {
+      return this[kFileHandleClosing]
+    }
+
+    this[kFileHandleClosing] = new InvertedPromise()
+
+    try {
+      await ipc.request('fsClose', { id: this.id })
+    } catch (err) {
+      return this[kFileHandleClosing].reject(err)
+    }
+
     fds.release(this.id)
+
     this.fd = null
+    this.opening = false
+
+    this[kFileHandleClosing].resolve(true)
+
     this.emit('close')
+
+    return true
   }
 
   /**
@@ -158,19 +212,34 @@ class FileHandle extends EventEmitter {
   }
 
   async open () {
-    const { flags, mode, path, id } = this
-    const request = await ipc.request('fsOpen', {
-      id: id,
-      flags: flags,
-      mode: mode,
-      path: path
-    })
+    if (this[kFileHandleOpening]) {
+      return this[kFileHandleOpening]
+    }
 
-    this.fd = request.fd
+    const { flags, mode, path, id } = this
+
+    this[kFileHandleOpening] = new InvertedPromise()
+
+    try {
+      const request = await ipc.request('fsOpen', {
+        id: id,
+        flags: flags,
+        mode: mode,
+        path: path
+      })
+
+      this.fd = request.fd
+    } catch (err) {
+      return this[kFileHandleOpening].reject(err)
+    }
 
     fds.set(this.id, this.fd)
 
+    this[kFileHandleOpening].resolve(true)
+
     this.emit('open', this.fd)
+
+    return true
   }
 
   /**

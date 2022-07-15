@@ -41,7 +41,27 @@ function rand64 () {
   return crypto.getRandomValues(tmp)[0]
 }
 
+function InvertedPromise () {
+  const context = {}
+  const promise = new Promise((resolve, reject) => {
+    Object.assign(context, {
+      resolve (value) {
+        promise.value = value
+        return resolve(value)
+      },
+
+      reject (error) {
+        promise.error = error
+        return reject(error)
+      }
+    })
+  })
+
+  return Object.assign(promise, context)
+}
+
 module.exports = {
+  InvertedPromise,
   isBufferLike,
   isFunction,
   isPromiseLike,
