@@ -12,7 +12,7 @@ const stream = require('./stream')
 const bluetooth = require('./bluetooth')
 
 module.exports = {
-  bluetooth,
+  Bluetooth: bluetooth,
   buffer,
   Buffer: buffer.Buffer,
   dgram,

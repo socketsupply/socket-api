@@ -6,6 +6,16 @@ class Bluetooth extends EventEmitter {
   static isInitalized = false;
 
   constructor () {
+    window.addEventListener('bluetooth', e => {
+      const { err, data } = e.detail.params
+
+      if (err) {
+        return this.emit('error', err)
+      }
+
+      this.emit(data.event, data)
+    })
+
     window.addEventListener('data', e => {
       if (e.detail.params.source === 'bluetooth') {
         this.emit('data', e.detail.data)
@@ -31,4 +41,4 @@ class Bluetooth extends EventEmitter {
   }
 }
 
-exports.Bluetooth = Bluetooth
+module.exports = Bluetooth
