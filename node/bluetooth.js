@@ -17,9 +17,11 @@ class Bluetooth extends EventEmitter {
     })
   }
 
-  advertise (data) {
+  advertise (data, params = {}) {
     if (typeof data === 'string') {
-      data = new TextEncoder().encode(data).data
+      const enc = new TextEncoder().encode(data)
+      data = enc.data
+      params.length = enc.length
     }
     return ipc.send('bluetooth-advertise', params, data)
   }
