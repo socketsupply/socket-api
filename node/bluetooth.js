@@ -2,9 +2,9 @@
 const ipc = require('../ipc')
 const { EventEmitter } = require('./events')
 
-let isInitialized = false
-
 class Bluetooth extends EventEmitter {
+  static isInitalized = false;
+
   constructor () {
     window.addEventListener('data', e => {
       if (e.detail.params.source === 'bluetooth') {
@@ -14,7 +14,7 @@ class Bluetooth extends EventEmitter {
   }
 
   init (uuid = '') {
-    if (isInitialized) {
+    if (Bluetooth.isInitialized) {
       throw new Error('Bluetooth already initialized')
     }
 
