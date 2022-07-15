@@ -135,9 +135,13 @@ function createReadStream (path, options) {
     handle.open().catch((err) => stream.emit('error', err))
   }
 
-  stream.once('end', () => {
+  stream.once('end', async () => {
     if (options?.autoClose !== false) {
-      handle.close().catch((err) => stream.emit('error', err))
+      try {
+        await handle.close()
+      } catch (err) {
+        stream.emit('error', err)
+      }
     }
   })
 
@@ -168,9 +172,13 @@ function createWriteStream (path, options) {
     handle.open().catch((err) => stream.emit('error', err))
   }
 
-  stream.once('finish', () => {
+  stream.once('finish', async () => {
     if (options?.autoClose !== false) {
-      handle.close().catch((err) => stream.emit('error', err))
+      try {
+        await handle.close()
+      } catch (err) {
+        stream.emit('error', err)
+      }
     }
   })
 

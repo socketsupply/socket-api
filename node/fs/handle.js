@@ -1,3 +1,4 @@
+/* global atob, escape */
 'use strict'
 
 const {
@@ -171,6 +172,10 @@ class FileHandle extends EventEmitter {
       return this[kFileHandleClosing]
     }
 
+    if (!this.fd || !this.id) {
+      throw new Error('FileHandle is not opened')
+    }
+
     this[kFileHandleClosing] = new InvertedPromise()
 
     try {
@@ -182,11 +187,13 @@ class FileHandle extends EventEmitter {
     fds.release(this.id)
 
     this.fd = null
-    this.opening = false
 
     this[kFileHandleClosing].resolve(true)
 
     this.emit('close')
+
+    this[kFileHandleOpening] = null
+    this[kFileHandleClosing] = null
 
     return true
   }
@@ -195,14 +202,46 @@ class FileHandle extends EventEmitter {
    * @TODO
    */
   createReadStream (options) {
-    return new ReadStream({ handle: this, ...options })
+    const stream = new ReadStream({
+      autoClose: options?.autoClose === true,
+      ...options,
+      handle: this
+    })
+
+    stream.once('end', async () => {
+      if (options?.autoClose === true) {
+        try {
+          await this.close()
+        } catch (err) {
+          stream.emit('error', err)
+        }
+      }
+    })
+
+    return stream
   }
 
   /**
    * @TODO
    */
   createWriteStream (options) {
-    return new WriteStream({ handle: this, ...options })
+    const stream = new WriteStream({
+      autoClose: options?.autoClose === true,
+      ...options,
+      handle: this
+    })
+
+    stream.once('finish', async () => {
+      if (options?.autoClose === true) {
+        try {
+          await this.close()
+        } catch (err) {
+          stream.emit('error', err)
+        }
+      }
+    })
+
+    return stream
   }
 
   /**
@@ -212,6 +251,10 @@ class FileHandle extends EventEmitter {
   }
 
   async open () {
+    if (this.opened) {
+      return true
+    }
+
     if (this[kFileHandleOpening]) {
       return this[kFileHandleOpening]
     }
@@ -321,7 +364,7 @@ class FileHandle extends EventEmitter {
       bytesRead = response.byteLength
       Buffer.from(response).copy(buffer, 0, offset)
     } else {
-      throw new TypeError('Invalid response buffer from `fsRead`.')
+      throw new TypeError('Invalid response buffer from `fs.read`.')
     }
 
     return { bytesRead, buffer }
