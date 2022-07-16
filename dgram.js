@@ -1,19 +1,14 @@
 'use strict'
 
-const { EventEmitter } = require('./events')
-const { isIPv4 } = require('./net')
-const { Buffer } = require('./buffer')
-const dns = require('./dns')
+import { Buffer } from 'buffer'
+
+import { EventEmitter } from './events.js'
+import { isIPv4 } from './net.js'
+import dns from './dns.js'
+import { rand64 } from './util.js'
 
 const isArrayBufferView = buf => {
   return !Buffer.isBuffer(buf) && ArrayBuffer.isView(buf)
-}
-
-const _require = typeof require !== 'undefined' && require
-
-const rand64 = () => {
-  const method = globalThis.crypto ? globalThis.crypto : _require('crypto')
-  return method.getRandomValues(new BigUint64Array(1))[0]
 }
 
 const fixBufferList = list => {
@@ -512,7 +507,7 @@ const createSocket = (type, listener) => {
   return new Socket(type, listener)
 }
 
-module.exports = {
+export {
   Socket,
   createSocket
 }

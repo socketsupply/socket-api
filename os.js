@@ -1,7 +1,7 @@
 'use strict'
 
-const { toProperCase } = require('../util')
-const ipc = require('../ipc')
+import { toProperCase } from './util.js'
+import ipc from './ipc.js'
 
 const UNKNOWN = 'unknown'
 
@@ -157,7 +157,7 @@ function type () {
   return cache.type
 }
 
-module.exports = {
+export {
   arch,
   platform,
   networkInterfaces,

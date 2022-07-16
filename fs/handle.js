@@ -1,21 +1,13 @@
 /* global atob, escape */
-'use strict'
-
-const {
-  InvertedPromise,
-  isBufferLike,
-  isTypedArray,
-  rand64
-} = require('../../util')
-
-const { ReadStream, WriteStream } = require('./stream')
-const { normalizeFlags } = require('./flags')
-const { EventEmitter } = require('../events')
-const { Buffer } = require('../buffer')
-const { Stats } = require('./stats')
-const constants = require('./constants')
-const ipc = require('../../ipc')
-const fds = require('./fds')
+import { InvertedPromise, isBufferLike, isTypedArray, rand64 } from '../util.js'
+import { ReadStream, WriteStream } from './stream.js'
+import { normalizeFlags } from './flags.js'
+import { EventEmitter } from '../events.js'
+import { Buffer } from 'buffer'
+import { Stats } from './stats.js'
+import constants from './constants.js'
+import ipc from '../ipc.js'
+import fds from './fds.js'
 
 const kFileHandleOpening = Symbol.for('fs.FileHandle.opening')
 const kFileHandleClosing = Symbol.for('fs.FileHandle.closing')
@@ -487,6 +479,6 @@ class FileHandle extends EventEmitter {
   }
 }
 
-module.exports = {
+export {
   FileHandle
 }

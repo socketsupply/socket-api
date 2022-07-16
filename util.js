@@ -1,6 +1,4 @@
-const { Buffer } = require('./node/buffer')
-
-const _require = typeof require !== 'undefined' && require
+import { Buffer } from 'buffer'
 
 const TypedArray = Object.getPrototypeOf(Object.getPrototypeOf(new Uint8Array())).constructor
 
@@ -37,8 +35,7 @@ function toProperCase (string) {
 // so this is re-used instead of creating new one each rand64() call
 const tmp = new BigUint64Array(1)
 function rand64 () {
-  const crypto = globalThis.crypto ? globalThis.crypto : _require('crypto').webcrypto
-  return crypto.getRandomValues(tmp)[0]
+  return globalThis.crypto.getRandomValues(tmp)[0]
 }
 
 function InvertedPromise () {
@@ -60,7 +57,7 @@ function InvertedPromise () {
   return Object.assign(promise, context)
 }
 
-module.exports = {
+export {
   InvertedPromise,
   isBufferLike,
   isFunction,

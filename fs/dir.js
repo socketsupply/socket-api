@@ -1,6 +1,6 @@
 'use strict'
 
-const { Stats } = require('./stats')
+import { Stats } from './stats'
 
 /**
  * @TODO
@@ -57,7 +57,7 @@ class Dirent extends Stats {
   }
 }
 
-module.exports = {
+export {
   Dir,
   Dirent
 }

@@ -1,12 +1,12 @@
 'use strict'
 
-const ipc = require('../../ipc')
+import ipc from '../ipc.js'
 
 function getNativeConstants () {
   return ipc.sendSync('getFSConstants')?.data || {}
 }
 
-module.exports = Object.assign(Object.create(null), {
+export Object.assign(Object.create(null), {
   /*
    * This flag can be used with uv_fs_copyfile() to return an error if the
    * destination already exists.

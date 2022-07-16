@@ -1,12 +1,12 @@
 'use strict'
 
-const { ReadStream, WriteStream } = require('./fs/stream')
-const { isBufferLike, isFunction } = require('../util')
-const { Dir, Dirent } = require('./fs/dir')
-const { FileHandle } = require('./fs/handle')
-const { Stats } = require('./fs/stats')
-const constants = require('./fs/constants')
-const promises = require('./fs/promises')
+import { ReadStream, WriteStream } from './fs/stream.js'
+import { isBufferLike, isFunction } from '../util.js'
+import { Dir, Dirent } from './fs/dir.js'
+import { FileHandle } from './fs/handle.js'
+import { Stats } from './fs/stats.js'
+import constants from './fs/constants.js'
+import promises from './fs/promises.js'
 
 function defaultCallback (err) {
   if (err) throw err
@@ -461,7 +461,7 @@ function writeFile (file, data, options, callback) {
 function writev (fd, buffers, position, callback) {
 }
 
-module.exports = {
+export {
   constants,
   Dir,
   Dirent,

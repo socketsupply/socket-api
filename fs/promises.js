@@ -1,6 +1,6 @@
 'use strict'
 
-const { FileHandle } = require('./handle')
+import { FileHandle } from './handle'
 
 /**
  * Asynchronously check access a file.

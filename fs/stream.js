@@ -1,7 +1,7 @@
 'use strict'
 
-const { Readable, Writable } = require('../stream')
-const { Buffer } = require('../buffer')
+import { Readable, Writable } from 'streamx'
+import { Buffer } from 'buffer'
 
 const DEFAULT_HIGH_WATER_MARK = 16 * 1024
 
@@ -270,8 +270,8 @@ function setHandle (stream, handle) {
 ReadStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
 WriteStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
 
-module.exports = {
-  DEFAULT_HIGH_WATER_MARK,
+export {
+  DEFAULT_HIGH_WATER_MARK,  
   ReadStream,
   WriteStream
 }

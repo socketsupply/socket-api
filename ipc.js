@@ -161,7 +161,7 @@ async function request (command, data) {
   }
 }
 
-module.exports = {
+export {
   OK,
   ERROR,
 

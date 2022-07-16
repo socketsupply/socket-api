@@ -1,6 +1,6 @@
 'use strict'
 
-const constants = require('./constants')
+import constants from './constants'
 
 function normalizeFlags (flags) {
   if (typeof flags === 'number') {
@@ -60,6 +60,6 @@ function normalizeFlags (flags) {
   return constants.O_RDONLY
 }
 
-module.exports = {
+export {
   normalizeFlags
 }

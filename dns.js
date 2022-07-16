@@ -18,6 +18,6 @@ const lookup = async (hostname, opts, cb) => {
   return { err, data }
 }
 
-module.exports = {
+export {
   lookup
 }

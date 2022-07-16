@@ -5,8 +5,10 @@
   "scripts": {
     "lint": "standardx -v",
     "test": "tape ./test/node/*.js",
+    "prepublish": "esbuild index.js --outfile=index.cjs --platform=neutral --format=cjs",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
+  "type": "module",
   "author": "",
   "license": "ISC",
   "repository": {
@@ -17,10 +19,10 @@
     "url": "https://github.com/socketsupply/mobile/issues"
   },
   "homepage": "https://github.com/socketsupply/mobile#readme",
-  "description": "",
+  "description": "javascript sugar on top of socket-sdk ipc",
   "devDependencies": {
-    "standardx": "7.0.0",
-    "tape": "5.5.3"
+    "esbuild": "0.14.49",
+    "tapzero": "*"
   },
   "standardx": {
     "ignore": [
@@ -40,5 +42,10 @@
         "global"
       ]
     }
+  },
+  "dependencies": {
+    "buffer": "6.0.3",
+    "streamx": "2.12.4",
+    "uuid": "8.3.2"
   }
 }

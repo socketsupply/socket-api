@@ -1,7 +1,7 @@
 'use strict'
 
-const constants = require('./constants')
-const os = require('../os')
+import constants from './constants.js'
+import os from '../os.js'
 
 const isWindows = /win/i.test(os.type())
 
@@ -134,6 +134,6 @@ class Stats {
   }
 }
 
-module.exports = {
+export {
   Stats
 }

@@ -1,7 +1,7 @@
 'use strict'
 
-const { EventEmitter } = require('./events')
-const { Duplex } = require('./stream')
+import { EventEmitter } from './events.js'
+import { Duplex } from 'streamx'
 
 const _require = typeof require !== 'undefined' && require
 
@@ -224,7 +224,7 @@ class Socket extends Duplex {
 
     // eslint-disable-next-line no-restricted-syntax
     const err = new Error('Socket has been ended by the other party')
-    err.code = 'EPIPE'
+    er<64;57;21Mr.code = 'EPIPE'
 
     if (typeof cb === 'function') {
       cb(err)
@@ -474,7 +474,7 @@ const isIPv4 = s => {
   return IPv4Reg.test(s)
 }
 
-module.exports = {
+export {
   rand64,
   Socket,
   Server,

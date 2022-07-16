@@ -22,7 +22,7 @@ function release (id) {
   ids.delete(fd)
 }
 
-module.exports = {
+export {
   get,
   release,
   set,
