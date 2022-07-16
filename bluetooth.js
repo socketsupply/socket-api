@@ -3,7 +3,7 @@
 import uuid from 'uuid'
 
 import ipc from './ipc.js'
-import { EventEmitter } = from './events.js'
+import { EventEmitter } from './events.js'
 
 class Bluetooth extends EventEmitter {
   static isInitalized = false;
@@ -54,4 +54,6 @@ class Bluetooth extends EventEmitter {
   }
 }
 
-export Bluetooth
+export {
+  Bluetooth
+}

@@ -38,8 +38,21 @@ var import_streamx = __toESM(require("streamx"), 1);
 var import_dgram = __toESM(require("./dgram.js"), 1);
 var import_dns = __toESM(require("./dns.js"), 1);
 var import_events = __toESM(require("./events.js"), 1);
-var import_fs = __toESM(require("./fs.js"), 1);
+var import_fs = __toESM(require("./fs/index.js"), 1);
 var import_ipc = __toESM(require("./ipc.js"), 1);
 var import_net = __toESM(require("./net.js"), 1);
 var import_os = __toESM(require("./os.js"), 1);
 var import_bluetooth = __toESM(require("./bluetooth.js"), 1);
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  bluetooth,
+  buffer,
+  dgram,
+  dns,
+  events,
+  fs,
+  ipc,
+  net,
+  os,
+  stream
+});

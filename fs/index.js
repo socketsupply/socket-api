@@ -1,12 +1,12 @@
 'use strict'
 
-import { ReadStream, WriteStream } from './fs/stream.js'
+import { ReadStream, WriteStream } from './stream.js'
 import { isBufferLike, isFunction } from '../util.js'
-import { Dir, Dirent } from './fs/dir.js'
-import { FileHandle } from './fs/handle.js'
-import { Stats } from './fs/stats.js'
-import constants from './fs/constants.js'
-import promises from './fs/promises.js'
+import { Dir, Dirent } from './dir.js'
+import { FileHandle } from './handle.js'
+import { Stats } from './stats.js'
+import constants from './constants.js'
+import promises from './promises.js'
 
 function defaultCallback (err) {
   if (err) throw err

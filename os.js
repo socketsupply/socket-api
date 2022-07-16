@@ -157,17 +157,18 @@ function type () {
   return cache.type
 }
 
+function EOL () {
+  if (/win/i.test(type())) {
+    return '\r\n'
+  }
+
+  return '\n'
+}
+
 export {
   arch,
   platform,
   networkInterfaces,
   type,
-
-  get EOL () {
-    if (/win/i.test(type())) {
-      return '\r\n'
-    }
-
-    return '\n'
-  }
+  EOL
 }

@@ -6,7 +6,7 @@ function getNativeConstants () {
   return ipc.sendSync('getFSConstants')?.data || {}
 }
 
-export Object.assign(Object.create(null), {
+const constants = Object.assign(Object.create(null), {
   /*
    * This flag can be used with uv_fs_copyfile() to return an error if the
    * destination already exists.
@@ -25,3 +25,7 @@ export Object.assign(Object.create(null), {
 
   ...getNativeConstants()
 })
+
+export {
+  constants
+}

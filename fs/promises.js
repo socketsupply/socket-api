@@ -175,7 +175,7 @@ async function watch (path, options) {
 async function writeFile (file, data, options) {
 }
 
-module.exports = {
+export {
   access,
   appendFile,
   chmod,
