@@ -514,7 +514,7 @@ const createSocket = (type, listener) => {
   return new Socket(type, listener)
 }
 
-export {
+export default {
   Socket,
   createSocket
 }

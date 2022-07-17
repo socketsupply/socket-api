@@ -161,7 +161,7 @@ async function request (command, data) {
   }
 }
 
-export {
+export default {
   OK,
   ERROR,
 

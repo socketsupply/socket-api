@@ -165,7 +165,7 @@ function EOL () {
   return '\n'
 }
 
-export {
+export default {
   arch,
   platform,
   networkInterfaces,

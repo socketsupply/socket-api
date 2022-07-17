@@ -461,7 +461,7 @@ function writeFile (file, data, options, callback) {
 function writev (fd, buffers, position, callback) {
 }
 
-export {
+export default {
   constants,
   Dir,
   Dirent,

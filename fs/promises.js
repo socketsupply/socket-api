@@ -175,7 +175,7 @@ async function watch (path, options) {
 async function writeFile (file, data, options) {
 }
 
-export {
+export default {
   access,
   appendFile,
   chmod,

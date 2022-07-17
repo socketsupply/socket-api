@@ -26,6 +26,6 @@ const constants = Object.assign(Object.create(null), {
   ...getNativeConstants()
 })
 
-export {
+export default {
   constants
 }

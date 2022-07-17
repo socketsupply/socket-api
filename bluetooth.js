@@ -1,6 +1,6 @@
 'use strict'
 
-import uuid from 'uuid'
+import { v4 } from 'uuid'
 
 import ipc from './ipc.js'
 import { EventEmitter } from './events.js'
@@ -11,7 +11,7 @@ class Bluetooth extends EventEmitter {
   constructor (opts = {}) {
     this.keys = {}
 
-    this.serviceId = uuid.v4()
+    this.serviceId = v4()
     window.external.invoke(`ipc://bluetooth-start?uuid=${this.serviceId}`)
 
     window.addEventListener('bluetooth', e => {
@@ -39,7 +39,7 @@ class Bluetooth extends EventEmitter {
   }
 
   publish (key, value = '') {
-    const id = uuid.v4()
+    const id = v4()
     this.keys[key] = id
 
     const params = { key: id }
@@ -54,6 +54,6 @@ class Bluetooth extends EventEmitter {
   }
 }
 
-export {
+export default {
   Bluetooth
 }

@@ -22,7 +22,7 @@ function release (id) {
   ids.delete(fd)
 }
 
-export {
+export default {
   get,
   release,
   set,
