@@ -5,6 +5,19 @@ import { v4 } from 'uuid'
 import ipc from './ipc.js'
 import { EventEmitter } from './events.js'
 
+//
+// const bt = new Bluetooth('chat')
+//
+// await bt.subscribe('messages')
+//
+// bt.on('messages', data => {
+//   // assert(data === '{"value":"hello, world"}')
+// })
+//
+// await bt.publish('messages', JSON.stringify({
+//   value: 'hello, world'
+// }))
+//
 class Bluetooth extends EventEmitter {
   static isInitalized = false;
 
@@ -26,11 +39,7 @@ class Bluetooth extends EventEmitter {
 
     window.addEventListener('data', e => {
       if (e.detail.params.serviceId !== this.serviceId) return
-
-      this.emit('data', {
-        key: e.detail.params.key,
-        value: e.detail.data
-      })
+      this.emit(this.keys[e.detail.params.characteristicId], e.detail.data)
     })
   }
 
@@ -40,9 +49,12 @@ class Bluetooth extends EventEmitter {
 
   publish (key, value = '') {
     const id = v4()
-    this.keys[key] = id
+    this.keys[id] = key
 
-    const params = { key: id }
+    const params = {
+      characteristicId: id,
+      serviceId: this.serviceId
+    }
 
     if (typeof value === 'string') {
       const enc = new TextEncoder().encode(value)
