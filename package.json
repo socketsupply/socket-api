@@ -1,11 +1,11 @@
 {
   "name": "@socketsupply/io",
-  "version": "1.0.10",
+  "version": "0.1.0",
   "main": "index.js",
   "scripts": {
     "lint": "standardx -v",
     "test": "tapzero ./test/*.js",
-    "prepublish": "esbuild index.js --outfile=index.cjs --platform=node --format=cjs",
+    "prepublishOnly": "esbuild index.js --outfile=index.cjs --platform=node --format=cjs",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
   "type": "module",
@@ -13,35 +13,16 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/socketsupply/mobile.git"
+    "url": "git+https://github.com/socketsupply/io.git"
   },
   "bugs": {
-    "url": "https://github.com/socketsupply/mobile/issues"
+    "url": "https://github.com/socketsupply/io/issues"
   },
-  "homepage": "https://github.com/socketsupply/mobile#readme",
+  "homepage": "https://github.com/socketsupply/io#readme",
   "description": "javascript sugar on top of socket-sdk ipc",
   "devDependencies": {
     "esbuild": "0.14.49",
     "tapzero": "*"
-  },
-  "standardx": {
-    "ignore": [
-      "src/main/logger/vendor/*.js",
-      "src/vendor/*.js",
-      "test/example-app/dist",
-      "index.d.ts"
-    ]
-  },
-  "eslintConfig": {
-    "parserOptions": {
-      "sourceType": "script"
-    },
-    "rules": {
-      "strict": [
-        "error",
-        "global"
-      ]
-    }
   },
   "dependencies": {
     "buffer": "6.0.3",
