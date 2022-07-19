@@ -1,5 +1,5 @@
 import { EventEmitter } from './events.js'
-import { Duplex } from 'streamx'
+import { Duplex } from './stream.js'
 
 const _require = typeof require !== 'undefined' && require
 

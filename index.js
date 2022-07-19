@@ -1,5 +1,5 @@
 import buffer from 'buffer'
-import stream from 'streamx'
+import stream from './stream'
 
 import dgram from './dgram.js'
 import dns from './dns.js'
