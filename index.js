@@ -10,7 +10,7 @@ import * as net from './net.js'
 import os from './os.js'
 import bluetooth from './bluetooth.js'
 
-export default {
+export {
   bluetooth,
   buffer,
   dgram,
