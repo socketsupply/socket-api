@@ -1,5 +1,3 @@
-'use strict'
-
 import buffer from 'buffer'
 import stream from 'streamx'
 

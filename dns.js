@@ -1,5 +1,3 @@
-'use strict'
-
 const lookup = async (hostname, opts, cb) => {
   const params = {
     hostname

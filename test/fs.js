@@ -1,7 +1,5 @@
-'use strict'
-
-const { promisify } = require('util')
-const mock = require('./mock')
+import { promisify } from 'util'
+import mock from './mock'
 
 const fs = require('../../node/fs')
 const { test } = require('tape')

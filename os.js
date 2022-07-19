@@ -1,5 +1,3 @@
-'use strict'
-
 import { toProperCase } from './util.js'
 import ipc from './ipc.js'
 

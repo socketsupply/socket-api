@@ -1,9 +1,7 @@
-'use strict'
+import mock from './mock'
 
-const mock = require('./mock')
-
-const { test } = require('tape')
-const net = require('../../node/net')
+import { test } from 'tape'
+import net from '../net'
 
 // createServer, call listen, close server
 test('net.createServer', t => {

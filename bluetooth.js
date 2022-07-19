@@ -1,5 +1,3 @@
-'use strict'
-
 import { v4 } from 'uuid'
 
 import ipc from './ipc.js'

@@ -1,4 +1,3 @@
-'use strict'
 /* global window */
 
 const OK = 0

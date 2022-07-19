@@ -1,5 +1,3 @@
-'use strict'
-
 import { Buffer } from 'buffer'
 
 import { EventEmitter } from './events.js'
