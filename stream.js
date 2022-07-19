@@ -1,7 +1,7 @@
 const STREAM_DESTROYED = new Error('Stream was destroyed')
 const PREMATURE_CLOSE = new Error('Premature close')
 
-import EventEmitter from './events'
+import { EventEmitter } from './events'
 
 class FixedFIFO {
   constructor (hwm) {
@@ -1033,7 +1033,7 @@ function abort () {
   this.destroy(new Error('Stream aborted.'))
 }
 
-module.exports = {
+export {
   pipeline,
   pipelinePromise,
   isStream,
