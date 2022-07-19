@@ -1,5 +1,5 @@
 import { Readable, Writable } from '../stream'
-import { Buffer } from '../buffer'
+import { Buffer } from 'buffer'
 
 const DEFAULT_HIGH_WATER_MARK = 16 * 1024
 
