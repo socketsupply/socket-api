@@ -222,7 +222,7 @@ class Socket extends Duplex {
 
     // eslint-disable-next-line no-restricted-syntax
     const err = new Error('Socket has been ended by the other party')
-    er<64;57;21Mr.code = 'EPIPE'
+    err.code = 'EPIPE'
 
     if (typeof cb === 'function') {
       cb(err)
