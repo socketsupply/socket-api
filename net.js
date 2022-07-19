@@ -472,7 +472,7 @@ const isIPv4 = s => {
   return IPv4Reg.test(s)
 }
 
-export {
+export default {
   rand64,
   Socket,
   Server,
