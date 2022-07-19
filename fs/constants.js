@@ -1,5 +1,3 @@
-'use strict'
-
 import ipc from '../ipc.js'
 
 function getNativeConstants () {

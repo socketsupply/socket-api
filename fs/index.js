@@ -1,5 +1,3 @@
-'use strict'
-
 import { ReadStream, WriteStream } from './stream.js'
 import { isBufferLike, isFunction } from '../util.js'
 import { Dir, Dirent } from './dir.js'

@@ -1,5 +1,3 @@
-'use strict'
-
 import { Readable, Writable } from 'streamx'
 import { Buffer } from 'buffer'
 

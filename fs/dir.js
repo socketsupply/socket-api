@@ -1,5 +1,3 @@
-'use strict'
-
 import { Stats } from './stats'
 
 /**

@@ -1,5 +1,3 @@
-'use strict'
-
 const fds = new Map()
 const ids = new Map()
 

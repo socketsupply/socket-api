@@ -1,6 +1,6 @@
 import mock from './mock'
 
-import { test } from 'tape'
+import { test } from 'tapzero'
 import net from '../net'
 
 // createServer, call listen, close server

@@ -1,5 +1,3 @@
-'use strict'
-
 import constants from './constants'
 
 function normalizeFlags (flags) {

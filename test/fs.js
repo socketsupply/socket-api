@@ -1,8 +1,8 @@
 import { promisify } from 'util'
 import mock from './mock'
 
-const fs = require('../../node/fs')
-const { test } = require('tape')
+const fs = require('../fs')
+const { test } = require('tapzero')
 
 test('FileHandle', async t => {
   mock.create(t, 'fsOpen',
