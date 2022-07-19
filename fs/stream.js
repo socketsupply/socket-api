@@ -268,7 +268,7 @@ function setHandle (stream, handle) {
 ReadStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
 WriteStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
 
-module.exports = {
+export {
   DEFAULT_HIGH_WATER_MARK,
   ReadStream,
   WriteStream
