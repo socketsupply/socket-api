@@ -1,12 +1,12 @@
 import buffer from 'buffer'
-import stream from './stream'
+import * as stream from './stream'
 
 import dgram from './dgram.js'
 import dns from './dns.js'
 import { EventEmitter } from './events.js'
 import fs from './fs/index.js'
 import ipc from './ipc.js'
-import net from './net.js'
+import * as net from './net.js'
 import os from './os.js'
 import bluetooth from './bluetooth.js'
 

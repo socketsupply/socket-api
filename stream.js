@@ -1033,7 +1033,7 @@ function abort () {
   this.destroy(new Error('Stream aborted.'))
 }
 
-export default {
+export {
   pipeline,
   pipelinePromise,
   isStream,
