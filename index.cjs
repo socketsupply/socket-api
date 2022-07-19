@@ -21,38 +21,30 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var io_exports = {};
 __export(io_exports, {
-  bluetooth: () => import_bluetooth.default,
-  buffer: () => import_buffer.default,
-  dgram: () => import_dgram.default,
-  dns: () => import_dns.default,
-  events: () => import_events.default,
-  fs: () => import_fs.default,
-  ipc: () => import_ipc.default,
-  net: () => import_net.default,
-  os: () => import_os.default,
-  stream: () => import_streamx.default
+  default: () => io_default
 });
 module.exports = __toCommonJS(io_exports);
 var import_buffer = __toESM(require("buffer"), 1);
 var import_streamx = __toESM(require("streamx"), 1);
 var import_dgram = __toESM(require("./dgram.js"), 1);
 var import_dns = __toESM(require("./dns.js"), 1);
-var import_events = __toESM(require("./events.js"), 1);
+var import_events = require("./events.js");
 var import_fs = __toESM(require("./fs/index.js"), 1);
 var import_ipc = __toESM(require("./ipc.js"), 1);
-var import_net = __toESM(require("./net.js"), 1);
+var net = __toESM(require("./net.js"), 1);
 var import_os = __toESM(require("./os.js"), 1);
 var import_bluetooth = __toESM(require("./bluetooth.js"), 1);
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  bluetooth,
-  buffer,
-  dgram,
-  dns,
-  events,
-  fs,
-  ipc,
+var io_default = {
+  bluetooth: import_bluetooth.default,
+  buffer: import_buffer.default,
+  dgram: import_dgram.default,
+  dns: import_dns.default,
+  EventEmitter: import_events.EventEmitter,
+  fs: import_fs.default,
+  ipc: import_ipc.default,
   net,
-  os,
-  stream
-});
+  os: import_os.default,
+  stream: import_streamx.default
+};
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {});

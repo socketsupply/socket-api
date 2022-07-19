@@ -157,18 +157,18 @@ function type () {
   return cache.type
 }
 
-function EOL () {
-  if (/win/i.test(type())) {
-    return '\r\n'
-  }
-
-  return '\n'
-}
-
-export default {
+const api = {
   arch,
   platform,
   networkInterfaces,
   type,
-  EOL
+  get EOL () {
+    if (/win/i.test(type())) {
+      return '\r\n'
+    }
+
+    return '\n'
+  }
 }
+
+export default api
