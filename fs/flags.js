@@ -1,6 +1,15 @@
-import { constants } from './constants.js'
+import {
+  O_APPEND,
+  O_RDONLY,
+  O_WRONLY,
+  O_TRUNC,
+  O_CREAT,
+  O_RDWR,
+  O_EXCL,
+  O_SYNC,
+} from './constants.js'
 
-function normalizeFlags (flags) {
+export function normalizeFlags (flags) {
   if (typeof flags === 'number') {
     return flags
   }
@@ -13,51 +22,47 @@ function normalizeFlags (flags) {
 
   switch (flags) {
     case 'r':
-      return constants.O_RDONLY
+      return O_RDONLY
 
     case 'rs': case 'sr':
-      return constants.O_RDONLY | constants.O_SYNC
+      return O_RDONLY | O_SYNC
 
     case 'r+':
-      return constants.O_RDWR
+      return O_RDWR
 
     case 'rs+': case 'sr+':
-      return constants.O_RDWR | constants.O_SYNC
+      return O_RDWR | O_SYNC
 
     case 'w':
-      return constants.O_TRUNC | constants.O_CREAT | constants.O_WRONLY
+      return O_TRUNC | O_CREAT | O_WRONLY
 
     case 'wx': case 'xw':
-      return constants.O_TRUNC | constants.O_CREAT | constants.O_WRONLY | constants.O_EXCL
+      return O_TRUNC | O_CREAT | O_WRONLY | O_EXCL
 
     case 'w+':
-      return constants.O_TRUNC | constants.O_CREAT | constants.O_RDWR
+      return O_TRUNC | O_CREAT | O_RDWR
 
     case 'wx+': case 'xw+':
-      return constants.O_TRUNC | constants.O_CREAT | constants.O_RDWR | constants.O_EXCL
+      return O_TRUNC | O_CREAT | O_RDWR | O_EXCL
 
     case 'a':
-      return constants.O_APPEND | constants.O_CREAT | constants.O_WRONLY
+      return O_APPEND | O_CREAT | O_WRONLY
 
     case 'ax': case 'xa':
-      return constants.O_APPEND | constants.O_CREAT | constants.O_WRONLY | constants.O_EXCL
+      return O_APPEND | O_CREAT | O_WRONLY | O_EXCL
 
     case 'as': case 'sa':
-      return constants.O_APPEND | constants.O_CREAT | constants.O_WRONLY | constants.O_SYNC
+      return O_APPEND | O_CREAT | O_WRONLY | O_SYNC
 
     case 'a+':
-      return constants.O_APPEND | constants.O_CREAT | constants.O_RDWR
+      return O_APPEND | O_CREAT | O_RDWR
 
     case 'ax+': case 'xa+':
-      return constants.O_APPEND | constants.O_CREAT | constants.O_RDWR | constants.O_EXCL
+      return O_APPEND | O_CREAT | O_RDWR | O_EXCL
 
     case 'as+': case 'sa+':
-      return constants.O_APPEND | constants.O_CREAT | constants.O_RDWR | constants.O_SYNC
+      return O_APPEND | O_CREAT | O_RDWR | O_SYNC
   }
 
-  return constants.O_RDONLY
-}
-
-export {
-  normalizeFlags
+  return O_RDONLY
 }

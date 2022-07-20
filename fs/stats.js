@@ -1,4 +1,4 @@
-import { constants } from './constants.js'
+import * as constants from './constants.js'
 import * as os from '../os.js'
 
 const isWindows = /win/i.test(os.type())
@@ -24,7 +24,7 @@ function checkMode (mode, property) {
 /**
  * @TODO
  */
-class Stats {
+export class Stats {
   /**
    * @TODO
    */
@@ -130,8 +130,4 @@ class Stats {
   isSocket () {
     return checkMode(this.mode, constants.S_IFSOCK)
   }
-}
-
-export {
-  Stats
 }

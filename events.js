@@ -463,9 +463,9 @@ function eventTargetAgnosticAddListener (emitter, name, listener, flags) {
   }
 }
 
+EventEmitter.EventEmitter = EventEmitter
+EventEmitter.once = once
+
 export {
   EventEmitter
 }
-
-EventEmitter.EventEmitter = EventEmitter
-EventEmitter.once = once

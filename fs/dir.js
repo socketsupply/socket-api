@@ -3,7 +3,7 @@ import { Stats } from './stats.js'
 /**
  * @TODO
  */
-class Dir {
+export class Dir {
   /**
    * @TODO
    */
@@ -33,7 +33,7 @@ class Dir {
 /**
  * @TODO
  */
-class Dirent extends Stats {
+export class Dirent extends Stats {
   /**
    * @TODO
    */
@@ -53,9 +53,4 @@ class Dirent extends Stats {
 
     this.name = options?.name || null
   }
-}
-
-export {
-  Dir,
-  Dirent
 }

@@ -1,10 +1,10 @@
 import { ReadStream, WriteStream } from './stream.js'
 import { isBufferLike, isFunction } from '../util.js'
 import { Dir, Dirent } from './dir.js'
+import * as constants from './constants.js'
+import * as promises from './promises.js'
 import { FileHandle } from './handle.js'
 import { Stats } from './stats.js'
-import { constants } from './constants.js'
-import promises from './promises.js'
 
 function defaultCallback (err) {
   if (err) throw err
@@ -459,6 +459,7 @@ export function writeFile (file, data, options, callback) {
 export function writev (fd, buffers, position, callback) {
 }
 
+// re-exports
 export {
   constants,
   Dir,
@@ -471,7 +472,6 @@ export {
 }
 
 import * as exports from './index.js'
-export default exports
 
 for (const key in exports) {
   const value = exports[key]

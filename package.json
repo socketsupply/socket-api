@@ -2,9 +2,10 @@
   "name": "@socketsupply/io",
   "version": "0.1.1",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "lint": "standardx -v",
-    "test": "node ./test/*.js",
+    "test": "node ./test/index.js",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
   "author": "",

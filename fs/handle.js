@@ -5,8 +5,8 @@ import { normalizeFlags } from './flags.js'
 import { EventEmitter } from '../events.js'
 import { Buffer } from 'buffer'
 import { Stats } from './stats.js'
-import { constants } from './constants.js'
-import ipc from '../ipc.js'
+import { F_OK } from './constants.js'
+import * as ipc from '../ipc.js'
 import fds from './fds.js'
 
 const kFileHandleOpening = Symbol.for('fs.FileHandle.opening')
@@ -15,8 +15,8 @@ const kFileHandleClosing = Symbol.for('fs.FileHandle.closing')
 /**
  * @TODO
  */
-class FileHandle extends EventEmitter {
-  static get DEFAULT_ACCESS_MODE () { return constants.F_OK }
+export class FileHandle extends EventEmitter {
+  static get DEFAULT_ACCESS_MODE () { return F_OK }
   static get DEFAULT_OPEN_FLAGS () { return 'r' }
   static get DEFAULT_OPEN_MODE () { return 0o666 }
 
@@ -477,8 +477,4 @@ class FileHandle extends EventEmitter {
    */
   async writev (buffers, position) {
   }
-}
-
-export {
-  FileHandle
 }

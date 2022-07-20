@@ -1,28 +1,23 @@
-const fds = new Map()
-const ids = new Map()
+export default new class FileDescriptorsMap {
+  fds = new Map()
+  ids = new Map()
 
-function get (id) {
-  return fds.get(id)
-}
+  get (id) {
+    return this.fds.get(id)
+  }
 
-function set (id, fd) {
-  fds.set(id, fd)
-  ids.set(fd, id)
-}
+  set (id, fd) {
+    this.fds.set(id, fd)
+    this.ids.set(fd, id)
+  }
 
-function to (fd) {
-  return ids.get(fd)
-}
+  to (fd) {
+    return this.ids.get(fd)
+  }
 
-function release (id) {
-  const fd = fds.get(id)
-  fds.delete(id)
-  ids.delete(fd)
-}
-
-export default {
-  get,
-  release,
-  set,
-  to
+  release (id) {
+    const fd = this.fds.get(id)
+    this.fds.delete(id)
+    this.ids.delete(fd)
+  }
 }
