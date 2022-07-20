@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "standardx -v",
-    "test": "tapzero ./test/*.js",
+    "test": "node ./test/*.js",
     "prepublishOnly": "esbuild index.js --outfile=index.cjs --platform=node --format=cjs",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
