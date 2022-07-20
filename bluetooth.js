@@ -20,6 +20,7 @@ export class Bluetooth extends EventEmitter {
   static isInitalized = false;
 
   constructor (opts = {}) {
+    super()
     this.keys = {}
 
     this.serviceId = v4()
