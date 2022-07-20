@@ -1,5 +1,23 @@
 import { FileHandle } from './handle.js'
 
+async function visit (path, flags, mode, callback) {
+  if (typeof flags === 'function') {
+    callback = flags
+    flags = undefined
+    mode = undefined
+  }
+
+  if (typeof mode === 'function') {
+    callback = mode
+    mode = undefined
+  }
+
+  const handle = await FileHandle.open(path, flags, mode)
+  const value = await callback(handle)
+  await handle.close()
+  return value
+}
+
 /**
  * Asynchronously check access a file.
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesaccesspath-mode}
@@ -99,6 +117,9 @@ export async function readdir (path, options) {
  * @TODO
  */
 export async function readFile (path, options) {
+  return await visit(path, options?.flag, options?.mode, async (handle) => {
+    return handle.readFile(options)
+  })
 }
 
 /**
@@ -170,5 +191,8 @@ export async function watch (path, options) {
 /**
  * @TODO
  */
-export async function writeFile (file, data, options) {
+export async function writeFile (path, data, options) {
+  return await visit(path, options?.flag || 'w', options?.mode, async (handle) => {
+    return handle.writeFile(data, options)
+  })
 }
