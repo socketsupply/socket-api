@@ -9,7 +9,7 @@ const cache = {
   platform: UNKNOWN
 }
 
-function arch () {
+export function arch () {
   if (cache.arch !== UNKNOWN) {
     return cache.arch
   }
@@ -40,7 +40,7 @@ function arch () {
   return cache.arch
 }
 
-function networkInterfaces () {
+export function networkInterfaces () {
   const { ipv4, ipv6 } = ipc.sendSync('getNetworkInterfaces')?.data || {}
   const interfaces = {}
 
@@ -107,7 +107,7 @@ function networkInterfaces () {
   return interfaces
 }
 
-function platform () {
+export function platform () {
   if (cache.platform !== UNKNOWN) {
     return cache.platform
   }
@@ -130,7 +130,7 @@ function platform () {
   return cache.platform
 }
 
-function type () {
+export function type () {
   if (cache.type !== UNKNOWN) {
     return cache.type
   }
@@ -155,16 +155,10 @@ function type () {
   return cache.type
 }
 
-export const os = {
-  arch,
-  platform,
-  networkInterfaces,
-  type,
-  get EOL () {
-    if (/win/i.test(type())) {
-      return '\r\n'
-    }
-
-    return '\n'
+export const EOL = (() => {
+  if (/win/i.test(type())) {
+    return '\r\n'
   }
-}
+
+  return '\n'
+})()
