@@ -12,9 +12,9 @@ import { EventEmitter } from './events.js'
 //   // assert(data === '{"value":"hello, world"}')
 // })
 //
-// await bt.publish('messages', JSON.stringify({
+// await bt.publish('messages', {
 //   value: 'hello, world'
-// }))
+// })
 //
 class Bluetooth extends EventEmitter {
   static isInitalized = false;
@@ -52,6 +52,10 @@ class Bluetooth extends EventEmitter {
     const params = {
       characteristicId: id,
       serviceId: this.serviceId
+    }
+
+    if (value.constructor.name !== 'Object') {
+      value = JSON.stringify(value)
     }
 
     if (typeof value === 'string') {
