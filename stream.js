@@ -1,7 +1,7 @@
 const STREAM_DESTROYED = new Error('Stream was destroyed')
 const PREMATURE_CLOSE = new Error('Premature close')
 
-import { EventEmitter } from './events'
+import { EventEmitter } from './events.js'
 
 class FixedFIFO {
   constructor (hwm) {

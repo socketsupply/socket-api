@@ -48,7 +48,7 @@ async function visit (path, flags, mode, callback) {
  * @param {?(string)} [mode = F_OK(0)]
  * @param {function(err, fd)} callback
  */
-function access (path, mode, callback) {
+export function access (path, mode, callback) {
   if (typeof mode === 'function') {
     callback = mode
     mode = FileHandle.DEFAULT_ACCESS_MODE
@@ -70,19 +70,19 @@ function access (path, mode, callback) {
 /**
  * @TODO
  */
-function appendFile (path, data, options, callback) {
+export function appendFile (path, data, options, callback) {
 }
 
 /**
  * @TODO
  */
-function chmod (path, mode, callback) {
+export function chmod (path, mode, callback) {
 }
 
 /**
  * @TODO
  */
-function chown (path, uid, gid, callback) {
+export function chown (path, uid, gid, callback) {
 }
 
 /**
@@ -91,7 +91,7 @@ function chown (path, uid, gid, callback) {
  * @param {number} fd
  * @param {function(err)} callback
  */
-function close (fd, callback) {
+export function close (fd, callback) {
   if (typeof callback !== 'function') {
     callback = defaultCallback
   }
@@ -108,13 +108,13 @@ function close (fd, callback) {
 /**
  * @TODO
  */
-function copyFile (src, dest, mode, callback) {
+export function copyFile (src, dest, mode, callback) {
 }
 
 /**
  * @TODO
  */
-function createReadStream (path, options) {
+export function createReadStream (path, options) {
   if (path?.fd) {
     options = path
     path = options?.path || null
@@ -151,7 +151,7 @@ function createReadStream (path, options) {
 /**
  * @TODO
  */
-function createWriteStream (path, options) {
+export function createWriteStream (path, options) {
   if (path?.fd) {
     options = path
     path = options?.path || null
@@ -188,7 +188,7 @@ function createWriteStream (path, options) {
 /**
  * @TODO
  */
-function fstat (fd, options, callback) {
+export function fstat (fd, options, callback) {
   if (typeof options === 'function') {
     callback = options
     options = {}
@@ -210,37 +210,37 @@ function fstat (fd, options, callback) {
 /**
  * @TODO
  */
-function lchmod (path, mode, callback) {
+export function lchmod (path, mode, callback) {
 }
 
 /**
  * @TODO
  */
-function lchown (path, uid, gid, callback) {
+export function lchown (path, uid, gid, callback) {
 }
 
 /**
  * @TODO
  */
-function lutimes (path, atime, mtime, callback) {
+export function lutimes (path, atime, mtime, callback) {
 }
 
 /**
  * @TODO
  */
-function link (existingPath, newPath, callback) {
+export function link (existingPath, newPath, callback) {
 }
 
 /**
  * @TODO
  */
-function lstat (path, options, callback) {
+export function lstat (path, options, callback) {
 }
 
 /**
  * @TODO
  */
-function mkdir (path, options, callback) {
+export function mkdir (path, options, callback) {
 }
 
 /**
@@ -251,7 +251,7 @@ function mkdir (path, options, callback) {
  * @param {?(string)} [mode = 0o666]
  * @param {function(err, fd)} callback
  */
-function open (path, flags, mode, callback) {
+export function open (path, flags, mode, callback) {
   if (typeof flags === 'function') {
     callback = flags
     flags = FileHandle.DEFAULT_OPEN_FLAGS
@@ -278,7 +278,7 @@ function open (path, flags, mode, callback) {
 /**
  * @TODO
  */
-function opendir (path, options, callback) {
+export function opendir (path, options, callback) {
 }
 
 /**
@@ -287,7 +287,7 @@ function opendir (path, options, callback) {
  * @param {number} fd
  * @param {object | Buffer | TypedArray} buffer
  */
-function read (fd, buffer, offset, length, position, callback) {
+export function read (fd, buffer, offset, length, position, callback) {
   if (typeof buffer === 'object' && !isBufferLike(buffer)) {
     offset = buffer.offset
     length = buffer.length
@@ -312,7 +312,7 @@ function read (fd, buffer, offset, length, position, callback) {
 /**
  * @TODO
  */
-function readdir (path, options, callback) {
+export function readdir (path, options, callback) {
 }
 
 /**
@@ -320,7 +320,7 @@ function readdir (path, options, callback) {
  * @param {object} [options]
  * @param {function(err, buffer)} callback
  */
-function readFile (path, options, callback) {
+export function readFile (path, options, callback) {
   if (typeof options === 'function') {
     callback = options
     options = {}
@@ -352,37 +352,37 @@ function readFile (path, options, callback) {
 /**
  * @TODO
  */
-function readlink (path, options, callback) {
+export function readlink (path, options, callback) {
 }
 
 /**
  * @TODO
  */
-function realpath (path, options, callback) {
+export function realpath (path, options, callback) {
 }
 
 /**
  * @TODO
  */
-function rename (oldPath, newPath, callback) {
+export function rename (oldPath, newPath, callback) {
 }
 
 /**
  * @TODO
  */
-function rmdir (path, options, callback) {
+export function rmdir (path, options, callback) {
 }
 
 /**
  * @TODO
  */
-function rm (path, options, callback) {
+export function rm (path, options, callback) {
 }
 
 /**
  * @TODO
  */
-function stat (path, options, callback) {
+export function stat (path, options, callback) {
   if (typeof options === 'function') {
     callback = options
     options = {}
@@ -414,52 +414,52 @@ function stat (path, options, callback) {
 /**
  * @TODO
  */
-function symlink (target, path, type, callback) {
+export function symlink (target, path, type, callback) {
 }
 
 /**
  * @TODO
  */
-function truncate (path, length, callback) {
+export function truncate (path, length, callback) {
 }
 
 /**
  * @TODO
  */
-function unlink (path, callback) {
+export function unlink (path, callback) {
 }
 
 /**
  * @TODO
  */
-function utimes (path, atime, mtime, callback) {
+export function utimes (path, atime, mtime, callback) {
 }
 
 /**
  * @TODO
  */
-function watch (path, options, callback) {
+export function watch (path, options, callback) {
 }
 
 /**
  * @TODO
  */
-function write (fd, buffer, offset, length, position, callback) {
+export function write (fd, buffer, offset, length, position, callback) {
 }
 
 /**
  * @TODO
  */
-function writeFile (file, data, options, callback) {
+export function writeFile (file, data, options, callback) {
 }
 
 /**
  * @TODO
  */
-function writev (fd, buffers, position, callback) {
+export function writev (fd, buffers, position, callback) {
 }
 
-export default {
+export {
   constants,
   Dir,
   Dirent,
@@ -467,46 +467,14 @@ export default {
   promises,
   ReadStream,
   Stats,
-  WriteStream,
-
-  access,
-  appendFile,
-  chmod,
-  chown,
-  close,
-  copyFile,
-  createReadStream,
-  createWriteStream,
-  fstat,
-  lchmod,
-  lchown,
-  lutimes,
-  link,
-  lstat,
-  mkdir,
-  open,
-  opendir,
-  read,
-  readdir,
-  readFile,
-  readlink,
-  realpath,
-  rename,
-  rmdir,
-  rm,
-  stat,
-  symlink,
-  truncate,
-  unlink,
-  utimes,
-  watch,
-  write,
-  writeFile,
-  writev
+  WriteStream
 }
 
-for (const key in module.exports) {
-  const value = module.exports[key]
+import * as exports from './index.js'
+export default exports
+
+for (const key in exports) {
+  const value = exports[key]
   if (key in promises && isFunction(value) && isFunction(promises[key])) {
     value[Symbol.for('nodejs.util.promisify.custom')] = promises[key]
   }

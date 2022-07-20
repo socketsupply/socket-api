@@ -1,6 +1,11 @@
-import { EventEmitter } from 'events'
+import { EventEmitter } from 'node:events'
+import { webcrypto } from 'node:crypto'
 
-const methods = {}
+Object.assign(globalThis, {
+  crypto: webcrypto
+})
+
+export const methods = {}
 
 const CustomEventDispatched = Symbol.for('CustomEvent.dispatched')
 
@@ -48,6 +53,7 @@ global.window = Object.assign(new EventEmitter(), {
   XMLHttpRequest,
   CustomEvent,
   Event,
+  crypto: webcrypto,
 
   addEventListener (event, fn, opts) {
     if (opts?.once) {
@@ -130,7 +136,7 @@ global.window = Object.assign(new EventEmitter(), {
   }
 })
 
-const create = (t, name, args, result) => {
+export function create (t, name, args, result) {
   methods[name] = methods[name] || []
 
   methods[name].push((_args) => {
@@ -142,7 +148,6 @@ const create = (t, name, args, result) => {
   })
 }
 
-module.exports = {
-  create,
-  methods
-}
+import * as exports from './mock.js'
+export default exports
+

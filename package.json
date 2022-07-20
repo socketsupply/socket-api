@@ -4,9 +4,14 @@
   "main": "index.js",
   "scripts": {
     "lint": "standardx -v",
-    "test": "node ./test/*.js",
-    "prepublishOnly": "esbuild index.js --outfile=index.cjs --format=cjs",
+    "test": "node ./test/index.js",
+    "bundle": "esbuild index.js --bundle --outfile=index.cjs --format=cjs",
+    "prepublishOnly": "npm run bundle",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
+  },
+  "exports": {
+    "import": "./index.js",
+    "require": "./index.cjs"
   },
   "type": "module",
   "author": "",

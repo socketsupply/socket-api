@@ -481,3 +481,6 @@ export {
   getNetworkInterfaces,
   isIPv4
 }
+
+import * as exports from './net.js'
+export default exports

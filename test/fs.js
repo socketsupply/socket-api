@@ -1,8 +1,8 @@
-import { promisify } from 'util'
-import mock from './mock'
+import { promisify } from 'node:util'
+import { test } from 'tapzero'
 
-const fs = require('../fs')
-const { test } = require('tapzero')
+import mock from './mock.js'
+import fs from '../fs/index.js'
 
 test('FileHandle', async t => {
   mock.create(t, 'fsOpen',
@@ -21,6 +21,4 @@ test('nodejs.util.promisify.custom', (t) => {
       t.equal(promisify(value), fs.promises[key], `promisify(fs.${key})`)
     }
   }
-
-  t.end()
 })

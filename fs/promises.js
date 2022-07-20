@@ -1,4 +1,4 @@
-import { FileHandle } from './handle'
+import { FileHandle } from './handle.js'
 
 /**
  * Asynchronously check access a file.
