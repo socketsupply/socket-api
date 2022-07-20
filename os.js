@@ -155,7 +155,7 @@ function type () {
   return cache.type
 }
 
-const api = {
+export const os = {
   arch,
   platform,
   networkInterfaces,
@@ -168,5 +168,3 @@ const api = {
     return '\n'
   }
 }
-
-export default api
