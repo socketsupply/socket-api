@@ -118,7 +118,7 @@ export async function readdir (path, options) {
  */
 export async function readFile (path, options) {
   return await visit(path, options?.flag, async (handle) => {
-    return handle.readFile(options)
+    return await handle.readFile(options)
   })
 }
 
@@ -193,6 +193,6 @@ export async function watch (path, options) {
  */
 export async function writeFile (path, data, options) {
   return await visit(path, options?.flag || 'w', async (handle) => {
-    return handle.writeFile(data, options)
+    return await handle.writeFile(data, options)
   })
 }
