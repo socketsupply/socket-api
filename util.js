@@ -2,23 +2,23 @@ import { Buffer } from 'buffer'
 
 const TypedArray = Object.getPrototypeOf(Object.getPrototypeOf(new Uint8Array())).constructor
 
-function isTypedArray (object) {
+export function isTypedArray (object) {
   return object instanceof TypedArray
 }
 
-function isBufferLike (object) {
+export function isBufferLike (object) {
   return isTypedArray(object) || Buffer.isBuffer(object)
 }
 
-function isFunction (value) {
+export function isFunction (value) {
   return typeof value === 'function' && !/class/.test(value.toString())
 }
 
-function isPromiseLike (object) {
+export function isPromiseLike (object) {
   return isFunction(object?.then)
 }
 
-function toBuffer (object) {
+export function toBuffer (object) {
   if (Buffer.isBuffer(object)) {
     return object
   } else if (isTypedArray(object)) {
@@ -28,17 +28,32 @@ function toBuffer (object) {
   return Buffer.from(object)
 }
 
-function toProperCase (string) {
+export function toProperCase (string) {
   return string[0].toUpperCase() + string.slice(1)
 }
 
 // so this is re-used instead of creating new one each rand64() call
 const tmp = new BigUint64Array(1)
-function rand64 () {
+export function rand64 () {
   return globalThis.crypto.getRandomValues(tmp)[0]
 }
 
-function InvertedPromise () {
+export function splitBuffer (buffer, highWaterMark) {
+  const buffers = []
+
+  do {
+    buffers.push(buffer.slice(0, highWaterMark))
+    buffer = buffer.slice(highWaterMark)
+  } while (buffer.length > highWaterMark)
+
+  if (buffer.length) {
+    buffers.push(buffer)
+  }
+
+  return buffers
+}
+
+export function InvertedPromise () {
   const context = {}
   const promise = new Promise((resolve, reject) => {
     Object.assign(context, {
@@ -55,15 +70,4 @@ function InvertedPromise () {
   })
 
   return Object.assign(promise, context)
-}
-
-export {
-  InvertedPromise,
-  isBufferLike,
-  isFunction,
-  isPromiseLike,
-  isTypedArray,
-  rand64,
-  toBuffer,
-  toProperCase
 }

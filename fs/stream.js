@@ -21,7 +21,6 @@ export class ReadStream extends Readable {
     this.end = typeof options?.end === 'number' ? options.end : Infinity
     this.start = typeof options?.start === 'number' ? options.start : 0
     this.handle = null
-    this.buffer = Buffer.alloc(this._readableState.highWaterMark)
     this.bytesRead = 0
     this.shouldEmitClose = options?.emitClose !== false
 
@@ -44,6 +43,13 @@ export class ReadStream extends Readable {
    */
   setHandle (handle) {
     setHandle(this, handle)
+  }
+
+  /**
+   * The max buffer size for the ReadStream.
+   */
+  get highWaterMark () {
+    return this._readableState.highWaterMark
   }
 
   /**
@@ -94,15 +100,14 @@ export class ReadStream extends Readable {
   }
 
   async _read (callback) {
-    const { buffer, handle } = this
+    const { handle } = this
 
     if (!handle || !handle.opened) {
       return callback(new Error('File handle not opened'))
     }
 
-    buffer.fill(0)
-
     const position = Math.max(0, this.start) + this.bytesRead
+    const buffer = Buffer.alloc(this.highWaterMark)
     const length = Math.max(0, this.end) < Infinity
       ? Math.min(this.end - position, buffer.length)
       : buffer.length
@@ -163,6 +168,13 @@ export class WriteStream extends Writable {
    */
   setHandle (handle) {
     setHandle(this, handle)
+  }
+
+  /**
+   * The max buffer size for the Writetream.
+   */
+  get highWaterMark () {
+    return this._writableState.highWaterMark
   }
 
   /**
