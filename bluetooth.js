@@ -46,7 +46,7 @@ export class Bluetooth extends EventEmitter {
     return this.set(key)
   }
 
-  publish (key, value = '') {
+  async publish (key, value = '') {
     const id = v4()
     this.keys[id] = key
 
@@ -65,6 +65,10 @@ export class Bluetooth extends EventEmitter {
       params.length = enc.length
     }
 
-    return ipc.write('bluetooth-set', params, value)
+    const res = await ipc.write('bluetooth-set', params, value)
+
+    if (res.err) {
+      throw new Error(res.err.message)
+    }
   }
 }
