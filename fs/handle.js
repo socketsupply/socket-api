@@ -1,8 +1,16 @@
 /* global atob, escape */
-import { InvertedPromise, isBufferLike, isTypedArray, rand64 } from '../util.js'
+import {
+  InvertedPromise,
+  isBufferLike,
+  isTypedArray,
+  splitBuffer,
+  rand64
+} from '../util.js'
+
 import { ReadStream, WriteStream } from './stream.js'
 import { normalizeFlags } from './flags.js'
 import { EventEmitter } from '../events.js'
+import { AbortError } from '../errors.js'
 import { Buffer } from 'buffer'
 import { Stats } from './stats.js'
 import { F_OK } from './constants.js'
@@ -366,10 +374,23 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async readFile (options) {
-    const stats = await this.stat()
-    const buffer = Buffer.alloc(stats.size)
+    const buffers = []
+    const stream = this.createReadStream(options)
 
-    await this.read({ buffer })
+    if (options?.signal instanceof AbortSignal) {
+      options.signal.onabort = () => {
+        stream.destroy(new AbortError(options.signal))
+      }
+    }
+
+    // collect
+    await new Promise((resolve, reject) => {
+      stream.on('end', resolve)
+      stream.on('data', (buffer) => buffers.push(buffer))
+      stream.on('error', reject)
+    })
+
+    const buffer = Buffer.concat(buffers)
 
     if (typeof options?.encoding === 'string') {
       return buffer.toString(options.encoding)
@@ -470,6 +491,30 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async writeFile (data, options) {
+    const stream = this.createWriteStream(options)
+    const buffer = Buffer.from(data, options?.encoding || 'utf8')
+    const buffers = splitBuffer(buffer, stream.highWaterMark)
+
+    if (options?.signal instanceof AbortSignal) {
+      options.signal.onabort = () => {
+        stream.destroy(new AbortError(options.signal))
+      }
+    }
+
+    queueMicrotask(async () => {
+      while (buffers.length) {
+        const buffer = buffers.shift()
+        if (!stream.write(buffer)) {
+          // block until drain
+          await new Promise((resolve) => stream.once('drain', resolve))
+        }
+      }
+    })
+
+    await new Promise((resolve, reject) => {
+      stream.on('finish', resolve)
+      stream.on('error', reject)
+    })
   }
 
   /**
