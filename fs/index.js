@@ -3,7 +3,7 @@ import { isBufferLike, isFunction } from '../util.js'
 import { Dir, Dirent } from './dir.js'
 import { FileHandle } from './handle.js'
 import { Stats } from './stats.js'
-import constants from './constants.js'
+import { constants } from './constants.js'
 import promises from './promises.js'
 
 function defaultCallback (err) {

@@ -7,12 +7,6 @@
     "test": "node ./test/*.js",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
-  "type": "module",
-  "browser": true,
-  "exports": {
-    "import": "./index.js",
-    "require": "./index.cjs"
-  },
   "author": "",
   "license": "ISC",
   "repository": {

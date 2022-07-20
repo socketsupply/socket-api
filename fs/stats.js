@@ -1,5 +1,5 @@
-import constants from './constants.js'
-import os from '../os.js'
+import { constants } from './constants.js'
+import * as os from '../os.js'
 
 const isWindows = /win/i.test(os.type())
 

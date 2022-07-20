@@ -1,4 +1,4 @@
-const lookup = async (hostname, opts, cb) => {
+export const lookup = async (hostname, opts, cb) => {
   const params = {
     hostname
   }
@@ -14,8 +14,4 @@ const lookup = async (hostname, opts, cb) => {
   if (cb) return cb(null, data)
 
   return { err, data }
-}
-
-export default {
-  lookup
 }

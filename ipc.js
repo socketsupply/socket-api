@@ -1,9 +1,9 @@
 /* global window */
 
-const OK = 0
-const ERROR = 1
+export const OK = 0
+export const ERROR = 1
 
-async function ready () {
+export async function ready () {
   return await new Promise((resolve, reject) => {
     if (typeof window === 'undefined') {
       return reject(new TypeError('Global window object is not defined.'))
@@ -21,7 +21,7 @@ async function ready () {
   })
 }
 
-function sendSync (command, params) {
+export function sendSync (command, params) {
   if (typeof window === 'undefined') {
     console.warn('Global window object is not defined')
     return {}
@@ -50,22 +50,22 @@ function sendSync (command, params) {
   return request.response
 }
 
-async function emit (...args) {
+export async function emit (...args) {
   await ready()
   return await window._ipc.emit(...args)
 }
 
-async function resolve (...args) {
+export async function resolve (...args) {
   await ready()
   return await window._ipc.resolve(...args)
 }
 
-async function send (...args) {
+export async function send (...args) {
   await ready()
   return await window._ipc.send(...args)
 }
 
-async function write (command, params, buffer) {
+export async function write (command, params, buffer) {
   if (typeof window === 'undefined') {
     console.warn('Global window object is not defined')
     return {}
@@ -113,7 +113,7 @@ async function write (command, params, buffer) {
   return response?.data || response
 }
 
-async function request (command, data) {
+export async function request (command, data) {
   await ready()
 
   const params = { ...data }
@@ -158,17 +158,4 @@ async function request (command, data) {
       }
     }
   }
-}
-
-export default {
-  OK,
-  ERROR,
-
-  emit,
-  ready,
-  resolve,
-  request,
-  send,
-  sendSync,
-  write
 }

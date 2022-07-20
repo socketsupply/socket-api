@@ -1,5 +1,5 @@
 import { toProperCase } from './util.js'
-import ipc from './ipc.js'
+import * as ipc from './ipc.js'
 
 const UNKNOWN = 'unknown'
 

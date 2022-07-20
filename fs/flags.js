@@ -1,4 +1,4 @@
-import constants from './constants.js'
+import { constants } from './constants.js'
 
 function normalizeFlags (flags) {
   if (typeof flags === 'number') {

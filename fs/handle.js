@@ -5,7 +5,7 @@ import { normalizeFlags } from './flags.js'
 import { EventEmitter } from '../events.js'
 import { Buffer } from 'buffer'
 import { Stats } from './stats.js'
-import constants from './constants.js'
+import { constants } from './constants.js'
 import ipc from '../ipc.js'
 import fds from './fds.js'
 

@@ -1,6 +1,6 @@
 import { v4 } from 'uuid'
 
-import ipc from './ipc.js'
+import * as ipc from './ipc.js'
 import { EventEmitter } from './events.js'
 
 //
@@ -16,7 +16,7 @@ import { EventEmitter } from './events.js'
 //   value: 'hello, world'
 // })
 //
-class Bluetooth extends EventEmitter {
+export class Bluetooth extends EventEmitter {
   static isInitalized = false;
 
   constructor (opts = {}) {
@@ -66,8 +66,4 @@ class Bluetooth extends EventEmitter {
 
     return ipc.write('bluetooth-set', params, value)
   }
-}
-
-export default {
-  Bluetooth
 }

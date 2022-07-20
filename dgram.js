@@ -2,7 +2,7 @@ import { Buffer } from 'buffer'
 
 import { EventEmitter } from './events.js'
 import { isIPv4 } from './net.js'
-import dns from './dns.js'
+import * as dns from './dns.js'
 import { rand64 } from './util.js'
 
 const isArrayBufferView = buf => {
@@ -27,7 +27,7 @@ const fixBufferList = list => {
   return newlist
 }
 
-class Socket extends EventEmitter {
+export class Socket extends EventEmitter {
   constructor (options) {
     super()
 
@@ -508,11 +508,6 @@ class Socket extends EventEmitter {
   }
 }
 
-const createSocket = (type, listener) => {
+export const createSocket = (type, listener) => {
   return new Socket(type, listener)
-}
-
-export default {
-  Socket,
-  createSocket
 }

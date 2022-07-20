@@ -1,10 +1,10 @@
-import ipc from '../ipc.js'
+import * as ipc from '../ipc.js'
 
 function getNativeConstants () {
   return ipc.sendSync('getFSConstants')?.data || {}
 }
 
-const constants = Object.assign(Object.create(null), {
+export const constants = Object.assign(Object.create(null), {
   /*
    * This flag can be used with uv_fs_copyfile() to return an error if the
    * destination already exists.
@@ -23,7 +23,3 @@ const constants = Object.assign(Object.create(null), {
 
   ...getNativeConstants()
 })
-
-export default {
-  constants
-}
