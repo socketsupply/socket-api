@@ -42,16 +42,3 @@ var import_ipc = __toESM(require("./ipc.js"), 1);
 var net = __toESM(require("./net.js"), 1);
 var import_os = __toESM(require("./os.js"), 1);
 var import_bluetooth = __toESM(require("./bluetooth.js"), 1);
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  EventEmitter,
-  bluetooth,
-  buffer,
-  dgram,
-  dns,
-  fs,
-  ipc,
-  net,
-  os,
-  stream
-});
