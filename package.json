@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "standardx -v",
     "test": "node ./test/*.js",
-    "prepublishOnly": "esbuild index.js --outfile=index.cjs --platform=node --format=cjs",
+    "prepublishOnly": "esbuild index.js --outfile=index.cjs --format=cjs",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
   "type": "module",
