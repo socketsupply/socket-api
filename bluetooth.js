@@ -24,7 +24,7 @@ export class Bluetooth extends EventEmitter {
     this.keys = {}
 
     this.serviceId = v4()
-    window.external.invoke(`ipc://bluetooth-start?uuid=${this.serviceId}`)
+    window.external.invoke(`ipc://bluetooth-start?serviceId=${this.serviceId}`)
 
     window.addEventListener('bluetooth', e => {
       const { err, data } = e.detail.params
