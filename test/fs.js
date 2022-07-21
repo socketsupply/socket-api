@@ -7,7 +7,7 @@ import { normalizeFlags } from '../fs/flags.js'
 import * as fs from '../fs/index.js'
 
 test('FileHandle', async t => {
-  mock.create(t, 'fsOpen', {}, {})
+  mock.create(t, 'fsOpen', {}, { err: null, data: {} })
 
   const handle = await fs.promises.open('./foo.txt')
   t.ok(handle.id.toString().length, 'handle provides an id')

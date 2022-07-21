@@ -18,8 +18,6 @@ export function arch () {
     if (typeof process === 'object' && typeof process.arch === 'string') {
       return process.arch
     }
-
-    return UNKNOWN
   }
 
   const value = (
@@ -116,8 +114,6 @@ export function platform () {
     if (typeof process === 'object' && typeof process.platform === 'string') {
       return process.platform
     }
-
-    return UNKNOWN
   }
 
   cache.platform = (
@@ -141,8 +137,6 @@ export function type () {
       case 'darnwin': return 'Darwin'
       case 'win32': return 'Windows' // Windows_NT?
     }
-
-    return UNKNOWN
   }
 
   const value = (
@@ -151,8 +145,9 @@ export function type () {
     UNKNOWN
   )
 
-  cache.type = toProperCase(value)
-  return cache.type
+  cache.type = value
+
+  return toProperCase(cache.type)
 }
 
 export const EOL = (() => {
