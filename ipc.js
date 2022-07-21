@@ -297,16 +297,12 @@ export async function write (command, params, buffer) {
   }
 
   if (signal) {
-    signal.onabort = () => {
+    signal.addEventListener('abort', () => {
       if (!aborted && !resolved) {
+        aborted = true
         request.abort()
       }
-    }
-  }
-
-  request.onabort = () => {
-    clearTimeout(timeout)
-    aborted = true
+    })
   }
 
   request.open('PUT', uri + query, true)
@@ -318,7 +314,17 @@ export async function write (command, params, buffer) {
       request.abort()
     }, TIMEOUT)
 
+    request.onabort = () => {
+      aborted = true
+      clearTimeout(timeout)
+      resolve(Result.from(new AbortError(signal || 'ipc.write aborted')))
+    }
+
     request.onreadystatechange = () => {
+      if (aborted) {
+        return
+      }
+
       if (request.readyState === window.XMLHttpRequest.DONE) {
         resolved = true
         clearTimeout(timeout)
@@ -386,7 +392,7 @@ export async function request (command, data, options) {
   const timeout = setTimeout(onabort, TIMEOUT)
 
   if (signal) {
-    signal.onabort = onabort
+    signal.addEventListener('abort', onabort)
   }
 
   // handle async resolution from IPC over XHR

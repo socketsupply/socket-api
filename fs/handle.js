@@ -273,7 +273,10 @@ export class FileHandle extends EventEmitter {
   async datasync () {
   }
 
-  async open () {
+  /**
+   * @TODO
+   */
+  async open (options) {
     if (this.opened) {
       return true
     }
@@ -291,7 +294,7 @@ export class FileHandle extends EventEmitter {
       flags: flags,
       mode: mode,
       path: path
-    })
+    }, { signal: options?.signal })
 
     if (result.err) {
       return this[kOpening].reject(result.err)
@@ -311,15 +314,17 @@ export class FileHandle extends EventEmitter {
   /**
    * @TODO
    */
-  async read (buffer, offset, length, position) {
+  async read (buffer, offset, length, position, options) {
     const { id } = this
 
     let bytesRead = 0
+    let signal = options?.signal || null
 
     if (typeof buffer === 'object' && !isBufferLike(buffer)) {
       offset = buffer.offset
       length = buffer.length
       position = buffer.position
+      signal = buffer.signal || signal
       buffer = buffer.buffer
     }
 
@@ -381,7 +386,7 @@ export class FileHandle extends EventEmitter {
       id,
       size: length,
       offset: position
-    })
+    }, { signal })
 
     if (result.err) {
       throw result.err
@@ -405,9 +410,11 @@ export class FileHandle extends EventEmitter {
     const stream = this.createReadStream(options)
 
     if (options?.signal instanceof AbortSignal) {
-      options.signal.onabort = () => {
-        stream.destroy(new AbortError(options.signal))
-      }
+      options.signal.addEventListener('abort', () => {
+        if (!stream.destroyed && !stream.destroying) {
+          stream.destroy(new AbortError(options.signal))
+        }
+      })
     }
 
     // collect
@@ -468,11 +475,14 @@ export class FileHandle extends EventEmitter {
   /**
    * @TODO
    */
-  async write (buffer, offset, length, position) {
+  async write (buffer, offset, length, position, options) {
+    let signal = options?.signal || null
+
     if (typeof buffer === 'object' && !isBufferLike(buffer)) {
       offset = buffer.offset
       length = buffer.length
       position = buffer.position
+      signal = buffer.signal || signal
       buffer = buffer.buffer
     }
 
@@ -511,7 +521,7 @@ export class FileHandle extends EventEmitter {
     const data = Buffer.from(buffer).slice(offset, offset + length)
     const params = { id: this.id, offset: position }
 
-    const result = await ipc.write('fsWrite', params, data)
+    const result = await ipc.write('fsWrite', params, data, { signal })
 
     if (result.err) {
       throw result.err
@@ -536,9 +546,11 @@ export class FileHandle extends EventEmitter {
     const buffers = splitBuffer(buffer, stream.highWaterMark)
 
     if (options?.signal instanceof AbortSignal) {
-      options.signal.onabort = () => {
-        stream.destroy(new AbortError(options.signal))
-      }
+      options.signal.addEventListener('abort', () => {
+        if (!stream.destroyed && !stream.destroying) {
+          stream.destroy(new AbortError(options.signal))
+        }
+      })
     }
 
     queueMicrotask(async () => {

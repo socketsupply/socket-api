@@ -21,6 +21,7 @@ export class ReadStream extends Readable {
     this.end = typeof options?.end === 'number' ? options.end : Infinity
     this.start = typeof options?.start === 'number' ? options.start : 0
     this.handle = null
+    this.signal = options?.signal
     this.bytesRead = 0
     this.shouldEmitClose = options?.emitClose !== false
 
@@ -79,6 +80,8 @@ export class ReadStream extends Readable {
   }
 
   async _open (callback) {
+    const { signal } = this
+
     if (!this.handle) {
       return callback(new Error('Handle not set in ReadStream'))
     }
@@ -92,7 +95,7 @@ export class ReadStream extends Readable {
     // open if not opening already
     if (!this.handle.opening) {
       try {
-        await this.handle.open()
+        await this.handle.open({ signal })
       } catch (err) {
         return callback(err)
       }
@@ -100,7 +103,7 @@ export class ReadStream extends Readable {
   }
 
   async _read (callback) {
-    const { handle } = this
+    const { signal, handle } = this
 
     if (!handle || !handle.opened) {
       return callback(new Error('File handle not opened'))
@@ -113,7 +116,7 @@ export class ReadStream extends Readable {
       : buffer.length
 
     try {
-      const result = await handle.read(buffer, 0, length, position)
+      const result = await handle.read(buffer, 0, length, position, { signal })
 
       if (typeof result.bytesRead === 'number' && result.bytesRead > 0) {
         this.bytesRead += result.bytesRead
@@ -150,6 +153,7 @@ export class WriteStream extends Writable {
 
     this.start = typeof options?.start === 'number' ? options.start : 0
     this.handle = null
+    this.signal = options?.signal
     this.bytesWritten = 0
     this.shouldEmitClose = options?.emitClose !== false
 
@@ -225,7 +229,7 @@ export class WriteStream extends Writable {
   }
 
   async _write (buffer, callback) {
-    const { handle } = this
+    const { signal, handle } = this
 
     if (!handle || !handle.opened) {
       return callback(new Error('File handle not opened'))
@@ -233,7 +237,7 @@ export class WriteStream extends Writable {
 
     try {
       const position = this.start + this.bytesWritten
-      const result = await handle.write(buffer, 0, buffer.length, position)
+      const result = await handle.write(buffer, 0, buffer.length, position, { signal })
 
       if (typeof result.bytesWritten === 'number' && result.bytesWritten > 0) {
         this.bytesWritten += result.bytesWritten
