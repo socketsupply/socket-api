@@ -366,6 +366,8 @@ export async function request (command, data, options) {
 
   const { seq, index } = promise
   const resolved = promise.then((result) => {
+    cleanup()
+
     if (result?.data instanceof ArrayBuffer) {
       return Result.from(new Uint8Array(result.data))
     }
@@ -375,8 +377,7 @@ export async function request (command, data, options) {
 
   const onabort = () => {
     aborted = true
-    clearTimeout(timeout)
-    parent.removeEventListener('data', ondata)
+    cleanup()
     resolve(seq, ERROR, {
       err: new TimeoutError('ipc.request  timedout')
     })
@@ -393,10 +394,14 @@ export async function request (command, data, options) {
 
   return Object.assign(resolved, { seq, index })
 
+  function cleanup () {
+    clearTimeout(timeout)
+    window.removeEventListener('data', ondata)
+  }
+
   function ondata (event) {
     if (aborted) {
-      clearTimeout(timeout)
-      window.removeEventListener('data', ondata)
+      cleanup()
       return resolve(seq, ERROR, {
         err: new AbortError(signal || 'ipc.write aborted')
       })
@@ -405,8 +410,7 @@ export async function request (command, data, options) {
     if (event.detail?.data) {
       const { data, params } = event.detail
       if (parseInt(params.seq) === parseInt(seq)) {
-        clearTimeout(timeout)
-        window.removeEventListener('data', ondata)
+        cleanup()
         resolve(seq, OK, { data })
       }
     }
