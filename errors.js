@@ -6,3 +6,6 @@ export class AbortError extends Error {
     this.signal = signal
   }
 }
+
+export class InternalError extends Error {
+}

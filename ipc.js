@@ -1,11 +1,47 @@
 /* global window */
 
+import { InternalError } from './errors.js'
+
 void ready()
 
 export const OK = 0
 export const ERROR = 1
 
 export let debug = null
+
+function maybeMakeError (error) {
+  const errors = {
+    AggregateError: AggregateError,
+    InternalError: InternalError,
+    RangeError: RangeError,
+    URIError: URIError,
+  }
+
+  if (!error) {
+    return null
+  }
+
+  if (error instanceof Error) {
+    return error
+  }
+
+  error = { ...error }
+  const type = error.type || 'Error'
+  let err = null
+
+  delete error.type
+
+  if (type in errors) {
+    err = new errors[type](error.message || '', error)
+  } else {
+    err = new Error(error.message || '', error)
+  }
+
+  // assign extra data to `err` like an error `code`
+  Object.assign(err, error)
+
+  return err
+}
 
 /**
  * A result type used internally for handling
@@ -26,10 +62,14 @@ export class Result {
       return new this(null, result)
     }
 
-    return new this(
-      result?.data || result || null,
-      result?.err ? new Error(result.err.message) :  null
-    )
+    const data = result?.data || null
+    const err = maybeMakeError(result?.err)
+
+    if (typeof result?.err === 'object') {
+      Object.assign(err, result.err)
+    }
+
+    return new this(data, err)
   }
 
   /**
@@ -108,7 +148,7 @@ export function sendSync (command, params) {
   const query = `?${params}`
 
   if (debug) {
-    console.debug('io: ipc.sendSync: %s', uri + query)
+    console.debug('io.ipc.sendSync: %s', uri + query)
   }
 
   request.open('GET', uri + query, false)
@@ -129,7 +169,7 @@ export async function emit (...args) {
   await ready()
 
   if (debug) {
-    console.debug('io: ipc.emit:', ...args)
+    console.debug('io.ipc.emit:', ...args)
   }
 
   return await window._ipc.emit(...args)
@@ -139,7 +179,7 @@ export async function resolve (...args) {
   await ready()
 
   if (debug) {
-    console.debug('io: ipc.resolve:', ...args)
+    console.debug('io.ipc.resolve:', ...args)
   }
 
   return await window._ipc.resolve(...args)
@@ -149,7 +189,7 @@ export async function send (...args) {
   await ready()
 
   if (debug) {
-    console.debug('io: ipc.send:', ...args)
+    console.debug('io.ipc.send:', ...args)
   }
 
   return await window._ipc.send(...args)
@@ -173,7 +213,7 @@ export async function write (command, params, buffer) {
   const query = `?${params}`
 
   if (debug) {
-    console.debug('io: ipc.write:', uri + query, buffer || null)
+    console.debug('io.ipc.write:', uri + query, buffer || null)
   }
 
   request.open('PUT', uri + query, true)
@@ -212,7 +252,7 @@ export async function request (command, data) {
   }
 
   if (debug) {
-    console.debug('io: ipc.request:', command, data)
+    console.debug('io.ipc.request:', command, data)
   }
 
   const parent = typeof window === 'object' ? window : globalThis
