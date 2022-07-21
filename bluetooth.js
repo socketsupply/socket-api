@@ -43,7 +43,7 @@ export class Bluetooth extends EventEmitter {
   }
 
   subscribe (key) {
-    return this.set(key)
+    return this.subscribe(key)
   }
 
   async publish (key, value = '') {
