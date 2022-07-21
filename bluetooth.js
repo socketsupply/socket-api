@@ -1,5 +1,3 @@
-import { v4 } from 'uuid'
-
 import * as ipc from './ipc.js'
 import { EventEmitter } from './events.js'
 
@@ -19,11 +17,14 @@ import { EventEmitter } from './events.js'
 export class Bluetooth extends EventEmitter {
   static isInitalized = false;
 
-  constructor () {
+  constructor (serviceId) {
     super()
-    this.keys = {}
 
-    this.serviceId = v4()
+    if (!serviceId || serviceId.length !== 36) {
+      throw new Error('expected serviceId of length 36')
+    }
+
+    this.serviceId = serviceId
     window.external.invoke(`ipc://bluetooth-start?serviceId=${this.serviceId}`)
 
     window.addEventListener('bluetooth', e => {
@@ -39,20 +40,21 @@ export class Bluetooth extends EventEmitter {
 
     window.addEventListener('data', e => {
       if (e.detail?.params?.serviceId !== this.serviceId) return
-      this.emit(this.keys[e.detail.params.characteristicId], e.detail.data)
+      this.emit(e.detail.params.characteristicId, e.detail.data)
     })
   }
 
-  subscribe (key) {
-    return this.publish(key)
+  subscribe (id) {
+    return this.publish(id)
   }
 
-  async publish (key, value = '') {
-    const id = v4()
-    this.keys[id] = key
+  async publish (characteristicId, value = '') {
+    if (!characteristicId || characteristicId.length !== 36) {
+      throw new Error('expected characteristicId of length 36')
+    }
 
     const params = {
-      characteristicId: id,
+      characteristicId: characteristicId,
       serviceId: this.serviceId
     }
 
