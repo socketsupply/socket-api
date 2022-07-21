@@ -19,7 +19,7 @@ import { EventEmitter } from './events.js'
 export class Bluetooth extends EventEmitter {
   static isInitalized = false;
 
-  constructor (opts = {}) {
+  constructor () {
     super()
     this.keys = {}
 
@@ -27,17 +27,18 @@ export class Bluetooth extends EventEmitter {
     window.external.invoke(`ipc://bluetooth-start?serviceId=${this.serviceId}`)
 
     window.addEventListener('bluetooth', e => {
-      const { err, data } = e.detail.params
+      console.log(e)
+      // const { err, data } = e.detail.params
 
-      if (err) {
-        return this.emit('error', err)
-      }
+      // if (err) {
+      //  return this.emit('error', err)
+      //}
 
-      this.emit(data.event, data)
+      // this.emit(data.event, data)
     })
 
     window.addEventListener('data', e => {
-      if (e.detail.params.serviceId !== this.serviceId) return
+      if (e.detail?.params?.serviceId !== this.serviceId) return
       this.emit(this.keys[e.detail.params.characteristicId], e.detail.data)
     })
   }
