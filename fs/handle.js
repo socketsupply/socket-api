@@ -192,7 +192,7 @@ export class FileHandle extends EventEmitter {
     }
 
     if (this[kClosing]) {
-      return this[kClosing]
+      return await this[kClosing]
     }
 
     if (!this.fd || !this.id) {
@@ -279,7 +279,7 @@ export class FileHandle extends EventEmitter {
     }
 
     if (this[kOpening]) {
-      return this[kOpening]
+      return await this[kOpening]
     }
 
     const { flags, mode, path, id } = this

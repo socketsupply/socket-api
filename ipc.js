@@ -220,17 +220,11 @@ export async function request (command, data) {
 
   const { seq, index } = promise
   const resolved = promise.then((result) => {
-    if (result?.err) {
-      return Result.from(result)
+    if (result?.data instanceof ArrayBuffer) {
+      return Result.from(new Uint8Array(result.data))
     }
 
-    if (result && 'data' in result) {
-      if (result.data instanceof ArrayBuffer) {
-        return Result.from(new Uint8Array(result.data))
-      }
-    }
-
-    return { data: result }
+    return Result.from(result)
   })
 
   // handle async resolution from IPC over XHR
