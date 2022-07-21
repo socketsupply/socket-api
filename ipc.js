@@ -15,7 +15,7 @@ function getErrorClass (type, fallback) {
   return fallback || Error
 }
 
-function maybeMakeError (error) {
+function maybeMakeError (error, caller) {
   const errors = {
     AbortError: getErrorClass('AbortError', AbortError),
     AggregateError: getErrorClass('AggregateError'),
@@ -47,6 +47,13 @@ function maybeMakeError (error) {
   // assign extra data to `err` like an error `code`
   Object.assign(err, error)
 
+  if (
+    typeof Error.captureStackTrace === 'function' &&
+    typeof caller === 'function'
+  ) {
+    Error.captureStackTrace(err, caller)
+  }
+
   return err
 }
 
@@ -69,7 +76,7 @@ export class Result {
       return new this(null, result)
     }
 
-    const err = maybeMakeError(result?.err)
+    const err = maybeMakeError(result?.err, Result.from)
     const data = result?.data !== null && result?.data !== undefined
       ? result.data
       : null
