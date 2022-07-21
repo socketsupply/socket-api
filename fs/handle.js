@@ -287,6 +287,10 @@ export class FileHandle extends EventEmitter {
 
     const { flags, mode, path, id } = this
 
+    if (options?.signal.aborted) {
+      throw new AbortError(options.signal)
+    }
+
     this[kOpening] = new InvertedPromise()
 
     const result = await ipc.request('fsOpen', {
@@ -326,6 +330,10 @@ export class FileHandle extends EventEmitter {
       position = buffer.position
       signal = buffer.signal || signal
       buffer = buffer.buffer
+    }
+
+    if (signal?.aborted) {
+      throw new AbortError(signal)
     }
 
     if (!isBufferLike(buffer)) {
@@ -409,6 +417,10 @@ export class FileHandle extends EventEmitter {
     const buffers = []
     const stream = this.createReadStream(options)
 
+    if (options?.signal.aborted) {
+      throw new AbortError(options.signal)
+    }
+
     if (options?.signal instanceof AbortSignal) {
       options.signal.addEventListener('abort', () => {
         if (!stream.destroyed && !stream.destroying) {
@@ -486,6 +498,10 @@ export class FileHandle extends EventEmitter {
       buffer = buffer.buffer
     }
 
+    if (signal?.aborted) {
+      throw new AbortError(signal)
+    }
+
     if (typeof buffer !== 'string' && !isBufferLike(buffer)) {
       throw new TypeError('Expecting buffer to be a string or Buffer.')
     }
@@ -544,6 +560,10 @@ export class FileHandle extends EventEmitter {
     const stream = this.createWriteStream(options)
     const buffer = Buffer.from(data, options?.encoding || 'utf8')
     const buffers = splitBuffer(buffer, stream.highWaterMark)
+
+    if (options?.signal.aborted) {
+      throw new AbortError(options.signal)
+    }
 
     if (options?.signal instanceof AbortSignal) {
       options.signal.addEventListener('abort', () => {

@@ -24,10 +24,10 @@ export class AbortError extends Error {
       reason = signal.reason
     }
 
-    super(reason || signal?.reason || '')
+    super(reason || signal?.reason || 'The operation was aborted')
 
     this.name = 'AbortError'
-    this.code = code || AbortError.code
+    this.code = 'ABORT_ERR'
     this.signal = signal || null
 
     if (typeof Error.captureStackTrace === 'function') {
@@ -55,7 +55,7 @@ export class TimeoutError extends Error {
     super(message, ...args)
 
     this.name = 'TimeoutError'
-    this.code = code || TimeoutError.code
+    this.code = 'TIMEOUT_ERR'
     this.signal = signal || null
 
     if (typeof Error.captureStackTrace === 'function') {
@@ -80,7 +80,7 @@ export class InternalError extends Error {
 
     this.name = 'InternalError'
 
-    if (typeof code === 'number' && Number.isFinite(code)) {
+    if (code) {
       this.code = code
     }
 

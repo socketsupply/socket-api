@@ -14,6 +14,10 @@ export class ReadStream extends Readable {
   constructor (options) {
     super(options)
 
+    if (options?.signal?.aborted) {
+      throw new AbortError(options.signal)
+    }
+
     if (typeof options?.highWaterMark !== 'number') {
       this._readableState.highWaterMark = this.constructor.highWaterMark
     }
@@ -86,6 +90,10 @@ export class ReadStream extends Readable {
       return callback(new Error('Handle not set in ReadStream'))
     }
 
+    if (this.signal?.aborted) {
+      return callback(new AbortError(this.signal))
+    }
+
     if (this.handle?.opened) {
       return callback(null)
     }
@@ -107,6 +115,10 @@ export class ReadStream extends Readable {
 
     if (!handle || !handle.opened) {
       return callback(new Error('File handle not opened'))
+    }
+
+    if (this.signal?.aborted) {
+      return callback(new AbortError(this.signal))
     }
 
     const position = Math.max(0, this.start) + this.bytesRead

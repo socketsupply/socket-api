@@ -286,17 +286,11 @@ export async function write (command, params, buffer) {
 
   delete params?.signal
 
-  params = new URLSearchParams(params)
-  params.set('index', index)
-  params.set('seq', seq)
-
-  const query = `?${params}`
-
-  if (debug.enabled) {
-    console.debug('io.ipc.write:', uri + query, buffer || null)
-  }
-
   if (signal) {
+    if (signal.aborted) {
+      return Result.from(new AbortError(signal))
+    }
+
     signal.addEventListener('abort', () => {
       if (!aborted && !resolved) {
         aborted = true
@@ -305,8 +299,18 @@ export async function write (command, params, buffer) {
     })
   }
 
+  params = new URLSearchParams(params)
+  params.set('index', index)
+  params.set('seq', seq)
+
+  const query = `?${params}`
+
   request.open('PUT', uri + query, true)
   request.send(buffer || null)
+
+  if (debug.enabled) {
+    console.debug('io.ipc.write:', uri + query, buffer || null)
+  }
 
   return await new Promise((resolve) => {
     const timeout = setTimeout(() => {
@@ -317,7 +321,7 @@ export async function write (command, params, buffer) {
     request.onabort = () => {
       aborted = true
       clearTimeout(timeout)
-      resolve(Result.from(new AbortError(signal || 'ipc.write aborted')))
+      resolve(Result.from(new AbortError(signal)))
     }
 
     request.onreadystatechange = () => {
@@ -389,11 +393,15 @@ export async function request (command, data, options) {
     })
   }
 
-  const timeout = setTimeout(onabort, TIMEOUT)
-
   if (signal) {
+    if (signal.aborted) {
+      return Result.from(new AbortError(signal))
+    }
+
     signal.addEventListener('abort', onabort)
   }
+
+  const timeout = setTimeout(onabort, TIMEOUT)
 
   // handle async resolution from IPC over XHR
   parent.addEventListener('data', ondata)
@@ -409,7 +417,7 @@ export async function request (command, data, options) {
     if (aborted) {
       cleanup()
       return resolve(seq, ERROR, {
-        err: new AbortError(signal || 'ipc.write aborted')
+        err: new AbortError(signal)
       })
     }
 
