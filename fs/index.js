@@ -5,6 +5,9 @@ import * as constants from './constants.js'
 import * as promises from './promises.js'
 import { FileHandle } from './handle.js'
 import { Stats } from './stats.js'
+import * as ipc from '../ipc.js'
+
+export * from './stream.js'
 
 function defaultCallback (err) {
   if (err) throw err
@@ -77,6 +80,21 @@ export function appendFile (path, data, options, callback) {
  * @TODO
  */
 export function chmod (path, mode, callback) {
+  if (typeof mode !== 'number') {
+    throw new TypeError('mode must be a number.')
+  }
+
+  if (mode < 0 || !Number.isFinite(mode)) {
+    throw new RangeError('mode must be a positive finite number.')
+  }
+
+  if (typeof callback !== 'function') {
+    throw new TypeError('callback must be a function.')
+  }
+
+  ipc.request('fsChmod', { mode, path })
+    .then(() => callback(null))
+    .catch((err) => callback(err))
 }
 
 /**

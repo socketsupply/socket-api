@@ -1,4 +1,3 @@
-/* global atob, escape */
 import {
   InvertedPromise,
   isBufferLike,
@@ -17,11 +16,13 @@ import { F_OK } from './constants.js'
 import * as ipc from '../ipc.js'
 import fds from './fds.js'
 
-const kFileHandleOpening = Symbol.for('fs.FileHandle.opening')
-const kFileHandleClosing = Symbol.for('fs.FileHandle.closing')
+const kOpening = Symbol.for('fs.FileHandle.opening')
+const kClosing = Symbol.for('fs.FileHandle.closing')
 
 /**
- * @TODO
+ * A container for a descriptor tracked in `fds` and opened in the native layer.
+ * This class implements the Node.js `FileHandle` interface
+ * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#class-filehandle}
  */
 export class FileHandle extends EventEmitter {
   static get DEFAULT_ACCESS_MODE () { return F_OK }
@@ -29,11 +30,20 @@ export class FileHandle extends EventEmitter {
   static get DEFAULT_OPEN_MODE () { return 0o666 }
 
   /**
-   * @TODO
+   * Creates a `FileHandle` from a given `id` or `fd`
+   * @param {string|number|FileHandle|object} id
+   * @return {FileHandle}
    */
   static from (id) {
+    if (id?.id) {
+      return this.from(id.id)
+    } else if (id?.fd) {
+      return this.from(id.fd)
+    }
+
     let fd = fds.get(id)
 
+    // `id` could actually be an `fd`
     if (!fd) {
       id = fds.to(id)
       fd = fds.get(id)
@@ -47,7 +57,10 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Determines if access to `path` for `mode` is possible.
+   * @param {string} path
+   * @param {(number)} [mode = 0o666]
+   * @return {boolean}
    */
   static async access (path, mode) {
     if (mode === undefined) {
@@ -102,8 +115,8 @@ export class FileHandle extends EventEmitter {
       options.path = options.path.toString()
     }
 
-    this[kFileHandleOpening] = null
-    this[kFileHandleClosing] = null
+    this[kOpening] = null
+    this[kClosing] = null
 
     this.flags = normalizeFlags(options?.flags)
     this.path = options?.path || null
@@ -128,7 +141,7 @@ export class FileHandle extends EventEmitter {
    * @type {boolean}
    */
   get opening () {
-    const opening = this[kFileHandleOpening]
+    const opening = this[kOpening]
     return opening?.value !== true
   }
 
@@ -137,14 +150,20 @@ export class FileHandle extends EventEmitter {
    * @type {boolean}
    */
   get closing () {
-    const closing = this[kFileHandleClosing]
+    const closing = this[kClosing]
     return closing?.value !== true
   }
 
   /**
-   * @TODO
+   * Appends to a file, if handle was opened with `O_APPEND`, otherwise this
+   * method is just an alias to `FileHandle#writeFile()`.
+   * @param {string|Buffer|TypedArray|Array} data
+   * @param {?(object)} [options]
+   * @param {?(string)} [options.encoding = 'utf8']
+   * @param {?(object)} [options.signal]
    */
   async appendFile (data, options) {
+    return await this.writeFile(data, options)
   }
 
   /**
@@ -164,36 +183,36 @@ export class FileHandle extends EventEmitter {
    */
   async close () {
     // wait for opening to finish before proceeding to close
-    if (this[kFileHandleOpening]) {
-      await this[kFileHandleOpening]
+    if (this[kOpening]) {
+      await this[kOpening]
     }
 
-    if (this[kFileHandleClosing]) {
-      return this[kFileHandleClosing]
+    if (this[kClosing]) {
+      return this[kClosing]
     }
 
     if (!this.fd || !this.id) {
       throw new Error('FileHandle is not opened')
     }
 
-    this[kFileHandleClosing] = new InvertedPromise()
+    this[kClosing] = new InvertedPromise()
 
     try {
       await ipc.request('fsClose', { id: this.id })
     } catch (err) {
-      return this[kFileHandleClosing].reject(err)
+      return this[kClosing].reject(err)
     }
 
     fds.release(this.id)
 
     this.fd = null
 
-    this[kFileHandleClosing].resolve(true)
+    this[kClosing].resolve(true)
 
     this.emit('close')
 
-    this[kFileHandleOpening] = null
-    this[kFileHandleClosing] = null
+    this[kOpening] = null
+    this[kClosing] = null
 
     return true
   }
@@ -255,13 +274,13 @@ export class FileHandle extends EventEmitter {
       return true
     }
 
-    if (this[kFileHandleOpening]) {
-      return this[kFileHandleOpening]
+    if (this[kOpening]) {
+      return this[kOpening]
     }
 
     const { flags, mode, path, id } = this
 
-    this[kFileHandleOpening] = new InvertedPromise()
+    this[kOpening] = new InvertedPromise()
 
     try {
       const request = await ipc.request('fsOpen', {
@@ -273,12 +292,12 @@ export class FileHandle extends EventEmitter {
 
       this.fd = request.fd
     } catch (err) {
-      return this[kFileHandleOpening].reject(err)
+      return this[kOpening].reject(err)
     }
 
     fds.set(this.id, this.fd)
 
-    this[kFileHandleOpening].resolve(true)
+    this[kOpening].resolve(true)
 
     this.emit('open', this.fd)
 
@@ -488,7 +507,11 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Writes `data` to file.
+   * @param {string|Buffer|TypedArray|Array} data
+   * @param {?(object)} [options]
+   * @param {?(string)} [options.encoding = 'utf8']
+   * @param {?(object)} [options.signal]
    */
   async writeFile (data, options) {
     const stream = this.createWriteStream(options)

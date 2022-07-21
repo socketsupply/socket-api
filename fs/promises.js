@@ -12,9 +12,17 @@ async function visit (path, flags, mode, callback) {
     mode = undefined
   }
 
+  // just visit `FileHandle`, without closing if given
+  if (path instanceof FileHandle) {
+    return await callback(handle)
+  } else if (path?.fd) {
+    const value = await callback(FileHandle.from(path.fd))
+  }
+
   const handle = await FileHandle.open(path, flags, mode)
   const value = await callback(handle)
   await handle.close()
+
   return value
 }
 

@@ -1,7 +1,7 @@
 import { Readable, Writable } from '../stream.js'
 import { Buffer } from 'buffer'
 
-export const DEFAULT_HIGH_WATER_MARK = 16 * 1024
+export const DEFAULT_STREAM_HIGH_WATER_MARK = 16 * 1024
 
 /**
  * A `Readable` stream for a `FileHandle`.
@@ -277,5 +277,8 @@ function setHandle (stream, handle) {
   })
 }
 
-ReadStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
-WriteStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
+ReadStream.highWaterMark = DEFAULT_STREAM_HIGH_WATER_MARK
+WriteStream.highWaterMark = DEFAULT_STREAM_HIGH_WATER_MARK
+
+export const FileReadStream = ReadStream
+export const FileWriteStream = WriteStream
