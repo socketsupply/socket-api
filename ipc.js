@@ -1,20 +1,27 @@
 /* global window */
 
-import { InternalError } from './errors.js'
-
-void ready()
+import { AbortError, InternalError } from './errors.js'
 
 export const OK = 0
 export const ERROR = 1
 
 export let debug = null
 
+function getErrorClass (type, fallback) {
+  if (typeof window !== 'undefined' && typeof window[type] === 'function') {
+    return window[type]
+  }
+
+  return fallback || Error
+}
+
 function maybeMakeError (error) {
   const errors = {
-    AggregateError: AggregateError,
-    InternalError: InternalError,
-    RangeError: RangeError,
-    URIError: URIError,
+    AbortError: getErrorClass('AbortError', AbortError),
+    AggregateError: getErrorClass('AggregateError'),
+    InternalError: getErrorClass('InternalError', InternalError),
+    RangeError: getErrorClass('RangeError'),
+    URIError: getErrorClass('URIError')
   }
 
   if (!error) {
@@ -62,12 +69,10 @@ export class Result {
       return new this(null, result)
     }
 
-    const data = result?.data || null
     const err = maybeMakeError(result?.err)
-
-    if (typeof result?.err === 'object') {
-      Object.assign(err, result.err)
-    }
+    const data = result?.data !== null && result?.data !== undefined
+      ? result.data
+      : null
 
     return new this(data, err)
   }
@@ -82,8 +87,23 @@ export class Result {
     this.data = data || null
     this.err = err || null
 
-    this[0] = this.data
-    this[1] = this.err
+    Object.defineProperty(this, 0, {
+      value: data,
+      enumerable: false,
+      configurable: false
+    })
+
+    Object.defineProperty(this, 1, {
+      value: err,
+      enumerable: false,
+      configurable: false
+    })
+  }
+
+  get length () {
+    if (this.data !== null && this.err !== null) {
+      return 2
+    }
   }
 
   *[Symbol.iterator]() {
