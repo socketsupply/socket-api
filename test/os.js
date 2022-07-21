@@ -68,3 +68,11 @@ test('os.networkInterfaces()', (t) => {
 
   t.deepEqual(mockedNetworkInterfaces, os.networkInterfaces())
 })
+
+test('os.EOL', (t) => {
+  if (/windows/i.test(nodeos.type())) {
+    t.equal(os.EOL, '\r\n')
+  } else {
+    t.equal(os.EOL, '\n')
+  }
+})
