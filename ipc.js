@@ -1,11 +1,10 @@
 /* global window */
 
-import { AbortError, InternalError } from './errors.js'
-
-export const OK = 0
-export const ERROR = 1
-
-export let debug = null
+import {
+  AbortError,
+  InternalError,
+  TimeoutError
+} from './errors.js'
 
 function getErrorClass (type, fallback) {
   if (typeof window !== 'undefined' && typeof window[type] === 'function') {
@@ -17,10 +16,12 @@ function getErrorClass (type, fallback) {
 
 function maybeMakeError (error, caller) {
   const errors = {
-    AbortError: getErrorClass('AbortError', AbortError),
+    AbortError: AbortError,
     AggregateError: getErrorClass('AggregateError'),
-    InternalError: getErrorClass('InternalError', InternalError),
+    InternalError: InternalError,
     RangeError: getErrorClass('RangeError'),
+    TimeoutError: TimeoutError,
+    TypeError: getErrorClass('TypeError'),
     URIError: getErrorClass('URIError')
   }
 
@@ -56,6 +57,52 @@ function maybeMakeError (error, caller) {
 
   return err
 }
+
+/**
+ * Represents an OK IPC status.
+ */
+export const OK = 0
+
+/**
+ * Represents an ERROR IPC status.
+ */
+export const ERROR = 1
+
+/**
+ * Timeout in milliseconds for IPC requests.
+ */
+export const TIMEOUT = 32 * 1000
+
+const kDebugEnabled = Symbol.for('ipc.debug.enabled')
+
+/**
+ * If `debug.enabled === true`, then debug output will be printed to console.
+ * @param {(boolean)} [enable]
+ * @return {boolean}
+ */
+export function debug (enable) {
+  if (enable === true) {
+    debug.enabled = true
+  } else if (enable === false) {
+    debug.enabled = false
+  }
+
+  return debug.enabled
+}
+
+Object.defineProperty(debug, 'enabled', {
+  enumerable: false,
+  set (value) {
+    debug[kDebugEnabled] = Boolean(value)
+  },
+  get () {
+    if (debug[kDebugEnabled] === undefined) {
+      return typeof window === 'undefined' ? false : Boolean(window.process?.debug)
+    }
+
+    return debug[kDebugEnabled]
+  }
+})
 
 /**
  * A result type used internally for handling
@@ -140,8 +187,8 @@ export async function ready () {
     }
   })
 
-  if (debug === null) {
-    debug = Boolean(
+  if (debug.enabled !== true) {
+    debug.enabled = Boolean(
       typeof window === 'undefined' ? false : window.process?.debug
     )
   }
@@ -156,7 +203,7 @@ export async function ready () {
  */
 export function sendSync (command, params) {
   if (typeof window === 'undefined') {
-    if (debug) {
+    if (debug.enabled) {
       console.debug('Global window object is not defined')
     }
 
@@ -174,7 +221,7 @@ export function sendSync (command, params) {
 
   const query = `?${params}`
 
-  if (debug) {
+  if (debug.enabled) {
     console.debug('io.ipc.sendSync: %s', uri + query)
   }
 
@@ -184,7 +231,7 @@ export function sendSync (command, params) {
   try {
     return Result.from(JSON.parse(request.response))
   } catch (err) {
-    if (debug) {
+    if (debug.enabled) {
       console.warn(err.message || err)
     }
   }
@@ -195,7 +242,7 @@ export function sendSync (command, params) {
 export async function emit (...args) {
   await ready()
 
-  if (debug) {
+  if (debug.enabled) {
     console.debug('io.ipc.emit:', ...args)
   }
 
@@ -205,7 +252,7 @@ export async function emit (...args) {
 export async function resolve (...args) {
   await ready()
 
-  if (debug) {
+  if (debug.enabled) {
     console.debug('io.ipc.resolve:', ...args)
   }
 
@@ -215,7 +262,7 @@ export async function resolve (...args) {
 export async function send (...args) {
   await ready()
 
-  if (debug) {
+  if (debug.enabled) {
     console.debug('io.ipc.send:', ...args)
   }
 
@@ -228,10 +275,16 @@ export async function write (command, params, buffer) {
     return {}
   }
 
+  const signal = params?.signal
   const request = new window.XMLHttpRequest()
   const index = window.process ? window.process.index : 0
   const seq = window._ipc ? window._ipc.nextSeq++ : 0
   const uri = `ipc://${command}`
+
+  let resolved = false
+  let aborted = false
+
+  delete params?.signal
 
   params = new URLSearchParams(params)
   params.set('index', index)
@@ -239,20 +292,41 @@ export async function write (command, params, buffer) {
 
   const query = `?${params}`
 
-  if (debug) {
+  if (debug.enabled) {
     console.debug('io.ipc.write:', uri + query, buffer || null)
+  }
+
+  if (signal) {
+    signal.onabort = () => {
+      if (!aborted && !resolved) {
+        request.abort()
+      }
+    }
+  }
+
+  request.onabort = () => {
+    clearTimeout(timeout)
+    aborted = true
   }
 
   request.open('PUT', uri + query, true)
   request.send(buffer || null)
 
-  return await new Promise((resolve, reject) => {
+  return await new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      resolve(Result.from(new TimeoutError('ipc.write timedout')))
+      request.abort()
+    }, TIMEOUT)
+
     request.onreadystatechange = () => {
       if (request.readyState === window.XMLHttpRequest.DONE) {
+        resolved = true
+        clearTimeout(timeout)
+
         try {
           return resolve(Result.from(JSON.parse(request.response)))
         } catch (err) {
-          if (debug) {
+          if (debug.enabled) {
             console.warn(err.message || err)
           }
         }
@@ -262,14 +336,17 @@ export async function write (command, params, buffer) {
     }
 
     request.onerror = () => {
+      resolved = true
+      clearTimeout(timeout)
       resolve(Result.from(new Error(request.responseText)))
     }
   })
 }
 
-export async function request (command, data) {
+export async function request (command, data, options) {
   await ready()
 
+  const signal = options?.signal
   const params = { ...data }
 
   for (const key in params) {
@@ -278,9 +355,11 @@ export async function request (command, data) {
     }
   }
 
-  if (debug) {
+  if (debug.enabled) {
     console.debug('io.ipc.request:', command, data)
   }
+
+  let aborted = false
 
   const parent = typeof window === 'object' ? window : globalThis
   const promise = parent._ipc.send(command, params)
@@ -294,15 +373,39 @@ export async function request (command, data) {
     return Result.from(result)
   })
 
+  const onabort = () => {
+    aborted = true
+    clearTimeout(timeout)
+    parent.removeEventListener('data', ondata)
+    resolve(seq, ERROR, {
+      err: new TimeoutError('ipc.request  timedout')
+    })
+  }
+
+  const timeout = setTimeout(onabort, TIMEOUT)
+
+  if (signal) {
+    signal.onabort = onabort
+  }
+
   // handle async resolution from IPC over XHR
   parent.addEventListener('data', ondata)
 
   return Object.assign(resolved, { seq, index })
 
   function ondata (event) {
+    if (aborted) {
+      clearTimeout(timeout)
+      window.removeEventListener('data', ondata)
+      return resolve(seq, ERROR, {
+        err: new AbortError(signal || 'ipc.write aborted')
+      })
+    }
+
     if (event.detail?.data) {
       const { data, params } = event.detail
       if (parseInt(params.seq) === parseInt(seq)) {
+        clearTimeout(timeout)
         window.removeEventListener('data', ondata)
         resolve(seq, OK, { data })
       }
