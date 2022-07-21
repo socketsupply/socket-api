@@ -67,12 +67,16 @@ export class FileHandle extends EventEmitter {
       mode = FileHandle.DEFAULT_ACCESS_MODE
     }
 
-    const request = await ipc.request('fsAccess', {
+    const result = await ipc.request('fsAccess', {
       mode,
       path
     })
 
-    return request.mode === mode
+    if (result.err) {
+      throw result.err
+    }
+
+    return result.data.mode === mode
   }
 
   /**
@@ -197,10 +201,10 @@ export class FileHandle extends EventEmitter {
 
     this[kClosing] = new InvertedPromise()
 
-    try {
-      await ipc.request('fsClose', { id: this.id })
-    } catch (err) {
-      return this[kClosing].reject(err)
+    const result = await ipc.request('fsClose', { id: this.id })
+
+    if (result.err) {
+      return this[kClosing].reject(result.err)
     }
 
     fds.release(this.id)
@@ -282,18 +286,18 @@ export class FileHandle extends EventEmitter {
 
     this[kOpening] = new InvertedPromise()
 
-    try {
-      const request = await ipc.request('fsOpen', {
-        id: id,
-        flags: flags,
-        mode: mode,
-        path: path
-      })
+    const result = await ipc.request('fsOpen', {
+      id: id,
+      flags: flags,
+      mode: mode,
+      path: path
+    })
 
-      this.fd = request.fd
-    } catch (err) {
-      return this[kOpening].reject(err)
+    if (result.err) {
+      return this[kOpening].reject(result.err)
     }
+
+    this.fd = result.data.fd
 
     fds.set(this.id, this.fd)
 
@@ -373,15 +377,19 @@ export class FileHandle extends EventEmitter {
       )
     }
 
-    const response = await ipc.request('fsRead', {
+    const result = await ipc.request('fsRead', {
       id,
       size: length,
       offset: position
     })
 
-    if (response instanceof ArrayBuffer) {
-      bytesRead = response.byteLength
-      Buffer.from(response).copy(buffer, 0, offset)
+    if (result.err) {
+      throw result.err
+    }
+
+    if (isTypedArray(result.data) || result.data instanceof ArrayBuffer) {
+      bytesRead = result.data.byteLength
+      Buffer.from(result.data).copy(buffer, 0, offset)
     } else {
       throw new TypeError('Invalid response buffer from `fs.read`.')
     }
@@ -428,8 +436,13 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async stat (options) {
-    const response = await ipc.request('fsFStat', { id: this.id })
-    const stats = Stats.from(response, Boolean(options?.bigint))
+    const result = await ipc.request('fsFStat', { id: this.id })
+
+    if (result.err) {
+      throw result.err
+    }
+
+    const stats = Stats.from(result.data, Boolean(options?.bigint))
     stats.handle = this
     return stats
   }
@@ -498,11 +511,15 @@ export class FileHandle extends EventEmitter {
     const data = Buffer.from(buffer).slice(offset, offset + length)
     const params = { id: this.id, offset: position }
 
-    const response = await ipc.write('fsWrite', params, data)
+    const result = await ipc.write('fsWrite', params, data)
+
+    if (result.err) {
+      throw result.err
+    }
 
     return {
       buffer: data,
-      bytesWritten: parseInt(response.result)
+      bytesWritten: parseInt(result.data.result)
     }
   }
 

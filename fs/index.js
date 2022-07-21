@@ -92,9 +92,9 @@ export function chmod (path, mode, callback) {
     throw new TypeError('callback must be a function.')
   }
 
-  ipc.request('fsChmod', { mode, path })
-    .then(() => callback(null))
-    .catch((err) => callback(err))
+  ipc.request('fsChmod', { mode, path }).then((result) => {
+    result?.err ? callback(result.err) : callback(null)
+  })
 }
 
 /**
