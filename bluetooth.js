@@ -1,19 +1,6 @@
 import * as ipc from './ipc.js'
 import { EventEmitter } from './events.js'
 
-//
-// const bt = new Bluetooth('chat')
-//
-// await bt.subscribe('messages')
-//
-// bt.on('messages', data => {
-//   // assert(data === '{"value":"hello, world"}')
-// })
-//
-// await bt.publish('messages', {
-//   value: 'hello, world'
-// })
-//
 export class Bluetooth extends EventEmitter {
   static isInitalized = false;
 
@@ -32,26 +19,20 @@ export class Bluetooth extends EventEmitter {
 
       if (err) return this.emit('error', err)
 
-      if (data.serviceId === this.service) {
-        this.emit(data.characteristicId, data, e.data)
+      if (data.serviceId === this.serviceId) {
+        this.emit(data.characteristicId, data, e.detail.data)
       }
     })
 
     window.addEventListener('bluetooth', e => {
       if (!e.detail.params) return
-      console.log(e.detail)
-      // const { err, data } = e.detail.params
+      const { err, data } = e.detail
 
-      // if (err) {
-      //  return this.emit('error', err)
-      //}
+      if (err) {
+        return this.emit('error', err)
+      }
 
-      // this.emit(data.event, data)
-    })
-
-    window.addEventListener('data', e => {
-      if (e.detail?.params?.serviceId !== this.serviceId) return
-      this.emit(e.detail.params.characteristicId, e.detail.data)
+      this.emit(data.event, data)
     })
   }
 
