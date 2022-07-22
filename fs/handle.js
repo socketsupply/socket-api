@@ -285,10 +285,11 @@ export class FileHandle extends EventEmitter {
       return await this[kOpening]
     }
 
+    const signal = options?.signal
     const { flags, mode, path, id } = this
 
-    if (options?.signal.aborted) {
-      throw new AbortError(options.signal)
+    if (signal?.aborted) {
+      throw new AbortError(signal)
     }
 
     this[kOpening] = new InvertedPromise()
@@ -298,7 +299,7 @@ export class FileHandle extends EventEmitter {
       flags: flags,
       mode: mode,
       path: path
-    }, { signal: options?.signal })
+    }, { signal })
 
     if (result.err) {
       return this[kOpening].reject(result.err)
@@ -415,16 +416,17 @@ export class FileHandle extends EventEmitter {
    */
   async readFile (options) {
     const buffers = []
+    const signal = options?.signal
     const stream = this.createReadStream(options)
 
-    if (options?.signal.aborted) {
-      throw new AbortError(options.signal)
-    }
+    if (signal instanceof AbortSignal) {
+      if (signal.aborted) {
+        throw new AbortError(signal)
+      }
 
-    if (options?.signal instanceof AbortSignal) {
-      options.signal.addEventListener('abort', () => {
+      signal.addEventListener('abort', () => {
         if (!stream.destroyed && !stream.destroying) {
-          stream.destroy(new AbortError(options.signal))
+          stream.destroy(new AbortError(signal))
         }
       })
     }
@@ -557,18 +559,19 @@ export class FileHandle extends EventEmitter {
    * @param {?(object)} [options.signal]
    */
   async writeFile (data, options) {
+    const signal = options?.signal
     const stream = this.createWriteStream(options)
     const buffer = Buffer.from(data, options?.encoding || 'utf8')
     const buffers = splitBuffer(buffer, stream.highWaterMark)
 
-    if (options?.signal.aborted) {
-      throw new AbortError(options.signal)
-    }
+    if (signal instanceof AbortSignal) {
+      if (signal.aborted) {
+        throw new AbortError(signal)
+      }
 
-    if (options?.signal instanceof AbortSignal) {
-      options.signal.addEventListener('abort', () => {
+      signal.addEventListener('abort', () => {
         if (!stream.destroyed && !stream.destroying) {
-          stream.destroy(new AbortError(options.signal))
+          stream.destroy(new AbortError(signal))
         }
       })
     }
