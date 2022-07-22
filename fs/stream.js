@@ -26,6 +26,7 @@ export class ReadStream extends Readable {
     this.start = typeof options?.start === 'number' ? options.start : 0
     this.handle = null
     this.signal = options?.signal
+    this.timeout = options?.timeout || undefined
     this.bytesRead = 0
     this.shouldEmitClose = options?.emitClose !== false
 
@@ -84,26 +85,26 @@ export class ReadStream extends Readable {
   }
 
   async _open (callback) {
-    const { signal } = this
+    const { signal, handle, timeout } = this
 
-    if (!this.handle) {
+    if (!handle) {
       return callback(new Error('Handle not set in ReadStream'))
     }
 
-    if (this.signal?.aborted) {
-      return callback(new AbortError(this.signal))
+    if (signal?.aborted) {
+      return callback(new AbortError(signal))
     }
 
-    if (this.handle?.opened) {
+    if (handle?.opened) {
       return callback(null)
     }
 
     this.once('ready', () => callback(null))
 
     // open if not opening already
-    if (!this.handle.opening) {
+    if (!handle.opening) {
       try {
-        await this.handle.open({ signal })
+        await handle.open({ signal, timeout })
       } catch (err) {
         return callback(err)
       }
@@ -111,7 +112,7 @@ export class ReadStream extends Readable {
   }
 
   async _read (callback) {
-    const { signal, handle } = this
+    const { signal, handle, timeout } = this
 
     if (!handle || !handle.opened) {
       return callback(new Error('File handle not opened'))
@@ -128,7 +129,10 @@ export class ReadStream extends Readable {
       : buffer.length
 
     try {
-      const result = await handle.read(buffer, 0, length, position, { signal })
+      const result = await handle.read(buffer, 0, length, position, {
+        timeout,
+        signal
+      })
 
       if (typeof result.bytesRead === 'number' && result.bytesRead > 0) {
         this.bytesRead += result.bytesRead
@@ -166,6 +170,7 @@ export class WriteStream extends Writable {
     this.start = typeof options?.start === 'number' ? options.start : 0
     this.handle = null
     this.signal = options?.signal
+    this.timeout = options?.timeout || undefined
     this.bytesWritten = 0
     this.shouldEmitClose = options?.emitClose !== false
 
@@ -208,20 +213,26 @@ export class WriteStream extends Writable {
   }
 
   async _open (callback) {
-    if (!this.handle) {
+    const { signal, handle, timeout } = this
+
+    if (!handle) {
       return callback(new Error('Handle not set in WriteStream'))
     }
 
-    if (this.handle?.opened) {
+    if (signal?.aborted) {
+      return callback(new AbortError(signal))
+    }
+
+    if (handle?.opened) {
       return callback(null)
     }
 
     this.once('ready', () => callback(null))
 
     // open if not opening already
-    if (!this.handle.opening) {
+    if (!handle.opening) {
       try {
-        await this.handle.open()
+        await handle.open({ signal, timeout })
       } catch (err) {
         return callback(err)
       }
@@ -241,7 +252,7 @@ export class WriteStream extends Writable {
   }
 
   async _write (buffer, callback) {
-    const { signal, handle } = this
+    const { signal, handle, timeout } = this
 
     if (!handle || !handle.opened) {
       return callback(new Error('File handle not opened'))
@@ -249,7 +260,10 @@ export class WriteStream extends Writable {
 
     try {
       const position = this.start + this.bytesWritten
-      const result = await handle.write(buffer, 0, buffer.length, position, { signal })
+      const result = await handle.write(buffer, 0, buffer.length, position, {
+        timeout,
+        signal
+      })
 
       if (typeof result.bytesWritten === 'number' && result.bytesWritten > 0) {
         this.bytesWritten += result.bytesWritten

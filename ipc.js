@@ -373,6 +373,7 @@ export async function request (command, data, options) {
   }
 
   let aborted = false
+  let timeout = null
 
   const parent = typeof window === 'object' ? window : globalThis
   const promise = parent._ipc.send(command, params)
@@ -404,7 +405,12 @@ export async function request (command, data, options) {
     signal.addEventListener('abort', onabort)
   }
 
-  const timeout = setTimeout(onabort, TIMEOUT)
+  if (options?.timeout !== false) {
+    timeout = setTimeout(
+      onabort,
+      typeof options?.timeout === 'number' ? options.timeout : TIMEOUT
+    )
+  }
 
   // handle async resolution from IPC over XHR
   parent.addEventListener('data', ondata)
@@ -412,13 +418,17 @@ export async function request (command, data, options) {
   return Object.assign(resolved, { seq, index })
 
   function cleanup () {
-    clearTimeout(timeout)
     window.removeEventListener('data', ondata)
+
+    if (timeout) {
+      clearTimeout(timeout)
+    }
   }
 
   function ondata (event) {
     if (aborted) {
       cleanup()
+
       return resolve(seq, ERROR, {
         err: new AbortError(signal)
       })

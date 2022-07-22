@@ -60,17 +60,20 @@ export class FileHandle extends EventEmitter {
    * Determines if access to `path` for `mode` is possible.
    * @param {string} path
    * @param {(number)} [mode = 0o666]
+   * @param {?(object)} [options]
    * @return {boolean}
    */
-  static async access (path, mode) {
+  static async access (path, mode, options) {
+    if (mode !== null && typeof mode === 'object') {
+      options = mode
+      mode = undefined
+    }
+
     if (mode === undefined) {
       mode = FileHandle.DEFAULT_ACCESS_MODE
     }
 
-    const result = await ipc.request('fsAccess', {
-      mode,
-      path
-    })
+    const result = await ipc.request('fsAccess', { mode, path }, options)
 
     if (result.err) {
       throw result.err
@@ -85,8 +88,9 @@ export class FileHandle extends EventEmitter {
    * @param {string | Buffer | URL} path
    * @param {?(string)} [flags = 'r']
    * @param {?(string)} [mode = 0o666]
+   * @param {?(object)} [options]
    */
-  static async open (path, flags, mode) {
+  static async open (path, flags, mode, options) {
     if (flags === undefined) {
       flags = FileHandle.DEFAULT_OPEN_FLAGS
     }
@@ -101,7 +105,7 @@ export class FileHandle extends EventEmitter {
       throw new TypeError('Expecting path to be a string, Buffer, or URL.')
     }
 
-    await handle.open()
+    await handle.open(options)
 
     return handle
   }
@@ -183,9 +187,10 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Close underlying file handle
+   * @param {?(object)} [options]
    */
-  async close () {
+  async close (options) {
     // wait for opening to finish before proceeding to close
     if (this[kOpening]) {
       await this[kOpening]
@@ -201,7 +206,7 @@ export class FileHandle extends EventEmitter {
 
     this[kClosing] = new InvertedPromise()
 
-    const result = await ipc.request('fsClose', { id: this.id })
+    const result = await ipc.request('fsClose', { id: this.id }, options)
 
     if (result.err) {
       return this[kClosing].reject(result.err)
@@ -299,7 +304,7 @@ export class FileHandle extends EventEmitter {
       flags: flags,
       mode: mode,
       path: path
-    }, { signal })
+    }, options)
 
     if (result.err) {
       return this[kOpening].reject(result.err)
@@ -323,6 +328,7 @@ export class FileHandle extends EventEmitter {
     const { id } = this
 
     let bytesRead = 0
+    let timeout = options?.timeout || null
     let signal = options?.signal || null
 
     if (typeof buffer === 'object' && !isBufferLike(buffer)) {
@@ -330,6 +336,7 @@ export class FileHandle extends EventEmitter {
       length = buffer.length
       position = buffer.position
       signal = buffer.signal || signal
+      timeout = buffer.timeout || timeout
       buffer = buffer.buffer
     }
 
@@ -395,7 +402,7 @@ export class FileHandle extends EventEmitter {
       id,
       size: length,
       offset: position
-    }, { signal })
+    }, { signal, timeout })
 
     if (result.err) {
       throw result.err
@@ -457,7 +464,7 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async stat (options) {
-    const result = await ipc.request('fsFStat', { id: this.id })
+    const result = await ipc.request('fsFStat', { ...options, id: this.id })
 
     if (result.err) {
       throw result.err
@@ -490,6 +497,7 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async write (buffer, offset, length, position, options) {
+    let timeout = options?.timeout || null
     let signal = options?.signal || null
 
     if (typeof buffer === 'object' && !isBufferLike(buffer)) {
@@ -497,6 +505,7 @@ export class FileHandle extends EventEmitter {
       length = buffer.length
       position = buffer.position
       signal = buffer.signal || signal
+      timeout = buffer.timeout || timeout
       buffer = buffer.buffer
     }
 
@@ -539,7 +548,10 @@ export class FileHandle extends EventEmitter {
     const data = Buffer.from(buffer).slice(offset, offset + length)
     const params = { id: this.id, offset: position }
 
-    const result = await ipc.write('fsWrite', params, data, { signal })
+    const result = await ipc.write('fsWrite', params, data, {
+      timeout,
+      signal
+    })
 
     if (result.err) {
       throw result.err
