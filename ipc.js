@@ -269,13 +269,13 @@ export async function send (...args) {
   return await window._ipc.send(...args)
 }
 
-export async function write (command, params, buffer) {
+export async function write (command, params, buffer, options) {
   if (typeof window === 'undefined') {
     console.warn('Global window object is not defined')
     return {}
   }
 
-  const signal = params?.signal
+  const signal = options?.signal
   const request = new window.XMLHttpRequest()
   const index = window.process ? window.process.index : 0
   const seq = window._ipc ? window._ipc.nextSeq++ : 0
@@ -283,6 +283,7 @@ export async function write (command, params, buffer) {
 
   let resolved = false
   let aborted = false
+  let timeout = null
 
   delete params?.signal
 
@@ -313,14 +314,18 @@ export async function write (command, params, buffer) {
   }
 
   return await new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      resolve(Result.from(new TimeoutError('ipc.write timedout')))
-      request.abort()
-    }, TIMEOUT)
+    if (options?.timeout) {
+      timeout = setTimeout(() => {
+        resolve(Result.from(new TimeoutError('ipc.write timedout')))
+        request.abort()
+      }, typeof options.timeout === 'number' ? options.timeout : TIMEOUT)
+    }
 
     request.onabort = () => {
       aborted = true
-      clearTimeout(timeout)
+      if (options?.timeout) {
+        clearTimeout(timeout)
+      }
       resolve(Result.from(new AbortError(signal)))
     }
 
