@@ -25,10 +25,21 @@ export class Bluetooth extends EventEmitter {
     }
 
     this.serviceId = serviceId
-    window.external.invoke(`ipc://bluetooth-start?serviceId=${this.serviceId}`)
+
+    window.addEventListener('data', e => {
+      if (!e.detail.params) return
+      const { err, data } = e.detail.params
+
+      if (err) return this.emit('error', err)
+
+      if (data.serviceId === this.service) {
+        this.emit(data.characteristicId, data, e.data)
+      }
+    })
 
     window.addEventListener('bluetooth', e => {
-      console.log(e)
+      if (!e.detail.params) return
+      console.log(e.detail)
       // const { err, data } = e.detail.params
 
       // if (err) {
@@ -44,8 +55,15 @@ export class Bluetooth extends EventEmitter {
     })
   }
 
+  start () {
+    return ipc.send('bluetooth-start', { serviceId: this.serviceId })
+  }
+
   subscribe (id) {
-    return this.publish(id)
+    return ipc.send('bluetooth-subscribe', {
+      characteristicId: id,
+      serviceId: this.serviceId
+    })
   }
 
   async publish (characteristicId, value = '') {
@@ -58,17 +76,17 @@ export class Bluetooth extends EventEmitter {
       serviceId: this.serviceId
     }
 
-    if (value.constructor.name !== 'Object') {
+    if (!(value instanceof ArrayBuffer) && typeof value === 'object') {
       value = JSON.stringify(value)
     }
 
     if (typeof value === 'string') {
       const enc = new TextEncoder().encode(value)
-      value = enc.data
+      value = enc
       params.length = enc.length
     }
 
-    const res = await ipc.write('bluetooth-set', params, value)
+    const res = await ipc.write('bluetooth-publish', params, value)
 
     if (res.err) {
       throw new Error(res.err.message)
