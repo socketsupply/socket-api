@@ -285,8 +285,6 @@ export async function write (command, params, buffer, options) {
   let aborted = false
   let timeout = null
 
-  delete params?.signal
-
   if (signal) {
     if (signal.aborted) {
       return Result.from(new AbortError(signal))
