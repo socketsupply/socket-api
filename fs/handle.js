@@ -79,7 +79,7 @@ export class FileHandle extends EventEmitter {
       throw result.err
     }
 
-    return result.data.mode === mode
+    return result.data?.mode === mode
   }
 
   /**
