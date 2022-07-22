@@ -1,20 +1,22 @@
-'use strict'
+import { Readable, Writable } from '../stream.js'
+import { Buffer } from 'buffer'
 
-const { Readable, Writable } = require('../stream')
-const { Buffer } = require('../buffer')
-
-const DEFAULT_HIGH_WATER_MARK = 16 * 1024
+export const DEFAULT_STREAM_HIGH_WATER_MARK = 16 * 1024
 
 /**
  * A `Readable` stream for a `FileHandle`.
  */
-class ReadStream extends Readable {
+export class ReadStream extends Readable {
   /**
    * `ReadStream` class constructor
    * @private
    */
   constructor (options) {
     super(options)
+
+    if (options?.signal?.aborted) {
+      throw new AbortError(options.signal)
+    }
 
     if (typeof options?.highWaterMark !== 'number') {
       this._readableState.highWaterMark = this.constructor.highWaterMark
@@ -23,7 +25,7 @@ class ReadStream extends Readable {
     this.end = typeof options?.end === 'number' ? options.end : Infinity
     this.start = typeof options?.start === 'number' ? options.start : 0
     this.handle = null
-    this.buffer = Buffer.alloc(this._readableState.highWaterMark)
+    this.signal = options?.signal
     this.bytesRead = 0
     this.shouldEmitClose = options?.emitClose !== false
 
@@ -46,6 +48,13 @@ class ReadStream extends Readable {
    */
   setHandle (handle) {
     setHandle(this, handle)
+  }
+
+  /**
+   * The max buffer size for the ReadStream.
+   */
+  get highWaterMark () {
+    return this._readableState.highWaterMark
   }
 
   /**
@@ -75,8 +84,14 @@ class ReadStream extends Readable {
   }
 
   async _open (callback) {
+    const { signal } = this
+
     if (!this.handle) {
       return callback(new Error('Handle not set in ReadStream'))
+    }
+
+    if (this.signal?.aborted) {
+      return callback(new AbortError(this.signal))
     }
 
     if (this.handle?.opened) {
@@ -88,7 +103,7 @@ class ReadStream extends Readable {
     // open if not opening already
     if (!this.handle.opening) {
       try {
-        await this.handle.open()
+        await this.handle.open({ signal })
       } catch (err) {
         return callback(err)
       }
@@ -96,21 +111,24 @@ class ReadStream extends Readable {
   }
 
   async _read (callback) {
-    const { buffer, handle } = this
+    const { signal, handle } = this
 
     if (!handle || !handle.opened) {
       return callback(new Error('File handle not opened'))
     }
 
-    buffer.fill(0)
+    if (this.signal?.aborted) {
+      return callback(new AbortError(this.signal))
+    }
 
     const position = Math.max(0, this.start) + this.bytesRead
+    const buffer = Buffer.alloc(this.highWaterMark)
     const length = Math.max(0, this.end) < Infinity
       ? Math.min(this.end - position, buffer.length)
       : buffer.length
 
     try {
-      const result = await handle.read(buffer, 0, length, position)
+      const result = await handle.read(buffer, 0, length, position, { signal })
 
       if (typeof result.bytesRead === 'number' && result.bytesRead > 0) {
         this.bytesRead += result.bytesRead
@@ -133,7 +151,7 @@ class ReadStream extends Readable {
 /**
  * A `Writable` stream for a `FileHandle`.
  */
-class WriteStream extends Writable {
+export class WriteStream extends Writable {
   /**
    * `WriteStream` class constructor
    * @private
@@ -147,6 +165,7 @@ class WriteStream extends Writable {
 
     this.start = typeof options?.start === 'number' ? options.start : 0
     this.handle = null
+    this.signal = options?.signal
     this.bytesWritten = 0
     this.shouldEmitClose = options?.emitClose !== false
 
@@ -165,6 +184,13 @@ class WriteStream extends Writable {
    */
   setHandle (handle) {
     setHandle(this, handle)
+  }
+
+  /**
+   * The max buffer size for the Writetream.
+   */
+  get highWaterMark () {
+    return this._writableState.highWaterMark
   }
 
   /**
@@ -215,7 +241,7 @@ class WriteStream extends Writable {
   }
 
   async _write (buffer, callback) {
-    const { handle } = this
+    const { signal, handle } = this
 
     if (!handle || !handle.opened) {
       return callback(new Error('File handle not opened'))
@@ -223,7 +249,7 @@ class WriteStream extends Writable {
 
     try {
       const position = this.start + this.bytesWritten
-      const result = await handle.write(buffer, 0, buffer.length, position)
+      const result = await handle.write(buffer, 0, buffer.length, position, { signal })
 
       if (typeof result.bytesWritten === 'number' && result.bytesWritten > 0) {
         this.bytesWritten += result.bytesWritten
@@ -267,11 +293,8 @@ function setHandle (stream, handle) {
   })
 }
 
-ReadStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
-WriteStream.highWaterMark = DEFAULT_HIGH_WATER_MARK
+ReadStream.highWaterMark = DEFAULT_STREAM_HIGH_WATER_MARK
+WriteStream.highWaterMark = DEFAULT_STREAM_HIGH_WATER_MARK
 
-module.exports = {
-  DEFAULT_HIGH_WATER_MARK,
-  ReadStream,
-  WriteStream
-}
+export const FileReadStream = ReadStream
+export const FileWriteStream = WriteStream

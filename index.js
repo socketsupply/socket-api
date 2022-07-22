@@ -1,9 +1,10 @@
-const node = require('./node')
-const web = require('./web')
-const ipc = require('./ipc')
-
-module.exports = {
-  ipc,
-  node,
-  web
-}
+export * as buffer from 'buffer'
+export * as stream from './stream.js'
+export * as dgram from './dgram.js'
+export * as dns from './dns.js'
+export { EventEmitter } from './events.js'
+export * as fs from './fs/index.js'
+export * as ipc from './ipc.js'
+export * as net from './net.js'
+export * as os from './os.js'
+export { Bluetooth } from './bluetooth.js'

@@ -1,39 +1,49 @@
-/* global atob, escape */
-'use strict'
-
-const {
+import {
   InvertedPromise,
   isBufferLike,
   isTypedArray,
+  splitBuffer,
   rand64
-} = require('../../util')
+} from '../util.js'
 
-const { ReadStream, WriteStream } = require('./stream')
-const { normalizeFlags } = require('./flags')
-const { EventEmitter } = require('../events')
-const { Buffer } = require('../buffer')
-const { Stats } = require('./stats')
-const constants = require('./constants')
-const ipc = require('../../ipc')
-const fds = require('./fds')
+import { ReadStream, WriteStream } from './stream.js'
+import { normalizeFlags } from './flags.js'
+import { EventEmitter } from '../events.js'
+import { AbortError } from '../errors.js'
+import { Buffer } from 'buffer'
+import { Stats } from './stats.js'
+import { F_OK } from './constants.js'
+import * as ipc from '../ipc.js'
+import fds from './fds.js'
 
-const kFileHandleOpening = Symbol.for('fs.FileHandle.opening')
-const kFileHandleClosing = Symbol.for('fs.FileHandle.closing')
+const kOpening = Symbol.for('fs.FileHandle.opening')
+const kClosing = Symbol.for('fs.FileHandle.closing')
 
 /**
- * @TODO
+ * A container for a descriptor tracked in `fds` and opened in the native layer.
+ * This class implements the Node.js `FileHandle` interface
+ * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#class-filehandle}
  */
-class FileHandle extends EventEmitter {
-  static get DEFAULT_ACCESS_MODE () { return constants.F_OK }
+export class FileHandle extends EventEmitter {
+  static get DEFAULT_ACCESS_MODE () { return F_OK }
   static get DEFAULT_OPEN_FLAGS () { return 'r' }
   static get DEFAULT_OPEN_MODE () { return 0o666 }
 
   /**
-   * @TODO
+   * Creates a `FileHandle` from a given `id` or `fd`
+   * @param {string|number|FileHandle|object} id
+   * @return {FileHandle}
    */
   static from (id) {
+    if (id?.id) {
+      return this.from(id.id)
+    } else if (id?.fd) {
+      return this.from(id.fd)
+    }
+
     let fd = fds.get(id)
 
+    // `id` could actually be an `fd`
     if (!fd) {
       id = fds.to(id)
       fd = fds.get(id)
@@ -47,19 +57,26 @@ class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Determines if access to `path` for `mode` is possible.
+   * @param {string} path
+   * @param {(number)} [mode = 0o666]
+   * @return {boolean}
    */
   static async access (path, mode) {
     if (mode === undefined) {
       mode = FileHandle.DEFAULT_ACCESS_MODE
     }
 
-    const request = await ipc.request('fsAccess', {
+    const result = await ipc.request('fsAccess', {
       mode,
       path
     })
 
-    return request.mode === mode
+    if (result.err) {
+      throw result.err
+    }
+
+    return result.data.mode === mode
   }
 
   /**
@@ -102,8 +119,8 @@ class FileHandle extends EventEmitter {
       options.path = options.path.toString()
     }
 
-    this[kFileHandleOpening] = null
-    this[kFileHandleClosing] = null
+    this[kOpening] = null
+    this[kClosing] = null
 
     this.flags = normalizeFlags(options?.flags)
     this.path = options?.path || null
@@ -128,7 +145,7 @@ class FileHandle extends EventEmitter {
    * @type {boolean}
    */
   get opening () {
-    const opening = this[kFileHandleOpening]
+    const opening = this[kOpening]
     return opening?.value !== true
   }
 
@@ -137,14 +154,20 @@ class FileHandle extends EventEmitter {
    * @type {boolean}
    */
   get closing () {
-    const closing = this[kFileHandleClosing]
+    const closing = this[kClosing]
     return closing?.value !== true
   }
 
   /**
-   * @TODO
+   * Appends to a file, if handle was opened with `O_APPEND`, otherwise this
+   * method is just an alias to `FileHandle#writeFile()`.
+   * @param {string|Buffer|TypedArray|Array} data
+   * @param {?(object)} [options]
+   * @param {?(string)} [options.encoding = 'utf8']
+   * @param {?(object)} [options.signal]
    */
   async appendFile (data, options) {
+    return await this.writeFile(data, options)
   }
 
   /**
@@ -164,36 +187,36 @@ class FileHandle extends EventEmitter {
    */
   async close () {
     // wait for opening to finish before proceeding to close
-    if (this[kFileHandleOpening]) {
-      await this[kFileHandleOpening]
+    if (this[kOpening]) {
+      await this[kOpening]
     }
 
-    if (this[kFileHandleClosing]) {
-      return this[kFileHandleClosing]
+    if (this[kClosing]) {
+      return await this[kClosing]
     }
 
     if (!this.fd || !this.id) {
       throw new Error('FileHandle is not opened')
     }
 
-    this[kFileHandleClosing] = new InvertedPromise()
+    this[kClosing] = new InvertedPromise()
 
-    try {
-      await ipc.request('fsClose', { id: this.id })
-    } catch (err) {
-      return this[kFileHandleClosing].reject(err)
+    const result = await ipc.request('fsClose', { id: this.id })
+
+    if (result.err) {
+      return this[kClosing].reject(result.err)
     }
 
     fds.release(this.id)
 
     this.fd = null
 
-    this[kFileHandleClosing].resolve(true)
+    this[kClosing].resolve(true)
 
     this.emit('close')
 
-    this[kFileHandleOpening] = null
-    this[kFileHandleClosing] = null
+    this[kOpening] = null
+    this[kClosing] = null
 
     return true
   }
@@ -250,35 +273,43 @@ class FileHandle extends EventEmitter {
   async datasync () {
   }
 
-  async open () {
+  /**
+   * @TODO
+   */
+  async open (options) {
     if (this.opened) {
       return true
     }
 
-    if (this[kFileHandleOpening]) {
-      return this[kFileHandleOpening]
+    if (this[kOpening]) {
+      return await this[kOpening]
     }
 
+    const signal = options?.signal
     const { flags, mode, path, id } = this
 
-    this[kFileHandleOpening] = new InvertedPromise()
-
-    try {
-      const request = await ipc.request('fsOpen', {
-        id: id,
-        flags: flags,
-        mode: mode,
-        path: path
-      })
-
-      this.fd = request.fd
-    } catch (err) {
-      return this[kFileHandleOpening].reject(err)
+    if (signal?.aborted) {
+      throw new AbortError(signal)
     }
+
+    this[kOpening] = new InvertedPromise()
+
+    const result = await ipc.request('fsOpen', {
+      id: id,
+      flags: flags,
+      mode: mode,
+      path: path
+    }, { signal })
+
+    if (result.err) {
+      return this[kOpening].reject(result.err)
+    }
+
+    this.fd = result.data.fd
 
     fds.set(this.id, this.fd)
 
-    this[kFileHandleOpening].resolve(true)
+    this[kOpening].resolve(true)
 
     this.emit('open', this.fd)
 
@@ -288,16 +319,22 @@ class FileHandle extends EventEmitter {
   /**
    * @TODO
    */
-  async read (buffer, offset, length, position) {
+  async read (buffer, offset, length, position, options) {
     const { id } = this
 
     let bytesRead = 0
+    let signal = options?.signal || null
 
     if (typeof buffer === 'object' && !isBufferLike(buffer)) {
       offset = buffer.offset
       length = buffer.length
       position = buffer.position
+      signal = buffer.signal || signal
       buffer = buffer.buffer
+    }
+
+    if (signal?.aborted) {
+      throw new AbortError(signal)
     }
 
     if (!isBufferLike(buffer)) {
@@ -354,15 +391,19 @@ class FileHandle extends EventEmitter {
       )
     }
 
-    const response = await ipc.request('fsRead', {
+    const result = await ipc.request('fsRead', {
       id,
       size: length,
       offset: position
-    })
+    }, { signal })
 
-    if (response instanceof ArrayBuffer) {
-      bytesRead = response.byteLength
-      Buffer.from(response).copy(buffer, 0, offset)
+    if (result.err) {
+      throw result.err
+    }
+
+    if (isTypedArray(result.data) || result.data instanceof ArrayBuffer) {
+      bytesRead = result.data.byteLength
+      Buffer.from(result.data).copy(buffer, 0, offset)
     } else {
       throw new TypeError('Invalid response buffer from `fs.read`.')
     }
@@ -374,10 +415,30 @@ class FileHandle extends EventEmitter {
    * @TODO
    */
   async readFile (options) {
-    const stats = await this.stat()
-    const buffer = Buffer.alloc(stats.size)
+    const buffers = []
+    const signal = options?.signal
+    const stream = this.createReadStream(options)
 
-    await this.read({ buffer })
+    if (signal instanceof AbortSignal) {
+      if (signal.aborted) {
+        throw new AbortError(signal)
+      }
+
+      signal.addEventListener('abort', () => {
+        if (!stream.destroyed && !stream.destroying) {
+          stream.destroy(new AbortError(signal))
+        }
+      })
+    }
+
+    // collect
+    await new Promise((resolve, reject) => {
+      stream.on('end', resolve)
+      stream.on('data', (buffer) => buffers.push(buffer))
+      stream.on('error', reject)
+    })
+
+    const buffer = Buffer.concat(buffers)
 
     if (typeof options?.encoding === 'string') {
       return buffer.toString(options.encoding)
@@ -396,8 +457,13 @@ class FileHandle extends EventEmitter {
    * @TODO
    */
   async stat (options) {
-    const response = await ipc.request('fsFStat', { id: this.id })
-    const stats = Stats.from(response, Boolean(options?.bigint))
+    const result = await ipc.request('fsFStat', { id: this.id })
+
+    if (result.err) {
+      throw result.err
+    }
+
+    const stats = Stats.from(result.data, Boolean(options?.bigint))
     stats.handle = this
     return stats
   }
@@ -423,12 +489,19 @@ class FileHandle extends EventEmitter {
   /**
    * @TODO
    */
-  async write (buffer, offset, length, position) {
+  async write (buffer, offset, length, position, options) {
+    let signal = options?.signal || null
+
     if (typeof buffer === 'object' && !isBufferLike(buffer)) {
       offset = buffer.offset
       length = buffer.length
       position = buffer.position
+      signal = buffer.signal || signal
       buffer = buffer.buffer
+    }
+
+    if (signal?.aborted) {
+      throw new AbortError(signal)
     }
 
     if (typeof buffer !== 'string' && !isBufferLike(buffer)) {
@@ -466,18 +539,57 @@ class FileHandle extends EventEmitter {
     const data = Buffer.from(buffer).slice(offset, offset + length)
     const params = { id: this.id, offset: position }
 
-    const response = await ipc.write('fsWrite', params, data)
+    const result = await ipc.write('fsWrite', params, data, { signal })
+
+    if (result.err) {
+      throw result.err
+    }
 
     return {
       buffer: data,
-      bytesWritten: parseInt(response.result)
+      bytesWritten: parseInt(result.data.result)
     }
   }
 
   /**
-   * @TODO
+   * Writes `data` to file.
+   * @param {string|Buffer|TypedArray|Array} data
+   * @param {?(object)} [options]
+   * @param {?(string)} [options.encoding = 'utf8']
+   * @param {?(object)} [options.signal]
    */
   async writeFile (data, options) {
+    const signal = options?.signal
+    const stream = this.createWriteStream(options)
+    const buffer = Buffer.from(data, options?.encoding || 'utf8')
+    const buffers = splitBuffer(buffer, stream.highWaterMark)
+
+    if (signal instanceof AbortSignal) {
+      if (signal.aborted) {
+        throw new AbortError(signal)
+      }
+
+      signal.addEventListener('abort', () => {
+        if (!stream.destroyed && !stream.destroying) {
+          stream.destroy(new AbortError(signal))
+        }
+      })
+    }
+
+    queueMicrotask(async () => {
+      while (buffers.length) {
+        const buffer = buffers.shift()
+        if (!stream.write(buffer)) {
+          // block until drain
+          await new Promise((resolve) => stream.once('drain', resolve))
+        }
+      }
+    })
+
+    await new Promise((resolve, reject) => {
+      stream.on('finish', resolve)
+      stream.on('error', reject)
+    })
   }
 
   /**
@@ -485,8 +597,4 @@ class FileHandle extends EventEmitter {
    */
   async writev (buffers, position) {
   }
-}
-
-module.exports = {
-  FileHandle
 }

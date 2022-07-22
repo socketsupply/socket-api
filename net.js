@@ -1,7 +1,5 @@
-'use strict'
-
-const { EventEmitter } = require('./events')
-const { Duplex } = require('./stream')
+import { EventEmitter } from './events.js'
+import { Duplex } from './stream.js'
 
 const _require = typeof require !== 'undefined' && require
 
@@ -474,7 +472,7 @@ const isIPv4 = s => {
   return IPv4Reg.test(s)
 }
 
-module.exports = {
+export {
   rand64,
   Socket,
   Server,

@@ -1,19 +1,12 @@
-'use strict'
+import { Buffer } from 'buffer'
 
-const { EventEmitter } = require('./events')
-const { isIPv4 } = require('./net')
-const { Buffer } = require('./buffer')
-const dns = require('./dns')
+import { EventEmitter } from './events.js'
+import { isIPv4 } from './net.js'
+import * as dns from './dns.js'
+import { rand64 } from './util.js'
 
 const isArrayBufferView = buf => {
   return !Buffer.isBuffer(buf) && ArrayBuffer.isView(buf)
-}
-
-const _require = typeof require !== 'undefined' && require
-
-const rand64 = () => {
-  const method = globalThis.crypto ? globalThis.crypto : _require('crypto')
-  return method.getRandomValues(new BigUint64Array(1))[0]
 }
 
 const fixBufferList = list => {
@@ -34,7 +27,7 @@ const fixBufferList = list => {
   return newlist
 }
 
-class Socket extends EventEmitter {
+export class Socket extends EventEmitter {
   constructor (options) {
     super()
 
@@ -134,7 +127,7 @@ class Socket extends EventEmitter {
       options.address = dataLookup.ip
     }
 
-    const { err, data } = await window._ipc.send('udpBind', {
+    const { err: errBind, data } = await window._ipc.send('udpBind', {
       serverId: this.serverId,
       address: options.address,
       port: options.port || 0,
@@ -142,9 +135,9 @@ class Socket extends EventEmitter {
       ipv6Only: options.ipv6Only // UV_UDP_IPV6ONLY
     })
 
-    if (err) {
-      this.emit('error', err)
-      return { err }
+    if (errBind) {
+      this.emit('error', errBind)
+      return { err: errBind }
     }
 
     const { data: sockData } = await this._getSockData({
@@ -164,7 +157,14 @@ class Socket extends EventEmitter {
 
     window.addEventListener('data', listener)
 
-    const { err } = await window._ipc.send('updReadStart', { serverId: this.serverId })
+    const {
+      err: errReadStart
+    } = await window._ipc.send('updReadStart', { serverId: this.serverId })
+
+    if (errReadStart) {
+      if (cb) return cb(errReadStart)
+      return { err: errReadStart }
+    }
 
     if (cb) cb(null)
     return { data }
@@ -508,11 +508,6 @@ class Socket extends EventEmitter {
   }
 }
 
-const createSocket = (type, listener) => {
+export const createSocket = (type, listener) => {
   return new Socket(type, listener)
-}
-
-module.exports = {
-  Socket,
-  createSocket
 }

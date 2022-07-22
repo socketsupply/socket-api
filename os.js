@@ -1,7 +1,5 @@
-'use strict'
-
-const { toProperCase } = require('../util')
-const ipc = require('../ipc')
+import { toProperCase } from './util.js'
+import * as ipc from './ipc.js'
 
 const UNKNOWN = 'unknown'
 
@@ -11,7 +9,7 @@ const cache = {
   platform: UNKNOWN
 }
 
-function arch () {
+export function arch () {
   if (cache.arch !== UNKNOWN) {
     return cache.arch
   }
@@ -20,8 +18,6 @@ function arch () {
     if (typeof process === 'object' && typeof process.arch === 'string') {
       return process.arch
     }
-
-    return UNKNOWN
   }
 
   const value = (
@@ -42,7 +38,7 @@ function arch () {
   return cache.arch
 }
 
-function networkInterfaces () {
+export function networkInterfaces () {
   const { ipv4, ipv6 } = ipc.sendSync('getNetworkInterfaces')?.data || {}
   const interfaces = {}
 
@@ -109,7 +105,7 @@ function networkInterfaces () {
   return interfaces
 }
 
-function platform () {
+export function platform () {
   if (cache.platform !== UNKNOWN) {
     return cache.platform
   }
@@ -118,8 +114,6 @@ function platform () {
     if (typeof process === 'object' && typeof process.platform === 'string') {
       return process.platform
     }
-
-    return UNKNOWN
   }
 
   cache.platform = (
@@ -132,7 +126,7 @@ function platform () {
   return cache.platform
 }
 
-function type () {
+export function type () {
   if (cache.type !== UNKNOWN) {
     return cache.type
   }
@@ -143,8 +137,6 @@ function type () {
       case 'darnwin': return 'Darwin'
       case 'win32': return 'Windows' // Windows_NT?
     }
-
-    return UNKNOWN
   }
 
   const value = (
@@ -153,21 +145,15 @@ function type () {
     UNKNOWN
   )
 
-  cache.type = toProperCase(value)
-  return cache.type
+  cache.type = value
+
+  return toProperCase(cache.type)
 }
 
-module.exports = {
-  arch,
-  platform,
-  networkInterfaces,
-  type,
-
-  get EOL () {
-    if (/win/i.test(type())) {
-      return '\r\n'
-    }
-
-    return '\n'
+export const EOL = (() => {
+  if (/win/i.test(type())) {
+    return '\r\n'
   }
-}
+
+  return '\n'
+})()
