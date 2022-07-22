@@ -126,7 +126,7 @@ export class Result {
     const err = maybeMakeError(result?.err, Result.from)
     const data = result?.data !== null && result?.data !== undefined
       ? result.data
-      : null
+      : result
 
     return new this(data, err)
   }
