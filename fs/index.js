@@ -13,21 +13,17 @@ function defaultCallback (err) {
   if (err) throw err
 }
 
-async function visit (path, flags, mode, callback) {
-  if (typeof flags === 'function') {
-    callback = flags
-    flags = undefined
-    mode = undefined
+async function visit (path, options, callback) {
+  if (typeof options === 'function') {
+    callback = options
+    options = {}
   }
 
-  if (typeof mode === 'function') {
-    callback = mode
-    mode = undefined
-  }
+  const { flags, mode } = options || {}
 
   let handle = null
   try {
-    handle = await FileHandle.open(path, flags, mode)
+    handle = await FileHandle.open(path, flags, mode, options)
   } catch (err) {
     return callback(err)
   }
@@ -36,7 +32,7 @@ async function visit (path, flags, mode, callback) {
     await callback(null, handle)
 
     try {
-      await handle.close()
+      await handle.close(options)
     } catch (err) {
       console.warn(err.message || err)
     }
@@ -148,13 +144,13 @@ export function createReadStream (path, options) {
     handle = FileHandle.from(options.fd)
   } else {
     handle = new FileHandle({ flags: 'r', path, ...options })
-    handle.open().catch((err) => stream.emit('error', err))
+    handle.open(options).catch((err) => stream.emit('error', err))
   }
 
   stream.once('end', async () => {
     if (options?.autoClose !== false) {
       try {
-        await handle.close()
+        await handle.close(options)
       } catch (err) {
         stream.emit('error', err)
       }
@@ -185,13 +181,13 @@ export function createWriteStream (path, options) {
     handle = FileHandle.from(options.fd)
   } else {
     handle = new FileHandle({ flags: 'w', path, ...options })
-    handle.open().catch((err) => stream.emit('error', err))
+    handle.open(options).catch((err) => stream.emit('error', err))
   }
 
   stream.once('finish', async () => {
     if (options?.autoClose !== false) {
       try {
-        await handle.close()
+        await handle.close(options)
       } catch (err) {
         stream.emit('error', err)
       }
@@ -269,7 +265,26 @@ export function mkdir (path, options, callback) {
  * @param {?(string)} [mode = 0o666]
  * @param {function(err, fd)} callback
  */
-export function open (path, flags, mode, callback) {
+export function open (path, flags, mode, options, callback) {
+  if (typeof flags === 'object') {
+    callback = mode
+    options = flags
+    flags = FileHandle.DEFAULT_OPEN_FLAGS
+    mode = FileHandle.DEFAULT_OPEN_MODE
+  }
+
+  if (typeof mode === 'object') {
+    callback = options
+    options = mode
+    flags = FileHandle.DEFAULT_OPEN_FLAGS
+    mode = FileHandle.DEFAULT_OPEN_MODE
+  }
+
+  if (typeof options === 'function') {
+    callback = options
+    options = {}
+  }
+
   if (typeof flags === 'function') {
     callback = flags
     flags = FileHandle.DEFAULT_OPEN_FLAGS
@@ -286,7 +301,7 @@ export function open (path, flags, mode, callback) {
   }
 
   try {
-    FileHandle.open(path, flags, mode)
+    FileHandle.open(path, flags, mode, options)
       .then((handle) => callback(null, handle.fd))
       .catch((err) => callback(err))
   } catch (err) {
@@ -305,13 +320,14 @@ export function opendir (path, options, callback) {
  * @param {number} fd
  * @param {object | Buffer | TypedArray} buffer
  */
-export function read (fd, buffer, offset, length, position, callback) {
+export function read (fd, buffer, offset, length, position, options, callback) {
+  if (typeof options === 'function') {
+    callback = options
+    options = {}
+  }
+
   if (typeof buffer === 'object' && !isBufferLike(buffer)) {
-    offset = buffer.offset
-    length = buffer.length
-    position = buffer.position
-    buffer = buffer.buffer
-    callback = offset
+    options = buffer
   }
 
   if (typeof callback !== 'function') {
@@ -319,7 +335,7 @@ export function read (fd, buffer, offset, length, position, callback) {
   }
 
   try {
-    FileHandle.from(fd).read({ buffer, offset, length, position })
+    FileHandle.from(fd).read({ ...options, buffer, offset, length, position })
       .then(({ bytesRead, buffer }) => callback(null, bytesRead, buffer))
       .catch((err) => callback(err))
   } catch (err) {
@@ -352,7 +368,7 @@ export function readFile (path, options, callback) {
     throw new TypeError('callback must be a function.')
   }
 
-  visit(path, options?.flag, async (err, handle) => {
+  visit(path, options, async (err, handle) => {
     let buffer = null
 
     if (err) {
@@ -486,7 +502,7 @@ export function writeFile (path, data, options, callback) {
     throw new TypeError('callback must be a function.')
   }
 
-  visit(path, options?.flag || 'w', async (err, handle) => {
+  visit(path, { flag: 'w', ...options }, async (err, handle) => {
     if (err) {
       callback(err)
       return

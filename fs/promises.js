@@ -1,16 +1,12 @@
 import { FileHandle } from './handle.js'
 
-async function visit (path, flags, mode, callback) {
-  if (typeof flags === 'function') {
-    callback = flags
-    flags = undefined
-    mode = undefined
+async function visit (path, options, callback) {
+  if (typeof options === 'function') {
+    callback = options
+    options = {}
   }
 
-  if (typeof mode === 'function') {
-    callback = mode
-    mode = undefined
-  }
+  const { flags, mode } = options || {}
 
   // just visit `FileHandle`, without closing if given
   if (path instanceof FileHandle) {
@@ -19,9 +15,9 @@ async function visit (path, flags, mode, callback) {
     const value = await callback(FileHandle.from(path.fd))
   }
 
-  const handle = await FileHandle.open(path, flags, mode)
+  const handle = await FileHandle.open(path, flags, mode, options)
   const value = await callback(handle)
-  await handle.close()
+  await handle.close(options)
 
   return value
 }
@@ -31,9 +27,10 @@ async function visit (path, flags, mode, callback) {
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesaccesspath-mode}
  * @param {string | Buffer | URL} path
  * @param {?(string)} [mode = F_OK(0)]
+ * @param {?(object)} [options]
  */
-export async function access (path, mode) {
-  return await FileHandle.access(path, mode)
+export async function access (path, mode, options) {
+  return await FileHandle.access(path, mode, options)
 }
 
 /**
@@ -123,9 +120,11 @@ export async function readdir (path, options) {
 
 /**
  * @TODO
+ * @param {string} path
+ * @param {?(object)} [options]
  */
 export async function readFile (path, options) {
-  return await visit(path, options?.flag, async (handle) => {
+  return await visit(path, options, async (handle) => {
     return await handle.readFile(options)
   })
 }
@@ -198,9 +197,12 @@ export async function watch (path, options) {
 
 /**
  * @TODO
+ * @param {string} path
+ * @param {string|Buffer|Array|TypedArray} data
+ * @param {?(object)} [options]
  */
 export async function writeFile (path, data, options) {
-  return await visit(path, options?.flag || 'w', async (handle) => {
+  return await visit(path, { flag: 'w', ...options }, async (handle) => {
     return await handle.writeFile(data, options)
   })
 }
