@@ -56,7 +56,6 @@ export class TimeoutError extends Error {
 
     this.name = 'TimeoutError'
     this.code = 'TIMEOUT_ERR'
-    this.signal = signal || null
 
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, TimeoutError)
