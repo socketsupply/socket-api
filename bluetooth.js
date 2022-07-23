@@ -25,7 +25,7 @@ export class Bluetooth extends EventEmitter {
     })
 
     window.addEventListener('bluetooth', e => {
-      if (!e.detail.params) return
+      if (typeof e.detail !== 'object') return
       const { err, data } = e.detail
 
       if (err) {
