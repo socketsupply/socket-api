@@ -20,6 +20,15 @@ export const COPYFILE_FICLONE = 0x0002
  */
 export const COPYFILE_FICLONE_FORCE = 0x0004
 
+export const UV_DIRENT_UNKNOWN = constants.UV_DIRENT_UNKNOWN || 0
+export const UV_DIRENT_FILE = constants.UV_DIRENT_FILE || 1
+export const UV_DIRENT_DIR = constants.UV_DIRENT_DIR || 2
+export const UV_DIRENT_LINK = constants.UV_DIRENT_LINK || 3
+export const UV_DIRENT_FIFO = constants.UV_DIRENT_FIFO || 4
+export const UV_DIRENT_SOCKET = constants.UV_DIRENT_SOCKET || 5
+export const UV_DIRENT_CHAR = constants.UV_DIRENT_CHAR || 6
+export const UV_DIRENT_BLOCK = constants.UV_DIRENT_BLOCK || 7
+
 export const O_RDONLY = constants.O_RDONLY || 0
 export const O_WRONLY = constants.O_WRONLY || 0
 export const O_RDWR = constants.O_RDWR || 0

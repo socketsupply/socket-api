@@ -1,4 +1,5 @@
-import { FileHandle } from './handle.js'
+import { DirectoryHandle, FileHandle } from './handle.js'
+import { Dir } from './dir.js'
 
 async function visit (path, options, callback) {
   if (typeof options === 'function') {
@@ -110,12 +111,27 @@ export async function open (path, flags, mode) {
  * @TODO
  */
 export async function opendir (path, options) {
+  const handle = await DirectoryHandle.open(path, options)
+  return new Dir(handle, options)
 }
 
 /**
  * @TODO
  */
 export async function readdir (path, options) {
+  options = { entries: DirectoryHandle.MAX_ENTRIES, ...options }
+
+  const entries = []
+  const handle = await DirectoryHandle.open(path, options)
+  const dir = new Dir(handle, options)
+
+  for await (const entry of dir.entries(options)) {
+    entries.push(entry)
+  }
+
+  await dir.close()
+
+  return entries
 }
 
 /**

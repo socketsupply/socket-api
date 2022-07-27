@@ -6,9 +6,15 @@ import {
   TimeoutError
 } from './errors.js'
 
+import * as errors from './errors.js'
+
 function getErrorClass (type, fallback) {
   if (typeof window !== 'undefined' && typeof window[type] === 'function') {
     return window[type]
+  }
+
+  if (typeof errors[type] === 'function') {
+    return errors[type]
   }
 
   return fallback || Error
@@ -16,9 +22,17 @@ function getErrorClass (type, fallback) {
 
 function maybeMakeError (error, caller) {
   const errors = {
-    AbortError: AbortError,
+    AbortError: getErrorClass('AbortError'),
     AggregateError: getErrorClass('AggregateError'),
+    EncodingError: getErrorClass('EncodingError'),
+    InternalError: getErrorClass('IndexSizeError'),
     InternalError: InternalError,
+    InvalidAccessError: getErrorClass('InvalidAccessError'),
+    NetworkError: getErrorClass('NetworkError'),
+    NotAllowedError: getErrorClass('NotAllowedError'),
+    NotFoundError: getErrorClass('NotFoundError'),
+    NotSupportedError: getErrorClass('NotSupportedError'),
+    OperationError: getErrorClass('OperationError'),
     RangeError: getErrorClass('RangeError'),
     TimeoutError: TimeoutError,
     TypeError: getErrorClass('TypeError'),
@@ -35,6 +49,7 @@ function maybeMakeError (error, caller) {
 
   error = { ...error }
   const type = error.type || 'Error'
+  const code = error.code
   let err = null
 
   delete error.type
@@ -42,6 +57,14 @@ function maybeMakeError (error, caller) {
   if (type in errors) {
     err = new errors[type](error.message || '', error)
   } else {
+    for (const E of errors) {
+      if (type === E.code || code === E.code) {
+        err = new errors[type](error.message || '', error)
+      }
+    }
+  }
+
+  if (!err) {
     err = new Error(error.message || '', error)
   }
 
@@ -119,6 +142,10 @@ export class Result {
    * @return {Result}
    */
   static from (result) {
+    if (result instanceof Result) {
+      return result
+    }
+
     if (result instanceof Error) {
       return new this(null, result)
     }
@@ -186,12 +213,6 @@ export async function ready () {
       queueMicrotask(loop)
     }
   })
-
-  if (debug.enabled !== true) {
-    debug.enabled = Boolean(
-      typeof window === 'undefined' ? false : window.process?.debug
-    )
-  }
 }
 
 /**
@@ -336,15 +357,22 @@ export async function write (command, params, buffer, options) {
         resolved = true
         clearTimeout(timeout)
 
+        let data = request.response
         try {
-          return resolve(Result.from(JSON.parse(request.response)))
+          data = JSON.parse(request.response)
         } catch (err) {
           if (debug.enabled) {
             console.warn(err.message || err)
           }
         }
 
-        resolve(Result.from(request.response))
+        const result = Result.from(data)
+
+        if (debug.enabled) {
+          console.debug('io.ipc.write: (resolved)', command, result)
+        }
+
+        return resolve(data)
       }
     }
 
@@ -381,6 +409,10 @@ export async function request (command, data, options) {
   const { seq, index } = promise
   const resolved = promise.then((result) => {
     cleanup()
+
+    if (debug.enabled) {
+      console.debug('io.ipc.request: (resolved)', command, result)
+    }
 
     if (result?.data instanceof ArrayBuffer) {
       return Result.from(new Uint8Array(result.data))
