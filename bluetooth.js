@@ -19,7 +19,7 @@ export class Bluetooth extends EventEmitter {
 
       if (err) return this.emit('error', err)
 
-      if (data.serviceId === this.serviceId) {
+      if (data?.serviceId === this.serviceId) {
         this.emit(data.characteristicId, data, e.detail.data)
       }
     })

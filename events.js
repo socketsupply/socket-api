@@ -467,5 +467,6 @@ EventEmitter.EventEmitter = EventEmitter
 EventEmitter.once = once
 
 export {
-  EventEmitter
+  EventEmitter,
+  once
 }

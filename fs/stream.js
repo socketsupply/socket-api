@@ -128,24 +128,26 @@ export class ReadStream extends Readable {
       ? Math.min(this.end - position, buffer.length)
       : buffer.length
 
+    let result = null
+
     try {
-      const result = await handle.read(buffer, 0, length, position, {
+      result = await handle.read(buffer, 0, length, position, {
         timeout,
         signal
       })
-
-      if (typeof result.bytesRead === 'number' && result.bytesRead > 0) {
-        this.bytesRead += result.bytesRead
-        this.push(buffer.slice(0, result.bytesRead))
-
-        if (this.bytesRead >= this.end) {
-          this.push(null)
-        }
-      } else {
-        this.push(null)
-      }
     } catch (err) {
       return callback(err)
+    }
+
+    if (typeof result.bytesRead === 'number' && result.bytesRead > 0) {
+      this.bytesRead += result.bytesRead
+      this.push(buffer.slice(0, result.bytesRead))
+
+      if (this.bytesRead >= this.end) {
+        this.push(null)
+      }
+    } else {
+      this.push(null)
     }
 
     callback(null)
@@ -258,22 +260,28 @@ export class WriteStream extends Writable {
       return callback(new Error('File handle not opened'))
     }
 
+    const position = this.start + this.bytesWritten
+    let result = null
+
+    if (!buffer.length) {
+      return callback(null)
+    }
+
     try {
-      const position = this.start + this.bytesWritten
-      const result = await handle.write(buffer, 0, buffer.length, position, {
+      result = await handle.write(buffer, 0, buffer.length, position, {
         timeout,
         signal
       })
-
-      if (typeof result.bytesWritten === 'number' && result.bytesWritten > 0) {
-        this.bytesWritten += result.bytesWritten
-
-        if (result.bytesWritten !== buffer.length) {
-          return await this._write(buffer.slice(result.bytesWritten), callback)
-        }
-      }
     } catch (err) {
       return callback(err)
+    }
+
+    if (typeof result.bytesWritten === 'number' && result.bytesWritten > 0) {
+      this.bytesWritten += result.bytesWritten
+
+      if (result.bytesWritten !== buffer.length) {
+        return await this._write(buffer.slice(result.bytesWritten), callback)
+      }
     }
 
     callback(null)

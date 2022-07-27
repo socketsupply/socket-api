@@ -1,9 +1,9 @@
+import { DirectoryHandle, FileHandle } from './handle.js'
 import { ReadStream, WriteStream } from './stream.js'
 import { isBufferLike, isFunction } from '../util.js'
 import { Dir, Dirent } from './dir.js'
 import * as constants from './constants.js'
 import * as promises from './promises.js'
-import { FileHandle } from './handle.js'
 import { Stats } from './stats.js'
 import * as ipc from '../ipc.js'
 
@@ -19,11 +19,11 @@ async function visit (path, options, callback) {
     options = {}
   }
 
-  const { flags, mode } = options || {}
+  const { flags, flag, mode } = options || {}
 
   let handle = null
   try {
-    handle = await FileHandle.open(path, flags, mode, options)
+    handle = await FileHandle.open(path, flags || flag, mode, options)
   } catch (err) {
     return callback(err)
   }
@@ -57,13 +57,10 @@ export function access (path, mode, callback) {
     throw new TypeError('callback must be a function.')
   }
 
-  try {
-    FileHandle.access(path, mode)
-      .then((mode) => callback(null, mode))
-      .catch((err) => callback(err))
-  } catch (err) {
-    callback(err)
-  }
+  FileHandle
+    .access(path, mode)
+    .then((mode) => callback(null, mode))
+    .catch((err) => callback(err))
 }
 
 /**
@@ -111,7 +108,9 @@ export function close (fd, callback) {
   }
 
   try {
-    FileHandle.from(fd).close()
+    FileHandle
+      .from(fd)
+      .close()
       .then(() => callback(null))
       .catch((err) => callback(err))
   } catch (err) {
@@ -213,7 +212,9 @@ export function fstat (fd, options, callback) {
   }
 
   try {
-    FileHandle.from(fd).stat(options)
+    FileHandle
+      .from(fd)
+      .stat(options)
       .then(() => callback(null))
       .catch((err) => callback(err))
   } catch (err) {
@@ -300,18 +301,32 @@ export function open (path, flags, mode, options, callback) {
     throw new TypeError('callback must be a function.')
   }
 
-  try {
-    FileHandle.open(path, flags, mode, options)
-      .then((handle) => callback(null, handle.fd))
-      .catch((err) => callback(err))
-  } catch (err) {
-    callback(err)
-  }
+  FileHandle
+    .open(path, flags, mode, options)
+    .then((handle) => callback(null, handle.fd))
+    .catch((err) => callback(err))
 }
+
 /**
- * @TODO
+ * Asynchronously open a directory calling `callback` upon success or error.
+ * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsreaddirpath-options-callback}
+ * @param {string | Buffer | URL} path
+ * @param {function(err, fd)} callback
  */
 export function opendir (path, options, callback) {
+  if (typeof options === 'function') {
+    callback = options
+    options = {}
+  }
+
+  if (typeof callback !== 'function') {
+    throw new TypeError('callback must be a function.')
+  }
+
+  DirectoryHandle
+    .open(path, options)
+    .then((handle) => callback(null, new Dir(handle, options)))
+    .catch((err) => callback(err))
 }
 
 /**
@@ -335,7 +350,9 @@ export function read (fd, buffer, offset, length, position, options, callback) {
   }
 
   try {
-    FileHandle.from(fd).read({ ...options, buffer, offset, length, position })
+    FileHandle
+      .from(fd)
+      .read({ ...options, buffer, offset, length, position })
       .then(({ bytesRead, buffer }) => callback(null, bytesRead, buffer))
       .catch((err) => callback(err))
   } catch (err) {
@@ -344,9 +361,53 @@ export function read (fd, buffer, offset, length, position, options, callback) {
 }
 
 /**
- * @TODO
+ * Asynchronously read all entries in a directory.
+ * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsreaddirpath-options-callback}
+ * @param {string | Buffer | URL | number } path
+ * @param {object} [options]
+ * @param {function(err, buffer)} callback
  */
 export function readdir (path, options, callback) {
+  if (typeof options === 'function') {
+    callback = options
+    options = {}
+  }
+
+  if (!options || typeof options !== 'object') {
+    options = {}
+  }
+
+  if (typeof callback !== 'function') {
+    throw new TypeError('callback must be a function.')
+  }
+
+  options = {
+    entries: DirectoryHandle.MAX_ENTRIES,
+    withFileTypes: false,
+    ...options
+  }
+
+  DirectoryHandle
+    .open(path, options)
+    .then(async (handle) => {
+      const entries = []
+      const dir = new Dir(handle, options)
+
+      try {
+        for await (const entry of dir.entries(options)) {
+          entries.push(entry)
+        }
+      } catch (err) {
+        return callback(err)
+      } finally {
+        if (!dir.closing && !dir.closed) {
+          dir.close().catch((err) => void err)
+        }
+      }
+
+      callback(null, entries)
+    })
+    .catch((err) => callback(err))
 }
 
 /**
@@ -502,7 +563,7 @@ export function writeFile (path, data, options, callback) {
     throw new TypeError('callback must be a function.')
   }
 
-  visit(path, { flag: 'w', ...options }, async (err, handle) => {
+  visit(path, { flags: 'w', ...options }, async (err, handle) => {
     if (err) {
       callback(err)
       return
@@ -529,6 +590,7 @@ export function writev (fd, buffers, position, callback) {
 export {
   constants,
   Dir,
+  DirectoryHandle,
   Dirent,
   FileHandle,
   promises,

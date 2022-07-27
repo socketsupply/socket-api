@@ -15,9 +15,11 @@ import { Stats } from './stats.js'
 import { F_OK } from './constants.js'
 import * as ipc from '../ipc.js'
 import fds from './fds.js'
+import gc from '../gc.js'
 
-const kOpening = Symbol.for('fs.FileHandle.opening')
-const kClosing = Symbol.for('fs.FileHandle.closing')
+export const kOpening = Symbol.for('fs.FileHandle.opening')
+export const kClosing = Symbol.for('fs.FileHandle.closing')
+export const kClosed = Symbol.for('fs.FileHandle.closed')
 
 /**
  * A container for a descriptor tracked in `fds` and opened in the native layer.
@@ -83,7 +85,7 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * Asynchronously open a file calling `callback` upon success or error.
+   * Asynchronously open a file.
    * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesopenpath-flags-mode}
    * @param {string | Buffer | URL} path
    * @param {?(string)} [flags = 'r']
@@ -125,6 +127,7 @@ export class FileHandle extends EventEmitter {
 
     this[kOpening] = null
     this[kClosing] = null
+    this[kClosed] = false
 
     this.flags = normalizeFlags(options?.flags)
     this.path = options?.path || null
@@ -132,8 +135,10 @@ export class FileHandle extends EventEmitter {
 
     // this id will be used to identify the file handle that is a
     // reference stored in the native side
-    this.id = options.id || String(rand64())
+    this.id = options?.id || String(rand64())
     this.fd = options.fd || null // internal file descriptor
+
+    gc.ref(this)
   }
 
   /**
@@ -159,7 +164,21 @@ export class FileHandle extends EventEmitter {
    */
   get closing () {
     const closing = this[kClosing]
-    return closing?.value !== true
+    return Boolean(closing && closing?.value !== true)
+  }
+
+  /**
+   * `true` if the `FileHandle` is closed.
+   */
+  get closed () {
+    return this[kClosed]
+  }
+
+  async [Symbol.for('gc.finalize')] () {
+    if (this.opened) {
+      console.warn('FileHandle has been garbage collected and therefor closed.')
+      await this.close()
+    }
   }
 
   /**
@@ -171,6 +190,10 @@ export class FileHandle extends EventEmitter {
    * @param {?(object)} [options.signal]
    */
   async appendFile (data, options) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
+
     return await this.writeFile(data, options)
   }
 
@@ -178,12 +201,18 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async chmod (mode) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
   }
 
   /**
    * @TODO
    */
   async chown (uid, gid) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
   }
 
   /**
@@ -200,7 +229,7 @@ export class FileHandle extends EventEmitter {
       return await this[kClosing]
     }
 
-    if (!this.fd || !this.id) {
+    if (!fds.get(this.id)) {
       throw new Error('FileHandle is not opened')
     }
 
@@ -218,10 +247,12 @@ export class FileHandle extends EventEmitter {
 
     this[kClosing].resolve(true)
 
-    this.emit('close')
 
     this[kOpening] = null
     this[kClosing] = null
+    this[kClosed] = true
+
+    this.emit('close')
 
     return true
   }
@@ -230,6 +261,10 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   createReadStream (options) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
+
     const stream = new ReadStream({
       autoClose: options?.autoClose === true,
       ...options,
@@ -253,6 +288,10 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   createWriteStream (options) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
+
     const stream = new WriteStream({
       autoClose: options?.autoClose === true,
       ...options,
@@ -276,12 +315,23 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async datasync () {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
   }
 
   /**
    * @TODO
    */
   async open (options) {
+    if (this.closing) {
+      throw new Error('FileHandle is closing')
+    }
+
+    if (this.closed) {
+      throw new Error('FileHandle is closed')
+    }
+
     if (this.opened) {
       return true
     }
@@ -290,20 +340,19 @@ export class FileHandle extends EventEmitter {
       return await this[kOpening]
     }
 
-    const signal = options?.signal
     const { flags, mode, path, id } = this
 
-    if (signal?.aborted) {
-      throw new AbortError(signal)
+    if (options?.signal?.aborted) {
+      throw new AbortError(options.signal)
     }
 
     this[kOpening] = new InvertedPromise()
 
     const result = await ipc.request('fsOpen', {
-      id: id,
-      flags: flags,
-      mode: mode,
-      path: path
+      id,
+      mode,
+      path,
+      flags
     }, options)
 
     if (result.err) {
@@ -325,6 +374,10 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async read (buffer, offset, length, position, options) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
+
     const { id } = this
 
     let bytesRead = 0
@@ -422,6 +475,10 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async readFile (options) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
+
     const buffers = []
     const signal = options?.signal
     const stream = this.createReadStream(options)
@@ -458,12 +515,19 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async readv (buffers, position) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
   }
 
   /**
    * @TODO
    */
   async stat (options) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
+
     const result = await ipc.request('fsFStat', { ...options, id: this.id })
 
     if (result.err) {
@@ -479,24 +543,37 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async sync () {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
   }
 
   /**
    * @TODO
    */
   async truncate (length) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
   }
 
   /**
    * @TODO
    */
   async utimes (atime, mtime) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
   }
 
   /**
    * @TODO
    */
   async write (buffer, offset, length, position, options) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
+
     let timeout = options?.timeout || null
     let signal = options?.signal || null
 
@@ -571,6 +648,10 @@ export class FileHandle extends EventEmitter {
    * @param {?(object)} [options.signal]
    */
   async writeFile (data, options) {
+    if (this.closing || this.closed) {
+      throw new Error('FileHandle is not opened')
+    }
+
     const signal = options?.signal
     const stream = this.createWriteStream(options)
     const buffer = Buffer.from(data, options?.encoding || 'utf8')
@@ -591,6 +672,7 @@ export class FileHandle extends EventEmitter {
     queueMicrotask(async () => {
       while (buffers.length) {
         const buffer = buffers.shift()
+        if (!buffer.length) break
         if (!stream.write(buffer)) {
           // block until drain
           await new Promise((resolve) => stream.once('drain', resolve))
@@ -608,5 +690,248 @@ export class FileHandle extends EventEmitter {
    * @TODO
    */
   async writev (buffers, position) {
+  }
+}
+
+/**
+ * @TODO
+ */
+export class DirectoryHandle extends EventEmitter {
+  /**
+   * The max number of entries that can be bufferd with the `bufferSize`
+   * option.
+   */
+  static get MAX_BUFFER_SIZE () { return 256 }
+  static get MAX_ENTRIES () { return this.MAX_BUFFER_SIZE }
+
+  /**
+   * The default number of entries `Dirent` that are buffered
+   * for each read request.
+   */
+  static get DEFAULT_BUFFER_SIZE () { return 32 }
+
+  /**
+   * Creates a `FileHandle` from a given `id` or `fd`
+   * @param {string|number|DirectoryHandle|object} id
+   * @return {DirectoryHandle}
+   */
+  static from (id) {
+    if (id?.id) {
+      return this.from(id.id)
+    } else if (id?.fd) {
+      return this.from(id.fd)
+    }
+
+    if (fds.get(id) !== id) {
+      throw new Error('Invalid file descriptor for directory handle.')
+    }
+
+    return new this({ id })
+  }
+
+  /**
+   * Asynchronously open a directory.
+   * @param {string | Buffer | URL} path
+   * @param {?(object)} [options]
+   */
+  static async open (path, options) {
+    const handle = new this({ path })
+
+    if (typeof handle.path !== 'string') {
+      throw new TypeError('Expecting path to be a string, Buffer, or URL.')
+    }
+
+    await handle.open(options)
+
+    return handle
+  }
+
+  /**
+   * `DirectoryHandle` class constructor
+   * @private
+   * @param {object} options
+   */
+  constructor (options) {
+    super()
+
+    // String | Buffer | URL | { toString(): String }
+    if (options?.path && typeof options.path.toString === 'function') {
+      options.path = options.path.toString()
+    }
+
+    this[kOpening] = null
+    this[kClosing] = null
+    this[kClosed] = false
+
+    // this id will be used to identify the file handle that is a
+    // reference stored in the native side
+    this.id = options?.id || String(rand64())
+    this.path = options?.path || null
+
+    // @TODO(jwerle): implement usage of this internally
+    this.bufferSize = Math.min(
+      DirectoryHandle.MAX_BUFFER_SIZE,
+      (typeof options?.bufferSize === 'number' && options.bufferSize) ||
+      DirectoryHandle.DEFAULT_BUFFER_SIZE
+    )
+
+    gc.ref(this)
+  }
+
+  /**
+   * DirectoryHandle file descriptor id
+   */
+  get fd () {
+    return this.id
+  }
+
+  /**
+   * `true` if the `DirectoryHandle` instance has been opened.
+   * @type {boolean}
+   */
+  get opened () {
+    return this.id !== null && this.id === fds.get(this.id)
+  }
+
+  /**
+   * `true` if the `DirectoryHandle` is opening.
+   * @type {boolean}
+   */
+  get opening () {
+    const opening = this[kOpening]
+    return opening?.value !== true
+  }
+
+  /**
+   * `true` if the `DirectoryHandle` is closing.
+   * @type {boolean}
+   */
+  get closing () {
+    const closing = this[kClosing]
+    return Boolean(closing && closing?.value !== true)
+  }
+
+  /**
+   * `true` if `DirectoryHandle` is closed.
+   */
+  get closed () {
+    return this[kClosed]
+  }
+
+  async [Symbol.for('gc.finalize')] () {
+    if (this.opened) {
+      console.warn('DirectoryHandle has been garbage collected and therefor closed.')
+      await this.close()
+    }
+  }
+
+  /**
+   * Opens the underlying handle for a directory.
+   * @param {?(object)} options
+   */
+  async open (options) {
+    if (this.opened) {
+      return true
+    }
+
+    if (this[kOpening]) {
+      return await this[kOpening]
+    }
+
+    const { path, id } = this
+
+    if (options?.signal?.aborted) {
+      throw new AbortError(options.signal)
+    }
+
+    this[kOpening] = new InvertedPromise()
+
+    const result = await ipc.request('fsOpendir', { id, path }, options)
+
+    if (result.err) {
+      return this[kOpening].reject(result.err)
+    }
+
+    // directory file descriptors are not accessible because
+    // `dirfd` is not portable on the native side
+    fds.set(this.id, this.id)
+
+    this[kOpening].resolve(true)
+
+    this.emit('open', this.fd)
+
+    return true
+  }
+
+  /**
+   * Close underlying directory handle
+   * @param {?(object)} [options]
+   */
+  async close (options) {
+    // wait for opening to finish before proceeding to close
+    if (this[kOpening]) {
+      await this[kOpening]
+    }
+
+    if (this[kClosing]) {
+      return await this[kClosing]
+    }
+
+    if (!fds.get(this.id)) {
+      throw new Error('DirectoryHandle is not opened')
+    }
+
+    const { id  } = this
+
+    if (options?.signal?.aborted) {
+      throw new AbortError(options.signal)
+    }
+
+    this[kClosing] = new InvertedPromise()
+
+    const result = await ipc.request('fsClosedir', { id, }, options)
+
+    if (result.err) {
+      return this[kClosing].reject(result.err)
+    }
+
+    fds.release(this.id)
+
+    this[kClosing].resolve(true)
+
+    this[kOpening] = null
+    this[kClosing] = null
+    this[kClosed] = true
+
+    this.emit('close')
+
+    return true
+  }
+
+  async read (options) {
+    if (this[kOpening]) {
+      await this[kOpening]
+    }
+
+    if (this.closing || this.closed) {
+      throw new Error('DirectoryHandle is not opened')
+    }
+
+    const { id } = this
+
+    if (options?.signal?.aborted) {
+      throw new AbortError(options.signal)
+    }
+
+    const result = await ipc.request('fsReaddir', {
+      id,
+      entries: options?.entries || 1
+    }, options)
+
+    if (result.err) {
+      throw result.err
+    }
+
+    return result.data.entries
   }
 }
