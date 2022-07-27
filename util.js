@@ -59,12 +59,14 @@ export function InvertedPromise () {
     Object.assign(context, {
       resolve (value) {
         promise.value = value
-        return resolve(value)
+        resolve(value)
+        return promise
       },
 
       reject (error) {
         promise.error = error
-        return reject(error)
+        reject(error)
+        return promise
       }
     })
   })
