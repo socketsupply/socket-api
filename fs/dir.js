@@ -18,6 +18,20 @@ function checkDirentType (dirent, property) {
 }
 
 /**
+ * Sorts directory entries
+ * @param {string|Dirent} a
+ * @param {string|Dirent} b
+ * @return {number}
+ */
+export function sortDirectoryEntries (a, b) {
+  if (a instanceof Dirent) {
+    return sortDirectoryEntries(a.name, b.name)
+  }
+
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
+/**
  * A containerr for a directory and its entries. This class supports scanning
  * a directory entry by entry with a `read()` method. The `Symbol.asyncIterator`
  * interface is exposed along with an AsyncGenerator `entries()` method.
@@ -94,16 +108,17 @@ export class Dir {
         } else {
           result.name = Buffer.from(result.name).toString(this.encoding)
         }
-        return result
-      }
-
-      result = result.name
-
-      if (this.encoding === 'buffer') {
-        result = Buffer.from(result)
       } else {
-        result = Buffer.from(result).toString(this.encoding)
+        result = result.name
+
+        if (this.encoding === 'buffer') {
+          result = Buffer.from(result)
+        } else {
+          result = Buffer.from(result).toString(this.encoding)
+        }
       }
+
+      return result
     })
 
     if (results.length <= 1) {

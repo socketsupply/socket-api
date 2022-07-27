@@ -1,5 +1,5 @@
 import { DirectoryHandle, FileHandle } from './handle.js'
-import { Dir } from './dir.js'
+import { Dir, sortDirectoryEntries } from './dir.js'
 
 async function visit (path, options, callback) {
   if (typeof options === 'function') {
@@ -131,7 +131,7 @@ export async function readdir (path, options) {
 
   await dir.close()
 
-  return entries
+  return entries.sort(sortDirectoryEntries)
 }
 
 /**

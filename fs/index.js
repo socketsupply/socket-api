@@ -1,7 +1,7 @@
+import { Dir, Dirent, sortDirectoryEntries } from './dir.js'
 import { DirectoryHandle, FileHandle } from './handle.js'
 import { ReadStream, WriteStream } from './stream.js'
 import { isBufferLike, isFunction } from '../util.js'
-import { Dir, Dirent } from './dir.js'
 import * as constants from './constants.js'
 import * as promises from './promises.js'
 import { Stats } from './stats.js'
@@ -405,7 +405,7 @@ export function readdir (path, options, callback) {
         }
       }
 
-      callback(null, entries)
+      callback(null, entries.sort(sortDirectoryEntries))
     })
     .catch((err) => callback(err))
 }
