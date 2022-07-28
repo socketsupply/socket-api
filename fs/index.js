@@ -6,6 +6,7 @@ import * as constants from './constants.js'
 import * as promises from './promises.js'
 import { Stats } from './stats.js'
 import * as ipc from '../ipc.js'
+import fds from './fds.js'
 
 export * from './stream.js'
 
@@ -592,6 +593,7 @@ export {
   Dir,
   DirectoryHandle,
   Dirent,
+  fds,
   FileHandle,
   promises,
   ReadStream,
