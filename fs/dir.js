@@ -1,3 +1,4 @@
+import { DirectoryHandle } from './handle.js'
 import { Buffer } from 'buffer'
 import { Stats } from './stats.js'
 import {
@@ -38,6 +39,14 @@ export function sortDirectoryEntries (a, b) {
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#class-fsdir}
  */
 export class Dir {
+  static from (fdOrHandle, options) {
+    if (fdOrHandle instanceof DirectoryHandle) {
+      return new this(fdOrHandle, options)
+    }
+
+    return new this(DirectoryHandle.from(fdOrHandle, options), options)
+  }
+
   /**
    * `Dir` class constructor.
    * @param {DirectoryHandle} handle
