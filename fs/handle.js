@@ -138,7 +138,7 @@ export class FileHandle extends EventEmitter {
     this.id = options?.id || String(rand64())
     this.fd = options?.fd || null // internal file descriptor
 
-    gc.ref(this)
+    gc.ref(this, options)
   }
 
   /**
@@ -174,10 +174,14 @@ export class FileHandle extends EventEmitter {
     return this[kClosed]
   }
 
-  async [Symbol.for('gc.finalize')] () {
-    if (this.opened) {
-      console.warn('FileHandle has been garbage collected and therefor closed.')
-      await this.close()
+  [gc.finalizer] (options) {
+    return {
+      args: [this.id, options],
+      async handle (id) {
+        console.warn('Closing FileHandle on garbage collection')
+        await ipc.request('fsClosedir', { id }, options)
+        fds.release(id)
+      }
     }
   }
 
@@ -361,7 +365,7 @@ export class FileHandle extends EventEmitter {
 
     this.fd = result.data.fd
 
-    fds.set(this.id, this.fd)
+    fds.set(this.id, this.fd, 'file')
 
     this[kOpening].resolve(true)
 
@@ -694,7 +698,8 @@ export class FileHandle extends EventEmitter {
 }
 
 /**
- * @TODO
+ * A container for a directory handle tracked in `fds` and opened in the
+ * native layer.
  */
 export class DirectoryHandle extends EventEmitter {
   /**
@@ -775,7 +780,7 @@ export class DirectoryHandle extends EventEmitter {
       DirectoryHandle.DEFAULT_BUFFER_SIZE
     )
 
-    gc.ref(this)
+    gc.ref(this, options)
   }
 
   /**
@@ -818,10 +823,14 @@ export class DirectoryHandle extends EventEmitter {
     return this[kClosed]
   }
 
-  async [Symbol.for('gc.finalize')] () {
-    if (this.opened) {
-      console.warn('DirectoryHandle has been garbage collected and therefor closed.')
-      await this.close()
+  [gc.finalizer] (options) {
+    return {
+      args: [this.id, options],
+      async handle (id) {
+        console.warn('Closing DirectoryHandle on garbage collection')
+        await ipc.request('fsClosedir', { id }, options)
+        fds.release(id)
+      }
     }
   }
 
@@ -854,7 +863,7 @@ export class DirectoryHandle extends EventEmitter {
 
     // directory file descriptors are not accessible because
     // `dirfd` is not portable on the native side
-    fds.set(this.id, this.id)
+    fds.set(this.id, this.id, 'directory')
 
     this[kOpening].resolve(true)
 
