@@ -1,15 +1,38 @@
+import { FinalizationRegistryCallbackError } from './errors.js'
+
 if (typeof FinalizationRegistry === 'undefined') {
-  console.warn('FinalizationRegistry is not implemented in this environment')
+  console.warn(
+    'FinalizationRegistry is not implemented in this environment. ' +
+    'gc.ref() will have no effect.'
+  )
   class FinalizationRegistry {}
 }
 
-// static held value to persist bound `Finalizer#handle()` function from being
-// gc'd before the `FinalizationRegistry` callback is called because the
-// finalizer()` must be strongly (retain) held
-const scope = Object.create(null)
 export const finalizers = new WeakMap()
 export const kFinalizer = Symbol.for('gc.finalizer')
 export const finalizer = kFinalizer
+export const pool = new Set()
+
+let pending = 0
+
+// retained value to persist bound `Finalizer#handle()` function from being
+// gc'd before the `FinalizationRegistry` callback is called because the
+// finalizer()` must be strongly (retain) held
+const gc = Object.freeze(Object.create(null, Object.getOwnPropertyDescriptors({
+  ref,
+  pool,
+  unref,
+  retain,
+  release,
+  registry,
+  finalize,
+  finalizer,
+  finalizers,
+
+  get refs () { return pending }
+})))
+
+export default gc
 
 /**
  * Internal `FinalizationRegistry` callback.
@@ -21,7 +44,15 @@ async function finalizationRegistryCallback (finalizer) {
     try {
       await finalizer.handle(...finalizer.args)
     } catch (err) {
-      consoel.warn('FinalizationRegistry:', err.message)
+      err = new FinalizationRegistryCallbackError(err.message, {
+        cause: err
+      })
+
+      if (typeof Error.captureStackTrace === 'function') {
+        Error.captureStackTrace(err, finalizationRegistryCallback)
+      }
+
+      console.warn(err.name, err.message, err.stack, err.cause)
     }
 
     finalizer = undefined
@@ -70,7 +101,7 @@ export class Finalizer {
    */
   constructor (args, handle) {
     this.args = args
-    this.handle = handle.bind(scope)
+    this.handle = handle.bind(gc)
   }
 }
 
@@ -83,8 +114,14 @@ export class Finalizer {
 export async function ref (object, ...args) {
   if (object && typeof object[kFinalizer] === 'function') {
     const finalizer = Finalizer.from(await object[kFinalizer](...args))
-    finalizers.set(object, new WeakRef(finalizer))
+    const weakRef  = new WeakRef(finalizer)
+
+    finalizers.set(object, weakRef)
+    pool.add(weakRef)
+
     registry.register(object, finalizer, object)
+
+    pending++;
   }
 
   return finalizers.has(object)
@@ -102,8 +139,15 @@ export function unref (object) {
   }
 
   if (typeof object[kFinalizer] === 'function' && finalizers.has(object)) {
+    const weakRef = finalizers.get(object)
+
+    if (weakRef) {
+      pool.delete(weakRef)
+    }
+
     finalizers.delete(object)
     registry.unregister(object)
+    pending--;
     return true
   }
 
@@ -128,6 +172,7 @@ export async function finalize (object, ...args) {
   const finalizer = finalizers.get(object)?.deref()
 
   registry.unregister(object)
+
   if (finalizer instanceof Finalizer && await unref(object)) {
     await finalizationRegistryCallback(finalizer)
     return true
@@ -140,12 +185,14 @@ export async function finalize (object, ...args) {
   return false
 }
 
-export default {
-  ref,
-  unref,
-  retain,
-  registry,
-  finalize,
-  finalizer,
-  finalizers
+/**
+ * Calls all pending finalization handlers forcefully. This function
+ * may have unintended consequences as objects be considered finalized
+ * and still strongly held (retained) somewhere.
+ */
+export async function release () {
+  for (const weakRef of pool) {
+    await finalizationRegistryCallback(weakRef?.deref?.())
+    pool.delete(weakRef)
+  }
 }
