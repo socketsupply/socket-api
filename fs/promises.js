@@ -55,7 +55,7 @@ export async function chown (path, uid, gid) {
 /**
  * @TODO
  */
-export async function copyFile (src, dest, mode) {
+export async function copyFile (src, dst, mode) {
 }
 
 /**

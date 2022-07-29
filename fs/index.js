@@ -122,7 +122,7 @@ export function close (fd, callback) {
 /**
  * @TODO
  */
-export function copyFile (src, dest, mode, callback) {
+export function copyFile (src, dst, mode, callback) {
 }
 
 /**
