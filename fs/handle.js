@@ -868,6 +868,10 @@ export class DirectoryHandle extends EventEmitter {
     return this[kClosed]
   }
 
+  /**
+   * Implements `gc.finalizer` for gc'd resource cleanup.
+   * @return {gc.Finalizer}
+   */
   [gc.finalizer] (options) {
     return {
       args: [this.id, options],
