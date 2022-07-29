@@ -10,6 +10,8 @@ const cache = {
 }
 
 export function arch () {
+  let value = UNKNOWN
+
   if (cache.arch !== UNKNOWN) {
     return cache.arch
   }
@@ -20,11 +22,13 @@ export function arch () {
     }
   }
 
-  const value = (
-    window.process?.arch ||
-    ipc.sendSync('getPlatformArch')?.data ||
-    UNKNOWN
-  )
+  if (typeof window === 'object') {
+    value = (
+      window.process?.arch ||
+      ipc.sendSync('getPlatformArch')?.data ||
+      UNKNOWN
+    )
+  }
 
   if (value === 'arm64') {
     return value
@@ -106,6 +110,8 @@ export function networkInterfaces () {
 }
 
 export function platform () {
+  let value = UNKNOWN
+
   if (cache.platform !== UNKNOWN) {
     return cache.platform
   }
@@ -116,19 +122,23 @@ export function platform () {
     }
   }
 
-  cache.platform = (
-    window.process?.os ||
-    ipc.sendSync('getPlatformOS')?.data ||
-    window.process?.platform ||
-    UNKNOWN
-  )
+  if (typeof window === 'object') {
+    value = (
+      window.process?.os ||
+      ipc.sendSync('getPlatformOS')?.data ||
+      window.process?.platform ||
+      UNKNOWN
+    )
+  }
 
-  cache.platform = cache.platform.replace(/^mac/i, 'darwin')
+  cache.platform = value.replace(/^mac/i, 'darwin')
 
   return cache.platform
 }
 
 export function type () {
+  let value = 'unknown'
+
   if (cache.type !== UNKNOWN) {
     return cache.type
   }
@@ -136,20 +146,26 @@ export function type () {
   if (typeof window !== 'object') {
     switch (platform()) {
       case 'linux': return 'Linux'
-      case 'mac': case 'darnwin': return 'Darwin'
+      case 'mac': case 'darwin': return 'Darwin'
       case 'win32': return 'Windows' // Windows_NT?
     }
   }
 
-  const value = (
-    window.process?.platform ||
-    ipc.sendSync('getPlatformType')?.data ||
-    UNKNOWN
-  )
+  if (typeof window == 'object') {
+    value = (
+      window.process?.platform ||
+      ipc.sendSync('getPlatformType')?.data ||
+      UNKNOWN
+    )
+  }
+
+  if (value !== UNKNOWN) {
+    value = toProperCase(value)
+  }
 
   cache.type = value
 
-  return toProperCase(cache.type)
+  return cache.type
 }
 
 export const EOL = (() => {
