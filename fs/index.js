@@ -364,7 +364,7 @@ export function read (fd, buffer, offset, length, position, options, callback) {
 /**
  * Asynchronously read all entries in a directory.
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsreaddirpath-options-callback}
- * @param {string | Buffer | URL | number } path
+ * @param {string | Buffer | URL } path
  * @param {object} [options]
  * @param {function(err, buffer)} callback
  */

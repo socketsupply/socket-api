@@ -53,7 +53,7 @@ export class Dir {
    * @param {?(object)} options
    */
   constructor (handle, options) {
-    this.path = handle?.path || null
+    this.path = handle?.path ?? null
     this.handle = handle
     this.encoding = options?.encoding || 'utf8'
     this.withFileTypes = options?.withFileTypes === false ? false : true
@@ -202,7 +202,7 @@ export class Dirent {
       return new this(name?.name, name?.type)
     }
 
-    return new this(name, type || Dirent.UNKNOWN)
+    return new this(name, type ?? Dirent.UNKNOWN)
   }
 
   /**
@@ -211,8 +211,8 @@ export class Dirent {
    * @param {string|number} type
    */
   constructor (name, type) {
-    this.name = name || null
-    this[kType] = parseInt(type || Dirent.UNKNOWN)
+    this.name = name ?? null
+    this[kType] = parseInt(type ?? Dirent.UNKNOWN)
   }
 
   /**
