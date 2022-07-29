@@ -55,7 +55,7 @@ export class AbortError extends Error {
  */
 export class EncodingError extends Error {
   /**
-   * The code given to an `NOT_FOUND_ERR` `DOMException`
+   * The code given to an `ENCODING_ERR` `DOMException`.
    */
   static get code () { return ENCODING_ERR }
 
@@ -78,6 +78,38 @@ export class EncodingError extends Error {
 
   get code () {
     return 'ENCODING_ERR'
+  }
+}
+
+/**
+ * An `FinalizationRegistryCallbackError` is an error type thrown when an internal exception
+ * has occurred, such as in the native IPC layer.
+ */
+export class FinalizationRegistryCallbackError extends Error {
+  /**
+   * The default code given to an `FinalizationRegistryCallbackError`
+   */
+  static get code () { return 0 }
+
+  /**
+   * `FinalizationRegistryCallbackError` class constructor.
+   * @param {string} message
+   * @param {number} [code]
+   */
+  constructor (message, ...args) {
+    super(message, ...args)
+
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, FinalizationRegistryCallbackError)
+    }
+  }
+
+  get name () {
+    return 'FinalizationRegistryCallbackError'
+  }
+
+  get code () {
+    return 'FINALIZATION_REGISTRY_CALLBACK_ERR'
   }
 }
 
