@@ -16,7 +16,6 @@ export const kFinalizer = Symbol.for('gc.finalizer')
  * is called at any time.
  */
 export const registry = new FinalizationRegistry(async (finalizer) => {
-  console.log('finalizer callback', finalizer)
   if (typeof finalizer.handle === 'function') {
     try {
       await finalizer.handle(...finalizer.args)
@@ -96,7 +95,7 @@ export function unref (object) {
 
   if (typeof object[kFinalizer] === 'function' && finalizers.has(object)) {
     finalizers.delete(object)
-    register.unregister(object)
+    registry.unregister(object)
     return true
   }
 
