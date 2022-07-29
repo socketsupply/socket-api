@@ -6,6 +6,14 @@ export function isTypedArray (object) {
   return object instanceof TypedArray
 }
 
+export function isEmptyObject (object) {
+  return (
+    object !== null &&
+    typeof object === 'object' &&
+    Object.keys(object).length === 0
+  )
+}
+
 export function isBufferLike (object) {
   return isTypedArray(object) || Buffer.isBuffer(object)
 }
