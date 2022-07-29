@@ -96,7 +96,21 @@ export const ERROR = 1
  */
 export const TIMEOUT = 32 * 1000
 
-const kDebugEnabled = Symbol.for('ipc.debug.enabled')
+/**
+ * Symbol for the `ipc.debug.enabled` property
+ */
+export const kDebugEnabled = Symbol.for('ipc.debug.enabled')
+
+/**
+ * Parses `seq` as integer value
+ * @param {string|number} seq
+ * @param {?(object)} [options]
+ * @param {boolean} [options.bigint = false]
+ */
+export function parseSeq (seq, options) {
+  const value = String(seq).replace(/^R/i, '').replace(/n$/, '')
+  return options?.bigint === true ? BigInt(value) : parseInt(value)
+}
 
 /**
  * If `debug.enabled === true`, then debug output will be printed to console.
@@ -468,7 +482,7 @@ export async function request (command, data, options) {
 
     if (event.detail?.data) {
       const { data, params } = event.detail
-      if (parseInt(params.seq) === parseInt(seq)) {
+      if (parseSeq(params.seq) === parseSeq(seq)) {
         cleanup()
         resolve(seq, OK, { data })
       }
