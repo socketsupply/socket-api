@@ -153,7 +153,7 @@ export class Socket extends EventEmitter {
 
     const {
       err: errReadStart
-    } = await window._ipc.send('updReadStart', { serverId: this.serverId })
+    } = await window._ipc.send('udpReadStart', { serverId: this.serverId })
 
     if (errReadStart) {
       if (cb) return cb(errReadStart)
