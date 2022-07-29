@@ -83,7 +83,7 @@ export function InvertedPromise () {
 }
 
 export function clamp (value, min, max) {
-  if (Number.isNaN(value) || typeof value !== 'number' || !Number.isFinite(value)) {
+  if (!Number.isFinite(value)) {
     value = min
   }
 
