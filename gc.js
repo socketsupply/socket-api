@@ -9,6 +9,7 @@ if (typeof FinalizationRegistry === 'undefined') {
 const scope = Object.create(null)
 export const finalizers = new WeakMap()
 export const kFinalizer = Symbol.for('gc.finalizer')
+export const finalizer = kFinalizer
 
 /**
  * Internal `FinalizationRegistry` callback.
@@ -16,9 +17,12 @@ export const kFinalizer = Symbol.for('gc.finalizer')
  * @param {Finalizer} finalizer
  */
 async function finalizationRegistryCallback (finalizer) {
+  console.log('finalizer', finalizer)
   if (typeof finalizer.handle === 'function') {
     try {
+      console.log('before handle')
       await finalizer.handle(...finalizer.args)
+      console.log('after handle')
     } catch (err) {
       consoel.warn('FinalizationRegistry:', err.message)
     }
@@ -50,7 +54,7 @@ export class Finalizer {
 
     let { handle , args } = handler
 
-    if (typeof handle === 'function') {
+    if (typeof handle !== 'function') {
       handle = () => void 0
     }
 
@@ -123,11 +127,11 @@ export function retain (object) {
  * @param {object} object]
  * @return {Promise<boolean>}
  */
-export async function finalize (object) {
-  const finalizer = finalizers.get(object)
+export async function finalize (object, ...args) {
+  const finalizer = finalizers.get(object)?.deref()
 
   registry.unregister(object)
-  if (finalizers && await unref(object)) {
+  if (finalizer instanceof Finalizer && await unref(object)) {
     await finalizationRegistryCallback(finalizer)
     return true
   } else {
@@ -145,6 +149,6 @@ export default {
   retain,
   registry,
   finalize,
-  finalizers,
-  finalizer: kFinalizer
+  finalizer,
+  finalizers
 }

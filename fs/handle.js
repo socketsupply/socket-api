@@ -876,6 +876,7 @@ export class DirectoryHandle extends EventEmitter {
     return {
       args: [this.id, options],
       async handle (id) {
+        console.log('in handle', id, fds.has(id))
         if (fds.has(id)) {
           console.warn('Closing DirectoryHandle on garbage collection')
           await ipc.request('fsClosedir', { id }, options)
