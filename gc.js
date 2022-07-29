@@ -8,17 +8,28 @@ if (typeof FinalizationRegistry === 'undefined') {
   class FinalizationRegistry {}
 }
 
+// total finalizer refs pending
+let pending = 0
+
 export const finalizers = new WeakMap()
 export const kFinalizer = Symbol.for('gc.finalizer')
 export const finalizer = kFinalizer
 export const pool = new Set()
 
-let pending = 0
+/**
+ * Static registry for objects to clean up underlying resources when they
+ * are gc'd by the environment. There is no guarantee that the `finalizer()`
+ * is called at any time.
+ */
+export const registry = new FinalizationRegistry(finalizationRegistryCallback)
 
-// retained value to persist bound `Finalizer#handle()` function from being
-// gc'd before the `FinalizationRegistry` callback is called because the
-// finalizer()` must be strongly (retain) held
-const gc = Object.freeze(Object.create(null, Object.getOwnPropertyDescriptors({
+/**
+ * Default exports which also acts a retained value to persist bound
+ * `Finalizer#handle()` functions from being gc'd before the
+ * `FinalizationRegistry` callback is called because `heldValue` must be
+ * strongly held (retained) in order for the callback to be called.
+ */
+export const gc = Object.freeze(Object.create(null, Object.getOwnPropertyDescriptors({
   ref,
   pool,
   unref,
@@ -32,6 +43,7 @@ const gc = Object.freeze(Object.create(null, Object.getOwnPropertyDescriptors({
   get refs () { return pending }
 })))
 
+// `gc` is also the default export
 export default gc
 
 /**
@@ -58,13 +70,6 @@ async function finalizationRegistryCallback (finalizer) {
     finalizer = undefined
   }
 }
-
-/**
- * Static registry for objects to clean up underlying resources when they
- * are gc'd by the environment. There is no guarantee that the `finalizer()`
- * is called at any time.
- */
-export const registry = new FinalizationRegistry(finalizationRegistryCallback)
 
 /**
  * A container for strongly (retain) referenced finalizer function
