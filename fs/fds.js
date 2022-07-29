@@ -25,19 +25,27 @@ export default new class FileDescriptorsMap {
         set.call(window.process.openFds, id, entry)
       }
 
-      window.process.openFds.delete = (id) => {
+      window.process.openFds.delete = (id, ...args) => {
         this.delete(id)
-        del.call(window.process.openFds, id)
+        try {
+          del.call(window.process.openFds, id, ...args)
+        } catch (err) {
+          console.warn(err)
+        }
       }
 
-      window.process.openFds.clear = (id) => {
+      window.process.openFds.clear = (id, ...args) => {
         const ids = window.process.openFds.keys()
 
         for (const id of ids) {
           this.delete(id)
         }
 
-        clear.call(window.process.openFds, id)
+        try {
+          clear.call(window.process.openFds, id, ...args)
+        } catch (err) {
+          console.warn(err)
+        }
       }
     }
   }
@@ -54,6 +62,7 @@ export default new class FileDescriptorsMap {
     this.fds.set(id, fd)
     this.ids.set(fd, id)
     this.types.set(id, type)
+    this.types.set(fd, type)
   }
 
   setEntry (id, entry) {
@@ -70,8 +79,13 @@ export default new class FileDescriptorsMap {
 
   release (id) {
     const fd = this.fds.get(id)
+
     this.fds.delete(id)
+    this.fds.delete(fd)
+
     this.ids.delete(fd)
+    this.ids.delete(id)
+
     this.types.delete(id)
     this.types.delete(fd)
   }
