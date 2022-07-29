@@ -17,12 +17,9 @@ export const finalizer = kFinalizer
  * @param {Finalizer} finalizer
  */
 async function finalizationRegistryCallback (finalizer) {
-  console.log('finalizer', finalizer)
   if (typeof finalizer.handle === 'function') {
     try {
-      console.log('before handle')
       await finalizer.handle(...finalizer.args)
-      console.log('after handle')
     } catch (err) {
       consoel.warn('FinalizationRegistry:', err.message)
     }
