@@ -65,6 +65,10 @@ export default new class FileDescriptorsMap {
     this.types.set(fd, type)
   }
 
+  has (id) {
+    return this.fds.has(id) || this.ids.has(id)
+  }
+
   setEntry (id, entry) {
     if (entry.fd.length > 16) {
       this.set(id, entry.fd)
