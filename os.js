@@ -123,6 +123,8 @@ export function platform () {
     UNKNOWN
   )
 
+  cache.platform = cache.platform.replace(/^mac/i, 'darwin')
+
   return cache.platform
 }
 
@@ -134,7 +136,7 @@ export function type () {
   if (typeof window !== 'object') {
     switch (platform()) {
       case 'linux': return 'Linux'
-      case 'darnwin': return 'Darwin'
+      case 'mac': case 'darnwin': return 'Darwin'
       case 'win32': return 'Windows' // Windows_NT?
     }
   }
