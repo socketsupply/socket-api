@@ -4,7 +4,8 @@ import {
   isTypedArray,
   isEmptyObject,
   splitBuffer,
-  rand64
+  rand64,
+  clamp
 } from '../util.js'
 
 import { ReadStream, WriteStream } from './stream.js'
@@ -175,6 +176,10 @@ export class FileHandle extends EventEmitter {
     return this[kClosed]
   }
 
+  /**
+   * Implements `gc.finalizer` for gc'd resource cleanup.
+   * @return {gc.Finalizer}
+   */
   [gc.finalizer] (options) {
     return {
       args: [this.id, options],
@@ -205,18 +210,23 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Change permissions of file handle.
+   * @param {number} mode
+   * @param {?(object)} [options]
    */
-  async chmod (mode) {
+  async chmod (mode, options) {
     if (this.closing || this.closed) {
       throw new Error('FileHandle is not opened')
     }
   }
 
   /**
-   * @TODO
+   * Change ownership of file handle.
+   * @param {number} uid
+   * @param {number} gid
+   * @param {?(object)} [options]
    */
-  async chown (uid, gid) {
+  async chown (uid, gid, options) {
     if (this.closing || this.closed) {
       throw new Error('FileHandle is not opened')
     }
@@ -266,7 +276,8 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Creates a `ReadStream` for the underlying file.
+   * @param {?(object)} [options]
    */
   createReadStream (options) {
     if (this.closing || this.closed) {
@@ -293,7 +304,8 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Creates a `WriteStream` for the underlying file.
+   * @param {?(object)} [options]
    */
   createWriteStream (options) {
     if (this.closing || this.closed) {
@@ -321,6 +333,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * @TODO
+   * @param {?(object)} [options]
    */
   async datasync () {
     if (this.closing || this.closed) {
@@ -329,7 +342,8 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Opens the underlying descriptor for the file handle.
+   * @param {?(object)} [options]
    */
   async open (options) {
     if (this.closing) {
@@ -379,7 +393,13 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Reads `length` bytes starting from `position` into `buffer` at
+   * `offset`.
+   * @param {Buffer|object} buffer
+   * @param {number} offset
+   * @param {number} length
+   * @param {number} position
+   * @param {?(object)} [options]
    */
   async read (buffer, offset, length, position, options) {
     if (this.closing || this.closed) {
@@ -485,7 +505,11 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Reads the entire contents of a file and returns it as a buffer or a string
+   * specified of a given encoding specified at `options.encoding`.
+   * @param {?(object)} [options]
+   * @param {?(string)} [options.encoding = 'utf8']
+   * @param {?(object)} [options.signal]
    */
   async readFile (options) {
     if (this.closing || this.closed) {
@@ -526,6 +550,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * @TODO
+   * @param {?(object)} [options]
    */
   async readv (buffers, position) {
     if (this.closing || this.closed) {
@@ -534,7 +559,8 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Returns the stats of the underlying file.
+   * @param {?(object)} [options]
    */
   async stat (options) {
     if (this.closing || this.closed) {
@@ -554,6 +580,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * @TODO
+   * @param {?(object)} [options]
    */
   async sync () {
     if (this.closing || this.closed) {
@@ -563,6 +590,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * @TODO
+   * @param {?(object)} [options]
    */
   async truncate (length) {
     if (this.closing || this.closed) {
@@ -572,6 +600,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * @TODO
+   * @param {?(object)} [options]
    */
   async utimes (atime, mtime) {
     if (this.closing || this.closed) {
@@ -580,7 +609,13 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
+   * Writes `length` bytes at `offset` in `buffer` to the underlying file
+   * at `position`.
+   * @param {Buffer|object} buffer
+   * @param {number} offset
+   * @param {number} length
+   * @param {number} position
+   * @param {?(object)} [options]
    */
   async write (buffer, offset, length, position, options) {
     if (this.closing || this.closed) {
@@ -701,6 +736,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * @TODO
+   * @param {?(object)} [options]
    */
   async writev (buffers, position) {
   }
@@ -929,6 +965,10 @@ export class DirectoryHandle extends EventEmitter {
     return true
   }
 
+  /**
+   * Reads
+   * @param {?(object)} [options]
+   */
   async read (options) {
     if (this[kOpening]) {
       await this[kOpening]
@@ -938,15 +978,16 @@ export class DirectoryHandle extends EventEmitter {
       throw new Error('DirectoryHandle is not opened')
     }
 
-    const { id } = this
-
     if (options?.signal?.aborted) {
       throw new AbortError(options.signal)
     }
 
+    const entries = clamp(options.entries, 1, DirectoryHandle.MAX_ENTRIES)
+    const { id } = this
+
     const result = await ipc.request('fsReaddir', {
       id,
-      entries: options?.entries || 1
+      entries
     }, options)
 
     if (result.err) {
