@@ -81,3 +81,11 @@ export function InvertedPromise () {
 
   return Object.assign(promise, context)
 }
+
+export function clamp (value, min, max) {
+  if (Number.isNaN(value) || typeof value !== 'number' || !Number.isFinite(value)) {
+    value = min
+  }
+
+  return Math.min(max, Math.max(min, value))
+}
