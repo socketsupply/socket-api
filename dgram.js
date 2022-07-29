@@ -45,9 +45,9 @@ export class Socket extends EventEmitter {
     this.connect()
   }
 
-  async _getSockData () {
+  async _getSockData ({ id }) {
     const { err, data } = await window._ipc.send('udpGetSockName', {
-      id: this.clientId
+      id: id || this.clientId
     })
 
     if (err) return { err }
@@ -86,12 +86,6 @@ export class Socket extends EventEmitter {
       options = { ...arg1 }
     } else {
       throw new Error('invalid arguments')
-    }
-
-    if (this.clientId) {
-      const err = new Error('already bound')
-      if (cb) return cb(err)
-      return { err }
     }
 
     function removeListeners () {
@@ -141,7 +135,7 @@ export class Socket extends EventEmitter {
     }
 
     const { data: sockData } = await this._getSockData({
-      connectionId: this.serverId
+      id: this.serverId
     })
 
     this._address = sockData.address
