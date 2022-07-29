@@ -8,9 +8,6 @@ if (typeof FinalizationRegistry === 'undefined') {
   class FinalizationRegistry {}
 }
 
-// total finalizer refs pending
-let pending = 0
-
 export const finalizers = new WeakMap()
 export const kFinalizer = Symbol.for('gc.finalizer')
 export const finalizer = kFinalizer
@@ -40,7 +37,7 @@ export const gc = Object.freeze(Object.create(null, Object.getOwnPropertyDescrip
   finalizer,
   finalizers,
 
-  get refs () { return pending }
+  get refs () { return pool.size }
 })))
 
 // `gc` is also the default export
@@ -67,8 +64,20 @@ async function finalizationRegistryCallback (finalizer) {
       console.warn(err.name, err.message, err.stack, err.cause)
     }
 
-    finalizer = undefined
   }
+
+  for (const weakRef of pool) {
+    if (weakRef instanceof WeakRef) {
+      const ref = weakRef.deref()
+      if (ref && ref !== finalizer) {
+        continue
+      }
+    }
+
+    pool.delete(weakRef)
+  }
+
+  finalizer = undefined
 }
 
 /**
@@ -125,8 +134,6 @@ export async function ref (object, ...args) {
     pool.add(weakRef)
 
     registry.register(object, finalizer, object)
-
-    pending++;
   }
 
   return finalizers.has(object)
@@ -152,7 +159,6 @@ export function unref (object) {
 
     finalizers.delete(object)
     registry.unregister(object)
-    pending--;
     return true
   }
 
