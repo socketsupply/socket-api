@@ -5,17 +5,17 @@ if (typeof FinalizationRegistry === 'undefined') {
 
 // static held value to persist bound `Finalizer#handle()` function from being
 // gc'd before the `FinalizationRegistry` callback is called because the
-// finalizer()` must be strongly held
+// finalizer()` must be strongly (retain) held
 const scope = Object.create(null)
 export const finalizers = new WeakMap()
 export const kFinalizer = Symbol.for('gc.finalizer')
 
 /**
- * Static registry for objects to clean up underlying resources when they
- * are gc'd by the environment. There is no guarantee that the `finalizer()`
- * is called at any time.
+ * Internal `FinalizationRegistry` callback.
+ * @private
+ * @param {Finalizer} finalizer
  */
-export const registry = new FinalizationRegistry(async (finalizer) => {
+async function finalizationRegistryCallback (finalizer) {
   if (typeof finalizer.handle === 'function') {
     try {
       await finalizer.handle(...finalizer.args)
@@ -25,10 +25,17 @@ export const registry = new FinalizationRegistry(async (finalizer) => {
 
     finalizer = undefined
   }
-})
+}
 
 /**
- * A container for strongly referenced finalizer function
+ * Static registry for objects to clean up underlying resources when they
+ * are gc'd by the environment. There is no guarantee that the `finalizer()`
+ * is called at any time.
+ */
+export const registry = new FinalizationRegistry(finalizationRegistryCallback)
+
+/**
+ * A container for strongly (retain) referenced finalizer function
  * with arguments weakly referenced to an object that will be
  * garbage collected.
  */
@@ -75,7 +82,7 @@ export class Finalizer {
 export async function ref (object, ...args) {
   if (object && typeof object[kFinalizer] === 'function') {
     const finalizer = Finalizer.from(await object[kFinalizer](...args))
-    finalizers.set(object, finalizer)
+    finalizers.set(object, new WeakRef(finalizer))
     registry.register(object, finalizer, object)
   }
 
@@ -102,10 +109,42 @@ export function unref (object) {
   return false
 }
 
+/**
+ * An alias for `unref()`
+ * @param {object} object}
+ * @return {boolean}
+ */
+export function retain (object) {
+  return unref(object)
+}
+
+/**
+ * Call finalize on `object` for `gc.finalizer` implementation.
+ * @param {object} object]
+ * @return {Promise<boolean>}
+ */
+export async function finalize (object) {
+  const finalizer = finalizers.get(object)
+
+  registry.unregister(object)
+  if (finalizers && await unref(object)) {
+    await finalizationRegistryCallback(finalizer)
+    return true
+  } else {
+    const finalizer = Finalizer.from(await object[kFinalizer](...args))
+    await finalizationRegistryCallback(finalizer)
+    return true
+  }
+
+  return false
+}
+
 export default {
   ref,
   unref,
+  retain,
   registry,
+  finalize,
   finalizers,
   finalizer: kFinalizer
 }
