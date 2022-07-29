@@ -2,6 +2,7 @@ import {
   InvertedPromise,
   isBufferLike,
   isTypedArray,
+  isEmptyObject,
   splitBuffer,
   rand64
 } from '../util.js'
@@ -178,9 +179,11 @@ export class FileHandle extends EventEmitter {
     return {
       args: [this.id, options],
       async handle (id) {
-        console.warn('Closing FileHandle on garbage collection')
-        await ipc.request('fsClosedir', { id }, options)
-        fds.release(id)
+        if (fds.has(id)) {
+          console.warn('Closing FileHandle on garbage collection')
+          await ipc.request('fsClose', { id }, options)
+          fds.release(id)
+        }
       }
     }
   }
@@ -246,6 +249,7 @@ export class FileHandle extends EventEmitter {
     }
 
     fds.release(this.id)
+    gc.unref(this)
 
     this.fd = null
 
@@ -468,8 +472,13 @@ export class FileHandle extends EventEmitter {
     if (isTypedArray(result.data) || result.data instanceof ArrayBuffer) {
       bytesRead = result.data.byteLength
       Buffer.from(result.data).copy(buffer, 0, offset)
+    } else if (isEmptyObject(result.data)) {
+      // an empty response from mac returns an empty object sometimes
+      bytesRead = 0
     } else {
-      throw new TypeError('Invalid response buffer from `fs.read`.')
+      throw new TypeError(
+        'Invalid response buffer from `fs.read`. Got:' + typeof result.data
+      )
     }
 
     return { bytesRead, buffer }
@@ -827,9 +836,11 @@ export class DirectoryHandle extends EventEmitter {
     return {
       args: [this.id, options],
       async handle (id) {
-        console.warn('Closing DirectoryHandle on garbage collection')
-        await ipc.request('fsClosedir', { id }, options)
-        fds.release(id)
+        if (fds.has(id)) {
+          console.warn('Closing DirectoryHandle on garbage collection')
+          await ipc.request('fsClosedir', { id }, options)
+          fds.release(id)
+        }
       }
     }
   }
@@ -905,6 +916,7 @@ export class DirectoryHandle extends EventEmitter {
     }
 
     fds.release(this.id)
+    gc.unref(this)
 
     this[kClosing].resolve(true)
 
