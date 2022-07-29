@@ -163,7 +163,8 @@ global.window = Object.assign(new EventEmitter(), {
   },
 
   process: {
-    index: 0
+    index: 0,
+    platformn: process.platform
   },
 
   _ipc: {
