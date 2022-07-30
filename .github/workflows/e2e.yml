@@ -81,4 +81,3 @@ jobs:
         npm run test:e2e
       env:
         CI: true
-        CXX: g++-12
