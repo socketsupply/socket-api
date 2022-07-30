@@ -9,6 +9,7 @@ export function homedir () {
 
 export function exit (code) {
   if (!didEmitExitEvent) {
+    didEmitExitEvent = true
     queueMicrotask(() => process.emit('exit', code))
   }
 
@@ -26,9 +27,5 @@ const process = Object.create(null, Object.getOwnPropertyDescriptors({
 }))
 
 EventEmitter.call(process)
-
-process.once('exit', () => {
-  didEmitExitEvent = true
-})
 
 export default process
