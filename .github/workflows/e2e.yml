@@ -18,7 +18,7 @@ jobs:
     - name: webfactory/ssh-agent
       uses: webfactory/ssh-agent@v0.5.4
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }} }}
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: npm install
       run: npm install
