@@ -25,7 +25,7 @@ function maybeMakeError (error, caller) {
     AbortError: getErrorClass('AbortError'),
     AggregateError: getErrorClass('AggregateError'),
     EncodingError: getErrorClass('EncodingError'),
-    InternalError: getErrorClass('IndexSizeError'),
+    IndexSizeError: getErrorClass('IndexSizeError'),
     InternalError: InternalError,
     InvalidAccessError: getErrorClass('InvalidAccessError'),
     NetworkError: getErrorClass('NetworkError'),
@@ -488,4 +488,19 @@ export async function request (command, data, options) {
       }
     }
   }
+}
+
+export default {
+  OK,
+  ERROR,
+  TIMEOUT,
+
+  debug,
+  emit,
+  ready,
+  resolve,
+  request,
+  send,
+  sendSync,
+  write
 }

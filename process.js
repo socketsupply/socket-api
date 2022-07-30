@@ -1,0 +1,34 @@
+import { EventEmitter } from './events.js'
+import { sendSync } from './ipc.js'
+
+let didEmitExitEvent = false
+
+export function homedir () {
+  process.env.HOME || ''
+}
+
+export function exit (code) {
+  if (!didEmitExitEvent) {
+    queueMicrotask(() => process.emit('exit', code))
+  }
+
+  sendSync('exit', { value: code || 0 })
+}
+
+
+const parent = typeof window === 'object' ? window : globalThis
+const process = Object.create(null, Object.getOwnPropertyDescriptors({
+  ...EventEmitter.prototype,
+  homedir,
+  exit,
+  argv0: parent?.process?.argv?.[0],
+  ...parent?.process,
+}))
+
+EventEmitter.call(process)
+
+process.once('exit', () => {
+  didEmitExitEvent = true
+})
+
+export default process
