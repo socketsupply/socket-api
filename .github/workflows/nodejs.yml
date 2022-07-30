@@ -17,7 +17,7 @@ jobs:
       run: npm install
     - name: npm test
       run: |
-        git config --global user.email "devops@socketsupply.co"
+        git config --global user.email "devops@optool.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
         npm test
       env:
