@@ -25,7 +25,7 @@ jobs:
 
     - name: npm test e2e
       run: |
-        git config --global user.email "devops@socketsupply.co"
+        git config --global user.email "devops@optool.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
         ## @TODO(jwerle): change branch when stable
         git clone --branch headless --depth 1 git@github.com:socketsupply/socket-sdk.git
