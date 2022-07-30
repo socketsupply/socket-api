@@ -1,5 +1,5 @@
 import { EventEmitter } from './events.js'
-import { sendSync } from './ipc.js'
+import { send } from './ipc.js'
 
 let didEmitExitEvent = false
 
@@ -12,7 +12,7 @@ export function exit (code) {
     queueMicrotask(() => process.emit('exit', code))
   }
 
-  sendSync('exit', { value: code || 0 })
+  send('exit', { value: code || 0 })
 }
 
 

@@ -2,8 +2,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "ssc compile -r -o .",
-    "start:fresh": "ssc compile -r ."
+    "start": "ssc compile --headless --prod -o .",
   },
   "dependencies": {
     "@socketsupply/io": "../../"
