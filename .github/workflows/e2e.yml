@@ -9,10 +9,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+
     - name: Use Node.js
       uses: actions/setup-node@v1
       with:
         node-version: 16.x
+
+    - name: webfactory/ssh-agent
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }} }}
+
     - name: npm install
       run: npm install
 
@@ -20,7 +27,8 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        git clone --branch dev --depth 1 git@github.com:socketsupply/socket-sdk.git
+        ## @TODO(jwerle): change branch when stable
+        git clone --branch headless --depth 1 git@github.com:socketsupply/socket-sdk.git
         cd socket-sdk
         ./bin/install.sh
         cd ..
