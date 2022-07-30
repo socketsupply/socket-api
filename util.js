@@ -71,9 +71,9 @@ export function splitBuffer (buffer, highWaterMark) {
     buffer = buffer.slice(highWaterMark)
   } while (buffer.length > highWaterMark)
 
-  if (buffer.length) {
-    buffers.push(buffer)
-  }
+    if (buffer.length) {
+      buffers.push(buffer)
+    }
 
   return buffers
 }
@@ -115,8 +115,8 @@ export function inspect (value, options) {
     showHidden: options?.showHidden || false,
     customInspect: (
       options?.customInspect === undefined
-        ? true
-        : options.customInspect
+      ? true
+      : options.customInspect
     ),
 
     ...options,
@@ -162,7 +162,7 @@ export function inspect (value, options) {
     }
 
     if (typeof value === 'string') {
-			const formatted = JSON.stringify(value)
+      const formatted = JSON.stringify(value)
         .replace(/^"|"$/g, '')
         .replace(/'/g, "\\'")
         .replace(/\\"/g, '"')
@@ -372,38 +372,38 @@ export function format (format, ...args) {
 
   const regex = /%[sdj%]/g
 
-	let i = 0
-	let str = format.replace(regex, (x) => {
-		if (x === '%%') {
+  let i = 0
+  let str = format.replace(regex, (x) => {
+    if (x === '%%') {
       return '%'
     }
 
-		if (i >= args.length) {
+    if (i >= args.length) {
       return x
     }
 
-		switch (x) {
-			case '%s': return String(args[i++])
-			case '%d': return Number(args[i++])
-			case '%d': return BigInt(args[i++])
-			case '%j':
-				try {
-					return JSON.stringify(args[i++])
-				} catch (_) {
-					return '[Circular]'
-				}
-		}
+    switch (x) {
+      case '%s': return String(args[i++])
+      case '%d': return Number(args[i++])
+      case '%d': return BigInt(args[i++])
+      case '%j':
+        try {
+          return JSON.stringify(args[i++])
+        } catch (_) {
+          return '[Circular]'
+        }
+    }
 
     return x
-	})
+  })
 
   for (const arg of args.slice(i)) {
-		if (arg === null || typeof arg !== 'object') {
-			str += ' ' + arg
-		} else {
-			str += ' ' + inspect(arg)
-		}
-	}
+    if (arg === null || typeof arg !== 'object') {
+      str += ' ' + arg
+    } else {
+      str += ' ' + inspect(arg)
+    }
+  }
 
-	return str
+  return str
 }
