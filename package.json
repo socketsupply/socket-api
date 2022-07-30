@@ -24,7 +24,6 @@
   "devDependencies": {
     "acorn": "8.8.0",
     "acorn-walk": "8.2.0",
-    "clean-css": "5.3.1",
     "esbuild": "0.14.49",
     "tapzero": "*"
   },
