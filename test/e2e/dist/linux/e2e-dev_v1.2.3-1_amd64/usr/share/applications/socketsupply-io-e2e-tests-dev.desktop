@@ -1,0 +1,12 @@
+
+[Desktop Entry]
+Encoding=UTF-8
+Version=v1.2.3
+Name=socketsupply-io-e2e-tests-dev
+Terminal=false
+Type=Application
+Exec=/opt/socketsupply-io-e2e-tests-dev/e2e-dev
+Icon=/usr/share/icons/hicolor/256x256/apps/e2e-dev.png
+StartupWMClass=e2e-dev
+Comment=@socketsupply/io E2E Test
+Categories={{linux_categories}};

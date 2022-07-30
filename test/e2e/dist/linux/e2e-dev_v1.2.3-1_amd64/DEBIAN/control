@@ -1,0 +1,6 @@
+Package: socketsupply-io-e2e-tests-dev
+Version: 1.2.3
+Architecture: amd64
+Maintainer: Socket Supply Co.
+Description: @socketsupply/io E2E Tests-dev
+ @socketsupply/io E2E Test
