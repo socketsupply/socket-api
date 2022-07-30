@@ -39,6 +39,9 @@ jobs:
         ./bin/install.sh
         cd ..
         npm install
+        cd test/e2e
+        npm install
+        cd ../..
         npm run test:e2e
       env:
         CI: true
@@ -78,6 +81,9 @@ jobs:
         ./bin/install.sh
         cd ..
         npm install
+        cd test/e2e
+        npm install
+        cd ../..
         npm run test:e2e
       env:
         CI: true
