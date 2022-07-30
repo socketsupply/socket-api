@@ -3,7 +3,7 @@ name: E2E
 on: [push]
 
 jobs:
-  build:
+  linux:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -25,6 +25,45 @@ jobs:
         sudo apt install software-properties-common
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt install gcc-12 g++-12 libwebkit2gtk-4.0-dev libcurl4-openssl-dev
+
+    - name: npm install
+      run: npm install
+
+    - name: npm test e2e
+      run: |
+        git config --global user.email "devops@socketsupply.co"
+        git config --global user.name "Socket Supply, Co - Github Actions"
+        ## @TODO(jwerle): change branch when stable
+        git clone --branch headless --depth 1 git@github.com:socketsupply/socket-sdk.git
+        cd socket-sdk
+        ./bin/install.sh
+        cd ..
+        npm install
+        npm run test:e2e
+      env:
+        CI: true
+        CXX: g++-12
+
+  mac:
+    runs-on: macOS-12
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+
+    - name: webfactory/ssh-agent
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Install Socket SDK deps
+      run: |
+        brew install automake
 
     - name: npm install
       run: npm install
