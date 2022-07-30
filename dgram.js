@@ -3,6 +3,7 @@ import { Buffer } from 'buffer'
 import { EventEmitter } from './events.js'
 import { isIPv4 } from './net.js'
 import * as dns from './dns.js'
+import * as ipc from './ipc.js'
 import { rand64 } from './util.js'
 
 const isArrayBufferView = buf => {
@@ -71,7 +72,7 @@ export class Socket extends EventEmitter {
   //
   // If binding fails, an 'error' event is emitted.
   //
-  async bind (arg1, arg2, cb) {
+  bind (arg1, arg2, cb) {
     let options = {}
 
     if (typeof arg2 === 'function') {
@@ -111,7 +112,7 @@ export class Socket extends EventEmitter {
       const {
         err: errLookup,
         data: dataLookup
-      } = await dns.lookup(options.address)
+      } = dns.lookup(options.address)
 
       if (errLookup) {
         this.emit('error', errLookup)
@@ -121,7 +122,7 @@ export class Socket extends EventEmitter {
       options.address = dataLookup.ip
     }
 
-    const { err: errBind, data } = await window._ipc.send('udpBind', {
+    const { err: errBind, data } = ipc.sendSync('udpBind', {
       serverId: this.serverId,
       address: options.address,
       port: options.port || 0,
@@ -134,13 +135,13 @@ export class Socket extends EventEmitter {
       return { err: errBind }
     }
 
-    const { data: sockData } = await this._getSockData({
-      id: this.serverId
-    })
+    // const { data: sockData } = await this._getSockData({
+    //  id: this.serverId
+    // })
 
-    this._address = sockData.address
-    this._port = sockData.port
-    this._family = sockData.family
+    this._address =  options.address // sockData.address
+    this._port = options.port // sockData.port
+    this._family = isIPv4(options.address) ? 'ipv4' : 'ipv6' // sockData.family
 
     const listener = e => {
       if (e.detail.params.serverId === this.serverId) {
@@ -153,7 +154,7 @@ export class Socket extends EventEmitter {
 
     const {
       err: errReadStart
-    } = await window._ipc.send('udpReadStart', { serverId: this.serverId })
+    } = ipc.sendSync('udpReadStart', { serverId: this.serverId })
 
     if (errReadStart) {
       if (cb) return cb(errReadStart)
@@ -193,7 +194,7 @@ export class Socket extends EventEmitter {
 
     const {
       err: errBind
-    } = await this.bind({ port: 0 }, null)
+    } = this.bind({ port: 0 }, null)
 
     if (errBind) {
       if (cb) return cb(errBind)
@@ -344,7 +345,7 @@ export class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
-    const { err: errBind } = await this.bind({ port: 0 }, null)
+    const { err: errBind } = this.bind({ port: 0 }, null)
 
     if (errBind) {
       if (cb) return cb(errBind)
