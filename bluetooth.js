@@ -11,7 +11,7 @@ export class Bluetooth extends EventEmitter {
   /// Creates a new service with key-value pairs
   constructor (
     /// Required - The id of the service (must be a valid UUID)
-    serviceId = 0 // given a defauly value to determine the type
+    serviceId = 0 // given a default value to determine the type
   ) {
     super()
 
