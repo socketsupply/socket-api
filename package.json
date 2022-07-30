@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "lint": "standardx -v",
-    "test": "node ./test/index.js",
-    "test:e2e": "cd test/e2e && npm start",
-    "test:clean": "cd test/e2e && rm -rf dist",
+    "test:node": "node ./test/node/index.js",
+    "test": "cd test && npm install && npm start",
+    "test:clean": "cd test && rm -rf dist",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
   "author": "",

@@ -3,8 +3,8 @@ import { test } from 'tapzero'
 
 import mock from './mock.js'
 
-import { normalizeFlags } from '../fs/flags.js'
-import * as fs from '../fs/index.js'
+import { normalizeFlags } from '../../fs/flags.js'
+import * as fs from '../../fs/index.js'
 
 test('FileHandle', async t => {
   mock.create(t, 'fsOpen', {}, { err: null, data: {} })

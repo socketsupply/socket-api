@@ -5,6 +5,6 @@
     "start": "ssc compile --headless --prod -r -o ."
   },
   "dependencies": {
-    "@socketsupply/io": "../../"
+    "@socketsupply/io": "../"
   }
 }

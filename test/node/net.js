@@ -1,7 +1,7 @@
 import mock from './mock.js'
 
 import { test } from 'tapzero'
-import * as net from '../net.js'
+import * as net from '../../net.js'
 
 // createServer, call listen, close server
 test('net.createServer', async t => {

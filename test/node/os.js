@@ -3,7 +3,7 @@ import * as nodeos from 'node:os'
 
 import mock from './mock.js'
 
-import * as os from '../os.js'
+import * as os from '../../os.js'
 
 test('os.arch()', (t) => {
   mock.create(t, 'getPlatformArch', {}, { data: nodeos.arch() }, false)
