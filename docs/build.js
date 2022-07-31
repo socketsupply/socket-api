@@ -3,7 +3,7 @@ import * as walk from 'acorn-walk'
 import fs from 'node:fs'
 import path from 'node:path'
 
-function read (filename) {
+function read (filename, stream) {
   let accumulateComments = []
   let comments = {}
   const src = fs.readFileSync(filename)
@@ -85,7 +85,7 @@ function read (filename) {
     if (node?.type.includes('Export') && !doclines) {
       doclines = [
         '# Undocumented!',
-        `A ${item.type} named \`${item.name}\` in \`${filename}\` is exported but undocumented!`
+        `A ${item.type} named \`${item.name}\` in \`${filename}\` is exported but undocumented!\n`
       ]
     }
 
@@ -147,23 +147,29 @@ function read (filename) {
       argumentsTable += '\n'
     }
 
-    console.log([
+    stream.write([
       header,
       argumentsTable
     ].join('\n'))
   }
 }
 
-const sources = [
-  'bluetooth.js',
-  'dgram.js',
-  'dns.js',
-  'ipc.js',
-  'os.js',
-  'net.js',
-  'fs/index.js'
-]
+const files = {
+  'bluetooth.js': 'bluetooth.md',
+  'dgram.js': 'dram.md',
+  'dns.js': 'dns.md',
+  'ipc.js': 'ipc.md',
+  'os.js': 'os.md',
+  'net.js': 'net.md',
+  'fs/index.js': 'fs.md'
+}
 
-for (const source of sources) {
-  read(path.relative(process.cwd(), source))
+for (const file of Object.keys(files)) {
+  const src = path.relative(process.cwd(), file)
+  const filename = files[file].replace('.js', '.md')
+  const dest = path.relative(
+    process.cwd(),
+    path.join('docs', 'output', filename)
+  )
+  read(src, fs.createWriteStream(dest))
 }
