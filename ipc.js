@@ -490,14 +490,26 @@ export async function request (command, data, options) {
   }
 }
 
+const dispatchable = {
+  emit,
+  ready,
+  resolve,
+  request,
+  send,
+  sendSync,
+  write
+}
+
 const api = (obj = function() {}) => new Proxy(obj, {
-  apply (target, ctx, ...args) {
+  apply (target, ctx, args) {
     const path = [...target.chain]
     target.chain = new Set()
-    return send(path.join('.'), ...args)
+
+    const method = args.length > 1 ? args[1].method : 'send'
+    return dispatchable[method](path.join('.'), args[0], args[1])
   },
   get (target, key, receiver) {
-    (obj.chain = obj.chain || new Set()).add(key)
+    (obj.chain ||= new Set()).add(key)
     return new Proxy(obj, this)
   }
 })
