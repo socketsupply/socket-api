@@ -30,7 +30,6 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        ## @TODO(jwerle): change branch when stable
         git clone --branch dev --depth 1 git@github.com:socketsupply/socket-sdk.git
         cd socket-sdk
         ./bin/install.sh
@@ -72,7 +71,6 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        ## @TODO(jwerle): change branch when stable
         git clone --branch dev --depth 1 git@github.com:socketsupply/socket-sdk.git
         cd socket-sdk
         ./bin/install.sh
@@ -119,7 +117,6 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        ## @TODO(jwerle): change branch when stable
         git clone --branch dev --depth 1 git@github.com:socketsupply/socket-sdk.git
         cd socket-sdk
         ./bin/install.sh
@@ -130,7 +127,7 @@ jobs:
 
     - name: npm test
       run: |
-        npm run test:android-emulator --silent
+        xvfb-run --server-args="-screen 0 1920x1080x24" npm run test:android-emulator --silent
 
       env:
         CI: true

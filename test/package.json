@@ -5,7 +5,7 @@
     "test": "npm run test:desktop",
     "test:desktop": "ssc compile --headless --prod --quiet -r -o .",
     "test:android": "ssc compile --headless --quiet --platform=android -r -o . && scripts/bootstrap-android.sh",
-    "test:android-emulator": "ssc compile --headless --quiet --platform=android -o . && scripts/bootstrap-android-emulator.sh",
+    "test:android-emulator": "ssc compile --headless --platform=android -o . && scripts/bootstrap-android-emulator.sh",
     "start": "npm test"
   },
   "dependencies": {
