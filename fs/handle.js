@@ -534,9 +534,9 @@ export class FileHandle extends EventEmitter {
 
     // collect
     await new Promise((resolve, reject) => {
-      stream.on('end', resolve)
       stream.on('data', (buffer) => buffers.push(buffer))
-      stream.on('error', reject)
+      stream.once('end', resolve)
+      stream.once('error', reject)
     })
 
     const buffer = Buffer.concat(buffers)
@@ -720,17 +720,19 @@ export class FileHandle extends EventEmitter {
     queueMicrotask(async () => {
       while (buffers.length) {
         const buffer = buffers.shift()
-        if (!buffer.length) break
         if (!stream.write(buffer)) {
           // block until drain
           await new Promise((resolve) => stream.once('drain', resolve))
         }
       }
+
+      stream.end(null)
     })
 
     await new Promise((resolve, reject) => {
-      stream.on('finish', resolve)
-      stream.on('error', reject)
+      stream.once('finish', resolve)
+      stream.once('close', resolve)
+      stream.once('error', reject)
     })
   }
 
