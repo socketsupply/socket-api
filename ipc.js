@@ -261,17 +261,19 @@ export function sendSync (command, params) {
   }
 
   request.open('GET', uri + query, false)
-  request.send(null)
+  request.send()
+
+  const response = request.response || request.responseText
 
   try {
-    return Result.from(JSON.parse(request.response))
+    return Result.from(JSON.parse(response))
   } catch (err) {
     if (debug.enabled) {
       console.warn(err.message || err)
     }
   }
 
-  return Result.from(request.response)
+  return Result.from(response)
 }
 
 export async function emit (...args) {
