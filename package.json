@@ -7,7 +7,7 @@
     "lint": "standardx -v",
     "test:node": "node ./test/node/index.js",
     "test": "cd test && npm install --silent --no-audit && npm test --silent",
-    "test:emulator": "cd test && npm install --silent --no-audit && npm run test:emulator --silent",
+    "test:android-emulator": "cd test && npm install --silent --no-audit && npm run test:android-emulator --silent",
     "test:clean": "cd test && rm -rf dist",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
