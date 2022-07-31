@@ -10,6 +10,7 @@ adb shell am start -n "$id/.MainWebViewActivity" || exit $?
 
 rc=1
 while (( rc != 0 )); do
+  echo "polling for '$id' PID"
   ## Probe for application process ID
   pid="$(adb shell ps | grep "$id" | awk '{print $2}' 2>/dev/null)"
   rc=$?
