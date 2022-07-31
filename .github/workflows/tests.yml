@@ -142,7 +142,7 @@ jobs:
         arch: x86_64
         api-level: 32
         target: google_apis
-        profile: Pixel 6
+        profile: pixel_5
         force-avd-creation: false
         disable-animations: false
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
@@ -156,7 +156,7 @@ jobs:
         target: google_apis
         disable-animations: false
         force-avd-creation: false
-        profile: Pixel 6
+        profile: pixel_5
         ndk: 25.0.8775105
         script: |
           npm run test:android-emulator --silent
