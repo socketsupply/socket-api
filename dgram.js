@@ -64,6 +64,10 @@ export class Socket extends EventEmitter {
     return { data }
   }
 
+  _recvStart () {
+    window.external.invoke(`ipc://udpReadStart?serverId=${this.serverId}`)
+  }
+
   //
   // Listen for datagram messages on a named port and optional address
   // If address is not specified, the operating system will attempt to
@@ -109,25 +113,16 @@ export class Socket extends EventEmitter {
         options.address = '::'
       }
     } else if (!isIPv4(options.address)) {
-      const {
-        err: errLookup,
-        data: dataLookup
-      } = dns.lookup(options.address)
-
-      if (errLookup) {
-        this.emit('error', errLookup)
-        return { err: errLookup }
-      }
-
-      options.address = dataLookup.ip
+      // fire off a dns lookup, listening or error will be emitted in response
+      window.external.invoke(`ipc://dnsLookup?serverId=${this.serverId}seq=-1`)
     }
 
     const { err: errBind, data } = ipc.sendSync('udpBind', {
       serverId: this.serverId,
-      address: options.address,
+      address: options.address || "",
       port: options.port || 0,
-      reuseAddr: options.reuseAddr, // UV_UDP_REUSEADDR
-      ipv6Only: options.ipv6Only // UV_UDP_IPV6ONLY
+      reuseAddr: options.reuseAddr ? "true" : "false", // UV_UDP_REUSEADDR
+      ipv6Only: options.ipv6Only ? "true" : "false" // UV_UDP_IPV6ONLY
     })
 
     if (errBind) {
@@ -135,31 +130,35 @@ export class Socket extends EventEmitter {
       return { err: errBind }
     }
 
-    // const { data: sockData } = await this._getSockData({
-    //  id: this.serverId
-    // })
-
-    this._address =  options.address // sockData.address
-    this._port = options.port // sockData.port
-    this._family = isIPv4(options.address) ? 'ipv4' : 'ipv6' // sockData.family
+    this._address = options.address
+    this._port = options.port
+    this._family = isIPv4(options.address) ? 'IPv4' : 'IPv6'
 
     const listener = e => {
-      if (e.detail.params.serverId === this.serverId) {
-        this.emit('message', e.detail.data)
-        if (e.detal.params.EOF) window.removeListener('data', listener)
+      const { err, data } = e.detail
+
+      if (err && err.params.serverId === this.serverId) {
+        return this.emit('error', err)
+      }
+
+      if (data.params.serverId !== this.serverId) return
+
+      if (data.params.source === 'dnsLookup') {
+        this._address = data.params.ip
+        return this.emit('listenting')
+      }
+
+      this.emit('message', data)
+
+      if (e.detal.params.EOF) {
+        window.removeListener('data', listener)
       }
     }
 
+    // subscribe this socket to the firehose
     window.addEventListener('data', listener)
 
-    const {
-      err: errReadStart
-    } = ipc.sendSync('udpReadStart', { serverId: this.serverId })
-
-    if (errReadStart) {
-      if (cb) return cb(errReadStart)
-      return { err: errReadStart }
-    }
+    this._recvStart()
 
     if (cb) cb(null)
     return { data }
