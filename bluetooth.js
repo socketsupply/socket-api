@@ -9,7 +9,7 @@ export class Bluetooth extends EventEmitter {
   /// Creates a new service with key-value pairs
   constructor (
     /// Required - The id of the service (must be a valid UUID)
-    serviceId = 0 // given a default value to determine the type
+    serviceId = '' // given a default value to determine the type
   ) {
     super()
 
@@ -46,14 +46,19 @@ export class Bluetooth extends EventEmitter {
     return ipc.send('bluetooth-start', { serviceId: this.serviceId })
   }
 
-  subscribe (id) {
+  /// Start scanning for published values that correspond to a well-known UUID
+  subscribe (
+    /// A valid UUID to subscribe to
+    id = ''
+  ) {
     return ipc.send('bluetooth-subscribe', {
       characteristicId: id,
       serviceId: this.serviceId
     })
   }
 
-  async publish (characteristicId, value = '') {
+  /// Start advertising a new value for a well-known UUID
+  async publish (characteristicId = '', value = '') {
     if (!characteristicId || characteristicId.length !== 36) {
       throw new Error('expected characteristicId of length 36')
     }

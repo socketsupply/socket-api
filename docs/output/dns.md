@@ -1,6 +1,6 @@
 
 # lookup
 
-# Undocumented!
-A VariableDeclaration named `lookup` in `dns.js` is exported but undocumented!
+This is a `VariableDeclaration` named `lookup`in `dns.js`, it's exported but undocumented.
+
 

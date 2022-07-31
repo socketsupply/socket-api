@@ -1,30 +1,30 @@
 
-# EOL
+# arch
 
-# Undocumented!
-A VariableDeclaration named `EOL` in `os.js` is exported but undocumented!
+This is a `FunctionDeclaration` named `arch`in `os.js`, it's exported but undocumented.
 
-
-# type
-
-# Undocumented!
-A FunctionDeclaration named `type` in `os.js` is exported but undocumented!
-
-
-# platform
-
-# Undocumented!
-A FunctionDeclaration named `platform` in `os.js` is exported but undocumented!
 
 
 # networkInterfaces
 
-# Undocumented!
-A FunctionDeclaration named `networkInterfaces` in `os.js` is exported but undocumented!
+This is a `FunctionDeclaration` named `networkInterfaces`in `os.js`, it's exported but undocumented.
 
 
-# arch
 
-# Undocumented!
-A FunctionDeclaration named `arch` in `os.js` is exported but undocumented!
+# platform
+
+This is a `FunctionDeclaration` named `platform`in `os.js`, it's exported but undocumented.
+
+
+
+# type
+
+This is a `FunctionDeclaration` named `type`in `os.js`, it's exported but undocumented.
+
+
+
+# EOL
+
+This is a `VariableDeclaration` named `EOL`in `os.js`, it's exported but undocumented.
+
 

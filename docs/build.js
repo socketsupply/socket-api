@@ -32,90 +32,90 @@ function read (filename, stream) {
 
   const onNode = node => {
     let item = {
-      file: filename,
-      location: node.loc,
-      type: node.type
+      sort: node.loc.start.line,
+      location: `/${filename}#L${node.loc.start.line}`,
+      type: node.type,
+      name: node.name,
+      export: node?.type.includes('Export'),
+      header: comments[node.start]
     }
 
-    if (node.key?.name) {
-      item.name = node.key.name
-    }
+    if (node.type.includes('ExportNamedDeclaration')) {
+      if (!node.declaration) return
 
-    if (node.type === 'ExportAllDeclaration') {
-      return
-    }
+      item.type = node.declaration.type || item.type
 
-    if (node.type === 'ExportNamedDeclaration') {
-      if (node.declaration?.declarations) {
-        node.declaration.declarations.forEach(onNode)
-      } else if (node.declaration) {
-        onNode(node.declaration)
+      if (item.type === 'VariableDeclaration') {
+        item.name = node.declaration.declarations[0].id.name
       } else {
-        return
-      }
-    }
-
-    if (node.declaration) {
-      item.type = node.declaration.type
-
-      if (node.declaration.id?.name) {
         item.name = node.declaration.id.name
-      } else if (node.declaration?.declarations) {
-        if (node.declaration.declarations.length === 1) {
-          item.name = node.declaration.declarations[0].id.name
-        }
       }
 
       if (node.declaration.superClass) {
         item.inherits = node.declaration.superClass.name
       }
+
+      if (item.type === 'FunctionDeclaration') {
+        item.params = node.declaration.params
+      }
     }
 
-    if (node.value?.params) {
-      item.params = node.value?.params.map(param => {
-        if (comments[param.start]) {
-          param.header = comments[param.start]
-          delete comments[param.start]
-        }
-        return param
-      })
+    if (node.type.includes('MethodDefinition')) {
+      item.name = node.key?.name
+
+      if (node.value.type === 'FunctionExpression') {
+        item.generator = node.value.generator
+        item.static = node.static
+        item.async = node.value.async
+        item.params = node.value.params
+      }
     }
 
-    let doclines = comments[node.start]
-
-    if (node?.type.includes('Export') && !doclines) {
-      doclines = [
-        '# Undocumented!',
-        `A ${item.type} named \`${item.name}\` in \`${filename}\` is exported but undocumented!\n`
+    if (item.export && !item.header) {
+      item.header = [
+        `This is a \`${item.type}\` named \`${item.name}\`` +
+        `in \`${filename}\`, it's exported but undocumented.\n`
       ]
     }
 
-    item.header = doclines
-    item.export = node?.type.includes('Export')
+    if (item.params) {
+      item.params = item.params.map(param => {
+        const p = {}
+        if (param.type.includes('AssignmentPattern')) {
+          p.name = param.left.name
+          p.type = typeof param.right.value
+        } else {
+          p.name = param.name
+          p.type = param.type
+
+          walk.full(ast, node => {
+            if (node.type.includes('Assignment')) {
+              if (node.left.name === p.name) {
+                p.type = typeof node.right.value || 'Unknown'
+              }
+            }
+          })
+        }
+
+        p.header = comments[param.start] || ['This item is undocumented. Using it is unadvised.']
+        return p
+      })
+    }
 
     if (item.header) {
-      const index = docs.findIndex(doc => {
-        const matchesLine = doc.location.start.line === item.location.start.line
-        const matchesColumn = doc.location.start.column === item.location.start.column
-        if (matchesLine && matchesColumn) return doc
-      })
-
-      if (index === -1) docs.unshift(item)
+      const index = docs.findIndex(d => d.sort === item.sort)
+      if (docs.length === 0 || index === -1) docs.push(item)
     }
   }
 
   walk.full(ast, onNode)
+  docs.sort((a, b) => a.sort - b.sort)
 
   for (const doc of docs) {
-    let h = '#'
-
-    console.log(doc.type)
-    if (!doc.export) {
-      h = '##'
-    }
+    let h = doc.export ? '#' : '##'
 
     const title = `\n${h} ${doc.name}\n`
-    const header = doc.header.join('\n')
+    const header = `${doc.header.join('\n')}\n`
     let argumentsTable = ''
 
     if (doc.params && doc.params.length > 0) {
@@ -127,31 +127,14 @@ function read (filename, stream) {
       argumentsTable = `${tableHeader}`
 
       for (const param of doc.params) {
-        let type = param.type
-        const isAssignment = param.type === 'AssignmentPattern'
-        const name = isAssignment ? param.left.name : param.name
-        const value = isAssignment ? param?.right.raw : ''
-        const desc = param.header.join(' ')
-        const required = desc.toLowerCase().includes('required')
+        let type = param.type || 'Unknown'
+        const desc = param.header?.join(' ')
+        const required = desc?.toLowerCase().includes('required')
 
-        const index = docs.findIndex(d => {
-          return (
-            doc.location.start.line === d.location.start.line &&
-            doc.location.start.column === d.location.start.column
-          )
-        })
-
+        const index = docs.findIndex(d => doc.sort === d.sort)
         if (index > -1) docs.splice(index, 1) // its been used as an arg
 
-        walk.full(ast, node => {
-          if (node.type.includes('Assignment')) {
-            if (node.left.name === name) {
-              type = typeof node.right.value
-            }
-          }
-        })
-
-        argumentsTable += `\n| ${name} | ${type} | ${value} | ${required} | ${desc} |`
+        argumentsTable += `\n| ${param.name} | ${type} | ${param.value} | ${required} | ${desc} |`
       }
 
       argumentsTable += '\n'
