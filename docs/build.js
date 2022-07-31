@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import * as acorn from 'acorn'
 import * as walk from 'acorn-walk'
 import fs from 'node:fs'
@@ -90,6 +91,7 @@ function read (filename, stream) {
     }
 
     item.header = doclines
+    item.export = node?.type.includes('Export')
 
     if (item.header) {
       const index = docs.findIndex(doc => {
@@ -105,6 +107,14 @@ function read (filename, stream) {
   walk.full(ast, onNode)
 
   for (const doc of docs) {
+    let h = '#'
+
+    console.log(doc.type)
+    if (!doc.export) {
+      h = '##'
+    }
+
+    const title = `\n${h} ${doc.name}\n`
     const header = doc.header.join('\n')
     let argumentsTable = ''
 
@@ -148,6 +158,7 @@ function read (filename, stream) {
     }
 
     stream.write([
+      title,
       header,
       argumentsTable
     ].join('\n'))
@@ -156,7 +167,7 @@ function read (filename, stream) {
 
 const files = {
   'bluetooth.js': 'bluetooth.md',
-  'dgram.js': 'dram.md',
+  'dgram.js': 'dgram.md',
   'dns.js': 'dns.md',
   'ipc.js': 'ipc.md',
   'os.js': 'os.md',

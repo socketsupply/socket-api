@@ -1,13 +1,11 @@
 import * as ipc from './ipc.js'
 import { EventEmitter } from './events.js'
 
-/// # Bluetooth
 /// Provides a high level api over bluetooth
 /// A pub-sub of key-value pairs
 export class Bluetooth extends EventEmitter {
   static isInitalized = false;
 
-  /// ## constructor
   /// Creates a new service with key-value pairs
   constructor (
     /// Required - The id of the service (must be a valid UUID)

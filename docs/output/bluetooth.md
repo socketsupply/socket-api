@@ -1,7 +1,11 @@
+
 # Bluetooth
+
 Provides a high level api over bluetooth
 A pub-sub of key-value pairs
+
 ## constructor
+
 Creates a new service with key-value pairs
 | Argument | Type | Default | Required | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
