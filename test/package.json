@@ -2,8 +2,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "ssc compile --headless --prod --quiet -r -o .",
-    "test": "npm start"
+    "test": "npm run test:desktop",
+    "test:desktop": "ssc compile --headless --prod --quiet -r -o .",
+    "test:android": "ssc compile --headless --quiet --platform=android -r -o . && scripts/bootstrap-android.sh",
+    "test:android-emulator": "ssc compile --headless --quiet --platform=android -o . && scripts/bootstrap-android-emulator.sh",
+    "start": "npm test"
   },
   "dependencies": {
     "@socketsupply/io": "../"

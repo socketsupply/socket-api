@@ -9,7 +9,7 @@ ipc.debug.enabled = false
 
 if (typeof parent?.addEventListener === 'function') {
   parent.addEventListener('error', (err) => {
-    console.error('Uncaught:', err.message)
+    console.error(err.stack || err.message || err)
     process.exit(1)
   })
 }
