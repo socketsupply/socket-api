@@ -1,6 +1,7 @@
 import mock from './mock.js'
 
 import { test } from 'tapzero'
+import { rand64 } from '../../util.js'
 import * as net from '../../net.js'
 
 // createServer, call listen, close server
@@ -41,7 +42,7 @@ test('net.createServer', async t => {
 
 test('net.connect', async t => {
   return new Promise((resolve) => {
-    const ID = net.rand64()
+    const ID = rand64()
     const HELLO = 'Hello, World!\n'
 
     mock.create(t, 'tcpConnect',
@@ -101,7 +102,7 @@ test('net.connect', async t => {
 
 test('net.connect, allowHalfOpen=false', async (t) => {
   return new Promise((resolve) => {
-    const ID = net.rand64()
+    const ID = rand64()
     let ended = false
     mock.create(t, 'tcpConnect',
       { port: 9000, address: '127.0.0.1' },
@@ -145,7 +146,7 @@ test('net.connect, allowHalfOpen=false', async (t) => {
 
 test('net.connect allowHalfOpen=true', async (t) => {
   return new Promise((resolve) => {
-    const ID = net.rand64()
+    const ID = rand64()
     let ended = false
 
     mock.create(t, 'tcpConnect',
@@ -196,7 +197,7 @@ test('net.connect allowHalfOpen=true', async (t) => {
 
 test('net.connect allowHalfOpen=true, write write write', (t) => {
   return new Promise((resolve) => {
-    const ID = net.rand64()
+    const ID = rand64()
     const HELLO = 'Hello, World!\n'
     let ended = false
     mock.create(t, 'tcpConnect',
@@ -287,7 +288,7 @@ test('net.connect allowHalfOpen=true, write write write', (t) => {
 
 test.skip('net.connect', async (t) => {
   return new Promise((resolve) => {
-    const ID = net.rand64()
+    const ID = rand64()
     mock.create(t, 'tcpConnect',
       { port: 9000, address: '127.0.0.1' },
       {
@@ -341,7 +342,7 @@ test.skip('net.connect', async (t) => {
 
 test('net.connect allowHalfOpen=true readStart readStop', (t) => {
   return new Promise((resolve) => {
-    const ID = net.rand64()
+    const ID = rand64()
     const HELLO = 'Hello, World!\n'
 
     mock.create(t, 'tcpConnect',

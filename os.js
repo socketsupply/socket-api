@@ -169,7 +169,7 @@ export function type () {
 }
 
 export const EOL = (() => {
-  if (/win/i.test(type())) {
+  if (/^win/i.test(type())) {
     return '\r\n'
   }
 

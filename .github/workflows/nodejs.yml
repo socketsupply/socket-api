@@ -19,6 +19,6 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        npm test
+        npm test:node
       env:
         CI: true
