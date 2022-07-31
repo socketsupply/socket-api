@@ -1,12 +1,8 @@
 import { EventEmitter } from './events.js'
 import { Duplex } from './stream.js'
+import { rand64 } from './util.js'
 
 const _require = typeof require !== 'undefined' && require
-
-const rand64 = () => {
-  const method = globalThis.crypto ? globalThis.crypto : _require('crypto').webcrypto
-  return method.getRandomValues(new BigUint64Array(1))[0]
-}
 
 const assertType = (name, expected, actual, code) => {
   const msg = `'${name}' must be a '${expected}', received '${actual}'`
@@ -59,7 +55,7 @@ const normalizeArgs = (args) => {
   return arr
 }
 
-class Server extends EventEmitter {
+export class Server extends EventEmitter {
   constructor (options, handler) {
     super()
 
@@ -144,7 +140,7 @@ class Server extends EventEmitter {
   }
 }
 
-class Socket extends Duplex {
+export class Socket extends Duplex {
   constructor (options) {
     super()
 
@@ -447,7 +443,7 @@ class Socket extends Duplex {
   }
 }
 
-const connect = (...args) => {
+export const connect = (...args) => {
   const [options, callback] = normalizeArgs(args)
 
   // supported by node but not here: localAddress, localHost, hints, lookup
@@ -458,26 +454,16 @@ const connect = (...args) => {
   return socket
 }
 
-const createServer = (...args) => {
+export const createServer = (...args) => {
   return new Server(...args)
 }
 
-const getNetworkInterfaces = o => window._ipc.send('getNetworkInterfaces', o)
+export const getNetworkInterfaces = o => window._ipc.send('getNetworkInterfaces', o)
 
 const v4Seg = '(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
 const v4Str = `(${v4Seg}[.]){3}${v4Seg}`
 const IPv4Reg = new RegExp(`^${v4Str}$`)
 
-const isIPv4 = s => {
+export const isIPv4 = s => {
   return IPv4Reg.test(s)
-}
-
-export {
-  rand64,
-  Socket,
-  Server,
-  connect,
-  createServer,
-  getNetworkInterfaces,
-  isIPv4
 }
