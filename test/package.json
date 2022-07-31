@@ -2,7 +2,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "ssc compile --headless --prod -r -o ."
+    "start": "ssc compile --headless --prod -r -o .",
+    "test": "npm start"
   },
   "dependencies": {
     "@socketsupply/io": "../"
