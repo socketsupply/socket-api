@@ -490,11 +490,24 @@ export async function request (command, data, options) {
   }
 }
 
+const api = (obj = function() {}) => new Proxy(obj, {
+  apply (target, ctx, ...args) {
+    const path = [...target.chain]
+    target.chain = new Set()
+    return send(path.join('.'), ...args)
+  },
+  get (target, key, receiver) {
+    (obj.chain = obj.chain || new Set()).add(key)
+    return new Proxy(obj, this)
+  }
+})
+
 export default {
   OK,
   ERROR,
   TIMEOUT,
 
+  api,
   debug,
   emit,
   ready,
