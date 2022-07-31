@@ -5,13 +5,16 @@ declare pid=""
 
 id="co.socketsupply.io.tests"
 
-emulator -avd SSCAVD
-
 ## Start application
 adb shell am start -n "$id/.MainWebViewActivity" || exit $?
 
-## Probe for application process ID
-pid="$(adb shell ps | grep "$id" | awk '{print $2}' 2>/dev/null)"
+rc=1
+while (( rc != 0 )); do
+  ## Probe for application process ID
+  pid="$(adb shell ps | grep "$id" | awk '{print $2}' 2>/dev/null)"
+  rc=$?
+  sleep 1s
+done
 
 if [ -z "$pid" ]; then
   echo >&2 "error: Failed to determine PID for '$id'"
@@ -38,5 +41,3 @@ while read -r line; do
     fi
   fi
 done < <(adb logcat --pid="$pid")
-
-ssc compile --platform=android-emulator --quiet -r -o .
