@@ -41,7 +41,7 @@ jobs:
 
     - name: npm test
       run: |
-        npm test
+        npm test --silent
 
       env:
         CI: true
@@ -83,7 +83,7 @@ jobs:
 
     - name: npm test
       run: |
-        npm test
+        npm test --silent
 
       env:
         CI: true
