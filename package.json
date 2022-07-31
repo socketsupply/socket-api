@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "standardx -v",
     "test:node": "node ./test/node/index.js",
-    "test": "cd test && npm install && npm start",
+    "test": "cd test && npm install --silent --no-audit && npm start --silent",
     "test:clean": "cd test && rm -rf dist",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
