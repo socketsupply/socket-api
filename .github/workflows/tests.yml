@@ -130,7 +130,7 @@ jobs:
 
     - name: npm test
       run: |
-        npm test:android-emulator --silent
+        npm run test:android-emulator --silent
 
       env:
         CI: true
