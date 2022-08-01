@@ -4,10 +4,12 @@ import * as walk from 'acorn-walk'
 import fs from 'node:fs'
 import path from 'node:path'
 
-function read (filename, stream) {
+export function transform (srcFile, destFile) {
+  const stream = fs.createWriteStream(destFile)
+
   let accumulateComments = []
   let comments = {}
-  const src = fs.readFileSync(filename)
+  const src = fs.readFileSync(srcFile)
   const ast = acorn.parse(String(src), {
     tokens: true,
     comment: true,
@@ -38,7 +40,7 @@ function read (filename, stream) {
   const onNode = node => {
     let item = {
       sort: node.loc.start.line,
-      location: `/${filename}#L${node.loc.start.line}`,
+      location: `/${srcFile}#L${node.loc.start.line}`,
       type: node.type,
       name: node.name,
       export: node?.type.includes('Export'),
@@ -89,7 +91,7 @@ function read (filename, stream) {
     if (item.export && !item.header) {
       item.header = [
         `This is a \`${item.type}\` named \`${item.name}\`` +
-        `in \`${filename}\`, it's exported but undocumented.\n`
+        `in \`${srcFile}\`, it's exported but undocumented.\n`
       ]
     }
 
@@ -173,24 +175,4 @@ function read (filename, stream) {
       argumentsTable
     ].join('\n'))
   }
-}
-
-const files = {
-  'bluetooth.js': 'bluetooth.md',
-  'dgram.js': 'dgram.md',
-  'dns.js': 'dns.md',
-  'ipc.js': 'ipc.md',
-  'os.js': 'os.md',
-  'net.js': 'net.md',
-  'fs/index.js': 'fs.md'
-}
-
-for (const file of Object.keys(files)) {
-  const src = path.relative(process.cwd(), file)
-  const filename = files[file].replace('.js', '.md')
-  const dest = path.relative(
-    process.cwd(),
-    path.join('docs', 'output', filename)
-  )
-  read(src, fs.createWriteStream(dest))
 }
