@@ -4,8 +4,14 @@ import * as walk from 'acorn-walk'
 import fs from 'node:fs'
 import path from 'node:path'
 
-export function transform (srcFile, destFile) {
-  const stream = fs.createWriteStream(destFile)
+try {
+  fs.unlinkSync('README.md')
+} catch {}
+
+export function transform (filename) {
+  const srcFile = path.relative(process.cwd(), filename)
+  const destFile = path.relative(process.cwd(), 'README.md')
+  const stream = fs.createWriteStream(destFile, { flags: 'a' })
 
   let accumulateComments = []
   let comments = {}
@@ -122,12 +128,12 @@ export function transform (srcFile, destFile) {
           param.optional = optional
           param.desc = parts[1]?.trim()
 
-          item.params.push(param)
+          item.params?.push(param)
         }
       }
     }
 
-    if (item.header) {
+    if (item.export && item.header) {
       item.header = item.header.join('\n').split('\n').filter(line => {
         return !line.match(/@\w*/)
       })
@@ -176,3 +182,14 @@ export function transform (srcFile, destFile) {
     ].join('\n'))
   }
 }
+
+const files = [
+  'bluetooth.js',
+  'dgram.js',
+  'dns.js',
+  'ipc.js',
+  'os.js',
+  'net.js',
+  'fs/index.js'
+].map(transform)
+

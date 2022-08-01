@@ -64,15 +64,9 @@ export function access (path, mode, callback) {
     .catch((err) => callback(err))
 }
 
-/**
- * @TODO
- */
 export function appendFile (path, data, options, callback) {
 }
 
-/**
- * @TODO
- */
 export function chmod (path, mode, callback) {
   if (typeof mode !== 'number') {
     throw new TypeError('mode must be a number.')
@@ -91,9 +85,6 @@ export function chmod (path, mode, callback) {
   })
 }
 
-/**
- * @TODO
- */
 export function chown (path, uid, gid, callback) {
 }
 
@@ -119,15 +110,9 @@ export function close (fd, callback) {
   }
 }
 
-/**
- * @TODO
- */
 export function copyFile (src, dst, mode, callback) {
 }
 
-/**
- * @TODO
- */
 export function createReadStream (path, options) {
   if (path?.fd) {
     options = path
@@ -162,9 +147,6 @@ export function createReadStream (path, options) {
   return stream
 }
 
-/**
- * @TODO
- */
 export function createWriteStream (path, options) {
   if (path?.fd) {
     options = path
@@ -199,8 +181,13 @@ export function createWriteStream (path, options) {
   return stream
 }
 
-/**
- * @TODO
+/*
+ * Invokes the callback with the <fs.Stats> for the file descriptor. See
+ * the POSIX fstat(2) documentation for more detail.
+ *
+ * @param {number} fd - A file descriptor.
+ * @param {Object} options - An options object.
+ * @param {function} callback - The function to call after completion.
  */
 export function fstat (fd, options, callback) {
   if (typeof options === 'function') {
@@ -223,39 +210,21 @@ export function fstat (fd, options, callback) {
   }
 }
 
-/**
- * @TODO
- */
 export function lchmod (path, mode, callback) {
 }
 
-/**
- * @TODO
- */
 export function lchown (path, uid, gid, callback) {
 }
 
-/**
- * @TODO
- */
 export function lutimes (path, atime, mtime, callback) {
 }
 
-/**
- * @TODO
- */
 export function link (existingPath, newPath, callback) {
 }
 
-/**
- * @TODO
- */
 export function lstat (path, options, callback) {
 }
 
-/**
- * @TODO
- */
 export function mkdir (path, options, callback) {
 }
 
@@ -449,39 +418,21 @@ export function readFile (path, options, callback) {
   })
 }
 
-/**
- * @TODO
- */
 export function readlink (path, options, callback) {
 }
 
-/**
- * @TODO
- */
 export function realpath (path, options, callback) {
 }
 
-/**
- * @TODO
- */
 export function rename (oldPath, newPath, callback) {
 }
 
-/**
- * @TODO
- */
 export function rmdir (path, options, callback) {
 }
 
-/**
- * @TODO
- */
 export function rm (path, options, callback) {
 }
 
-/**
- * @TODO
- */
 export function stat (path, options, callback) {
   if (typeof options === 'function') {
     callback = options
@@ -511,45 +462,24 @@ export function stat (path, options, callback) {
   })
 }
 
-/**
- * @TODO
- */
 export function symlink (target, path, type, callback) {
 }
 
-/**
- * @TODO
- */
 export function truncate (path, length, callback) {
 }
 
-/**
- * @TODO
- */
 export function unlink (path, callback) {
 }
 
-/**
- * @TODO
- */
 export function utimes (path, atime, mtime, callback) {
 }
 
-/**
- * @TODO
- */
 export function watch (path, options, callback) {
 }
 
-/**
- * @TODO
- */
 export function write (fd, buffer, offset, length, position, callback) {
 }
 
-/**
- * @TODO
- */
 export function writeFile (path, data, options, callback) {
   if (typeof options === 'function') {
     callback = options
@@ -581,9 +511,6 @@ export function writeFile (path, data, options, callback) {
   })
 }
 
-/**
- * @TODO
- */
 export function writev (fd, buffers, position, callback) {
 }
 

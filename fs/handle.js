@@ -277,7 +277,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * Creates a `ReadStream` for the underlying file.
-   * @param {?(object)} [options]
+   * @param {?(object)} [options] - An options object
    */
   createReadStream (options) {
     if (this.closing || this.closed) {
@@ -305,7 +305,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * Creates a `WriteStream` for the underlying file.
-   * @param {?(object)} [options]
+   * @param {?(object)} [options] - An options object
    */
   createWriteStream (options) {
     if (this.closing || this.closed) {
@@ -332,7 +332,6 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
    * @param {?(object)} [options]
    */
   async datasync () {
@@ -549,7 +548,6 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
    * @param {?(object)} [options]
    */
   async readv (buffers, position) {
@@ -579,7 +577,6 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
    * @param {?(object)} [options]
    */
   async sync () {
@@ -589,7 +586,6 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
    * @param {?(object)} [options]
    */
   async truncate (length) {
@@ -599,7 +595,6 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
    * @param {?(object)} [options]
    */
   async utimes (atime, mtime) {
@@ -737,7 +732,6 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @TODO
    * @param {?(object)} [options]
    */
   async writev (buffers, position) {
