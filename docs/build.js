@@ -107,7 +107,7 @@ function read (filename, stream) {
 
           const param = {
             name,
-            type: optional ? type.replace('?', '') : type
+            type: (optional ? type.replace('?', '') : type).replace('|', '\\|')
           }
 
           const params = node.declaration?.params || node.value?.params

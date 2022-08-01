@@ -25,7 +25,7 @@ Parses `seq` as integer value
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| seq | string|number |  | false |  |
+| seq | string\|number |  | false |  |
 | [options] | (object) |  | true |  |
 | [options.bigint = false] | boolean |  | false |  |
 
@@ -44,7 +44,7 @@ like `{ err?, data? }`, an `Error` instance, or just `data`.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| result | (object|Error|mixed) |  | true |  |
+| result | (object\|Error|mixed) |  | true |  |
 
 ## ready
 
@@ -60,7 +60,7 @@ upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | command | string |  | false |  |
-| params | (object|string) |  | true |  |
+| params | (object\|string) |  | true |  |
 
 ## resolve
 
