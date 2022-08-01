@@ -72,14 +72,18 @@ export class Socket extends EventEmitter {
     window.external.invoke(`ipc://udpReadStart?serverId=${this.serverId}`)
   }
 
-  //
-  // Listen for datagram messages on a named port and optional address
-  // If address is not specified, the operating system will attempt to
-  // listen on all addresses. Once binding is complete, a 'listening'
-  // event is emitted and the optional callback function is called.
-  //
-  // If binding fails, an 'error' event is emitted.
-  //
+  /**
+   * Listen for datagram messages on a named port and optional address
+   * If address is not specified, the operating system will attempt to
+   * listen on all addresses. Once binding is complete, a 'listening'
+   * event is emitted and the optional callback function is called.
+   *
+   * If binding fails, an 'error' event is emitted.
+   *
+   * @param {number} port - The port to to listen for messages on
+   * @param {string} address - The address to bind to (0.0.0.0)
+   * @param {function} callback - With no parameters. Called when binding is complete.
+   */
   bind (arg1, arg2, cb) {
     let options = {}
 
@@ -125,8 +129,8 @@ export class Socket extends EventEmitter {
       serverId: this.serverId,
       address: options.address || "",
       port: options.port || 0,
-      reuseAddr: options.reuseAddr ? "true" : "false", // UV_UDP_REUSEADDR
-      ipv6Only: options.ipv6Only ? "true" : "false" // UV_UDP_IPV6ONLY
+      reuseAddr: options.reuseAddr ? "true" : "false",
+      ipv6Only: options.ipv6Only ? "true" : "false"
     })
 
     if (errBind) {

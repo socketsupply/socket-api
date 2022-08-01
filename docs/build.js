@@ -17,9 +17,10 @@ function read (filename, stream) {
       comments[token.start] = accumulateComments;
       accumulateComments = []
     },
-    onComment: (_, comment) => {
+    onComment: (block, comment) => {
+      if (!block) return
       comment = comment.replace(/^\s*\*/g, '')
-      comment = comment.replace(/\n\s*\*\s*/g, '\n')
+      comment = comment.replace(/\n?\s*\*\s*/g, '\n')
       comment = comment.replace(/^\n/, '')
       accumulateComments.push(comment.trim())
     },
@@ -109,6 +110,7 @@ function read (filename, stream) {
             if (assign) param.default = assign.right.raw
           }
 
+          param.default = ''
           param.optional = optional
           param.desc = parts[1]?.trim()
 
@@ -119,7 +121,7 @@ function read (filename, stream) {
 
     if (item.header) {
       item.header = item.header.join('\n').split('\n').filter(line => {
-        return !line.startsWith('@')
+        return !line.match(/@\w*/)
       })
 
       const index = docs.findIndex(d => d.sort === item.sort)
@@ -168,13 +170,13 @@ function read (filename, stream) {
 }
 
 const files = {
-  'bluetooth.js': 'bluetooth.md',
+  // 'bluetooth.js': 'bluetooth.md',
   'dgram.js': 'dgram.md',
-  'dns.js': 'dns.md',
-  'ipc.js': 'ipc.md',
-  'os.js': 'os.md',
-  'net.js': 'net.md',
-  'fs/index.js': 'fs.md'
+  // 'dns.js': 'dns.md',
+  // 'ipc.js': 'ipc.md',
+  // 'os.js': 'os.md',
+  // 'net.js': 'net.md',
+  // 'fs/index.js': 'fs.md'
 }
 
 for (const file of Object.keys(files)) {
