@@ -161,7 +161,7 @@ export function transform (filename) {
     let h = doc.export ? '##' : '###'
     if (doc.type === 'Module') h = '#'
 
-    const title = `\n${h} ${doc.name}\n`
+    const title = `\n${h} [${doc.name}](.${doc.location})\n`
     const header = `${doc.header.filter(Boolean).join('\n')}\n`
     let argumentsTable = ''
 
