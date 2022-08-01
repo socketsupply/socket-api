@@ -149,7 +149,8 @@ export function transform (filename) {
       })
 
       const index = docs.findIndex(d => d.sort === item.sort)
-      if (docs.length === 0 || index === -1) docs.push(item)
+      // if (docs.length === 0 || index === -1)
+      docs.push(item)
     }
   }
 
@@ -161,7 +162,7 @@ export function transform (filename) {
     if (doc.type === 'Module') h = '#'
 
     const title = `\n${h} ${doc.name}\n`
-    const header = `${doc.header.join('\n')}\n`
+    const header = `${doc.header.filter(Boolean).join('\n')}\n`
     let argumentsTable = ''
 
     if (doc.params && doc.params.length > 0) {
@@ -175,9 +176,6 @@ export function transform (filename) {
       for (const param of doc.params) {
         let type = param.type || 'Unknown'
         const desc = param.header?.join(' ')
-
-        const index = docs.findIndex(d => doc.sort === d.sort)
-        if (index > -1) docs.splice(index, 1) // its been used as an arg
 
         argumentsTable += `\n| ${Object.values(param).join(' | ')} |`
       }

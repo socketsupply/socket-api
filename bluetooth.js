@@ -56,6 +56,8 @@ export class Bluetooth extends EventEmitter {
 
   /**
    * Start scanning for published values that correspond to a well-known UUID
+   *
+   * @param {string} id - A well-known UUID
    * @return {Promise<any>}
    */
   subscribe (id = '') {
@@ -67,15 +69,16 @@ export class Bluetooth extends EventEmitter {
 
   /**
    * Start advertising a new value for a well-known UUID
+   * @param {string} id - A well-known UUID
    * @return {Promise<any>}
    */
-  async publish (characteristicId = '', value = '') {
-    if (!characteristicId || characteristicId.length !== 36) {
-      throw new Error('expected characteristicId of length 36')
+  async publish (id = '', value = '') {
+    if (!id || id.length !== 36) {
+      throw new Error('expected id of length 36')
     }
 
     const params = {
-      characteristicId: characteristicId,
+      characteristicId: id,
       serviceId: this.serviceId
     }
 
