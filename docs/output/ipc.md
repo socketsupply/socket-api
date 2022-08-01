@@ -1,82 +1,107 @@
 
-# OK
+### undefined
 
-This is a `VariableDeclaration` named `OK`in `ipc.js`, it's exported but undocumented.
-
-
-
-# ERROR
-
-This is a `VariableDeclaration` named `ERROR`in `ipc.js`, it's exported but undocumented.
+global window
 
 
+### Object
 
-# TIMEOUT
-
-This is a `VariableDeclaration` named `TIMEOUT`in `ipc.js`, it's exported but undocumented.
-
+assign extra data to `err` like an error `code`
 
 
-# kDebugEnabled
+## OK
 
-This is a `VariableDeclaration` named `kDebugEnabled`in `ipc.js`, it's exported but undocumented.
-
-
-
-# parseSeq
-
-This is a `FunctionDeclaration` named `parseSeq`in `ipc.js`, it's exported but undocumented.
+Represents an OK IPC status.
 
 
-| Argument | Type | Default | Required | Description |
+## ERROR
+
+Represents an ERROR IPC status.
+
+
+## TIMEOUT
+
+Timeout in milliseconds for IPC requests.
+
+
+## kDebugEnabled
+
+Symbol for the `ipc.debug.enabled` property
+
+
+## parseSeq
+
+Parses `seq` as integer value
+
+| Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| seq | Identifier | undefined | false | This item is undocumented. Using it is unadvised. |
-| options | Identifier | undefined | false | This item is undocumented. Using it is unadvised. |
+| seq | string|number | false |  |
+| [options] | (object) | true |  |
+| [options.bigint = false] | boolean | false |  |
 
-# Result
+## Result
 
-This is a `ClassDeclaration` named `Result`in `ipc.js`, it's exported but undocumented.
-
-
-
-# ready
-
-This is a `FunctionDeclaration` named `ready`in `ipc.js`, it's exported but undocumented.
+A result type used internally for handling
+IPC result values from the native layer that are in the form
+of `{ err?, data? }`. The `data` and `err` properties on this
+type of object are in tuple form and be accessed at `[data?,err?]`
 
 
+### from
 
-# sendSync
+Creates a `Result` instance from input that may be an object
+like `{ err?, data? }`, an `Error` instance, or just `data`.
 
-This is a `FunctionDeclaration` named `sendSync`in `ipc.js`, it's exported but undocumented.
-
-
-| Argument | Type | Default | Required | Description |
+| Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| command | Identifier | undefined | false | This item is undocumented. Using it is unadvised. |
-| params | undefined | undefined | false | This item is undocumented. Using it is unadvised. |
+| result | (object|Error|mixed) | true |  |
 
-# resolve
+## ready
+
+Waits for the native IPC layer to be ready and exposed on the
+global window object.
+
+
+## sendSync
+
+Sends a synchronous IPC command over XHR returning a `Result`
+upon success or error.
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| command | string | false |  |
+| params | (object|string) | true |  |
+
+## resolve
 
 This is a `FunctionDeclaration` named `resolve`in `ipc.js`, it's exported but undocumented.
 
 
-| Argument | Type | Default | Required | Description |
-| :---     | :--- | :---:   | :---:    | :---        |
-| undefined | undefined | undefined | false | This item is undocumented. Using it is unadvised. |
 
-# write
+## send
+
+This is a `FunctionDeclaration` named `send`in `ipc.js`, it's exported but undocumented.
+
+
+
+## write
 
 This is a `FunctionDeclaration` named `write`in `ipc.js`, it's exported but undocumented.
 
 
-| Argument | Type | Default | Required | Description |
-| :---     | :--- | :---:   | :---:    | :---        |
-| command | Identifier | undefined | false | This item is undocumented. Using it is unadvised. |
-| params | undefined | undefined | false | This item is undocumented. Using it is unadvised. |
-| buffer | Identifier | undefined | false | This item is undocumented. Using it is unadvised. |
-| options | Identifier | undefined | false | This item is undocumented. Using it is unadvised. |
 
-# undefined
+## request
+
+This is a `FunctionDeclaration` named `request`in `ipc.js`, it's exported but undocumented.
+
+
+
+### parent
+
+handle async resolution from IPC over XHR
+
+
+## undefined
 
 This is a `ExportDefaultDeclaration` named `undefined`in `ipc.js`, it's exported but undocumented.
 

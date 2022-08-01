@@ -1,29 +1,29 @@
 
-# arch
+## arch
 
 This is a `FunctionDeclaration` named `arch`in `os.js`, it's exported but undocumented.
 
 
 
-# networkInterfaces
+## networkInterfaces
 
 This is a `FunctionDeclaration` named `networkInterfaces`in `os.js`, it's exported but undocumented.
 
 
 
-# platform
+## platform
 
 This is a `FunctionDeclaration` named `platform`in `os.js`, it's exported but undocumented.
 
 
 
-# type
+## type
 
 This is a `FunctionDeclaration` named `type`in `os.js`, it's exported but undocumented.
 
 
 
-# EOL
+## EOL
 
 This is a `VariableDeclaration` named `EOL`in `os.js`, it's exported but undocumented.
 

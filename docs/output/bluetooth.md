@@ -1,31 +1,24 @@
 
 # Bluetooth
 
-Provides a high level api over bluetooth
-A pub-sub of key-value pairs
+A high level, cross-platform API for Bluetooth Pub-Sub
 
 
-## constructor
+## Bluetooth
 
+Create an instance of a Bluetooth service.
+
+
+### constructor
+
+constructor is an example property that is set to `true`
 Creates a new service with key-value pairs
 
-| Argument | Type | Default | Required | Description |
+| Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| serviceId | string | undefined | true | Required - The id of the service (must be a valid UUID) |
+| serviceId | string | '' | false | Given a default value to determine the type |
 
-## subscribe
-
-Start scanning for published values that correspond to a well-known UUID
-
-| Argument | Type | Default | Required | Description |
-| :---     | :--- | :---:   | :---:    | :---        |
-| id | string | undefined | false | A valid UUID to subscribe to |
-
-## publish
+### publish
 
 Start advertising a new value for a well-known UUID
 
-| Argument | Type | Default | Required | Description |
-| :---     | :--- | :---:   | :---:    | :---        |
-| characteristicId | string | undefined | false | This item is undocumented. Using it is unadvised. |
-| value | string | undefined | false | This item is undocumented. Using it is unadvised. |

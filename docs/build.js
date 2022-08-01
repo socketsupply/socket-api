@@ -18,8 +18,10 @@ function read (filename, stream) {
       accumulateComments = []
     },
     onComment: (_, comment) => {
-      if (comment[0] !== '/') return
-      accumulateComments.push(comment.replace(/^\/\s*/, '').trim())
+      comment = comment.replace(/^\s*\*/g, '')
+      comment = comment.replace(/\n\s*\*\s*/g, '\n')
+      comment = comment.replace(/^\n/, '')
+      accumulateComments.push(comment.trim()) // .replace(/^\/\s*/, '').trim())
     },
     locations: true
   })
@@ -40,6 +42,12 @@ function read (filename, stream) {
       header: comments[node.start]
     }
 
+    if (item.header?.join('').includes('@module')) {
+      item.type = 'Module'
+      const name = item.header.join('').match(/@module\s*(.*)/)
+      if (name) item.name = name[1]
+    }
+
     if (node.type.includes('ExportNamedDeclaration')) {
       if (!node.declaration) return
 
@@ -56,7 +64,7 @@ function read (filename, stream) {
       }
 
       if (item.type === 'FunctionDeclaration') {
-        item.params = node.declaration.params
+        item.params = [] // node.declaration.params
       }
     }
 
@@ -67,7 +75,7 @@ function read (filename, stream) {
         item.generator = node.value.generator
         item.static = node.static
         item.async = node.value.async
-        item.params = node.value.params
+        item.params = [] // node.value.params
       }
     }
 
@@ -78,31 +86,42 @@ function read (filename, stream) {
       ]
     }
 
-    if (item.params) {
-      item.params = item.params.map(param => {
-        const p = {}
-        if (param.type.includes('AssignmentPattern')) {
-          p.name = param.left.name
-          p.type = typeof param.right.value
-        } else {
-          p.name = param.name
-          p.type = param.type
+    const attrs = item.header?.join('\n').match(/@(.*)[\n$]*/g)
 
-          walk.full(ast, node => {
-            if (node.type.includes('Assignment')) {
-              if (node.left.name === p.name) {
-                p.type = typeof node.right.value || 'Unknown'
-              }
-            }
-          })
+    if (attrs) {
+      let position = 0
+
+      for (const attr of attrs) {
+        if (attr.includes('@param')) {
+          const parts = attr.replace('@param ', '').split(/ - /)
+          const { 1: type, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
+          const optional = type.includes('?')
+          const name = (rawName || `(Position ${position++})`).trim()
+
+          const param = {
+            name,
+            type: optional ? type.replace('?', '') : type
+          }
+
+          const params = node.declaration?.params || node.value?.params
+          if (params) {
+            const assign = params.find(o => o.left?.name === name)
+            if (assign) param.default = assign.right.raw
+          }
+
+          param.optional = optional
+          param.desc = parts[1]?.trim()
+
+          item.params.push(param)
         }
-
-        p.header = comments[param.start] || ['This item is undocumented. Using it is unadvised.']
-        return p
-      })
+      }
     }
 
     if (item.header) {
+      item.header = item.header.join('\n').split('\n').filter(line => {
+        return !line.startsWith('@')
+      })
+
       const index = docs.findIndex(d => d.sort === item.sort)
       if (docs.length === 0 || index === -1) docs.push(item)
     }
@@ -112,7 +131,8 @@ function read (filename, stream) {
   docs.sort((a, b) => a.sort - b.sort)
 
   for (const doc of docs) {
-    let h = doc.export ? '#' : '##'
+    let h = doc.export ? '##' : '###'
+    if (doc.type === 'Module') h = '#'
 
     const title = `\n${h} ${doc.name}\n`
     const header = `${doc.header.join('\n')}\n`
@@ -120,7 +140,7 @@ function read (filename, stream) {
 
     if (doc.params && doc.params.length > 0) {
       const tableHeader = [
-        '| Argument | Type | Default | Required | Description |',
+        '| Argument | Type | Default | Optional | Description |',
         '| :---     | :--- | :---:   | :---:    | :---        |'
       ].join('\n')
 
@@ -129,12 +149,11 @@ function read (filename, stream) {
       for (const param of doc.params) {
         let type = param.type || 'Unknown'
         const desc = param.header?.join(' ')
-        const required = desc?.toLowerCase().includes('required')
 
         const index = docs.findIndex(d => doc.sort === d.sort)
         if (index > -1) docs.splice(index, 1) // its been used as an arg
 
-        argumentsTable += `\n| ${param.name} | ${type} | ${param.value} | ${required} | ${desc} |`
+        argumentsTable += `\n| ${Object.values(param).join(' | ')} |`
       }
 
       argumentsTable += '\n'

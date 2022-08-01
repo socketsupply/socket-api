@@ -1,16 +1,23 @@
+/**
+ * A high level, cross-platform API for Bluetooth Pub-Sub
+ * @module Bluetooth
+ */
+
 import * as ipc from './ipc.js'
 import { EventEmitter } from './events.js'
 
-/// Provides a high level api over bluetooth
-/// A pub-sub of key-value pairs
+/**
+ * Create an instance of a Bluetooth service.
+ */
 export class Bluetooth extends EventEmitter {
   static isInitalized = false;
 
-  /// Creates a new service with key-value pairs
-  constructor (
-    /// Required - The id of the service (must be a valid UUID)
-    serviceId = '' // given a default value to determine the type
-  ) {
+  /**
+   * constructor is an example property that is set to `true`
+   * Creates a new service with key-value pairs
+   * @param {string} serviceId - Given a default value to determine the type
+   */
+  constructor (serviceId = '') {
     super()
 
     if (!serviceId || serviceId.length !== 36) {
@@ -46,18 +53,21 @@ export class Bluetooth extends EventEmitter {
     return ipc.send('bluetooth-start', { serviceId: this.serviceId })
   }
 
-  /// Start scanning for published values that correspond to a well-known UUID
-  subscribe (
-    /// A valid UUID to subscribe to
-    id = ''
-  ) {
+  /**
+   * Start scanning for published values that correspond to a well-known UUID
+   * @return {Promise<any>}
+   */
+  subscribe (id = '') {
     return ipc.send('bluetooth-subscribe', {
       characteristicId: id,
       serviceId: this.serviceId
     })
   }
 
-  /// Start advertising a new value for a well-known UUID
+  /**
+   * Start advertising a new value for a well-known UUID
+   * @return {Promise<any>}
+   */
   async publish (characteristicId = '', value = '') {
     if (!characteristicId || characteristicId.length !== 36) {
       throw new Error('expected characteristicId of length 36')
