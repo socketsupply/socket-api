@@ -1,3 +1,10 @@
+/**
+ * @module Dgram
+ *
+ * This module provides an implementation of UDP datagram sockets. It does
+ * not (yet) provide any of the multicast methods or properties.
+ */
+
 import { Buffer } from 'buffer'
 
 import { EventEmitter } from './events.js'

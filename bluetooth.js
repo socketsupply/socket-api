@@ -1,6 +1,7 @@
 /**
- * A high level, cross-platform API for Bluetooth Pub-Sub
  * @module Bluetooth
+ *
+ * A high level, cross-platform API for Bluetooth Pub-Sub
  */
 
 import * as ipc from './ipc.js'

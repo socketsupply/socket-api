@@ -1,3 +1,10 @@
+/**
+ * @module OS
+ *
+ * This module provides normalized system information from all the major
+ * operating systems.
+ */
+
 import { toProperCase } from './util.js'
 import * as ipc from './ipc.js'
 
