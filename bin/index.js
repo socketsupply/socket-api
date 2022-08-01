@@ -11,7 +11,6 @@ try {
 export function transform (filename) {
   const srcFile = path.relative(process.cwd(), filename)
   const destFile = path.relative(process.cwd(), 'README.md')
-  const stream = fs.createWriteStream(destFile, { flags: 'a' })
 
   let accumulateComments = []
   let comments = {}
@@ -133,7 +132,7 @@ export function transform (filename) {
       }
     }
 
-    if (item.export && item.header) {
+    if (item.header) {
       item.header = item.header.join('\n').split('\n').filter(line => {
         return !line.match(/@\w*/)
       })
@@ -175,11 +174,11 @@ export function transform (filename) {
       argumentsTable += '\n'
     }
 
-    stream.write([
+    fs.appendFileSync(destFile, [
       title,
       header,
       argumentsTable
-    ].join('\n'))
+    ].join('\n'), { flags: 'a' })
   }
 }
 

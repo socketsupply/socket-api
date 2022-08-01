@@ -180,7 +180,6 @@ export class Socket extends Duplex {
     window._ipc.send('tcpSetKeepAlive', params)
   }
 
-  // -------------------------------------------------------------
   _onTimeout () {
     const handle = this._handle
     const lastWriteQueueSize = this[kLastWriteQueueSize]
@@ -200,35 +199,9 @@ export class Socket extends Duplex {
     this.emit('timeout')
   }
 
-  // -------------------------------------------------------------
   address () {
     return { ...this._address }
   }
-
-  /*
-  _writeAfterFIN (chunk, encoding, cb) {
-    if (!this.writableEnded) {
-      return Duplex.prototype.write.call(this, chunk, encoding, cb)
-    }
-
-    if (typeof encoding === 'function') {
-      cb = encoding
-      encoding = null
-    }
-
-    // eslint-disable-next-line no-restricted-syntax
-    const err = new Error('Socket has been ended by the other party')
-    err.code = 'EPIPE'
-
-    if (typeof cb === 'function') {
-      cb(err)
-    }
-
-    this.destroy(er)
-
-    return false
-  }
-  */
 
   _final (cb) {
     if (this.pending) {
@@ -421,23 +394,6 @@ export class Socket extends Duplex {
     return this
   }
 
-  /*
-  async end (data, encoding, cb) {
-    Duplex.prototype.end.call(this, data)
-
-    const params = {
-      clientId: this.clientId
-    }
-
-    const { err } = await window._ipc.send('tcpShutdown', params)
-    delete window._ipc.streams[this.clientId]
-
-    if (err && cb) return cb(err)
-    if (err) this.emit('error', err)
-    this.emit('closed', !!err)
-    if (cb) return cb(null)
-  }
-*/
   unref () {
     return this // for compatibility with the net module
   }
