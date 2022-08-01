@@ -4,7 +4,7 @@
 A high level, cross-platform API for Bluetooth Pub-Sub
 
 
-## [Bluetooth (extends EventEmitter)](./bluetooth.js#L13)
+## [`Bluetooth` (extends `EventEmitter`)](./bluetooth.js#L13)
 
 Create an instance of a Bluetooth service.
 
@@ -40,7 +40,7 @@ This module provides an implementation of UDP datagram sockets. It does
 not (yet) provide any of the multicast methods or properties.
 
 
-## [Socket (extends EventEmitter)](./dgram.js#L42)
+## [`Socket` (extends `EventEmitter`)](./dgram.js#L42)
 
 New instances of dgram.Socket are created using dgram.createSocket().
 The new keyword is not to be used to create dgram.Socket instances.
@@ -240,14 +240,14 @@ stream-based TCP or IPC servers (net.createServer()) and clients
 (net.createConnection()).
 
 
-## [Server (extends EventEmitter)](./net.js#L67)
+## [`Server` (extends `EventEmitter`)](./net.js#L67)
 
-This is a `ClassDeclaration` named `Server (extends EventEmitter)`in `net.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named ``Server` (extends `EventEmitter`)`in `net.js`, it's exported but undocumented.
 
 
-## [Socket (extends Duplex)](./net.js#L152)
+## [`Socket` (extends `Duplex`)](./net.js#L152)
 
-This is a `ClassDeclaration` named `Socket (extends Duplex)`in `net.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named ``Socket` (extends `Duplex`)`in `net.js`, it's exported but undocumented.
 
 
 ## [connect](./net.js#L411)
