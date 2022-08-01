@@ -58,6 +58,10 @@ export function transform (filename) {
       if (name) item.name = name[1]
     }
 
+    if (node.type.includes('ExportAllDeclaration')) {
+      return
+    }
+
     if (node.type.includes('ExportDefaultDeclaration')) {
       return
     }

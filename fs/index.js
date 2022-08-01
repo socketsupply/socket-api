@@ -1,3 +1,22 @@
+/*
+ * @module File System
+ *
+ * This module enables interacting with the file system in a way modeled on
+ * standard POSIX functions.
+ *
+ * To use the promise-based APIs:
+ *
+ * ```js
+ * import * as fs from '@socketsupply/io/fs/promises';
+ * ```
+ *
+ * To use the callback and sync APIs:
+ *
+ * ```js
+ * import * as fs from 'node:fs';
+ * ```
+ */
+
 import { Dir, Dirent, sortDirectoryEntries } from './dir.js'
 import { DirectoryHandle, FileHandle } from './handle.js'
 import { ReadStream, WriteStream } from './stream.js'

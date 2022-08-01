@@ -220,6 +220,14 @@ This is a `VariableDeclaration` named `EOL`in `os.js`, it's exported but undocum
 
 
 
+# Net
+
+
+This module provides an asynchronous network API for creating
+stream-based TCP or IPC servers (net.createServer()) and clients
+(net.createConnection()).
+
+
 ## Server (extends EventEmitter)
 
 This is a `ClassDeclaration` named `Server (extends EventEmitter)`in `net.js`, it's exported but undocumented.
@@ -256,10 +264,24 @@ This is a `VariableDeclaration` named `isIPv4`in `net.js`, it's exported but und
 
 
 
-## undefined
+# File System
 
-This is a `ExportAllDeclaration` named `undefined`in `fs/index.js`, it's exported but undocumented.
 
+This module enables interacting with the file system in a way modeled on
+standard POSIX functions.
+
+To use the promise-based APIs:
+
+```js
+import
+```
+
+To use the callback and sync APIs:
+
+```js
+import
+as fs from 'node:fs';
+```
 
 
 ## access

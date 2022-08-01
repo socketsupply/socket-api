@@ -1,3 +1,12 @@
+/*
+ * @module Net
+ *
+ * This module provides an asynchronous network API for creating
+ * stream-based TCP or IPC servers (net.createServer()) and clients
+ * (net.createConnection()).
+ *
+ */
+
 import { EventEmitter } from './events.js'
 import { Duplex } from './stream.js'
 import { rand64 } from './util.js'
