@@ -82,6 +82,7 @@ export function transform (filename) {
       }
 
       if (item.type === 'FunctionDeclaration') {
+        item.name = item.name
         item.params = [] // node.declaration.params
       }
     }
@@ -111,6 +112,7 @@ export function transform (filename) {
 
       for (const attr of attrs) {
         if (attr.includes('@param')) {
+          item.signature = item.signature || []
           const parts = attr.replace('@param ', '').split(/ - /)
           const { 1: type, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
           const optional = type.includes('?')
@@ -132,8 +134,13 @@ export function transform (filename) {
           param.desc = parts[1]?.trim()
 
           item.params?.push(param)
+          item.signature.push(name)
         }
       }
+    }
+
+    if (item.signature) {
+      item.name = `\`${item.name}(${item.signature.join(', ')})\``
     }
 
     if (item.header) {

@@ -10,7 +10,7 @@ A high level, cross-platform API for Bluetooth Pub-Sub
 Create an instance of a Bluetooth service.
 
 
-### constructor
+### `constructor(serviceId)`
 
 constructor is an example property that is set to `true`
 Creates a new service with key-value pairs
@@ -37,7 +37,7 @@ New instances of dgram.Socket are created using dgram.createSocket().
 The new keyword is not to be used to create dgram.Socket instances.
 
 
-### bind
+### `bind(port, address, callback)`
 
 Listen for datagram messages on a named port and optional address
 If address is not specified, the operating system will attempt to
@@ -53,7 +53,7 @@ If binding fails, an 'error' event is emitted.
 | address | string |  | false | The address to bind to (0.0.0.0) |
 | callback | function |  | false | With no parameters. Called when binding is complete. |
 
-## lookup
+## `lookup(hostname, opts, opts.family, cllback)`
 
 
 This module enables name resolution. For example, use it to look up IP
@@ -116,7 +116,7 @@ Timeout in milliseconds for IPC requests.
 Symbol for the `ipc.debug.enabled` property
 
 
-## parseSeq
+## `parseSeq(seq, [options], [options.bigint = false])`
 
 Parses `seq` as integer value
 
@@ -134,7 +134,7 @@ of `{ err?, data? }`. The `data` and `err` properties on this
 type of object are in tuple form and be accessed at `[data?,err?]`
 
 
-### from
+### `from(result)`
 
 Creates a `Result` instance from input that may be an object
 like `{ err?, data? }`, an `Error` instance, or just `data`.
@@ -149,7 +149,7 @@ This is a `FunctionDeclaration` named `ready`in `ipc.js`, it's exported but undo
 
 
 
-## sendSync
+## `sendSync(command, params)`
 
 Sends a synchronous IPC command over XHR returning a `Result`
 upon success or error.
@@ -284,7 +284,7 @@ as fs from 'node:fs';
 ```
 
 
-## access
+## `access(path, [mode = F_OK(0)], callback)`
 
 Asynchronously check access a file for a given mode calling `callback`
 upon success or error.
@@ -307,7 +307,7 @@ This is a `FunctionDeclaration` named `chown`in `fs/index.js`, it's exported but
 
 
 
-## close
+## `close(fd, callback)`
 
 Asynchronously close a file descriptor calling `callback` upon success or error.
 
@@ -328,7 +328,7 @@ This is a `FunctionDeclaration` named `createWriteStream`in `fs/index.js`, it's 
 
 
 
-## fstat
+## `fstat(fd, options, callback)`
 
 Invokes the callback with the <fs.Stats> for the file descriptor. See
 the POSIX fstat(2) documentation for more detail.
@@ -370,7 +370,7 @@ This is a `FunctionDeclaration` named `mkdir`in `fs/index.js`, it's exported but
 
 
 
-## open
+## `open(path, [flags = 'r'], [mode = 0o666], callback)`
 
 Asynchronously open a file calling `callback` upon success or error.
 
@@ -381,7 +381,7 @@ Asynchronously open a file calling `callback` upon success or error.
 | [mode = 0o666] | (string) |  | true |  |
 | callback | function(err, fd) |  | false |  |
 
-## read
+## `read(fd, buffer)`
 
 Asynchronously read from an open file descriptor.
 
@@ -390,7 +390,7 @@ Asynchronously read from an open file descriptor.
 | fd | number |  | false |  |
 | buffer | object \| Buffer | TypedArray |  | false |  |
 
-## readFile
+## `readFile(path, [options], callback)`
 
 
 
