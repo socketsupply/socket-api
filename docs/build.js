@@ -19,6 +19,8 @@ function read (filename, stream) {
     },
     onComment: (block, comment) => {
       if (!block) return
+      if (comment.includes('global window')) return
+
       comment = comment.replace(/^\s*\*/g, '')
       comment = comment.replace(/\n?\s*\*\s*/g, '\n')
       comment = comment.replace(/^\n/, '')
@@ -47,6 +49,10 @@ function read (filename, stream) {
       item.type = 'Module'
       const name = item.header.join('').match(/@module\s*(.*)/)
       if (name) item.name = name[1]
+    }
+
+    if (node.type.includes('ExportDefaultDeclaration')) {
+      return
     }
 
     if (node.type.includes('ExportNamedDeclaration')) {
@@ -170,13 +176,13 @@ function read (filename, stream) {
 }
 
 const files = {
-  // 'bluetooth.js': 'bluetooth.md',
+  'bluetooth.js': 'bluetooth.md',
   'dgram.js': 'dgram.md',
-  // 'dns.js': 'dns.md',
-  // 'ipc.js': 'ipc.md',
-  // 'os.js': 'os.md',
-  // 'net.js': 'net.md',
-  // 'fs/index.js': 'fs.md'
+  'dns.js': 'dns.md',
+  'ipc.js': 'ipc.md',
+  'os.js': 'os.md',
+  'net.js': 'net.md',
+  'fs/index.js': 'fs.md'
 }
 
 for (const file of Object.keys(files)) {

@@ -1,19 +1,4 @@
 
-### undefined
-
-lifted from nodejs/node/
-
-
-### options
-
-(options[...][, cb])
-
-
-### options
-
-([port][, host][...][, cb])
-
-
 ## Server (extends EventEmitter)
 
 This is a `ClassDeclaration` named `Server (extends EventEmitter)`in `net.js`, it's exported but undocumented.
@@ -24,36 +9,6 @@ This is a `ClassDeclaration` named `Server (extends EventEmitter)`in `net.js`, i
 
 This is a `ClassDeclaration` named `Socket (extends Duplex)`in `net.js`, it's exported but undocumented.
 
-
-
-### setNoDelay
-
-note: this is not an async method on node, so it's not here
-thus the ipc response is not awaited. since _ipc.send is async
-but the messages are handled in order, you do not need to wait
-for it before sending data, noDelay will be set correctly before the
-next data is sent.
-
-
-### setKeepAlive
-
-note: see note for setNoDelay
-
-
-### _onTimeout
-
--------------------------------------------------------------
-
-
-### undefined
-
-`lastWriteQueueSize !== writeQueueSize` means there is
-an active write in progress, so we suppress the timeout.
-
-
-### address
-
--------------------------------------------------------------
 
 
 ### _final
@@ -82,48 +37,6 @@ _writeAfterFIN (chunk, encoding, cb) {
   }
 
 
-### requests
-
-sent in order so could just await the last one?
-
-
-### __write
-
-
-This is called internally by incoming _ipc message when there is data to insert to the stream.
-
-
-
-### undefined
-
-if this stream is not full duplex,
-then mark as not writable.
-
-
-### undefined
-
-send a ReadStop but do not wait for a confirmation.
-ipc is async, but it's ordered,
-
-
-### undefined
-
-send a ReadStop but do not wait for a confirmation.
-ipc is async, but it's ordered,
-
-
-### undefined
-
-TODO: if host is a ip address
-connect, if it is a dns name, lookup
-
-
-### window
-
-this.port = port
-this.address = address
-
-
 ### unref
 
 async end (data, encoding, cb) {
@@ -147,11 +60,6 @@ async end (data, encoding, cb) {
 
 This is a `VariableDeclaration` named `connect`in `net.js`, it's exported but undocumented.
 
-
-
-### undefined
-
-supported by node but not here: localAddress, localHost, hints, lookup
 
 
 ## createServer

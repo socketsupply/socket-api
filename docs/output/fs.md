@@ -12,9 +12,9 @@ upon success or error.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| path | string | Buffer | URL | false |  |
-| [mode = F_OK(0)] | (string) | true |  |
-| callback | function(err, fd) | false |  |
+| path | string | Buffer | URL |  | false |  |
+| [mode = F_OK(0)] | (string) |  | true |  |
+| callback | function(err, fd) |  | false |  |
 
 ## chmod
 
@@ -32,8 +32,8 @@ Asynchronously close a file descriptor calling `callback` upon success or error.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| fd | number | false |  |
-| callback | function(err) | false |  |
+| fd | number |  | false |  |
+| callback | function(err) |  | false |  |
 
 ## createReadStream
 
@@ -86,10 +86,10 @@ Asynchronously open a file calling `callback` upon success or error.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| path | string | Buffer | URL | false |  |
-| [flags = 'r'] | (string) | true |  |
-| [mode = 0o666] | (string) | true |  |
-| callback | function(err, fd) | false |  |
+| path | string | Buffer | URL |  | false |  |
+| [flags = 'r'] | (string) |  | true |  |
+| [mode = 0o666] | (string) |  | true |  |
+| callback | function(err, fd) |  | false |  |
 
 ## read
 
@@ -97,8 +97,8 @@ Asynchronously read from an open file descriptor.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| fd | number | false |  |
-| buffer | object | Buffer | TypedArray | false |  |
+| fd | number |  | false |  |
+| buffer | object | Buffer | TypedArray |  | false |  |
 
 ## readFile
 
@@ -106,9 +106,9 @@ Asynchronously read from an open file descriptor.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| path | string | Buffer | URL | number  | false |  |
-| [options] | object | false |  |
-| callback | function(err, buffer) | false |  |
+| path | string | Buffer | URL | number  |  | false |  |
+| [options] | object |  | false |  |
+| callback | function(err, buffer) |  | false |  |
 
 ## realpath
 

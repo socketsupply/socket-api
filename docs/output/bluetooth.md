@@ -16,7 +16,7 @@ Creates a new service with key-value pairs
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| serviceId | string | '' | false | Given a default value to determine the type |
+| serviceId | string |  | false | Given a default value to determine the type |
 
 ### publish
 

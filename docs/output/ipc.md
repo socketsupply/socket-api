@@ -1,14 +1,4 @@
 
-### undefined
-
-global window
-
-
-### Object
-
-assign extra data to `err` like an error `code`
-
-
 ## OK
 
 Represents an OK IPC status.
@@ -35,9 +25,9 @@ Parses `seq` as integer value
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| seq | string|number | false |  |
-| [options] | (object) | true |  |
-| [options.bigint = false] | boolean | false |  |
+| seq | string|number |  | false |  |
+| [options] | (object) |  | true |  |
+| [options.bigint = false] | boolean |  | false |  |
 
 ## Result
 
@@ -54,12 +44,12 @@ like `{ err?, data? }`, an `Error` instance, or just `data`.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| result | (object|Error|mixed) | true |  |
+| result | (object|Error|mixed) |  | true |  |
 
 ## ready
 
-Waits for the native IPC layer to be ready and exposed on the
-global window object.
+This is a `FunctionDeclaration` named `ready`in `ipc.js`, it's exported but undocumented.
+
 
 
 ## sendSync
@@ -69,8 +59,8 @@ upon success or error.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| command | string | false |  |
-| params | (object|string) | true |  |
+| command | string |  | false |  |
+| params | (object|string) |  | true |  |
 
 ## resolve
 
@@ -93,16 +83,5 @@ This is a `FunctionDeclaration` named `write`in `ipc.js`, it's exported but undo
 ## request
 
 This is a `FunctionDeclaration` named `request`in `ipc.js`, it's exported but undocumented.
-
-
-
-### parent
-
-handle async resolution from IPC over XHR
-
-
-## undefined
-
-This is a `ExportDefaultDeclaration` named `undefined`in `ipc.js`, it's exported but undocumented.
 
 
