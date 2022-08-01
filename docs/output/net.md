@@ -14,15 +14,15 @@ lifted from nodejs/node/
 ([port][, host][...][, cb])
 
 
-## Server
+## Server (extends EventEmitter)
 
-This is a `ClassDeclaration` named `Server`in `net.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named `Server (extends EventEmitter)`in `net.js`, it's exported but undocumented.
 
 
 
-## Socket
+## Socket (extends Duplex)
 
-This is a `ClassDeclaration` named `Socket`in `net.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named `Socket (extends Duplex)`in `net.js`, it's exported but undocumented.
 
 
 

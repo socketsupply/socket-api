@@ -21,7 +21,7 @@ function read (filename, stream) {
       comment = comment.replace(/^\s*\*/g, '')
       comment = comment.replace(/\n\s*\*\s*/g, '\n')
       comment = comment.replace(/^\n/, '')
-      accumulateComments.push(comment.trim()) // .replace(/^\/\s*/, '').trim())
+      accumulateComments.push(comment.trim())
     },
     locations: true
   })
@@ -60,7 +60,7 @@ function read (filename, stream) {
       }
 
       if (node.declaration.superClass) {
-        item.inherits = node.declaration.superClass.name
+        item.name = `${item.name} (extends ${node.declaration.superClass.name})`
       }
 
       if (item.type === 'FunctionDeclaration') {

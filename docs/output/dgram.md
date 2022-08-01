@@ -1,11 +1,8 @@
 
-## Socket
+## Socket (extends EventEmitter)
 
-/
-/ New instances of dgram.Socket are created using dgram.createSocket().
-/ The new keyword is not to be used to create dgram.Socket instances.
-/ Extends - EventEmitter
-/
+New instances of dgram.Socket are created using dgram.createSocket().
+The new keyword is not to be used to create dgram.Socket instances.
 
 
 ### bind

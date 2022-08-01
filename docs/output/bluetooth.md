@@ -4,7 +4,7 @@
 A high level, cross-platform API for Bluetooth Pub-Sub
 
 
-## Bluetooth
+## Bluetooth (extends EventEmitter)
 
 Create an instance of a Bluetooth service.
 

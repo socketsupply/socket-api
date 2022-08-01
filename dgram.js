@@ -28,11 +28,10 @@ const fixBufferList = list => {
   return newlist
 }
 
-///
-/// New instances of dgram.Socket are created using dgram.createSocket().
-/// The new keyword is not to be used to create dgram.Socket instances.
-/// Extends - EventEmitter
-///
+/*
+ * New instances of dgram.Socket are created using dgram.createSocket().
+ * The new keyword is not to be used to create dgram.Socket instances.
+ */
 export class Socket extends EventEmitter {
   constructor (options) {
     super()
