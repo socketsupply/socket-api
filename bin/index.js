@@ -78,7 +78,7 @@ export function transform (filename) {
       }
 
       if (node.declaration.superClass) {
-        item.name = `${item.name} (extends ${node.declaration.superClass.name})`
+        item.name = `\`${item.name}\` (extends \`${node.declaration.superClass.name}\`)`
       }
 
       if (item.type === 'FunctionDeclaration') {
