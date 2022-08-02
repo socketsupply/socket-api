@@ -125,7 +125,7 @@ export class Socket extends EventEmitter {
     } else if (!isIPv4(options.address)) {
       // fire off a dns lookup, listening or error will be emitted in response
       ipc.write('dnsLookup', {
-        address: options.address,
+        hostname: options.address,
         serverId: this.serverId,
         seq: -1
       })
