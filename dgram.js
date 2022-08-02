@@ -382,12 +382,11 @@ export class Socket extends EventEmitter {
       throw new Error('Currently dns lookup on send is not supported')
     }
 
-    const { err: errSend } = await ipc.send('udpSend', {
+    const { err: errSend } = await ipc.write('udpSend', {
       state: this.state,
       address,
-      port,
-      list
-    })
+      port
+    }, list)
 
     if (errSend) {
       if (cb) return cb(errSend)
