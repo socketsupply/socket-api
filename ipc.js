@@ -164,9 +164,12 @@ Object.defineProperty(debug, 'enabled', {
   set (value) {
     debug[kDebugEnabled] = Boolean(value)
   },
+
   get () {
     if (debug[kDebugEnabled] === undefined) {
-      return typeof window === 'undefined' ? false : Boolean(window.process?.debug)
+      return typeof window === 'undefined'
+        ? false
+        : Boolean(window.process?.debug)
     }
 
     return debug[kDebugEnabled]
@@ -284,7 +287,7 @@ export function sendSync (command, params) {
 
   params = new URLSearchParams(params)
   params.set('index', index)
-  params.set('seq', seq)
+  params.set('seq', 'R' + seq)
 
   const query = `?${params}`
 
@@ -301,7 +304,7 @@ export function sendSync (command, params) {
     return Result.from(JSON.parse(response))
   } catch (err) {
     if (debug.enabled) {
-      console.warn(err.message || err)
+      console.warn('ipc.sendSync: error:', err.message || err)
     }
   }
 
@@ -369,7 +372,7 @@ export async function write (command, params, buffer, options) {
 
   params = new URLSearchParams(params)
   params.set('index', index)
-  params.set('seq', seq)
+  params.set('seq', 'R' + seq)
 
   const query = `?${params}`
 
