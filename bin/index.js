@@ -94,7 +94,8 @@ export function transform (filename) {
         item.generator = node.value.generator
         item.static = node.static
         item.async = node.value.async
-        item.params = [] // node.value.params
+        item.params = []
+        item.returns = []
       }
     }
 
@@ -111,7 +112,11 @@ export function transform (filename) {
       let position = 0
 
       for (const attr of attrs) {
-        if (attr.includes('@param')) {
+        const propTypeMatch = attr.match(/^@(param|returns)/)
+
+        if (propTypeMatch) {
+          const propType = propTypeMatch[1] === 'param' ? 'params' : 'returns'
+          console.log('>>>', propTypeMatch)
           item.signature = item.signature || []
           const parts = attr.replace('@param ', '').split(/ - /)
           const { 1: type, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
@@ -133,8 +138,8 @@ export function transform (filename) {
           param.optional = optional
           param.desc = parts[1]?.trim()
 
-          item.params?.push(param)
-          item.signature.push(name)
+          item[propType]?.push(param)
+          if (propType === 'param') item.signature.push(name)
         }
       }
     }
@@ -157,37 +162,41 @@ export function transform (filename) {
   walk.full(ast, onNode)
   docs.sort((a, b) => a.sort - b.sort)
 
+  const createTable = (arr, h) => {
+    if (!arr || !arr.length) return ''
+
+    const tableHeader = [
+      `| ${h} | Type | Default | Optional | Description |`,
+      '| :--- | :--- | :---:   | :---:    | :---        |'
+    ].join('\n')
+
+    let table = `${tableHeader}\n`
+
+    for (const param of arr) {
+      let type = param.type || 'Unknown'
+      const desc = param.header?.join(' ')
+
+      table += `| ${Object.values(param).join(' | ')} |\n`
+    }
+
+    return (table + '\n')
+  }
+
   for (const doc of docs) {
     let h = doc.export ? '##' : '###'
     if (doc.type === 'Module') h = '#'
 
     const title = `\n${h} [${doc.name}](.${doc.location})\n`
     const header = `${doc.header.filter(Boolean).join('\n')}\n`
-    let argumentsTable = ''
 
-    if (doc.params && doc.params.length > 0) {
-      const tableHeader = [
-        '| Argument | Type | Default | Optional | Description |',
-        '| :---     | :--- | :---:   | :---:    | :---        |'
-      ].join('\n')
-
-      argumentsTable = `${tableHeader}`
-
-      for (const param of doc.params) {
-        let type = param.type || 'Unknown'
-        const desc = param.header?.join(' ')
-
-        argumentsTable += `\n| ${Object.values(param).join(' | ')} |`
-      }
-
-      argumentsTable += '\n'
-    }
-
-    fs.appendFileSync(destFile, [
+    const md = [
       title,
       header,
-      argumentsTable
-    ].join('\n'), { flags: 'a' })
+      createTable(doc?.params, 'Argument'),
+      createTable(doc?.returns, 'Return Value')
+    ].join('\n')
+
+    fs.appendFileSync(destFile, md, { flags: 'a' })
   }
 }
 
