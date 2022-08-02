@@ -163,7 +163,7 @@ export class Socket extends EventEmitter {
         this.emit('message', buffer)
       }
 
-      if (e.detal.params.EOF) {
+      if (data.EOF) {
         window.removeListener('data', listener)
       }
     }
