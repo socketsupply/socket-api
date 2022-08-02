@@ -8,13 +8,12 @@ id="co.socketsupply.io.tests"
 ## Start application
 adb shell am start -n "$id/.MainWebViewActivity" || exit $?
 
-## Probe for application process ID
-pid="$(adb shell ps | grep "$id" | awk '{print $2}' 2>/dev/null)"
-
-if [ -z "$pid" ]; then
-  echo >&2 "error: Failed to determine PID for '$id'"
-  exit 1
-fi
+echo "polling for '$id' PID in adb"
+while [ -z "$pid" ]; do
+  ## Probe for application process ID
+  pid="$(adb shell ps | grep "$id" | awk '{print $2}' 2>/dev/null)"
+  sleep 1s
+done
 
 ## Process logs from 'adb logcat'
 while read -r line; do

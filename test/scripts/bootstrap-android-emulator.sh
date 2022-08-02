@@ -1,42 +1,13 @@
 #!/usr/bin/env bash
 
-declare id=""
-declare pid=""
+declare emulator_flags=()
 
-id="co.socketsupply.io.tests"
+emulator_flags+=(
+  -gpu swiftshader_indirect
+  -camera-back none
+  -no-boot-anim
+  -no-window
+  -noaudio
+)
 
-## Start application
-adb shell am start -n "$id/.MainWebViewActivity" || exit $?
-
-while [ -z "$pid" ]; do
-  echo "polling for '$id' PID"
-  ## Probe for application process ID
-  pid="$(adb shell ps | grep "$id" | awk '{print $2}' 2>/dev/null)"
-  sleep 1s
-done
-
-if [ -z "$pid" ]; then
-  echo >&2 "error: Failed to determine PID for '$id'"
-  exit 1
-fi
-
-## Process logs from 'adb logcat'
-while read -r line; do
-  if grep 'ExternalWebViewInterface' < <(echo "$line") >/dev/null; then
-    line="$(echo "$line" | sed 's/.*ExternalWebViewInterface://g' | xargs)"
-    echo "$line"
-
-    if [[ "$line" =~ __EXIT_SIGNAL__ ]]; then
-      status="${line//__EXIT_SIGNAL__=/}"
-      exit "$status"
-    fi
-
-    if [ "$line" == "# ok" ]; then
-      exit
-    fi
-
-    if [ "$line" == "# fail" ]; then
-      exit 1
-    fi
-  fi
-done < <(adb logcat --pid="$pid")
+emulator @SSCAVD "${emulator_flags[@]}"

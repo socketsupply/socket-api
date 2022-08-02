@@ -155,11 +155,12 @@ jobs:
         arch: x86_64
         target: google_apis
         disable-animations: false
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         force-avd-creation: false
         profile: pixel_5
         ndk: 25.0.8775105
         script: |
-          npm run test:android-emulator --silent
+          npm run test:android --silent
 
       env:
         CI: true
