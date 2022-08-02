@@ -62,7 +62,7 @@ export class Socket extends EventEmitter {
   }
 
   async _getPeerData () {
-    const { err, data } = await window._ipc.send('udpGetPeerName', {
+    const { err, data } = await ipc.send('udpGetPeerName', {
       id: this.clientId
     })
 
@@ -124,7 +124,11 @@ export class Socket extends EventEmitter {
       }
     } else if (!isIPv4(options.address)) {
       // fire off a dns lookup, listening or error will be emitted in response
-      window.external.invoke(`ipc://dnsLookup?serverId=${this.serverId}seq=-1`)
+      ipc.write('dnsLookup', {
+        address: options.address,
+        serverId: this.serverId,
+        seq: -1
+      })
     }
 
     const { err: errBind, data } = ipc.sendSync('udpBind', {
@@ -231,7 +235,7 @@ export class Socket extends EventEmitter {
     const {
       err: errConnect,
       dataConnect
-    } = await window._ipc.send('udpConnect', {
+    } = await ipc.send('udpConnect', {
       ip: dataLookup.ip,
       port: port || 0
     })
@@ -266,7 +270,7 @@ export class Socket extends EventEmitter {
   }
 
   async disconnect () {
-    const { err: errConnect } = await window._ipc.send('udpDisconnect', {
+    const { err: errConnect } = await ipc.send('udpDisconnect', {
       ip: this._remoteAddress,
       port: this._remotePort || 0
     })
@@ -374,21 +378,11 @@ export class Socket extends EventEmitter {
       list.push(Buffer.alloc(0))
     }
 
-    if (!connected) {
-      const {
-        err: errLookup,
-        data: dataLookup
-      } = await dns.lookup(address)
-
-      if (errLookup) {
-        if (cb) return cb(errLookup)
-        return { err: errLookup }
-      }
-
-      address = dataLookup.ip
+    if (!connected && !isIPv4(address)) {
+      throw new Error('Currently dns lookup on send is not supported')
     }
 
-    const { err: errSend } = await window._ipc.send('udpSend', {
+    const { err: errSend } = await ipc.send('udpSend', {
       state: this.state,
       address,
       port,
@@ -416,7 +410,7 @@ export class Socket extends EventEmitter {
       this.on('close', cb)
     }
 
-    const { err } = await window._ipc.send('udpClose', {
+    const { err } = await ipc.send('udpClose', {
       id: this.clientId
     })
 
