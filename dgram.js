@@ -152,7 +152,7 @@ export class Socket extends EventEmitter {
         return this.emit('error', err)
       }
 
-      if (data.serverId !== this.serverId) return
+      if (BigInt(data.serverId) !== this.serverId) return
 
       if (data.source === 'dnsLookup') {
         this._address = data.params.ip
