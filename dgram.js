@@ -152,13 +152,13 @@ export class Socket extends EventEmitter {
     const listener = e => {
       const { err, data } = e.detail
 
-      if (err && err.params.serverId === this.serverId) {
+      if (err && err.params?.serverId === this.serverId) {
         return this.emit('error', err)
       }
 
-      if (data.params.serverId !== this.serverId) return
+      if (data.params?.serverId !== this.serverId) return
 
-      if (data.params.source === 'dnsLookup') {
+      if (data.params?.source === 'dnsLookup') {
         this._address = data.params.ip
         return this.emit('listenting')
       }
