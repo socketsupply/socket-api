@@ -57,13 +57,8 @@ export class Socket extends EventEmitter {
     this.connect()
   }
 
-  async _getSockData ({ id }) {
-    const { err, data } = await window._ipc.send('udpGetSockName', {
-      id: id || this.clientId
-    })
-
-    if (err) return { err }
-    return { data }
+  _getSockData ({ id }) {
+    return ipc.sendSync('udpGetSockName', { id: id || this.clientId })
   }
 
   async _getPeerData () {
@@ -76,7 +71,7 @@ export class Socket extends EventEmitter {
   }
 
   _recvStart () {
-    window.external.invoke(`ipc://udpReadStart?serverId=${this.serverId}`)
+    ipc.write('udpReadStart', { serverId: this.serverId })
   }
 
   /**
@@ -150,20 +145,23 @@ export class Socket extends EventEmitter {
     this._family = isIPv4(options.address) ? 'IPv4' : 'IPv6'
 
     const listener = e => {
-      const { err, data } = e.detail
+      const { data: buffer, params } = e.detail
+      const { err, data } = params
 
-      if (err && err.params?.serverId === this.serverId) {
+      if (err && err.serverId === this.serverId) {
         return this.emit('error', err)
       }
 
-      if (data.params?.serverId !== this.serverId) return
+      if (data.serverId !== this.serverId) return
 
-      if (data.params?.source === 'dnsLookup') {
+      if (data.source === 'dnsLookup') {
         this._address = data.params.ip
         return this.emit('listenting')
       }
 
-      this.emit('message', data)
+      if (data.source === 'udpReadStart') {
+        this.emit('message', buffer)
+      }
 
       if (e.detal.params.EOF) {
         window.removeListener('data', listener)
