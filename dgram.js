@@ -342,7 +342,7 @@ export class Socket extends EventEmitter {
     }
 
     const index = args.findIndex(arg => typeof arg === 'function')
-    if (index > -1) cb = args[index]
+    if (index > -1) cb = args.pop()
 
     if (typeof args[2] === 'number') {
       [offset, length, port, address] = args.slice(0, index)
@@ -353,7 +353,7 @@ export class Socket extends EventEmitter {
 
       buffer = Buffer.from(buffer.buffer, buffer.byteOffset + offset, length)
     } else {
-      [port, address] = args.slice(0, index)
+      [port, address] = args
     }
 
     let list
@@ -387,7 +387,7 @@ export class Socket extends EventEmitter {
     }
 
     const { err: errSend } = await ipc.write('udpSend', {
-      state: this.state,
+      clientId: rand64(),
       address,
       port
     }, list)
