@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+import { spawn } from 'node:child_process'
+import path from 'node:path'
+import repl from 'node:repl'
+
+const scope = {}
+const server = repl({
+  prompt: '# ',
+  async eval () {
+  }
+})
+
+const proc = spawm('ssc', ['--headless', '--run', '-o'], {
+  cwd: path.dirname(__dirname)
+})
+
+server.context = new Proxy(scope, {
+})
