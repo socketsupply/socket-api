@@ -107,7 +107,6 @@ export function clamp (value, min, max) {
   return Math.min(max, Math.max(min, value))
 }
 
-// @TODO
 export function inspect (value, options) {
   const ctx = {
     seen: options?.seen || [],
@@ -212,10 +211,16 @@ export function inspect (value, options) {
     }
 
     if (value instanceof Error) {
-      typename = `[${Error.prototype.toString.call(value)}]`
+      typename = `${Error.prototype.toString.call(value)}`
+      braces[0] =  ''
+      braces[1] =  ''
+      enumerableKeys.name = true
+      if (value.cause) {
+        keys.add('cause')
+      }
     }
 
-    if (keys.size === 0) {
+    if (keys.size === 0 && !(value instanceof Error)) {
       if (isFunction(value)) {
         return typename
       } else if (!isArrayLikeValue || value.length === 0) {
@@ -276,6 +281,20 @@ export function inspect (value, options) {
     }
 
     ctx.seen.pop()
+
+    if (value instanceof Error) {
+      let out = value.stack
+      if (keys.size) {
+        out += ' {\n'
+      }
+
+      out += `  ${output.join(',\n  ')}`
+      if (keys.size) {
+        out += '\n}'
+      }
+
+      return out.trim()
+    }
 
     const length = output.reduce((p, c) => (p + c.length + 1), 0)
 
@@ -366,8 +385,18 @@ export function inspect (value, options) {
 }
 
 export function format (format, ...args) {
+  let options = args.pop()
+
+  if (!options || typeof options !== 'object' || !options?.seen || !options?.depth) {
+    args.push(options)
+    options = undefined
+  }
+
   if (typeof format !== 'string') {
-    return [format].concat(args).map((arg) => inspect(arg)).join(' ')
+    return [format]
+      .concat(args)
+      .map((arg) => inspect(arg, { ...options }))
+      .join(' ')
   }
 
   const regex = /%[sdj%]/g
@@ -401,7 +430,7 @@ export function format (format, ...args) {
     if (arg === null || typeof arg !== 'object') {
       str += ' ' + arg
     } else {
-      str += ' ' + inspect(arg)
+      str += ' ' + inspect(arg, { ...options })
     }
   }
 
