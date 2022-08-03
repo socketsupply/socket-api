@@ -388,6 +388,7 @@ export class Socket extends EventEmitter {
 
     const { err: errSend } = await ipc.write('udpSend', {
       clientId: rand64(),
+      serverId: this.serverId || 0,
       address,
       port
     }, list)

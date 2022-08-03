@@ -90,7 +90,7 @@ function maybeMakeError (error, caller) {
     err = new errors[type](error.message || '', error)
   } else {
     for (const E of Object.values(errors)) {
-      if (type === E.code || code === E.code) {
+      if ((E.code && type === E.code) || (code && code === E.code)) {
         err = new E(error.message || '', error)
       }
     }
