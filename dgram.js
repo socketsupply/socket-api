@@ -164,7 +164,11 @@ export class Socket extends EventEmitter {
       }
 
       if (data.source === 'udpReadStart') {
-        this.emit('message', buffer)
+        this.emit('message', buffer, {
+          address: params.data.ip,
+          port: params.data.port,
+          family: isIPv4(params.data.ip)
+        })
       }
 
       if (data.EOF) {
