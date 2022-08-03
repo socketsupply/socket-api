@@ -49,7 +49,7 @@ export class FileHandle extends EventEmitter {
 
     // `id` could actually be an `fd`
     if (!fd) {
-      id = fds.to(id)
+      id = fds.id(id)
       fd = fds.get(id)
     }
 

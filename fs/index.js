@@ -24,10 +24,13 @@ import { isBufferLike, isFunction } from '../util.js'
 import * as constants from './constants.js'
 import * as promises from './promises.js'
 import { Stats } from './stats.js'
+import * as binding from './binding.js'
 import * as ipc from '../ipc.js'
 import fds from './fds.js'
+import gc from '../gc.js'
 
 export * from './stream.js'
+export * from './binding'
 
 function defaultCallback (err) {
   if (err) throw err
@@ -292,7 +295,10 @@ export function open (path, flags, mode, options, callback) {
 
   FileHandle
     .open(path, flags, mode, options)
-    .then((handle) => callback(null, handle.fd))
+    .then((handle) => {
+      gc.unref(handle)
+      callback(null, handle.fd)
+    })
     .catch((err) => callback(err))
 }
 
