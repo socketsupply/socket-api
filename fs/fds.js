@@ -9,47 +9,6 @@ export default new class FileDescriptorsMap {
   fds = new Map()
   ids = new Map()
 
-  constructor () {
-    if (
-      typeof window === 'object' &&
-      typeof window.process === 'object' &&
-      window.process.openFds instanceof Map
-    ) {
-      for (const [id, entry] of window.process.openFds) {
-        this.setEntry(id, entry)
-      }
-
-      const { set, delete: del, clear } = window.process.openFds
-      window.process.openFds.set = (id, entry) => {
-        this.setEntry(id, entry)
-        set.call(window.process.openFds, id, entry)
-      }
-
-      window.process.openFds.delete = (id, ...args) => {
-        this.delete(id)
-        try {
-          del.call(window.process.openFds, id, ...args)
-        } catch (err) {
-          console.warn(err)
-        }
-      }
-
-      window.process.openFds.clear = (id, ...args) => {
-        const ids = window.process.openFds.keys()
-
-        for (const id of ids) {
-          this.delete(id)
-        }
-
-        try {
-          clear.call(window.process.openFds, id, ...args)
-        } catch (err) {
-          console.warn(err)
-        }
-      }
-    }
-  }
-
   get size () {
     return this.ids.size
   }
@@ -77,11 +36,15 @@ export default new class FileDescriptorsMap {
     }
   }
 
-  to (fd) {
+  fd (id) {
+    return this.get(id)
+  }
+
+  id (fd) {
     return this.ids.get(fd)
   }
 
-  release (id) {
+  async release (id) {
     const fd = this.fds.get(id)
 
     this.fds.delete(id)
@@ -92,6 +55,24 @@ export default new class FileDescriptorsMap {
 
     this.types.delete(id)
     this.types.delete(fd)
+
+    try {
+      const result = await ipc.send('fs.closeOpenDescriptors')
+      if (result.err) {
+        throw result.err
+      }
+    } catch (err) {
+      console.warn('fs.fds.release', err.message || err)
+    }
+  }
+
+  async retain (id) {
+    const result = await ipc.send('fs.retainDescriptor', { id })
+    if (result.err) {
+      throw result.err
+    }
+
+    return result.data
   }
 
   delete (id) {
