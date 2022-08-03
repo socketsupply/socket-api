@@ -331,14 +331,21 @@ export async function resolve (...args) {
   return await window._ipc.resolve(...args)
 }
 
-export async function send (...args) {
+export async function send (command, ...args) {
   await ready()
 
   if (debug.enabled) {
-    console.debug('io.ipc.send:', ...args)
+    console.debug('io.ipc.send:', command, ...args)
   }
 
-  return await window._ipc.send(...args)
+  const response = await window._ipc.send(command, ...args)
+  const result = Result.from(response)
+
+  if (debug.enabled) {
+    console.debug('io.ipc.send: (resolved)', command, result)
+  }
+
+  return result
 }
 
 export async function write (command, params, buffer, options) {
@@ -458,18 +465,22 @@ export async function request (command, data, options) {
   const promise = parent._ipc.send(command, params)
 
   const { seq, index } = promise
-  const resolved = promise.then((result) => {
+  const resolved = promise.then((response) => {
     cleanup()
+
+    let result = response
+
+    if (result?.data instanceof ArrayBuffer) {
+      result = Result.from(new Uint8Array(result.data))
+    } else {
+      result = Result.from(result)
+    }
 
     if (debug.enabled) {
       console.debug('io.ipc.request: (resolved)', command, result)
     }
 
-    if (result?.data instanceof ArrayBuffer) {
-      return Result.from(new Uint8Array(result.data))
-    }
-
-    return Result.from(result)
+    return result
   })
 
   const onabort = () => {
@@ -527,36 +538,64 @@ export async function request (command, data, options) {
   }
 }
 
-const dispatchable = {
-  emit,
-  ready,
-  resolve,
-  request,
-  send,
-  sendSync,
-  write
-}
-
-const api = (obj = function() {}) => new Proxy(obj, {
-  apply (target, ctx, args) {
-    const path = [...target.chain]
-    target.chain = new Set()
-
-    const method = args.length > 1 ? args[1].method : 'send'
-    return dispatchable[method](path.join('.'), args[0], args[1])
-  },
-  get (target, key, receiver) {
-    (obj.chain ||= new Set()).add(key)
-    return new Proxy(obj, this)
+/**
+ * Factory for creating a proxy based IPC API.
+ * @param {string} domain
+ * @param {?(function|object)} ctx
+ * @param {?(string)} [ctx.default]
+ * @return {Proxy}
+ */
+export function createBinding (domain, ctx) {
+  const dispatchable = {
+    emit,
+    ready,
+    resolve,
+    request,
+    send,
+    sendSync,
+    write
   }
-})
+
+  if (domain && typeof domain === 'object') {
+    ctx = domain
+    domain = null
+  }
+
+  if (typeof ctx !== 'function') {
+    ctx = Object.assign(function () {}, ctx)
+  }
+
+  const proxy = new Proxy(ctx, {
+    apply (target, bound, args) {
+      const chain = [...target.chain]
+      const domain = chain.shift()
+      const path = chain.join('.')
+
+      target.chain = new Set()
+
+      const method = (ctx[path]?.method || ctx[path]) || ctx.default || 'send'
+      return dispatchable[method](path, ...args)
+    },
+
+    get (target, key, receiver) {
+      (ctx.chain ||= new Set()).add(key)
+      return new Proxy(ctx, this)
+    }
+  })
+
+  if (typeof domain === 'string') {
+    return proxy[domain]
+  }
+
+  return domain
+}
 
 export default {
   OK,
   ERROR,
   TIMEOUT,
 
-  api,
+  createBinding,
   debug,
   emit,
   ready,
