@@ -7,7 +7,7 @@ async function visit (path, options, callback) {
     options = {}
   }
 
-  const { flags, mode } = options || {}
+  const { flags, flag, mode } = options || {}
 
   // just visit `FileHandle`, without closing if given
   if (path instanceof FileHandle) {
@@ -16,7 +16,7 @@ async function visit (path, options, callback) {
     const value = await callback(FileHandle.from(path.fd))
   }
 
-  const handle = await FileHandle.open(path, flags, mode, options)
+  const handle = await FileHandle.open(path, flags || flag, mode, options)
   const value = await callback(handle)
   await handle.close(options)
 
@@ -140,6 +140,10 @@ export async function readdir (path, options) {
  * @param {?(object)} [options]
  */
 export async function readFile (path, options) {
+  if (typeof options === 'string') {
+    options = { encoding: options }
+  }
+
   return await visit(path, options, async (handle) => {
     return await handle.readFile(options)
   })
