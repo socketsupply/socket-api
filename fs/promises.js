@@ -140,6 +140,9 @@ export async function readdir (path, options) {
  * @param {?(object)} [options]
  */
 export async function readFile (path, options) {
+  if (typeof options === 'string') {
+    options = { encoding: options }
+  }
   return await visit(path, options, async (handle) => {
     return await handle.readFile(options)
   })
