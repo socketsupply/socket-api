@@ -143,7 +143,10 @@ export async function readFile (path, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
-
+  options = {
+    flags: 'r',
+    ...options
+  }
   return await visit(path, options, async (handle) => {
     return await handle.readFile(options)
   })
@@ -222,7 +225,11 @@ export async function watch (path, options) {
  * @param {?(object)} [options]
  */
 export async function writeFile (path, data, options) {
-  return await visit(path, { flag: 'w', ...options }, async (handle) => {
+  if (typeof options === 'string') {
+    options = { encoding: options }
+  }
+  options = { flag: 'w', mode: '0o666', ...options }
+  return await visit(path, async (handle) => {
     return await handle.writeFile(data, options)
   })
 }
