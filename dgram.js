@@ -70,8 +70,8 @@ export class Socket extends EventEmitter {
     return { data }
   }
 
-  _recvStart () {
-    ipc.write('udpReadStart', { serverId: this.serverId })
+  async _recvStart () {
+    return await ipc.send('udpReadStart', { serverId: this.serverId })
   }
 
   /**
@@ -371,12 +371,15 @@ export class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
+    // @XXX(jwerle): @heapwolf why is this happening in a `send()` call?
+    /*
     const { err: errBind } = this.bind({ port: 0 }, null)
 
     if (errBind) {
       if (cb) return cb(errBind)
       return { err: errBind }
     }
+    */
 
     if (list.length === 0) {
       list.push(Buffer.alloc(0))
@@ -387,8 +390,8 @@ export class Socket extends EventEmitter {
     }
 
     const { err: errSend } = await ipc.write('udpSend', {
-      ephemeral: true,
-      clientId: rand64(),
+      ephemeral: !this.clientId,
+      clientId: this.clientId || rand64(),
       serverId: this.serverId || 0,
       address,
       port
