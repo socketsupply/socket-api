@@ -30,7 +30,7 @@ import fds from './fds.js'
 import gc from '../gc.js'
 
 export * from './stream.js'
-export * from './binding'
+export * from './binding.js'
 
 function defaultCallback (err) {
   if (err) throw err

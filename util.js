@@ -388,7 +388,9 @@ export function format (format, ...args) {
   let options = args.pop()
 
   if (!options || typeof options !== 'object' || !options?.seen || !options?.depth) {
-    args.push(options)
+    if (options !== undefined) {
+      args.push(options)
+    }
     options = undefined
   }
 
