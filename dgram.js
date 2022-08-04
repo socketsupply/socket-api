@@ -71,7 +71,7 @@ export class Socket extends EventEmitter {
   }
 
   async _recvStart () {
-    return await ipc.send('udpReadStart', { serverId: this.serverId })
+    return await ipc.write('udpReadStart', { serverId: this.serverId })
   }
 
   /**
