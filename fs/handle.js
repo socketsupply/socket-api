@@ -697,7 +697,7 @@ export class FileHandle extends EventEmitter {
 
     const signal = options?.signal
     const stream = this.createWriteStream(options)
-    const buffer = Buffer.from(data, options?.encoding || 'utf8')
+    const buffer = Buffer.from(data, options?.encoding ?? 'utf8')
     const buffers = splitBuffer(buffer, stream.highWaterMark)
 
     if (signal instanceof AbortSignal) {

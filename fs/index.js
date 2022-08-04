@@ -420,6 +420,11 @@ export function readFile (path, options, callback) {
     options = { encoding: options }
   }
 
+  options = {
+    flags: 'r',
+    ...options
+  }
+
   if (typeof callback !== 'function') {
     throw new TypeError('callback must be a function.')
   }
@@ -508,18 +513,24 @@ export function write (fd, buffer, offset, length, position, callback) {
 export function writeFile (path, data, options, callback) {
   if (typeof options === 'function') {
     callback = options
-    options = {}
+    options = { encoding: 'utf8' }
   }
 
   if (typeof options === 'string') {
     options = { encoding: options }
   }
 
+  options = {
+    mode: 0o666,
+    flag: 'w',
+    ...options
+  }
+
   if (typeof callback !== 'function') {
     throw new TypeError('callback must be a function.')
   }
 
-  visit(path, { flags: 'w', ...options }, async (err, handle) => {
+  visit(path, options, async (err, handle) => {
     if (err) {
       callback(err)
       return
