@@ -1,6 +1,5 @@
 import { getRandomValues } from './crypto.js'
 import { Buffer } from './buffer.js'
-import os from './os.js'
 
 const ObjectPrototype = Object.prototype
 const BufferPrototype = Buffer.prototype
