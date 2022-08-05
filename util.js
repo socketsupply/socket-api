@@ -16,7 +16,7 @@ export function isArrayLike (object) {
   return Array.isArray(object) || isTypedArray(object)
 }
 
-export function isArrayBufferView = buf => {
+export const isArrayBufferView = buf => {
   return !Buffer.isBuffer(buf) && ArrayBuffer.isView(buf)
 }
 
