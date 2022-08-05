@@ -228,7 +228,7 @@ export async function writeFile (path, data, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
   }
-  options = { flag: 'w', mode: '0o666', ...options }
+  options = { flag: 'w', mode: 0o666, ...options }
   return await visit(path, options, async (handle) => {
     return await handle.writeFile(data, options)
   })
