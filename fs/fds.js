@@ -9,6 +9,10 @@ export default new class FileDescriptorsMap {
   fds = new Map()
   ids = new Map()
 
+  constructor () {
+    this.syncOpenDescriptors()
+  }
+
   get size () {
     return this.ids.size
   }
@@ -17,7 +21,31 @@ export default new class FileDescriptorsMap {
     return this.fds.get(id)
   }
 
+  async syncOpenDescriptors () {
+    const parent = typeof window !== 'undefined' ? window : globalThis
+
+    // wait for DOM to be loaded and ready
+    if (typeof parent.document == 'object') {
+      if (parent.document.readyState !== 'complete') {
+        await new Promise((resolve) => {
+          document.addEventListener('DOMContentLoaded', resolve, { once: true })
+        })
+      }
+    }
+
+    const result = ipc.sendSync('fs.getOpenDescriptors')
+    if (Array.isArray(result.data)) {
+      for (const { id, fd, type } of result.data) {
+        this.set(id, fd, type)
+      }
+    }
+  }
+
   set (id, fd, type) {
+    if (!type) {
+      type = id == fd ? 'directory' : 'file'
+    }
+
     this.fds.set(id, fd)
     this.ids.set(fd, id)
     this.types.set(id, type)
@@ -45,6 +73,20 @@ export default new class FileDescriptorsMap {
   }
 
   async release (id) {
+    if (id === undefined) {
+      this.clear()
+
+      const result = await ipc.send('fs.closeOpenDescriptors')
+
+      if (result.err && !/found/i.test(result.err.message)) {
+        console.warn('fs.fds.release', result.err.message || result.err)
+      }
+
+      return
+    }
+
+    id = this.ids.get(id) || id
+
     const fd = this.fds.get(id)
 
     this.fds.delete(id)
@@ -56,18 +98,18 @@ export default new class FileDescriptorsMap {
     this.types.delete(id)
     this.types.delete(fd)
 
-    try {
-      const result = await ipc.send('fs.closeOpenDescriptors')
-      if (result.err) {
-        throw result.err
-      }
-    } catch (err) {
-      console.warn('fs.fds.release', err.message || err)
+    const result = await ipc.send('fs.closeOpenDescriptor', {
+      id
+    })
+
+    if (result.err && !/found/i.test(result.err.message)) {
+      console.warn('fs.fds.release', result.err.message || result.err)
     }
   }
 
   async retain (id) {
-    const result = await ipc.send('fs.retainDescriptor', { id })
+    const result = await ipc.send('fs.retainOpenDescriptor', { id })
+
     if (result.err) {
       throw result.err
     }
@@ -77,6 +119,12 @@ export default new class FileDescriptorsMap {
 
   delete (id) {
     this.release(id)
+  }
+
+  clear () {
+    this.ids.clear()
+    this.fds.clear()
+    this.types.clear()
   }
 
   typeof (id) {
