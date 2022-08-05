@@ -5,10 +5,10 @@ import { GLOBAL_TEST_RUNNER } from 'tapzero'
 
 const parent = typeof window === 'object' ? window : globalThis
 
-ipc.debug.enabled = false
+ipc.debug.enabled = true
 
 if (typeof parent?.addEventListener === 'function') {
-  parent.addEventListener('error', (err) => {
+  parent.addEventListener('error', (err, url, line) => {
     console.error(err.stack || err.message || err)
     process.exit(1)
   })

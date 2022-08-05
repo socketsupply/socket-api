@@ -20,7 +20,7 @@
 import { Dir, Dirent, sortDirectoryEntries } from './dir.js'
 import { DirectoryHandle, FileHandle } from './handle.js'
 import { ReadStream, WriteStream } from './stream.js'
-import { isBufferLike, isFunction } from '../util.js'
+import { isBufferLike, isFunction, promisify } from '../util.js'
 import * as constants from './constants.js'
 import * as promises from './promises.js'
 import { Stats } from './stats.js'

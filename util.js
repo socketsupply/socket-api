@@ -115,6 +115,96 @@ export function clamp (value, min, max) {
   return Math.min(max, Math.max(min, value))
 }
 
+Object.defineProperties(promisify, {
+  custom: {
+    configurable: false,
+    enumerable: false,
+    value: Symbol.for('nodejs.util.promisify.custom')
+  },
+  args: {
+    configurable: false,
+    enumerable: false,
+    value: Symbol.for('nodejs.util.promisify.args')
+  }
+})
+
+export function promisify (original) {
+  if (original && typeof original === 'object') {
+    let object = Object.create(null)
+
+    if (
+      original[promisify.custom] &&
+      typeof original[promisify.custom] === 'object'
+    ) {
+      object = original[promisify.custom]
+    } else if (original.promises && typeof original.promises === 'object') {
+      object = original.promises
+    }
+
+    for (const key in original) {
+      object[key] = promisify(original[key])
+    }
+
+    Object.defineProperty(object, promisify.custom, {
+      configurable: true,
+      enumerable: false,
+      writable: false,
+      __proto__: null,
+      value: object
+    })
+
+    return object
+  }
+
+  if (typeof original !== 'function') {
+    throw new TypeError('Expecting original to be a function or object.')
+  }
+
+  if (original[promisify.custom]) {
+    const fn = original[promisify.custom]
+    Object.defineProperty(fn, promisify.custom, {
+      configurable: true,
+      enumerable: false,
+      writable: false,
+      __proto__: null,
+      value: fn
+    })
+
+    return fn
+  }
+
+  const argumentNames = Array.isArray(original[promisify.args])
+    ? original[promisify.args]
+    : []
+
+  async function fn (...args) {
+    return await new Promise((resolve, reject) => {
+      return Reflect.apply(original, this, args.concat(callback))
+      function callback (err, ...values) {
+        let [ result ] = values
+
+        if (err) {
+          return reject(err)
+        }
+
+        if (argumentNames.length) {
+          result = {}
+
+          for (let i = 0; i < argumentNames.length; ++i) {
+            result[argumentNames[i]] = values[i]
+          }
+        }
+
+        return resolve(result)
+      }
+    })
+  }
+
+  Object.setPrototypeOf(fn, Object.getPrototypeOf(original))
+
+  return fn
+}
+
 export function inspect (value, options) {
   const ctx = {
     seen: options?.seen || [],

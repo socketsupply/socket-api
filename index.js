@@ -1,5 +1,6 @@
 export { Bluetooth } from './bluetooth.js'
-export { default as buffer, Buffer } from 'buffer'
+export * as buffer from './buffer.js'
+export { Buffer } from './buffer.js'
 export * as dgram from './dgram.js'
 export * as dns from './dns.js'
 export * as events  from './events.js'

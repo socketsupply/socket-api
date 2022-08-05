@@ -16,16 +16,20 @@ export function exit (code) {
   send('exit', { value: code || 0 })
 }
 
-
+const isNode = parent?.process?.versions?.node
 const parent = typeof window === 'object' ? window : globalThis
-const process = Object.create(null, Object.getOwnPropertyDescriptors({
-  ...EventEmitter.prototype,
-  homedir,
-  exit,
-  argv0: parent?.process?.argv?.[0],
-  ...parent?.process,
-}))
+const process = isNode
+  ? process
+  : Object.create(null, Object.getOwnPropertyDescriptors({
+      ...EventEmitter.prototype,
+      homedir,
+      argv0: parent?.process?.argv?.[0],
+      exit,
+      ...parent?.process,
+    }))
 
-EventEmitter.call(process)
+if (!isNode) {
+  EventEmitter.call(process)
+}
 
 export default process
