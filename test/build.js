@@ -12,6 +12,7 @@ const cp = async (a, b) => fs.cp(
 
 async function copy (target) {
   await cp('src/index.html', target)
+  await cp('fixtures', target)
 }
 
 async function main () {

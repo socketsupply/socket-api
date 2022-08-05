@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-ssc compile --headless --prod --quiet -r -o .
+ssc compile --headless --prod -r -o .
