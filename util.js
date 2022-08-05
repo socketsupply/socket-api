@@ -47,6 +47,10 @@ export function isPromiseLike (object) {
   return isFunction(object?.then)
 }
 
+export function toString (object) {
+  return Object.prototype.toString(object)
+}
+
 export function toBuffer (object) {
   if (Buffer.isBuffer(object)) {
     return object
@@ -177,6 +181,10 @@ export function inspect (value, options) {
       return String(value)
     }
 
+    if (typeof value === 'bigint') {
+      return String(value) + 'n'
+    }
+
     let typename = ''
 
     const braces = ['{', '}']
@@ -302,7 +310,11 @@ export function inspect (value, options) {
 
     const length = output.reduce((p, c) => (p + c.length + 1), 0)
 
-    if (length > 60) {
+    if (Object.getPrototypeOf(value) === null) {
+      braces[0] = `[Object: null prototype] ${braces[0]}`
+    }
+
+    if (length > 80) {
       return `${braces[0]}\n${!typename ? '' : ` ${typename}\n`}  ${output.join(',\n  ') }\n${braces[1]}`
     }
 
@@ -405,7 +417,7 @@ export function format (format, ...args) {
       .join(' ')
   }
 
-  const regex = /%[sdj%]/g
+  const regex = /%[dfijoOs%]/g
 
   let i = 0
   let str = format.replace(regex, (x) => {
@@ -418,15 +430,19 @@ export function format (format, ...args) {
     }
 
     switch (x) {
-      case '%s': return String(args[i++])
       case '%d': return Number(args[i++])
-      case '%d': return BigInt(args[i++])
+      case '%f': return parseFloat(args[i++])
+      case '%i': return parseInt(args[i++])
+      case '%o': return inspect(args[i++], { showHidden: true })
+      case '%O': return inspect(args[i++])
       case '%j':
         try {
           return JSON.stringify(args[i++])
         } catch (_) {
           return '[Circular]'
         }
+
+      case '%s': return String(args[i++])
     }
 
     return x
