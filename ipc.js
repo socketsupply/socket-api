@@ -578,6 +578,7 @@ export function createBinding (domain, ctx) {
     },
 
     get (target, key, receiver) {
+      if (key === '__proto__') return null
       (ctx.chain ||= new Set()).add(key)
       return new Proxy(ctx, this)
     }
