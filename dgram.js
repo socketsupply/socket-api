@@ -11,11 +11,7 @@ import { EventEmitter } from './events.js'
 import { isIPv4 } from './net.js'
 import * as dns from './dns.js'
 import * as ipc from './ipc.js'
-import { rand64 } from './util.js'
-
-const isArrayBufferView = buf => {
-  return !Buffer.isBuffer(buf) && ArrayBuffer.isView(buf)
-}
+import { rand64, isArrayBufferView } from './util.js'
 
 const fixBufferList = list => {
   const newlist = new Array(list.length)
@@ -372,6 +368,9 @@ export class Socket extends EventEmitter {
     }
 
     // @XXX(jwerle): @heapwolf why is this happening in a `send()` call?
+    //
+    // @jwerle it's from the node.js source code - https://github.com/nodejs/node/blob/main/lib/dgram.js#L645
+    // but it's missing a check to see if the instance is unbound (state.bindState === BIND_STATE_UNBOUND)
     /*
     const { err: errBind } = this.bind({ port: 0 }, null)
 
