@@ -1,3 +1,10 @@
+/*
+ * @module Crypto
+ *
+ * Some high level methods around the `crypto.subtle` api for getting
+ * random bytes and hashing.
+ */
+
 import { Buffer } from 'buffer'
 
 /*
