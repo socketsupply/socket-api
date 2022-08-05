@@ -10,6 +10,7 @@ import { Buffer } from 'buffer'
 /*
  * @param {number} size - The number of bytes to generate. The size must not be larger than 2**31 - 1.
  */
+<<<<<<< HEAD
 export function randomBytes (size) {
   const tmp = new Uint8Array(size)
   const bytes = crypto.getRandomValues(tmp)

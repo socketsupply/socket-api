@@ -16,7 +16,11 @@ export function isArrayLike (object) {
   return Array.isArray(object) || isTypedArray(object)
 }
 
+<<<<<<< HEAD
 export const isArrayBufferView = buf => {
+=======
+export function isArrayBufferView = buf => {
+>>>>>>> a7e9815 (add a few helper methods)
   return !Buffer.isBuffer(buf) && ArrayBuffer.isView(buf)
 }
 
