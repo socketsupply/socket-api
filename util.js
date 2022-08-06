@@ -1,5 +1,6 @@
 import { Buffer } from 'buffer'
 
+const AsyncFunction = (async () => void 0).constructor
 const TypedArray = Object.getPrototypeOf(Object.getPrototypeOf(new Uint8Array())).constructor
 
 const kCustomInspect = inspect.custom = Symbol.for('nodejs.util.inspect.custom')
@@ -18,6 +19,10 @@ export function isArrayLike (object) {
 
 export const isArrayBufferView = buf => {
   return !Buffer.isBuffer(buf) && ArrayBuffer.isView(buf)
+}
+
+export function isAsyncFunction (object) {
+  return object instanceof AsyncFunction
 }
 
 export function isEmptyObject (object) {
@@ -250,6 +255,26 @@ export function inspect (value, options) {
       }
     }
 
+    if (typeof window === 'object') {
+      if (value === window) {
+        return '[Window]'
+      }
+
+      if (value === window.system) {
+        return '[System]'
+      }
+    }
+
+    if (typeof globalThis === 'object') {
+      if (value === globalThis) {
+        return '[Global]'
+      }
+
+      if (value === globalThis.system) {
+        return '[System]'
+      }
+    }
+
     if (value === undefined) {
       return 'undefined'
     }
@@ -275,13 +300,32 @@ export function inspect (value, options) {
       return String(value) + 'n'
     }
 
+    if (value instanceof WeakSet){
+      return `WeakSet { <items unknown> }`
+    }
+
+    if (value instanceof WeakMap){
+      return `WeakMap { <items unknown> }`
+    }
+
     let typename = ''
 
     const braces = ['{', '}']
     const isArrayLikeValue = isArrayLike(value)
 
-    const keys = new Set(Object.keys(value))
-    const enumerableKeys = Object.fromEntries(Array.from(keys).map((k) => [k, true]))
+    if (value instanceof Map) {
+      braces[0] = `Map(${value.size}) ${braces[0]}`
+    } else if (value instanceof Set) {
+      braces[0] = `Set(${value.size}) ${braces[0]}`
+    }
+
+    const keys = value instanceof Map
+    ? Array.from(value.keys())
+    : new Set(Object.keys(value))
+
+    const enumerableKeys = value instanceof Set
+      ? Array(value.size).fill(0).map((_, i) => i)
+      : Object.fromEntries(Array.from(keys).map((k) => [k, true]))
 
     if (ctx.showHidden) {
       try {
@@ -299,7 +343,10 @@ export function inspect (value, options) {
       braces[1] = ']'
     }
 
-    if (isFunction(value)) {
+    if (isAsyncFunction(value)) {
+      const name = value.name ? `: ${value.name}` : ''
+      typename = `[AsyncFunction${name}]`
+    } else if (isFunction(value)) {
       const name = value.name ? `: ${value.name}` : ''
       typename = `[Function${name}]`
     }
@@ -322,13 +369,23 @@ export function inspect (value, options) {
       }
     }
 
-    if (keys.size === 0 && !(value instanceof Error)) {
-      if (isFunction(value)) {
-        return typename
-      } else if (!isArrayLikeValue || value.length === 0) {
-        return `${braces[0]}${typename}${braces[1]}`
-      } else if (!isArrayLikeValue) {
-        return typename
+    if (!(value instanceof Map || value instanceof Set)) {
+      if (
+        typeof value === 'object' &&
+        typeof value?.constructor === 'function' &&
+        (value.constructor !== Object && value.constructor !== Array)
+      ) {
+        braces[0] = `${value.constructor.name} ${braces[0]}`
+      }
+
+      if (keys.size === 0 && !(value instanceof Error)) {
+        if (isFunction(value)) {
+          return typename
+        } else if (!isArrayLikeValue || value.length === 0) {
+          return `${braces[0]}${typename}${braces[1]}`
+        } else if (!isArrayLikeValue) {
+          return typename
+        }
       }
     }
 
@@ -344,10 +401,12 @@ export function inspect (value, options) {
 
     const output = []
 
-    if (isArrayLikeValue) {
-      for (let i = 0; i < value.length; ++i) {
+    if (isArrayLikeValue || value instanceof Set) {
+      const items = isArrayLikeValue ? value : Array.from(value.values())
+      const size = isArrayLikeValue ? value.length : value.size
+      for (let i = 0; i < size; ++i) {
         const key = String(i)
-        if (hasOwnProperty(value, key)) {
+        if (value instanceof Set || hasOwnProperty(value, key)) {
           output.push(formatProperty(
             ctx,
             value,
@@ -450,10 +509,16 @@ export function inspect (value, options) {
       if (ctx.seen.includes(descriptor.value)) {
         output[1] = '[Circular]'
       } else {
+        const tmp = value instanceof Set
+          ? Array.from(value.values())[key]
+          : value instanceof Map
+            ? value.get(key)
+            : descriptor.value
+
         if (depth === null) {
-          output[1] = formatValue(ctx, descriptor.value, null)
+          output[1] = formatValue(ctx, tmp, null)
         } else {
-          output[1] = formatValue(ctx, descriptor.value, depth - 1)
+          output[1] = formatValue(ctx, tmp, depth - 1)
         }
 
         if (output[1].includes('\n')) {
@@ -486,7 +551,11 @@ export function inspect (value, options) {
         .replace(/(^"|"$)/g, "'")
     }
 
-    return output.join(': ')
+    if (value instanceof Map) {
+      return output.join(' => ')
+    } else {
+      return output.join(': ')
+    }
   }
 }
 
@@ -517,6 +586,16 @@ export function format (format, ...args) {
 
     if (i >= args.length) {
       return x
+    }
+
+    if (args[i] === globalThis) {
+      i++
+      return '[Global]'
+    }
+
+    if (args[i] === globalThis?.system) {
+      i++
+      return '[System]'
     }
 
     switch (x) {
