@@ -202,7 +202,7 @@ export class Result {
     const err = maybeMakeError(result?.err, Result.from)
     const data = result?.data !== null && result?.data !== undefined
       ? result.data
-      : result
+      : result?.err ? null : result
 
     return new this(data, err)
   }
@@ -218,13 +218,13 @@ export class Result {
     this.err = err || null
 
     Object.defineProperty(this, 0, {
-      value: data,
+      get: () => this.data,
       enumerable: false,
       configurable: false
     })
 
     Object.defineProperty(this, 1, {
-      value: err,
+      get: () => this.err,
       enumerable: false,
       configurable: false
     })
