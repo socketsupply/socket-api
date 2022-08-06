@@ -73,10 +73,12 @@ export default new class FileDescriptorsMap {
   }
 
   async release (id) {
+    let result = null
+
     if (id === undefined) {
       this.clear()
 
-      const result = await ipc.send('fs.closeOpenDescriptors')
+      result = await ipc.send('fs.closeOpenDescriptors')
 
       if (result.err && !/found/i.test(result.err.message)) {
         console.warn('fs.fds.release', result.err.message || result.err)
@@ -98,13 +100,11 @@ export default new class FileDescriptorsMap {
     this.types.delete(id)
     this.types.delete(fd)
 
-    const result = await ipc.send('fs.closeOpenDescriptor', {
-      id
-    })
+    //result = await ipc.send('fs.closeOpenDescriptor', { id })
 
-    if (result.err && !/found/i.test(result.err.message)) {
-      console.warn('fs.fds.release', result.err.message || result.err)
-    }
+    //if (result.err && !/found/i.test(result.err.message)) {
+      //console.warn('fs.fds.release', result.err.message || result.err)
+    //}
   }
 
   async retain (id) {
