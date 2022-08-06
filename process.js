@@ -16,10 +16,10 @@ export function exit (code) {
   send('exit', { value: code || 0 })
 }
 
-const isNode = parent?.process?.versions?.node
 const parent = typeof window === 'object' ? window : globalThis
+const isNode = parent?.process?.versions?.node
 const process = isNode
-  ? process
+  ? globalThis.process
   : Object.create(null, Object.getOwnPropertyDescriptors({
       ...EventEmitter.prototype,
       homedir,
