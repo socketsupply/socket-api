@@ -19,7 +19,7 @@ export function randomBytes (size) {
 
 /*
  * @param {string} algorithm - `SHA-1` | `SHA-256` | `SHA-384` | `SHA-512`
- * @param {Buffer} message - An instance of io.Buffer
+ * @param {Buffer | TypedArray | DataView} message - An instance of io.Buffer
  * @returns {Promise<Buffer>} - A promise that resolves with an instance of io.Buffer with the hash.
  */
 export async function createDigest (algorithm, buf) {
