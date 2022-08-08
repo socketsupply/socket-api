@@ -101,7 +101,13 @@ function maybeMakeError (error, caller) {
   }
 
   // assign extra data to `err` like an error `code`
-  Object.assign(err, error)
+  for (const key in error) {
+    try {
+      err[key] = error[key]
+    } catch (err) {
+      void err
+    }
+  }
 
   if (
     typeof Error.captureStackTrace === 'function' &&
@@ -202,7 +208,7 @@ export class Result {
     const err = maybeMakeError(result?.err, Result.from)
     const data = result?.data !== null && result?.data !== undefined
       ? result.data
-      : result?.err ? null : result
+      : (result?.err ? null : result)
 
     return new this(data, err)
   }
@@ -233,7 +239,11 @@ export class Result {
   get length () {
     if (this.data !== null && this.err !== null) {
       return 2
+    } else if (this.data !== null || this.err !== null) {
+      return 1
     }
+
+    return 0
   }
 
   *[Symbol.iterator]() {
