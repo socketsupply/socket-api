@@ -41,6 +41,7 @@ export class Socket extends EventEmitter {
 
     this.serverId = rand64()
     this.clientId = rand64()
+    this.type = options.type || 'udp4'
 
     this.state = {
       recvBufferSize: options.recvBufferSize,
@@ -152,7 +153,7 @@ export class Socket extends EventEmitter {
         return this.emit('error', err)
       }
 
-      if (BigInt(data.serverId) !== this.serverId) return
+      if (!data || BigInt(data.serverId) !== this.serverId) return
 
       if (data.source === 'dnsLookup') {
         this._address = data.params.ip
@@ -178,7 +179,7 @@ export class Socket extends EventEmitter {
     this._recvStart()
 
     if (cb) cb(null)
-    return { data }
+    return this
   }
 
   /**
@@ -550,5 +551,5 @@ export class Socket extends EventEmitter {
 }
 
 export const createSocket = (type, listener) => {
-  return new Socket(type, listener)
+  return new Socket({ type, listener })
 }
