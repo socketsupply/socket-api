@@ -1,60 +1,107 @@
 #!/usr/bin/env node
 
+import { Recoverable, REPLServer }from 'node:repl'
 import { createConnection } from 'net'
-import { REPLServer }from 'node:repl'
+import * as acorn from 'acorn'
 import { spawn } from 'node:child_process'
+import chalk from 'chalk'
 import path from 'node:path'
+import os from 'node:os'
 
-const args = ['compile', '-r', '-o' ]
+import { Message } from '../ipc.js'
+
+const HISTORY_PATH = path.join(os.homedir(), '.ssc_io_repl_history')
+
+const callbacks = {}
+const dirname = path.dirname(import.meta.url.replace('file://', ''))
+const cwd = path.resolve(dirname, '..', 'repl')
+
+const args = ['compile', '-r', '-o', `--config=${path.join(cwd, 'ssc.config')}`]
 
 if (!process.env.DEBUG) {
   args.push('--prod', '--headless')
+  if (!process.env.VERBOSE) {
+    args.push('--quiet')
+  }
 }
 
-const dirname = path.dirname(import.meta.url.replace('file://', ''))
-args.push(path.resolve(dirname, '..'))
+if (!process.env.DEBUG && !process.env.VERBOSE) {
+  console.log('• warning! waiting for build to complete')
+}
+
+process.chdir(cwd)
 
 const proc = spawn('ssc', args, {
   cwd: '.',
-  stdio: ['ignore', 'pipe', 'pipe']
-})
-
-process.on('exit', () => {
-  proc.kill(9)
-})
-
-process.on('uncaughtException', (err) => {
-  proc.kill()
-  throw err
-})
-
-proc.on('exit', () => {
-  process.exit()
+  stdio: ['ignore', 'pipe', 'inherit']
 })
 
 let nextId = 0
-let isReady = false
-const callbacks = {}
+let socket = null
+let server = null
+let port = null
 
-proc.stdout.on('data', (buffer) => {
-  let uri = null
-  try { uri = new URL(String(buffer)) }
-  catch (err) {
-    console.log(String(buffer).trim())
+
+proc.on('exit', onexit)
+proc.stdout.on('data', ondata)
+
+process.on('exit', onexit)
+process.on('SIGINT', onsignal)
+process.on('unhandleRejection', onerror)
+process.on('uncaughtException', onerror)
+
+function onerror (err) {
+  proc.kill(9)
+  console.error(err.stack || err)
+}
+
+function onsignal () {
+  proc.kill(9)
+  process.exit()
+}
+
+function onexit () {
+  proc.kill(9)
+  setTimeout(() => {
+    process.exit()
+  })
+}
+
+function ondata (data) {
+  const messages = String(data)
+    .split('\n')
+    .filter(Boolean)
+    .map((buf) => Message.isValidInput(buf) ? Message.from(buf) : buf)
+
+  for (const message of messages) {
+    if (message instanceof Message) {
+      onmessage(message)
+    } else {
+      console.log(String(message).trim())
+    }
   }
+}
 
-  function onmessage (uri) {
-    const id = uri.searchParams.get('id')
-    if (uri?.hostname === 'result') {
+function onmessage (message) {
+  const { id, command } = message
+  let { value } = message
+
+  if (command === 'repl.eval.result') {
     if (id in callbacks) {
-      let value = decodeURIComponent(uri.searchParams.get('value')).trim()
-      const err = uri.searchParams.get('error')
-      const callback = callbacks[id]
+      const hasError = message.get('error')
+      const { computed, callback } = callbacks[id]
 
       delete callbacks[id]
 
-      try { value = JSON.parse(value) }
-      catch (err) {}
+      if (value.err) {
+        if (/^(Unexpected end of input|Unexpected token)/i.test(value.err.message)) {
+          return callback(new Recoverable())
+        }
+      }
+
+      if (!hasError && !value.err && value && 'data' in value) {
+        value = value.data
+      }
 
       if (typeof value === 'string') {
         try { value = new Function(`return ${value}`)() }
@@ -69,14 +116,36 @@ proc.stdout.on('data', (buffer) => {
         return callback(null)
       }
 
-      if (err) {
-        callback(new Error(value))
-      } else if (value?.err) {
+      if (value?.err) {
         if (/unsupported type/i.test(value.err) || value.err.message === '(null)') {
           callback(null)
         } else {
-          callback(new Error(value.err.message || value.err))
+          const parts = (value.err?.message ?? String(value.err)).split(':')
+          let name = parts.shift()
+          let message = parts.join(':')
+
+          if (!name || !message || name === message) {
+            message = name
+            name = 'Error'
+          }
+
+          let error = null
+          try {
+            error = new Function('message', `return new ${name || 'Error'}(message)`)(message)
+            error.name = value.err.name || name
+          } catch (err) {
+            error = new Function('message', `return new Error(message)`)(name + message)
+          }
+
+          if (value.err.stack) {
+            error.stack = value.err.stack
+          }
+          callback(error)
         }
+      } else if (hasError) {
+        callback(new Error(value))
+      } else if (computed) {
+        callback(null, value)
       } else {
         if (typeof value === 'string') {
           console.log(value)
@@ -86,45 +155,95 @@ proc.stdout.on('data', (buffer) => {
         }
       }
     }
+  }
+
+  if (message.command === 'repl.server.listening') {
+    port = message.get('port')
+    if (!Number.isFinite(port)) {
+      console.error('Port received is not valid: Got %s', message.params.port)
+      process.exit(1)
     }
   }
 
-  if (isReady && uri) {
-    onmessage(uri)
-  }
+  if (message.command === 'repl.context.ready') {
+    socket = createConnection(port)
+    socket.on('close', onexit)
+    socket.on('data', ondata)
 
-  if (!isReady && uri?.hostname === 'ready') {
-    isReady = true
-
-    const socket = createConnection(3000)
-    socket.on('data', (buffer) => {
-      let uri = null
-      try { uri = new URL(String(buffer)) }
-      catch (err) {
-        console.log(String(buffer).trim())
-      }
-
-      if (uri) {
-        onmessage(uri)
-      }
-    })
-
-    const scope = {}
-    const server = new REPLServer({
+    server = new REPLServer({
+      eval: evaluate,
       prompt: '# ',
       preview: false,
-      useGlobal: false,
-      async eval (cmd, ctx, file, callback) {
-        cmd = cmd.trim()
-        if (!cmd) return callback()
-        const id = nextId++
-        const value = encodeURIComponent(JSON.stringify({
-          id,
-          cmd: `io.util.format(${cmd.trim()})`
-        }))
-        socket.write(`ipc://send?event=eval&index=0&value=${value}\n`)
-        callbacks[id] = callback
+      useGlobal: false
+    })
+
+    server.setupHistory(HISTORY_PATH, (err) => {
+      if (err) {
+        console.warn(err.message || err)
       }
     })
+
+    server.on('exit', () => {
+      socket.write('ipc://exit?index=0\n')
+      setTimeout(() => socket.destroy(), 32)
+    })
   }
-})
+}
+
+async function evaluate (cmd, ctx, file, callback) {
+  let ast = null
+  let id = nextId++
+
+  cmd = cmd.trim()
+
+  if (!cmd) {
+    return callback()
+  }
+
+  try {
+    ast = acorn.parse(cmd, {
+      tokens: true,
+      ecmaVersion: 13,
+      sourceType: 'module'
+    })
+  } catch (err) {
+    void err
+  }
+
+  const isTry = ast?.body?.[0]?.type === 'TryStatement'
+  const names = []
+  const root = isTry
+    ? ast?.body[0].block.body
+    : ast?.body
+
+  if (ast) {
+    for (const node of root) {
+      if (node.id?.name) {
+        names.push(node.id.name)
+      } else {
+        names.push(null)
+      }
+    }
+  }
+
+  const lastName = names.pop()
+
+  if (!isTry && !/import\s*\(/.test(cmd)) {
+    if (/^\s*await/.test(cmd)) {
+      cmd = cmd.replace(/^\s*await\s*/, '')
+      cmd = `void (${cmd}).then((result) => console.log(io.util.format(result)))`
+    } else if (lastName) {
+      cmd = `${cmd}; io.util.format(${lastName});`
+    } else if (!/^\s*(throw|with|try|const|let|var|if|for|while|do|return|import)/.test(cmd)) {
+      cmd = `io.util.format(${cmd});`
+    }
+  }
+
+  const value = encodeURIComponent(JSON.stringify({
+    id,
+    cmd
+  }))
+
+  socket.write(`ipc://send?event=repl.eval&index=0&value=${value}\n`)
+  callbacks[id] = { callback }
+}
