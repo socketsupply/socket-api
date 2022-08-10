@@ -13,6 +13,9 @@
     "test:clean": "cd test && rm -rf dist",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
+  "bin": {
+    "ssc-repl": "bin/repl.js"
+  },
   "author": "",
   "license": "ISC",
   "repository": {
@@ -31,6 +34,7 @@
     "tapzero": "*"
   },
   "dependencies": {
-    "buffer": "6.0.3"
+    "buffer": "6.0.3",
+    "chalk": "5.0.1"
   }
 }

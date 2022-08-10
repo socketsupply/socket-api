@@ -14,7 +14,11 @@ export function isTypedArray (object) {
 }
 
 export function isArrayLike (object) {
-  return Array.isArray(object) || isTypedArray(object)
+  return (
+    (Array.isArray(object) || isTypedArray(object)) &&
+    object !== TypedArray.prototype &&
+    object !== Buffer.prototype
+  )
 }
 
 export const isArrayBufferView = buf => {
@@ -233,7 +237,13 @@ export function inspect (value, options) {
       ctx.customInspect &&
       !(value?.constructor && value?.constructor?.prototype === value)
     ) {
-      if (isFunction(value?.inspect) && value?.inspect !== inspect) {
+      if (
+        isFunction(value?.inspect) &&
+        value?.inspect !== inspect &&
+        value !== globalThis &&
+        value !== globalThis?.system &&
+        value !== globalThis?.parent
+      ) {
         const formatted = value.inspect(depth, ctx)
 
         if (typeof formatted !== 'string') {
@@ -252,26 +262,6 @@ export function inspect (value, options) {
         }
 
         return formatted
-      }
-    }
-
-    if (typeof window === 'object') {
-      if (value === window) {
-        return '[Window]'
-      }
-
-      if (value === window.system) {
-        return '[System]'
-      }
-    }
-
-    if (typeof globalThis === 'object') {
-      if (value === globalThis) {
-        return '[Global]'
-      }
-
-      if (value === globalThis.system) {
-        return '[System]'
       }
     }
 
@@ -467,7 +457,7 @@ export function inspect (value, options) {
       return `${braces[0]}\n${!typename ? '' : ` ${typename}\n`}  ${output.join(',\n  ') }\n${braces[1]}`
     }
 
-    return `${braces[0]}${typename} ${output.join(', ')} ${braces[1]}`
+    return `${braces[0]}${typename}${output.length ? ` ${output.join(', ')} ` : ''}${braces[1]}`
   }
 
   function formatProperty (
@@ -590,7 +580,6 @@ export function format (format, ...args) {
 
     if (args[i] === globalThis) {
       i++
-      return '[Global]'
     }
 
     if (args[i] === globalThis?.system) {

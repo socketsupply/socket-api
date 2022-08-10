@@ -7,13 +7,19 @@
 
 import { Buffer } from 'buffer'
 
+const parent = typeof window === 'object' ? window : globalThis
+
+// private global deps
+const { getRandomValues } = (parent.crypto ?? {})
+
+
 /*
  * @param {number} size - The number of bytes to generate. The size must not be larger than 2**31 - 1.
  * @returns {Promise<Buffer>} - A promise that resolves with an instance of io.Buffer with random bytes.
  */
 export function randomBytes (size) {
   const tmp = new Uint8Array(size)
-  const bytes = crypto.getRandomValues(tmp)
+  const bytes = getRandomValues(tmp)
   return Buffer.from(bytes)
 }
 
