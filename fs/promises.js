@@ -129,7 +129,15 @@ export async function readdir (path, options) {
     entries.push(entry)
   }
 
-  await dir.close()
+  if (!dir.closing && !dir.closed) {
+    try {
+      await dir.close()
+    } catch (err) {
+      if (!/not opened/i.test(err.message)) {
+        console.warn(err)
+      }
+    }
+  }
 
   return entries.sort(sortDirectoryEntries)
 }
