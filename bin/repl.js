@@ -230,6 +230,12 @@ async function evaluate (cmd, ctx, file, callback) {
     for (const node of root) {
       if (node.id?.name) {
         names.push(node.id.name)
+      } else if (node.declarations) {
+        for (const declaration of node.declarations) {
+          if (declaration.id?.name) {
+            names.push(declaration.id.name)
+          }
+        }
       } else {
         names.push(null)
       }
@@ -245,7 +251,10 @@ async function evaluate (cmd, ctx, file, callback) {
     } else if (lastName) {
       cmd = `${cmd}; io.util.format(${lastName});`
     } else if (!/^\s*((throw\s)|(with\s*\()|(try\s*{)|(const\s)|(let\s)|(var\s)|(if\s*\()|(for\s*\()|(while\s*\()|(do\s*{)|(return\s)|(import\s*\())/.test(cmd)) {
-      cmd = `io.util.format(${cmd});`
+      cmd = cmd.split(';').map((c) => {
+        if (/^\s*\{/.test(c)) { return c }
+        return `io.util.format(${c});`
+      }).join('\n')
     }
   }
 

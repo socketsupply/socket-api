@@ -30,7 +30,29 @@ export function init (opts) {
 
   didInit = true
 
+  const disabledFunctions = [
+    'alert',
+    'blur',
+    'close',
+    'confirm',
+    'focus',
+    'moveBy',
+    'moveTo',
+    'openDialog',
+    'print',
+    'prompt',
+    'resizeBy',
+    'resizeTo',
+    'scrollTo',
+    'scroll',
+    'stop'
+  ]
+
   window.io = io
+
+  for (const fn of disabledFunctions) {
+    window[fn] = () => console.warn(`WARN: ${fn}() is not available in the REPL context`)
+  }
 
   for (const key in io) {
     if (window[key] !== undefined) { continue }
@@ -89,7 +111,8 @@ function makeError (err) {
 export async function evaluate ({ cmd, id }) {
   try {
     if (/\s*await\s*import\s*\(/.test(cmd)) {
-      const value = await new AsyncFunction(`return (${cmd})`)()
+      cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
+      const value = await new AsyncFunction(`(${cmd})`)()
       await ipc.send('repl.eval.result', {
         id,
         error: false,
@@ -97,7 +120,8 @@ export async function evaluate ({ cmd, id }) {
       })
       return
     } else if (/\s*import\s*\(/.test(cmd)) {
-      const value = new AsyncFunction(`return (${cmd})`)()
+      cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
+      const value = new AsyncFunction(`(${cmd})`)()
       await ipc.send('repl.eval.result', {
         id,
         error: false,
