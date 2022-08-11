@@ -9,10 +9,6 @@ const AsyncFunction = (async () => void 0).constructor
 
 // init from event
 window.addEventListener('repl.context.init', (event) => {
-  if (!process.argv.includes('--quiet')) {
-    console.log('• repl context initialized')
-  }
-
   init(event.detail)
   console.log('Welcome to SSC %s', process.version)
 })
