@@ -49,7 +49,7 @@ export class Socket extends EventEmitter {
 
     this.serverId = rand64()
     this.clientId = rand64()
-    this.type = options.type || 'udp4'
+    this.type = options.type ?? 'udp4'
 
     this.state = {
       recvBufferSize: options.recvBufferSize,
@@ -58,6 +58,7 @@ export class Socket extends EventEmitter {
       connectState: CONNECT_STATE_DISCONNECTED,
       reuseAddr: options.reuseAddr,
       ipv6Only: options.ipv6Only
+      // TODO: signal
     }
 
     // this.connect()
@@ -347,7 +348,7 @@ export class Socket extends EventEmitter {
    */
   async send (buffer, ...args) {
     let offset, length, port, address, cb
-    const connected = this.state.connectState === 2
+    const connected = this.state.connectState === CONNECT_STATE_CONNECTED
 
     if (typeof buffer === 'string') {
       buffer = Buffer.from(buffer)
