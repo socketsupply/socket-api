@@ -244,7 +244,7 @@ async function evaluate (cmd, ctx, file, callback) {
       cmd = `void (${cmd}).then((result) => console.log(io.util.format(result)))`
     } else if (lastName) {
       cmd = `${cmd}; io.util.format(${lastName});`
-    } else if (!/^\s*(throw|with|try|const|let|var|if|for|while|do|return|import)/.test(cmd)) {
+    } else if (!/^\s*((throw\s)|(with\s*\()|(try\s*{)|(const\s)|(let\s)|(var\s)|(if\s*\()|(for\s*\()|(while\s*\()|(do\s*{)|(return\s)|(import\s*\())/.test(cmd)) {
       cmd = `io.util.format(${cmd});`
     }
   }
