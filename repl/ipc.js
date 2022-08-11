@@ -39,13 +39,12 @@ function ondata (data) {
     }
 
     if (message?.command === 'repl.context.ready') {
-      ipc.write('send', { event: 'repl.context.init', value: {} })
       setTimeout(() => {
-        ipc.log(buffer.trim())
-      }, 256)
-    } else {
-      ipc.log(buffer.trim())
+        ipc.write('send', { event: 'repl.context.init', value: {} })
+      }, 512)
     }
+
+    ipc.log(buffer.trim())
   }
 }
 

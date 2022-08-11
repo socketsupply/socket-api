@@ -16,7 +16,7 @@ const callbacks = {}
 const dirname = path.dirname(import.meta.url.replace('file://', ''))
 const cwd = path.resolve(dirname, '..', 'repl')
 
-const args = ['compile', '-r', '-o', `--config=${path.join(cwd, 'ssc.config')}`]
+const args = ['compile', '-r', '-o']
 
 if (!process.env.DEBUG) {
   args.push('--prod', '--headless')
@@ -41,7 +41,6 @@ let socket = null
 let server = null
 let port = null
 
-
 proc.on('exit', onexit)
 proc.stdout.on('data', ondata)
 
@@ -49,6 +48,10 @@ process.on('exit', onexit)
 process.on('SIGINT', onsignal)
 process.on('unhandleRejection', onerror)
 process.on('uncaughtException', onerror)
+
+async function sleep (ms) {
+  await new Promise((resolve) => setTimeout(resolve, ms))
+}
 
 function onerror (err) {
   proc.kill(9)
@@ -82,7 +85,7 @@ function ondata (data) {
   }
 }
 
-function onmessage (message) {
+async function onmessage (message) {
   const { id, command } = message
   let { value } = message
 
@@ -166,6 +169,13 @@ function onmessage (message) {
   }
 
   if (message.command === 'repl.context.ready') {
+    if (!process.argv.includes('--quiet')) {
+      console.log('• repl context initialized')
+      console.log('')
+    }
+
+    await sleep(512)
+
     socket = createConnection(port)
     socket.on('close', onexit)
     socket.on('data', ondata)
