@@ -151,17 +151,17 @@ test('flags', (t) => {
 test('constants', (t) => {
   t.ok(
     fs.constants.COPYFILE_EXCL === 0x0001,
-    'fs.fs.constants.COPYFILE_EXCL'
+    'fs.constants.COPYFILE_EXCL'
   )
 
 	t.ok(
     fs.constants.COPYFILE_FICLONE === 0x0002,
-    'fs.fs.constants.COPYFILE_FICLONE'
+    'fs.constants.COPYFILE_FICLONE'
   )
 
 	t.ok(
     fs.constants.COPYFILE_FICLONE_FORCE === 0x0004,
-    'fs.fs.constants.COPYFILE_FICLONE_FORCE'
+    'fs.constants.COPYFILE_FICLONE_FORCE'
   )
 
   t.ok(typeof fs.constants.O_RDONLY === 'number', 'fs.constants.O_RDONLY')

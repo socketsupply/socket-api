@@ -1,3 +1,5 @@
+import * as ipc from './ipc.js'
+import { rand64 } from './util.js'
 /**
  * @module DNS
  *
@@ -13,10 +15,12 @@
  * @param {string} hostname - The host name to resolve.
  * @param {Object} opts - An options object.
  * @param {number|string} opts.family - The record family. Must be 4, 6, or 0. For backward compatibility reasons,'IPv4' and 'IPv6' are interpreted as 4 and 6 respectively. The value 0 indicates that IPv4 and IPv6 addresses are both returned. Default: 0.
- * @param {function} cllback - The function to call after the method is complete.
+ * @param {function} callback - The function to call after the method is complete.
+ * @returns {Promise}
  */
 export const lookup = async (hostname, opts, cb) => {
   const params = {
+    id: rand64(),
     hostname
   }
 
@@ -25,7 +29,7 @@ export const lookup = async (hostname, opts, cb) => {
     opts = {}
   }
 
-  const { err, data } = await window._ipc.send('dnsLookup', params)
+  const { err, data } = await ipc.write('dnsLookup', params)
 
   if (err && cb) return cb(err)
   if (cb) return cb(null, data)
