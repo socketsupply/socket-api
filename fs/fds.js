@@ -100,11 +100,11 @@ export default new class FileDescriptorsMap {
     this.types.delete(id)
     this.types.delete(fd)
 
-    //result = await ipc.send('fs.closeOpenDescriptor', { id })
+    result = await ipc.send('fs.closeOpenDescriptor', { id })
 
-    //if (result.err && !/found/i.test(result.err.message)) {
-      //console.warn('fs.fds.release', result.err.message || result.err)
-    //}
+    if (result.err && !/found/i.test(result.err.message)) {
+      console.warn('fs.fds.release', result.err.message || result.err)
+    }
   }
 
   async retain (id) {
