@@ -1,10 +1,10 @@
 import { Buffer } from 'buffer'
 
-import { EventEmitter } from './events.js'
-import { isIPv4 } from './net.js'
-import * as dns from './dns.js'
-import * as ipc from './ipc.js'
-import { rand64, isArrayBufferView } from './util.js'
+import { EventEmitter } from '../events.js'
+import { isIPv4 } from '../net.js'
+import * as dns from '../dns.js'
+import * as ipc from '../ipc.js'
+import { rand64, isArrayBufferView } from '../util.js'
 
 const BIND_STATE_UNBOUND = 0
 const BIND_STATE_BINDING = 1

@@ -129,15 +129,21 @@ export function platform () {
     }
   }
 
+  var {data, err} = ipc.sendSync('getPlatformOS')
+
+  if(err) {
+    throw new Error('error in getPlatformOS')
+  }
+
   if (typeof window === 'object') {
     value = (
       window.process?.os ||
-      ipc.sendSync('getPlatformOS')?.data ||
+      data ||
       window.process?.platform ||
       UNKNOWN
     )
   }
-
+  console.log('value', value)
   cache.platform = value.replace(/^mac/i, 'darwin')
 
   return cache.platform
