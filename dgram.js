@@ -438,7 +438,7 @@ export class Socket extends EventEmitter {
     if (err) return { err }
 
     this.emit('close')
-    return {}
+    return
   }
 
   /**
