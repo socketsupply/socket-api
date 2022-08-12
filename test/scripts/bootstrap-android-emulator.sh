@@ -10,4 +10,4 @@ emulator_flags+=(
   -noaudio
 )
 
-emulator @SSCAVD "${emulator_flags[@]}"
+emulator @SSCAVD "${emulator_flags[@]}" >/dev/null

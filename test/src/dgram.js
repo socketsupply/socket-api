@@ -15,7 +15,7 @@ test('dgram ', async t => {
   })
   t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
   t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
-  t.throws(server.address, /^Error: getsockname EBADF$/, 'server.address() throws an error if the socket is not bound')
+  t.throws(() => server.address(), /^Error: getsockname EBADF$/, 'server.address() throws an error if the socket is not bound')
   t.ok(server.bind(41234) === server, 'dgram.bind returns the socket')
   t.ok(server.address(), 'server.address() doesn\'t throw')
   t.equal(server.close(), void 0, 'server.close() returns undefined')
