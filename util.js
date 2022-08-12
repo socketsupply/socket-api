@@ -1,4 +1,6 @@
-import { Buffer } from 'buffer'
+import { getRandomValues } from './crypto.js'
+import { Buffer } from './buffer.js'
+import os from './os.js'
 
 const AsyncFunction = (async () => void 0).constructor
 const TypedArray = Object.getPrototypeOf(Object.getPrototypeOf(new Uint8Array())).constructor
@@ -75,9 +77,11 @@ export function toProperCase (string) {
 }
 
 // so this is re-used instead of creating new one each rand64() call
-const tmp = new BigUint64Array(1)
+const tmp = new Uint32Array(2)
+
 export function rand64 () {
-  return globalThis.crypto.getRandomValues(tmp)[0]
+  getRandomValues(tmp)
+  return (BigInt(tmp[0]) << 32n) | BigInt(tmp[1])
 }
 
 export function splitBuffer (buffer, highWaterMark) {
@@ -616,3 +620,6 @@ export function format (format, ...args) {
 
   return str
 }
+
+import * as exports from './util.js'
+export default exports
