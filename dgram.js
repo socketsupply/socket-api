@@ -44,7 +44,7 @@ const fixBufferList = list => {
  * The new keyword is not to be used to create dgram.Socket instances.
  */
 export class Socket extends EventEmitter {
-  constructor (options) {
+  constructor (options, callback) {
     super()
 
     this.serverId = rand64()
@@ -62,6 +62,10 @@ export class Socket extends EventEmitter {
     }
 
     // this.connect()
+
+    if (callback) {
+      this.on('message', callback)
+    }
   }
 
   _getSockData ({ id }) {
@@ -562,6 +566,11 @@ export class Socket extends EventEmitter {
   }
 }
 
-export const createSocket = (type, listener) => {
-  return new Socket({ type, listener })
+export const createSocket = (options, callback) => {
+  if (typeof options === 'string') {
+    options = {
+      type: options
+    }
+  }
+  return new Socket(options, callback)
 }
