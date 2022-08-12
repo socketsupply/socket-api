@@ -1,8 +1,7 @@
 import { test } from 'tapzero'
-import * as dgram from '../../dgram.js'
-import * as dns from '../../dns.js'
-import { Buffer } from '../../buffer.js'
-import { EventEmitter } from '../../events.js'
+import * as dgram from '@socketsupply/io/dgram.js'
+import { Buffer } from '@socketsupply/io/buffer.js'
+import { EventEmitter } from '@socketsupply/io/events.js'
 
 const MTU = 1518
 
