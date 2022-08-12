@@ -7,7 +7,7 @@ import { EventEmitter } from '../../events.js'
 test('dgram ', async t => {
   t.ok(dgram, 'dgram is available')
   t.ok(dgram.Socket.prototype instanceof EventEmitter, 'dgram.Socket is an EventEmitter')
-  t.ok(dgram.Socket.length === 1, 'dgram.Socket accepts one argument')
+  t.ok(dgram.Socket.length === 2, 'dgram.Socket accepts two arguments')
   t.ok(dgram.createSocket, 'dgram.createSocket is available')
   t.ok(dgram.createSocket.length === 2, 'dgram.createSocket accepts two arguments')
   const server = dgram.createSocket({
@@ -15,7 +15,6 @@ test('dgram ', async t => {
   })
   t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
   t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
-  t.ok(server.state.lookup === dns.lookup, 'socket.lookup is the dns.lookup function by default')
   t.throws(server.address, /^Error: getsockname EBADF$/, 'server.address() throws an error if the socket is not bound')
   t.ok(server.bind(41234) === server, 'dgram.bind returns the socket')
   t.ok(server.address(), 'server.address() doesn\'t throw')
@@ -23,30 +22,15 @@ test('dgram ', async t => {
   t.throws(server.close, /ERR_SOCKET_DGRAM_NOT_RUNNING/, 'server.close() throws an error is the socket is already closed')
 })
 
+const makePayload = () => Array(Math.floor(Math.random() * 1024 * 1024)).fill(0).join('')
+
 test('udp bind, send', async t => {
   const server = dgram.createSocket({
     type: 'udp4',
     reuseAddr: false
   })
 
-const makePayload = () => Array(Math.floor(Math.random() * 1024 * 1024)).fill(0).join('')
-
-test('sanity', t => {
-  t.ok(true, 'sane')
-})
-
-test('sanity', async t => {
-  t.ok(true, 'sane')
-})
-
-/* test('udp bind, send', async t => {
-  const server = io.dgram.createSocket({
-    type: 'udp4',
-    reuseAddr: false
-  })
-
-  t.ok(!!server, 'server exists')
-  const client = io.dgram.createSocket('udp4')
+  const client = dgram.createSocket('udp4')
 
   const msg = new Promise((resolve, reject) => {
     server.on('message', resolve)
@@ -57,7 +41,7 @@ test('sanity', async t => {
   t.ok(payload.length > 0, `${payload.length} bytes prepared`)
 
   server.on('listening', () => {
-    client.send(io.Buffer.from(payload), 41234)
+    client.send(Buffer.from(payload), 41234)
   })
 
   t.ok(server.bind(41234) === server, 'server returned this')
@@ -69,15 +53,15 @@ test('sanity', async t => {
     console.log(err)
     t.fail(err, err.message)
   }
-}) */
+})
 
 test('udp bind, connect, send', async t => {
-  const server = io.dgram.createSocket({
+  const server = dgram.createSocket({
     type: 'udp4',
     reuseAddr: false
   })
 
-  const client = io.dgram.createSocket('udp4')
+  const client = dgram.createSocket('udp4')
 
   const msg = new Promise((resolve, reject) => {
     server.on('message', resolve)
@@ -89,7 +73,7 @@ test('udp bind, connect, send', async t => {
   server.on('listening', () => {
     client.connect(41235, '0.0.0.0', (err) => {
       if (err) return t.fail(err.message)
-      client.send(io.Buffer.from(payload))
+      client.send(Buffer.from(payload))
     })
   })
 
