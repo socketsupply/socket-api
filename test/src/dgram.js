@@ -1,7 +1,7 @@
 import { test } from 'tapzero'
 import * as dgram from '../../dgram.js'
 import * as dns from '../../dns.js'
-import { Buffer } from '../../buffer.js'
+// import { Buffer } from '../../buffer.js'
 
 test('dgram', async t => {
   t.ok(dgram, 'dgram is available')
@@ -18,6 +18,8 @@ test('dgram', async t => {
   t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
   t.ok(server.state.reuseAddr === false, 'dgram.createSocket sets the reuseAddr option')
   t.ok(server.state.lookup === dns.lookup, 'socket.lookup is the dns.lookup function by default')
+  // TODO: doesn't work, fix in socket-sdk
+  //
   // const msg = new Promise((resolve, reject) => {
   //   server.on('message', resolve)
   //   server.on('error', reject)

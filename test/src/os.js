@@ -1,8 +1,10 @@
 import * as os from '@socketsupply/io/os'
 import { test } from 'tapzero'
 
+const archs = ['x64', 'ia32', 'arm64', 'unknown']
+
 test('os.arch()', (t) => {
-  t.ok(os.arch(), 'os.arch()')
+  t.ok(archs.includes(os.arch()), 'os.arch() value is valid')
 })
 
 test('os.platform()', (t) => {

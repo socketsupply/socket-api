@@ -507,7 +507,7 @@ export class Socket extends EventEmitter {
   }
 
   //
-  // For now wer aren't going to implement any of the multicast options,
+  // For now we aren't going to implement any of the multicast options,
   // mainly because 1. we don't need it in hyper and 2. if a user wants
   // to deploy their app to the app store, they will need to request the
   // multicast entitlement from apple. If someone really wants this they

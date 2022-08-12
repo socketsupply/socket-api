@@ -19,20 +19,31 @@ import { rand64 } from './util.js'
  * @returns {Promise}
  */
 export const lookup = async (hostname, opts, cb) => {
-  const params = {
-    id: rand64(),
-    hostname
+  let params = {
+    serverId: opts.serverId ?? rand64(),
+    hostname,
   }
 
   if (typeof opts === 'function') {
     cb = opts
-    opts = {}
   }
 
-  const { err, data } = await ipc.write('dnsLookup', params)
+  if (typeof opts === 'object') {
+    params = {
+      ...params,
+      ...opts
+    }
+  }
 
-  if (err && cb) return cb(err)
+  if (typeof opts === 'number') {
+    params.family = opts
+  }
+
+  const { err, data } = await ipc.send('dnsLookup', params)
+  const e = new Error(err)
+
+  if (err && cb) return cb(e)
   if (cb) return cb(null, data)
 
-  return { err, data }
+  return { err: e, data }
 }
