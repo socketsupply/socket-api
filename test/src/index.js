@@ -1,5 +1,5 @@
-import process from '@socketsupply/io/process'
-import ipc from '@socketsupply/io/ipc'
+import process from '@socketsupply/io/process.js'
+import ipc from '@socketsupply/io/ipc.js'
 
 import { GLOBAL_TEST_RUNNER } from 'tapzero'
 
