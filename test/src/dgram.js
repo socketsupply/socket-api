@@ -14,23 +14,10 @@ test('dgram ', async t => {
     type: 'udp4',
     reuseAddr: false
   })
-  const client = dgram.createSocket('udp4')
   t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
   t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
   t.ok(server.state.reuseAddr === false, 'dgram.createSocket sets the reuseAddr option')
   t.ok(server.state.lookup === dns.lookup, 'socket.lookup is the dns.lookup function by default')
-  // TODO: doesn't work, fix in socket-sdk
-  const msg = new Promise(resolve => {
-    server.on('message', resolve)
-    server.on('error', () => resolve('error'))
-    setTimeout(() => resolve('hang'), 1000);
-  })
-  server.on('listening', () => {
-    client.connect(41234, '0.0.0.0', (err) => {
-      if (err) return t.fail(err)
-      client.send(Buffer.from('xxx'))
-    })
-  })
   t.throws(server.address, /^Error: getsockname EBADF$/, 'server.address() throws an error if the socket is not bound')
   t.ok(server.bind(41234) === server, 'dgram.bind returns the socket')
   t.ok(server.address(), 'server.address() doesn\'t throw')
