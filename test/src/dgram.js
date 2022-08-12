@@ -23,6 +23,11 @@ test('dgram ', async t => {
   t.throws(server.close, /ERR_SOCKET_DGRAM_NOT_RUNNING/, 'server.close() throws an error is the socket is already closed')
 })
 
+test('udp bind, send', async t => {
+  const server = dgram.createSocket({
+    type: 'udp4',
+    reuseAddr: false
+  })
 
 const makePayload = () => Array(Math.floor(Math.random() * 1024 * 1024)).fill(0).join('')
 
