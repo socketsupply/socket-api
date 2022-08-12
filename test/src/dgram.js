@@ -11,7 +11,7 @@ test('sanity', async t => {
   t.ok(true, 'sane')
 })
 
-test('udp bind, send', async t => {
+/* test('udp bind, send', async t => {
   const server = io.dgram.createSocket({
     type: 'udp4',
     reuseAddr: false
@@ -41,7 +41,7 @@ test('udp bind, send', async t => {
     console.log(err)
     t.fail(err, err.message)
   }
-})
+}) */
 
 test('udp bind, connect, send', async t => {
   const server = io.dgram.createSocket({

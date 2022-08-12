@@ -60,7 +60,7 @@ export class Socket extends EventEmitter {
       ipv6Only: options.ipv6Only
     }
 
-    this.connect()
+    // this.connect()
   }
 
   _getSockData ({ id }) {
@@ -254,8 +254,6 @@ export class Socket extends EventEmitter {
       port: port || 0
     }
 
-    console.log('>>>', opts)
-
     const {
       err: errConnect,
       data: dataConnect
@@ -270,10 +268,9 @@ export class Socket extends EventEmitter {
 
     // TODO udpConnect could return the peer data instead of putting it
     // into a different call and we could shave off a bit of time here.
-    const {
-      err: errGetPeerData,
-      data: dataPeerData
-    } = await this._getPeerData({ clientId: dataConnect.clientId })
+    const { err: errPeerData, data: dataPeerData } = ipc.sendSync('udpGetPeerName', {
+      clientId: this.clientId
+    })
 
     if (errGetPeerData) {
       this.emit('error', errGetPeerData)
