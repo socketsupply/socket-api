@@ -40,10 +40,9 @@ export const lookup = async (hostname, opts, cb) => {
   }
 
   const { err, data } = await ipc.send('dnsLookup', params)
-  const e = new Error(err)
 
-  if (err && cb) return cb(e)
+  if (err && cb) return cb(err)
   if (cb) return cb(null, data)
 
-  return { err: e, data }
+  return { err, data }
 }
