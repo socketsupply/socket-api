@@ -7,7 +7,7 @@
     "lint": "standardx -v",
     "readme": "node ./bin/generate-docs.js",
     "test": "cd test && npm install --silent --no-audit && npm test --silent",
-    "test:node": "node ./test/node/index.js",
+    "test:node": "cd test && npm install --silent --no-audit && npm run test:node",
     "test:android": "cd test && npm install --silent --no-audit && npm run test:android --silent",
     "test:android-emulator": "cd test && npm install --silent --no-audit && npm run test:android-emulator --silent",
     "test:clean": "cd test && rm -rf dist",
@@ -32,6 +32,12 @@
     "acorn-walk": "8.2.0",
     "esbuild": "0.14.49",
     "tapzero": "*"
+  },
+  "browser": {
+    "fs": "./sdk/fs.js",
+    "os": "./sdk/os.js",
+    "dgram": "./sdk/dgram.js",
+    "process": "./sdk/process.js"
   },
   "dependencies": {
     "buffer": "6.0.3",

@@ -1,11 +1,11 @@
-import process from '@socketsupply/io/process'
-import ipc from '@socketsupply/io/ipc'
+import * as process from '@socketsupply/io/process.js'
+//import ipc from '@socketsupply/io/ipc.js'
 
 import { GLOBAL_TEST_RUNNER } from 'tapzero'
 
 const parent = typeof window === 'object' ? window : globalThis
 
-ipc.debug.enabled = true
+//ipc.debug.enabled = true
 
 if (typeof parent?.addEventListener === 'function') {
   parent.addEventListener('error', (err, url, line) => {
@@ -25,3 +25,4 @@ setTimeout(function poll () {
 import './console.js'
 import './fs.js'
 import './os.js'
+import './dgram.js'

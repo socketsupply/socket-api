@@ -6,18 +6,18 @@ import {
   splitBuffer,
   rand64,
   clamp
-} from '../util.js'
+} from '../../util.js'
 
 import { ReadStream, WriteStream } from './stream.js'
 import { normalizeFlags } from './flags.js'
-import { EventEmitter } from '../events.js'
-import { AbortError } from '../errors.js'
+import { EventEmitter } from '../../events.js'
+import { AbortError } from '../../errors.js'
 import { Buffer } from 'buffer'
 import { Stats } from './stats.js'
 import { F_OK } from './constants.js'
 import * as ipc from '../ipc.js'
 import fds from './fds.js'
-import gc from '../gc.js'
+import gc from '../../gc.js'
 
 export const kOpening = Symbol.for('fs.FileHandle.opening')
 export const kClosing = Symbol.for('fs.FileHandle.closing')
