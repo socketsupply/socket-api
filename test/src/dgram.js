@@ -3,6 +3,10 @@ import * as dgram from '../../dgram.js'
 import * as dns from '../../dns.js'
 // import { Buffer } from '../../buffer.js'
 
+const throwAfter = ms => new Promise((resolve, reject) => {
+  setTimeout(() => reject, 500);
+});
+
 test('dgram', async t => {
   t.ok(dgram, 'dgram is available')
   t.ok(dgram.Socket, 'dgram.Socket is available')
@@ -19,19 +23,21 @@ test('dgram', async t => {
   t.ok(server.state.reuseAddr === false, 'dgram.createSocket sets the reuseAddr option')
   t.ok(server.state.lookup === dns.lookup, 'socket.lookup is the dns.lookup function by default')
   // TODO: doesn't work, fix in socket-sdk
-  //
-  // const msg = new Promise((resolve, reject) => {
-  //   server.on('message', resolve)
-  //   server.on('error', reject)
-  // })
-  // server.on('listening', () => {
-  //   client.connect(41234, '0.0.0.0', (err) => {
-  //     if (err) return t.fail(err)
-  //     client.send(Buffer.from('xxx'))
-  //   })
-  // })
-  // t.ok(server.bind(41234) === server, 'dgram.bind returns the socket')
-  // t.ok((await msg).startsWith('server got'), 'socket.on("message") is called when a message is received')
+  const msg = new Promise(resolve => {
+    server.on('message', resolve)
+    server.on('error', () => resolve('error'))
+    setTimeout(() => resolve('hang'), 1000);
+  })
+  server.on('listening', () => {
+    client.connect(41234, '0.0.0.0', (err) => {
+      if (err) return t.fail(err)
+      client.send(Buffer.from('xxx'))
+    })
+  })
+  t.throws(server.address, /^Error: getsockname EBADF$/, 'server.address() throws an error if the socket is not bound')
+  t.ok(server.bind(41234) === server, 'dgram.bind returns the socket')
+  t.ok(server.address(), 'server.address() doesn\'t throw')
+  t.equal((await msg).toString(), 'xxx', 'server.on("message") receives the message')
 })
 
 
