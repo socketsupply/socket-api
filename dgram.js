@@ -427,7 +427,7 @@ export class Socket extends EventEmitter {
    */
   async close (cb) {
     if (typeof cb === 'function') {
-      this.on('close', cb)
+      this.once('close', cb)
     }
 
     const { err } = await ipc.send('udpClose', {

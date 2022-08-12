@@ -374,12 +374,12 @@ export class Socket extends Duplex {
     const [options, cb] = normalizeArgs(args)
 
     ;(async () => {
+      this.clientId = rand64()
       const params = {
         port: options.port,
-        address: options.host
+        address: options.host,
+        clientId: this.clientId
       }
-
-      this.clientId = rand64()
 
       // TODO: if host is a ip address
       //      connect, if it is a dns name, lookup

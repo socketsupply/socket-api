@@ -2,10 +2,11 @@ import { test } from 'tapzero'
 import * as dgram from '../../dgram.js'
 import * as dns from '../../dns.js'
 import { Buffer } from '../../buffer.js'
+import { EventEmitter } from '../../events.js'
 
-test('dgram', async t => {
+test('dgram ', async t => {
   t.ok(dgram, 'dgram is available')
-  t.ok(dgram.Socket, 'dgram.Socket is available')
+  t.ok(dgram.Socket.prototype instanceof EventEmitter, 'dgram.Socket is an EventEmitter')
   t.ok(dgram.Socket.length === 1, 'dgram.Socket accepts one argument')
   t.ok(dgram.createSocket, 'dgram.createSocket is available')
   t.ok(dgram.createSocket.length === 2, 'dgram.createSocket accepts two arguments')
@@ -34,7 +35,7 @@ test('dgram', async t => {
   t.ok(server.bind(41234) === server, 'dgram.bind returns the socket')
   t.ok(server.address(), 'server.address() doesn\'t throw')
   t.equal((await msg).toString(), 'xxx', 'server.on("message") receives the message')
-  t.ok(server.close() === void 0, 'server.close() returns undefined')
+  t.equal(server.close(), void 0, 'server.close() returns undefined')
   t.throws(server.close, /ERR_SOCKET_DGRAM_NOT_RUNNING/, 'server.close() throws an error is the socket is already closed')
 })
 
