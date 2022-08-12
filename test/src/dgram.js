@@ -34,6 +34,8 @@ test('dgram', async t => {
   t.ok(server.bind(41234) === server, 'dgram.bind returns the socket')
   t.ok(server.address(), 'server.address() doesn\'t throw')
   t.equal((await msg).toString(), 'xxx', 'server.on("message") receives the message')
+  t.ok(server.close() === void 0, 'server.close() returns undefined')
+  t.throws(server.close, /ERR_SOCKET_DGRAM_NOT_RUNNING/, 'server.close() throws an error is the socket is already closed')
 })
 
 
