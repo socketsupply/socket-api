@@ -1,11 +1,7 @@
 import { test } from 'tapzero'
 import * as dgram from '../../dgram.js'
 import * as dns from '../../dns.js'
-// import { Buffer } from '../../buffer.js'
-
-const throwAfter = ms => new Promise((resolve, reject) => {
-  setTimeout(() => reject, 500);
-});
+import { Buffer } from '../../buffer.js'
 
 test('dgram', async t => {
   t.ok(dgram, 'dgram is available')
