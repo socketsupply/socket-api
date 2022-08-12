@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "lint": "standardx -v",
-    "readme": "node ./bin/index.js",
+    "readme": "node ./bin/generate-docs.js",
     "test": "cd test && npm install --silent --no-audit && npm test --silent",
     "test:node": "node ./test/node/index.js",
     "test:android": "cd test && npm install --silent --no-audit && npm run test:android --silent",
     "test:android-emulator": "cd test && npm install --silent --no-audit && npm run test:android-emulator --silent",
     "test:clean": "cd test && rm -rf dist",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
+  },
+  "bin": {
+    "ssc-repl": "bin/repl.js"
   },
   "author": "",
   "license": "ISC",
@@ -37,6 +40,7 @@
     "process": "./sdk/process.js"
   },
   "dependencies": {
-    "buffer": "6.0.3"
+    "buffer": "6.0.3",
+    "chalk": "5.0.1"
   }
 }

@@ -1,17 +1,14 @@
-/**
- * @module Dgram
- *
- * This module provides an implementation of UDP datagram sockets. It does
- * not (yet) provide any of the multicast methods or properties.
- */
-
 import { Buffer } from 'buffer'
 
-import { EventEmitter } from '../events.js'
-import { isIPv4 } from '../net.js'
-import * as dns from '../dns.js'
-import * as ipc from '../ipc.js'
-import { rand64, isArrayBufferView } from '../util.js'
+import { EventEmitter } from './events.js'
+import { isIPv4 } from './net.js'
+import * as dns from './dns.js'
+import * as ipc from './ipc.js'
+import { rand64, isArrayBufferView } from './util.js'
+
+const BIND_STATE_UNBOUND = 0
+const BIND_STATE_BINDING = 1
+const BIND_STATE_BOUND = 2
 
 const fixBufferList = list => {
   const newlist = new Array(list.length)
@@ -46,6 +43,7 @@ export class Socket extends EventEmitter {
     this.state = {
       recvBufferSize: options.recvBufferSize,
       sendBufferSize: options.sendBufferSize,
+      _bindState: BIND_STATE_UNBOUND,
       connectState: 2,
       reuseAddr: options.reuseAddr,
       ipv6Only: options.ipv6Only
@@ -111,7 +109,7 @@ export class Socket extends EventEmitter {
     }
 
     this.on('error', removeListeners)
-    this.on('listening', onListening)
+    this.once('listening', onListening)
 
     if (!options.address) {
       if (this.type === 'udp4') {
@@ -141,6 +139,9 @@ export class Socket extends EventEmitter {
       return { err: errBind }
     }
 
+    this._bindState = BIND_STATE_BOUND
+    setTimeout(() => this.emit('listening'), 1)
+
     this._address = options.address
     this._port = options.port
     this._family = isIPv4(options.address) ? 'IPv4' : 'IPv6'
@@ -157,7 +158,7 @@ export class Socket extends EventEmitter {
 
       if (data.source === 'dnsLookup') {
         this._address = data.params.ip
-        return this.emit('listenting')
+        return this.emit('listening')
       }
 
       if (data.source === 'udpReadStart') {
@@ -368,18 +369,14 @@ export class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
-    // @XXX(jwerle): @heapwolf why is this happening in a `send()` call?
-    //
-    // @jwerle it's from the node.js source code - https://github.com/nodejs/node/blob/main/lib/dgram.js#L645
-    // but it's missing a check to see if the instance is unbound (state.bindState === BIND_STATE_UNBOUND)
-    /*
-    const { err: errBind } = this.bind({ port: 0 }, null)
+    /* if (this._bindState === BIND_STATE_UNBOUND) {
+      const { err: errBind } = this.bind({ port: 0 }, null)
 
-    if (errBind) {
-      if (cb) return cb(errBind)
-      return { err: errBind }
-    }
-    */
+      if (errBind) {
+        if (cb) return cb(errBind)
+        return { err: errBind }
+      }
+    } */
 
     if (list.length === 0) {
       list.push(Buffer.alloc(0))

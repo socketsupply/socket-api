@@ -49,14 +49,14 @@ not (yet) provide any of the multicast methods or properties.
 
 
 
-## [`Socket` (extends `EventEmitter`)](./dgram.js#L42)
+## [`Socket` (extends `EventEmitter`)](./dgram.js#L38)
 
 New instances of dgram.Socket are created using dgram.createSocket().
 The new keyword is not to be used to create dgram.Socket instances.
 
 
 
-### [`bind()`](./dgram.js#L94)
+### [`bind()`](./dgram.js#L86)
 
 Listen for datagram messages on a named port and optional address
 If address is not specified, the operating system will attempt to
@@ -72,7 +72,7 @@ If binding fails, an 'error' event is emitted.
 
 
 
-### [`connect()`](./dgram.js#L197)
+### [`connect()`](./dgram.js#L200)
 
 Associates the dgram.Socket to a remote address and port. Every message sent
 by this handle is automatically sent to that destination. Also, the socket
@@ -92,7 +92,7 @@ is emitted.
 
 
 
-### [`send()`](./dgram.js#L330)
+### [`send()`](./dgram.js#L333)
 
 Broadcasts a datagram on the socket. For connectionless sockets, the
 destination port and address must be specified. Connected sockets, on the
@@ -129,6 +129,16 @@ or a DataView.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | buffer | ArrayBuffer |  | false | An array buffer of data to send |
+
+
+
+### [undefined](./dgram.js#L384)
+
+const { err: errBind } = this.bind({ port: 0 }, null)
+    if (errBind) {
+      if (cb) return cb(errBind)
+      return { err: errBind }
+    }
 
 
 
@@ -216,31 +226,31 @@ that does not yet have one.
 
 
 
-## [OK](./ipc.js#L119)
+## [OK](./ipc.js#L127)
 
 Represents an OK IPC status.
 
 
 
-## [ERROR](./ipc.js#L124)
+## [ERROR](./ipc.js#L132)
 
 Represents an ERROR IPC status.
 
 
 
-## [TIMEOUT](./ipc.js#L129)
+## [TIMEOUT](./ipc.js#L137)
 
 Timeout in milliseconds for IPC requests.
 
 
 
-## [kDebugEnabled](./ipc.js#L134)
+## [kDebugEnabled](./ipc.js#L142)
 
 Symbol for the `ipc.debug.enabled` property
 
 
 
-## [`parseSeq()`](./ipc.js#L142)
+## [`parseSeq()`](./ipc.js#L150)
 
 Parses `seq` as integer value
 
@@ -252,7 +262,7 @@ Parses `seq` as integer value
 
 
 
-## [`debug()`](./ipc.js#L152)
+## [`debug()`](./ipc.js#L160)
 
 If `debug.enabled === true`, then debug output will be printed to console.
 
@@ -262,7 +272,163 @@ If `debug.enabled === true`, then debug output will be printed to console.
 
 
 
-## [Result](./ipc.js#L182)
+## [`Message` (extends `URL`)](./ipc.js#L190)
+
+A container for a IPC message based on a `ipc://` URI scheme.
+
+
+
+### [PROTOCOL](./ipc.js#L195)
+
+The expected protocol for an IPC message.
+
+
+
+### [`from()`](./ipc.js#L205)
+
+Creates a `Message` instance from a variety of input.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| input | string\|URL|Message|Buffer|object |  | false |  |
+| [params] | (object\|string|URLSearchParams) |  | true |  |
+
+
+
+### [`isValidInput()`](./ipc.js#L250)
+
+Predicate to determine if `input` is valid for constructing
+a new `Message` instance.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| input | string\|URL|Message|Buffer|object |  | false |  |
+
+
+
+### [`constructor()`](./ipc.js#L265)
+
+`Message` class constructor.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| input | string\|URL |  | false |  |
+
+
+
+### [command](./ipc.js#L278)
+
+Computed command for the IPC message.
+
+
+
+### [id](./ipc.js#L285)
+
+Computed `id` value for the command.
+
+
+
+### [seq](./ipc.js#L292)
+
+Computed `seq` (sequence) value for the command.
+
+
+
+### [value](./ipc.js#L300)
+
+Computed message value potentially given in message parameters.
+This value is automatically decoded, but not treated as JSON.
+
+
+
+### [index](./ipc.js#L309)
+
+Computed `index` value for the command potentially referring to
+the window index the command is scoped to or originating from. If not
+specified in the message parameters, then this value defaults to `-1`.
+
+
+
+### [json](./ipc.js#L326)
+
+Computed value parsed as JSON. This value is `null` if the value is not present
+or it is invalid JSON.
+
+
+
+### [params](./ipc.js#L338)
+
+Computed readonly object of message parameters.
+
+
+
+### [entries](./ipc.js#L346)
+
+Returns computed parameters as entries
+
+
+
+### [`set()`](./ipc.js#L362)
+
+Set a parameter `value` by `key`.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| key | string |  | false |  |
+| value | mixed |  | false |  |
+
+
+
+### [`get()`](./ipc.js#L376)
+
+Get a parameter value by `key`.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| key | string |  | false |  |
+| defaultValue | mixed |  | false |  |
+
+
+
+### [`delete()`](./ipc.js#L396)
+
+Delete a parameter by `key`.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| key | string |  | false |  |
+
+
+
+### [keys](./ipc.js#L408)
+
+Computed parameter keys.
+
+
+
+### [values](./ipc.js#L416)
+
+Computed parameter values.
+
+
+
+### [`has()`](./ipc.js#L432)
+
+Predicate to determine if parameter `key` is present in parameters.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| key | string |  | false |  |
+
+
+
+### [toJSON](./ipc.js#L439)
+
+Converts a `Message` instance into a plain JSON object.
+
+
+
+## [Result](./ipc.js#L451)
 
 A result type used internally for handling
 IPC result values from the native layer that are in the form
@@ -271,7 +437,7 @@ type of object are in tuple form and be accessed at `[data?,err?]`
 
 
 
-### [`from()`](./ipc.js#L190)
+### [`from()`](./ipc.js#L459)
 
 Creates a `Result` instance from input that may be an object
 like `{ err?, data? }`, an `Error` instance, or just `data`.
@@ -282,7 +448,7 @@ like `{ err?, data? }`, an `Error` instance, or just `data`.
 
 
 
-### [`constructor()`](./ipc.js#L213)
+### [`constructor()`](./ipc.js#L482)
 
 `Result` class constructor.
 
@@ -293,13 +459,13 @@ like `{ err?, data? }`, an `Error` instance, or just `data`.
 
 
 
-## [ready](./ipc.js#L246)
+## [ready](./ipc.js#L519)
 
 This is a `FunctionDeclaration` named `ready`in `ipc.js`, it's exported but undocumented.
 
 
 
-## [`sendSync()`](./ipc.js#L271)
+## [`sendSync()`](./ipc.js#L544)
 
 Sends a synchronous IPC command over XHR returning a `Result`
 upon success or error.
@@ -311,33 +477,45 @@ upon success or error.
 
 
 
-## [emit](./ipc.js#L311)
+## [emit](./ipc.js#L584)
 
 This is a `FunctionDeclaration` named `emit`in `ipc.js`, it's exported but undocumented.
 
 
 
-## [resolve](./ipc.js#L321)
+## [resolve](./ipc.js#L594)
 
 This is a `FunctionDeclaration` named `resolve`in `ipc.js`, it's exported but undocumented.
 
 
 
-## [send](./ipc.js#L331)
+## [send](./ipc.js#L604)
 
 This is a `FunctionDeclaration` named `send`in `ipc.js`, it's exported but undocumented.
 
 
 
-## [write](./ipc.js#L341)
+## [write](./ipc.js#L621)
 
 This is a `FunctionDeclaration` named `write`in `ipc.js`, it's exported but undocumented.
 
 
 
-## [request](./ipc.js#L435)
+## [request](./ipc.js#L715)
 
 This is a `FunctionDeclaration` named `request`in `ipc.js`, it's exported but undocumented.
+
+
+
+## [`createBinding()`](./ipc.js#L818)
+
+Factory for creating a proxy based IPC API.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| domain | string |  | false |  |
+| ctx | (function\|object) |  | true |  |
+| [ctx.default] | (string) |  | true |  |
 
 
 
@@ -430,15 +608,14 @@ To use the promise-based APIs:
 ```js
 import
 ```
-To use the callback and sync APIs:
+To use the callback and async APIs:
 ```js
 import
-as fs from 'node:fs';
 ```
 
 
 
-## [`access()`](./fs/index.js#L70)
+## [`access()`](./fs/index.js#L73)
 
 Asynchronously check access a file for a given mode calling `callback`
 upon success or error.
@@ -451,25 +628,25 @@ upon success or error.
 
 
 
-## [appendFile](./fs/index.js#L86)
+## [appendFile](./fs/index.js#L89)
 
 This is a `FunctionDeclaration` named `appendFile`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [chmod](./fs/index.js#L89)
+## [chmod](./fs/index.js#L92)
 
 This is a `FunctionDeclaration` named `chmod`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [chown](./fs/index.js#L107)
+## [chown](./fs/index.js#L110)
 
 This is a `FunctionDeclaration` named `chown`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [`close()`](./fs/index.js#L116)
+## [`close()`](./fs/index.js#L119)
 
 Asynchronously close a file descriptor calling `callback` upon success or error.
 
@@ -480,25 +657,25 @@ Asynchronously close a file descriptor calling `callback` upon success or error.
 
 
 
-## [copyFile](./fs/index.js#L132)
+## [copyFile](./fs/index.js#L135)
 
 This is a `FunctionDeclaration` named `copyFile`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [createReadStream](./fs/index.js#L135)
+## [createReadStream](./fs/index.js#L138)
 
 This is a `FunctionDeclaration` named `createReadStream`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [createWriteStream](./fs/index.js#L169)
+## [createWriteStream](./fs/index.js#L172)
 
 This is a `FunctionDeclaration` named `createWriteStream`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [`fstat()`](./fs/index.js#L211)
+## [`fstat()`](./fs/index.js#L214)
 
 Invokes the callback with the <fs.Stats> for the file descriptor. See
 the POSIX fstat(2) documentation for more detail.
@@ -511,43 +688,43 @@ the POSIX fstat(2) documentation for more detail.
 
 
 
-## [lchmod](./fs/index.js#L232)
+## [lchmod](./fs/index.js#L235)
 
 This is a `FunctionDeclaration` named `lchmod`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [lchown](./fs/index.js#L235)
+## [lchown](./fs/index.js#L238)
 
 This is a `FunctionDeclaration` named `lchown`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [lutimes](./fs/index.js#L238)
+## [lutimes](./fs/index.js#L241)
 
 This is a `FunctionDeclaration` named `lutimes`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [link](./fs/index.js#L241)
+## [link](./fs/index.js#L244)
 
 This is a `FunctionDeclaration` named `link`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [lstat](./fs/index.js#L244)
+## [lstat](./fs/index.js#L247)
 
 This is a `FunctionDeclaration` named `lstat`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [mkdir](./fs/index.js#L247)
+## [mkdir](./fs/index.js#L250)
 
 This is a `FunctionDeclaration` named `mkdir`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [`open()`](./fs/index.js#L258)
+## [`open()`](./fs/index.js#L261)
 
 Asynchronously open a file calling `callback` upon success or error.
 
@@ -560,7 +737,7 @@ Asynchronously open a file calling `callback` upon success or error.
 
 
 
-## [`opendir()`](./fs/index.js#L305)
+## [`opendir()`](./fs/index.js#L311)
 
 Asynchronously open a directory calling `callback` upon success or error.
 
@@ -571,7 +748,7 @@ Asynchronously open a directory calling `callback` upon success or error.
 
 
 
-## [`read()`](./fs/index.js#L327)
+## [`read()`](./fs/index.js#L333)
 
 Asynchronously read from an open file descriptor.
 
@@ -582,7 +759,7 @@ Asynchronously read from an open file descriptor.
 
 
 
-## [`readdir()`](./fs/index.js#L359)
+## [`readdir()`](./fs/index.js#L365)
 
 Asynchronously read all entries in a directory.
 
@@ -594,7 +771,7 @@ Asynchronously read all entries in a directory.
 
 
 
-## [`readFile()`](./fs/index.js#L407)
+## [`readFile()`](./fs/index.js#L413)
 
 
 
@@ -606,85 +783,85 @@ Asynchronously read all entries in a directory.
 
 
 
-## [readlink](./fs/index.js#L440)
+## [readlink](./fs/index.js#L451)
 
 This is a `FunctionDeclaration` named `readlink`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [realpath](./fs/index.js#L443)
+## [realpath](./fs/index.js#L454)
 
 This is a `FunctionDeclaration` named `realpath`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [rename](./fs/index.js#L446)
+## [rename](./fs/index.js#L457)
 
 This is a `FunctionDeclaration` named `rename`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [rmdir](./fs/index.js#L449)
+## [rmdir](./fs/index.js#L460)
 
 This is a `FunctionDeclaration` named `rmdir`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [rm](./fs/index.js#L452)
+## [rm](./fs/index.js#L463)
 
 This is a `FunctionDeclaration` named `rm`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [stat](./fs/index.js#L455)
+## [stat](./fs/index.js#L466)
 
 This is a `FunctionDeclaration` named `stat`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [symlink](./fs/index.js#L484)
+## [symlink](./fs/index.js#L495)
 
 This is a `FunctionDeclaration` named `symlink`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [truncate](./fs/index.js#L487)
+## [truncate](./fs/index.js#L498)
 
 This is a `FunctionDeclaration` named `truncate`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [unlink](./fs/index.js#L490)
+## [unlink](./fs/index.js#L501)
 
 This is a `FunctionDeclaration` named `unlink`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [utimes](./fs/index.js#L493)
+## [utimes](./fs/index.js#L504)
 
 This is a `FunctionDeclaration` named `utimes`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [watch](./fs/index.js#L496)
+## [watch](./fs/index.js#L507)
 
 This is a `FunctionDeclaration` named `watch`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [write](./fs/index.js#L499)
+## [write](./fs/index.js#L510)
 
 This is a `FunctionDeclaration` named `write`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [writeFile](./fs/index.js#L502)
+## [writeFile](./fs/index.js#L513)
 
 This is a `FunctionDeclaration` named `writeFile`in `fs/index.js`, it's exported but undocumented.
 
 
 
-## [writev](./fs/index.js#L533)
+## [writev](./fs/index.js#L550)
 
 This is a `FunctionDeclaration` named `writev`in `fs/index.js`, it's exported but undocumented.
 
