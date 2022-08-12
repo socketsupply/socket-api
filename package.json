@@ -6,10 +6,10 @@
   "scripts": {
     "lint": "standardx -v",
     "readme": "node ./bin/generate-docs.js",
-    "test": "cd test && npm install --silent --no-audit && npm test --silent",
+    "test": "cd test && npm install --silent --no-audit && npm test",
     "test:node": "node ./test/node/index.js",
-    "test:android": "cd test && npm install --silent --no-audit && npm run test:android --silent",
-    "test:android-emulator": "cd test && npm install --silent --no-audit && npm run test:android-emulator --silent",
+    "test:android": "cd test && npm install --silent --no-audit && npm run test:android",
+    "test:android-emulator": "cd test && npm install --silent --no-audit && npm run test:android-emulator",
     "test:clean": "cd test && rm -rf dist",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
   },
