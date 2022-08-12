@@ -2,7 +2,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "npm run test:desktop",
+    "test": "npm run test:node && npm run test:desktop",
+    "test:node": "node src/index.js",
     "test:desktop": "./scripts/test-desktop.sh",
     "test:android": "./scripts/test-android.sh",
     "test:android-emulator": "./scripts/test-android-emulator.sh",
