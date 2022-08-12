@@ -86,5 +86,4 @@ test('udp bind, connect, send', async t => {
     console.log(err)
     t.fail(err, err.message)
   }
-
 })
