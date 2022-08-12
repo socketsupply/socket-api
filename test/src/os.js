@@ -1,6 +1,8 @@
-import * as os from '@socketsupply/io/os'
+import * as os from '@socketsupply/io/os.js'
 //import os from 'os' //uncomment to tests the tests, should pass running node
 import { test } from 'tapzero'
+
+console.log(os)
 
 test('os.arch()', (t) => {
   t.ok(os.arch(), 'os.arch()')

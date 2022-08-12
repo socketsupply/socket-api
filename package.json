@@ -30,6 +30,12 @@
     "esbuild": "0.14.49",
     "tapzero": "*"
   },
+  "browser": {
+    "fs": "./sdk/fs.js",
+    "os": "./sdk/os.js",
+    "dgram": "./sdk/dgram.js",
+    "process": "./sdk/process.js"
+  },
   "dependencies": {
     "buffer": "6.0.3"
   }

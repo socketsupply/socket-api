@@ -1,5 +1,5 @@
 
-import * as dgram from '@socketsupply/io/dgram'
+import * as dgram from '@socketsupply/io/dgram.js'
 //import dgram from 'dgram' //uncomment to tests the tests, should pass running node
 import { test } from 'tapzero'
 

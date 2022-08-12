@@ -1,38 +1,35 @@
 import { Buffer } from '@socketsupply/io'
-import process from '@socketsupply/io/process.js'
+import * as process from '@socketsupply/io/process.js'
 import * as fs from '@socketsupply/io/fs.js'
 
 import { test } from 'tapzero'
 
 test('fs.access', async (t) => {
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.F_OK, (err, mode) => {
+    console.log(fs.access.toString())
+    fs.access('fixtures', fs.constants.F_OK, (err) => {
       if (err) { return reject(err) }
-      t.ok(mode, '(F_OK) fixtures/ directory is accessible')
       resolve()
     })
   })
 
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.F_OK | fs.constants.R_OK, (err, mode) => {
+    fs.access('fixtures', fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) { return reject(err) }
-      t.ok(mode, '(F_OK | R_OK) fixtures/ directory is readable')
       resolve()
     })
   })
 
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.W_OK, (err, mode) => {
+    fs.access('fixtures', fs.constants.W_OK, (err) => {
       if (err) { return reject(err) }
-      t.ok(mode, '(W_OK) fixtures/ directory is writable')
       resolve()
     })
   })
 
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.X_OK, (err, mode) => {
+    fs.access('fixtures', fs.constants.X_OK, (err) => {
       if (err) { return reject(err) }
-      t.ok(mode, '(X_OK) fixtures/ directory is "executable" - can list items')
       resolve()
     })
   })

@@ -20,16 +20,16 @@
 import { Dir, Dirent, sortDirectoryEntries } from './dir.js'
 import { DirectoryHandle, FileHandle } from './handle.js'
 import { ReadStream, WriteStream } from './stream.js'
-import { isBufferLike, isFunction, promisify } from '../util.js'
+import { isBufferLike, isFunction, promisify } from '../../util.js'
 import * as constants from './constants.js'
 import * as promises from './promises.js'
 import { Stats } from './stats.js'
 import * as binding from './binding.js'
-import * as ipc from '../ipc.js'
+import * as ipc from '../../ipc.js'
 import fds from './fds.js'
-import gc from '../gc.js'
+import gc from '../../gc.js'
 
-export * from './stream.js'
+//export * from '../../stream.js'
 export { default as binding } from './binding.js'
 
 function defaultCallback (err) {
@@ -550,7 +550,7 @@ export function writeFile (path, data, options, callback) {
 export function writev (fd, buffers, position, callback) {
 }
 
-// re-exports
+// re-export
 export {
   constants,
   Dir,
