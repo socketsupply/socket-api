@@ -568,7 +568,7 @@ export function sendSync (command, params) {
   request.open('GET', uri + query, false)
   request.send()
 
-  const response = request.response || request.responseText
+  const response = request.response ?? request.responseText ?? 'null'
 
   try {
     return Result.from(JSON.parse(response))
@@ -685,9 +685,10 @@ export async function write (command, params, buffer, options) {
         resolved = true
         clearTimeout(timeout)
 
-        let data = request.response
+        const response = request.response ?? request.responseText ?? 'null'
+        let data = response
         try {
-          data = JSON.parse(request.response)
+          data = JSON.parse(response)
         } catch (err) {
           if (debug.enabled) {
             console.warn(err.message || err)
