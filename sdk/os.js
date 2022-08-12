@@ -55,7 +55,7 @@ export function networkInterfaces () {
 
   for (const type in ipv4) {
     const address = ipv4[type]
-    const family = 'IPv4'
+    const family = 4
 
     let internal = false
     let netmask = '255.255.255.0'
@@ -88,7 +88,7 @@ export function networkInterfaces () {
 
   for (const type in ipv6) {
     const address = ipv6[type]
-    const family = 'IPv6'
+    const family = 6
 
     let internal = false
     let netmask = 'ffff:ffff:ffff:ffff::'
