@@ -17,6 +17,10 @@ const BIND_STATE_UNBOUND = 0
 const BIND_STATE_BINDING = 1
 const BIND_STATE_BOUND = 2
 
+const CONNECT_STATE_DISCONNECTED = 0
+const CONNECT_STATE_CONNECTING = 1
+const CONNECT_STATE_CONNECTED = 2
+
 const fixBufferList = list => {
   const newlist = new Array(list.length)
 
@@ -51,7 +55,7 @@ export class Socket extends EventEmitter {
       recvBufferSize: options.recvBufferSize,
       sendBufferSize: options.sendBufferSize,
       _bindState: BIND_STATE_UNBOUND,
-      connectState: 2,
+      connectState: CONNECT_STATE_DISCONNECTED,
       reuseAddr: options.reuseAddr,
       ipv6Only: options.ipv6Only
     }
@@ -206,7 +210,7 @@ export class Socket extends EventEmitter {
    * @param {function?} connectListener - Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once.
    */
   async connect (arg1, arg2, cb) {
-    if (this.clientId) {
+    if (this.connectedState === CONNECT_STATE_CONNECTED) {
       const err = new Error('already connected')
       if (cb) return cb(err)
       return { err }
@@ -229,34 +233,36 @@ export class Socket extends EventEmitter {
       return { err: errBind }
     }
 
-    this.once('connect', cb)
+    let dataLookup
 
-    const {
-      err: errLookup,
-      data: dataLookup
-    } = await dns.lookup(address)
+    if (!isIPv4(address)) {
+      const { err, data } = await window._ipc.send('dnsLookup', { hostname: address })
 
-    if (errLookup) {
-      this.emit('error', errLookup)
-      return { err: errLookup }
+      if (err) {
+        this.emit('error', err)
+        return { err }
+      }
+
+      dataLookup = data
+    }
+
+    const opts = {
+      clientId: this.clientId,
+      address: dataLookup?.ip ? address : '',
+      port: port || 0
     }
 
     const {
       err: errConnect,
-      dataConnect
-    } = await ipc.send('udpConnect', {
-      ip: dataLookup.ip,
-      port: port || 0
-    })
+      data: dataConnect
+    } = await ipc.send('udpConnect', opts)
 
     if (errConnect) {
       this.emit('error', errConnect)
       return { err: errConnect }
     }
 
-    this.state.connectState = 2
-
-    this.emit('connect')
+    this.state.connectState = CONNECT_STATE_CONNECTED
 
     // TODO udpConnect could return the peer data instead of putting it
     // into a different call and we could shave off a bit of time here.
