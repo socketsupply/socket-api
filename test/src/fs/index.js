@@ -6,7 +6,6 @@ import { test } from 'tapzero'
 
 test('fs.access', async (t) => {
   await new Promise((resolve, reject) => {
-    console.log(fs.access.toString())
     fs.access('fixtures', fs.constants.F_OK, (err) => {
       if (err) { return reject(err) }
       resolve()
