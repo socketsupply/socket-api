@@ -235,7 +235,7 @@ export class Socket extends EventEmitter {
 
     let dataLookup
 
-    if (!isIPv4(address)) {
+    if (address && !isIPv4(address)) {
       const { err, data } = await window._ipc.send('dnsLookup', { hostname: address })
 
       if (err) {
@@ -243,14 +243,18 @@ export class Socket extends EventEmitter {
         return { err }
       }
 
-      dataLookup = data
+      address = data.ip
     }
+
+    if (!address) address = '0.0.0.0'
 
     const opts = {
       clientId: this.clientId,
-      address: dataLookup?.ip ? address : '',
+      address: dataLookup?.ip || address,
       port: port || 0
     }
+
+    console.log('>>>', opts)
 
     const {
       err: errConnect,
