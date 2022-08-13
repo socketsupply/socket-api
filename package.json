@@ -1,6 +1,6 @@
 {
   "name": "@socketsupply/io",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "main": "index.js",
   "type": "module",
   "scripts": {
