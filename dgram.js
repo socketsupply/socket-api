@@ -277,12 +277,12 @@ export class Socket extends EventEmitter {
       clientId: this.clientId
     })
 
-    if (errGetPeerData) {
-      this.emit('error', errGetPeerData)
-      return { err: errGetPeerData }
+    if (errPeerData) {
+      this.emit('error', errPeerData)
+      return { err: errPeerData }
     }
 
-    this._remoteAddress = dataPeerData.address
+    this._remoteAddress = dataPeerData.ip
     this._remotePort = dataPeerData.port
     this._remoteFamily = dataPeerData.family
 
@@ -405,13 +405,22 @@ export class Socket extends EventEmitter {
       throw new Error('Currently dns lookup on send is not supported')
     }
 
-    const { err: errSend } = await ipc.write('udpSend', {
+    if (this._bindState === BIND_STATE_BOUND) {
+      if (!address) address = this._remoteAddress
+      if (!port) port = this._remotePort
+    }
+
+    if (port && !address) address = '0.0.0.0'
+
+    const opts = {
       ephemeral: !this.clientId,
       clientId: this.clientId || rand64(),
       serverId: this.serverId || 0,
       address,
       port
-    }, list)
+    }
+
+    const { err: errSend } = await ipc.write('udpSend', opts, list)
 
     if (errSend) {
       if (cb) return cb(errSend)
