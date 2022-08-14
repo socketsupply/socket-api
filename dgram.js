@@ -13,6 +13,14 @@ import * as dns from './dns.js'
 import * as ipc from './ipc.js'
 import { rand64, isArrayBufferView } from './util.js'
 
+const BIND_STATE_UNBOUND = 0
+const BIND_STATE_BINDING = 1
+const BIND_STATE_BOUND = 2
+
+const CONNECT_STATE_DISCONNECTED = 0
+const CONNECT_STATE_CONNECTING = 1
+const CONNECT_STATE_CONNECTED = 2
+
 const fixBufferList = list => {
   const newlist = new Array(list.length)
 
@@ -36,22 +44,28 @@ const fixBufferList = list => {
  * The new keyword is not to be used to create dgram.Socket instances.
  */
 export class Socket extends EventEmitter {
-  constructor (options) {
+  constructor (options, callback) {
     super()
 
     this.serverId = rand64()
     this.clientId = rand64()
-    this.type = options.type || 'udp4'
+    this.type = options.type ?? 'udp4'
 
     this.state = {
       recvBufferSize: options.recvBufferSize,
       sendBufferSize: options.sendBufferSize,
-      connectState: 2,
+      _bindState: BIND_STATE_UNBOUND,
+      connectState: CONNECT_STATE_DISCONNECTED,
       reuseAddr: options.reuseAddr,
       ipv6Only: options.ipv6Only
+      // TODO: signal
     }
 
-    this.connect()
+    // this.connect()
+
+    if (callback) {
+      this.on('message', callback)
+    }
   }
 
   _getSockData ({ id }) {
@@ -111,7 +125,7 @@ export class Socket extends EventEmitter {
     }
 
     this.on('error', removeListeners)
-    this.on('listening', onListening)
+    this.once('listening', onListening)
 
     if (!options.address) {
       if (this.type === 'udp4') {
@@ -141,6 +155,9 @@ export class Socket extends EventEmitter {
       return { err: errBind }
     }
 
+    this._bindState = BIND_STATE_BOUND
+    setTimeout(() => this.emit('listening'), 1)
+
     this._address = options.address
     this._port = options.port
     this._family = isIPv4(options.address) ? 'IPv4' : 'IPv6'
@@ -157,7 +174,7 @@ export class Socket extends EventEmitter {
 
       if (data.source === 'dnsLookup') {
         this._address = data.params.ip
-        return this.emit('listenting')
+        return this.emit('listening')
       }
 
       if (data.source === 'udpReadStart') {
@@ -198,7 +215,7 @@ export class Socket extends EventEmitter {
    * @param {function?} connectListener - Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once.
    */
   async connect (arg1, arg2, cb) {
-    if (this.clientId) {
+    if (this.connectedState === CONNECT_STATE_CONNECTED) {
       const err = new Error('already connected')
       if (cb) return cb(err)
       return { err }
@@ -221,48 +238,51 @@ export class Socket extends EventEmitter {
       return { err: errBind }
     }
 
-    this.once('connect', cb)
+    let dataLookup
 
-    const {
-      err: errLookup,
-      data: dataLookup
-    } = await dns.lookup(address)
+    if (address && !isIPv4(address)) {
+      const { err, data } = await window._ipc.send('dnsLookup', { hostname: address })
 
-    if (errLookup) {
-      this.emit('error', errLookup)
-      return { err: errLookup }
+      if (err) {
+        this.emit('error', err)
+        return { err }
+      }
+
+      address = data.ip
+    }
+
+    if (!address) address = '0.0.0.0'
+
+    const opts = {
+      clientId: this.clientId,
+      address: dataLookup?.ip || address,
+      port: port || 0
     }
 
     const {
       err: errConnect,
-      dataConnect
-    } = await ipc.send('udpConnect', {
-      ip: dataLookup.ip,
-      port: port || 0
-    })
+      data: dataConnect
+    } = await ipc.send('udpConnect', opts)
 
     if (errConnect) {
       this.emit('error', errConnect)
       return { err: errConnect }
     }
 
-    this.state.connectState = 2
-
-    this.emit('connect')
+    this.state.connectState = CONNECT_STATE_CONNECTED
 
     // TODO udpConnect could return the peer data instead of putting it
     // into a different call and we could shave off a bit of time here.
-    const {
-      err: errGetPeerData,
-      data: dataPeerData
-    } = await this._getPeerData({ clientId: dataConnect.clientId })
+    const { err: errPeerData, data: dataPeerData } = ipc.sendSync('udpGetPeerName', {
+      clientId: this.clientId
+    })
 
-    if (errGetPeerData) {
-      this.emit('error', errGetPeerData)
-      return { err: errGetPeerData }
+    if (errPeerData) {
+      this.emit('error', errPeerData)
+      return { err: errPeerData }
     }
 
-    this._remoteAddress = dataPeerData.address
+    this._remoteAddress = dataPeerData.ip
     this._remotePort = dataPeerData.port
     this._remoteFamily = dataPeerData.family
 
@@ -332,7 +352,7 @@ export class Socket extends EventEmitter {
    */
   async send (buffer, ...args) {
     let offset, length, port, address, cb
-    const connected = this.state.connectState === 2
+    const connected = this.state.connectState === CONNECT_STATE_CONNECTED
 
     if (typeof buffer === 'string') {
       buffer = Buffer.from(buffer)
@@ -368,18 +388,14 @@ export class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
-    // @XXX(jwerle): @heapwolf why is this happening in a `send()` call?
-    //
-    // @jwerle it's from the node.js source code - https://github.com/nodejs/node/blob/main/lib/dgram.js#L645
-    // but it's missing a check to see if the instance is unbound (state.bindState === BIND_STATE_UNBOUND)
-    /*
-    const { err: errBind } = this.bind({ port: 0 }, null)
+    /* if (this._bindState === BIND_STATE_UNBOUND) {
+      const { err: errBind } = this.bind({ port: 0 }, null)
 
-    if (errBind) {
-      if (cb) return cb(errBind)
-      return { err: errBind }
-    }
-    */
+      if (errBind) {
+        if (cb) return cb(errBind)
+        return { err: errBind }
+      }
+    } */
 
     if (list.length === 0) {
       list.push(Buffer.alloc(0))
@@ -389,13 +405,22 @@ export class Socket extends EventEmitter {
       throw new Error('Currently dns lookup on send is not supported')
     }
 
-    const { err: errSend } = await ipc.write('udpSend', {
+    if (this._bindState === BIND_STATE_BOUND) {
+      if (!address) address = this._remoteAddress
+      if (!port) port = this._remotePort
+    }
+
+    if (port && !address) address = '0.0.0.0'
+
+    const opts = {
       ephemeral: !this.clientId,
       clientId: this.clientId || rand64(),
       serverId: this.serverId || 0,
       address,
       port
-    }, list)
+    }
+
+    const { err: errSend } = await ipc.write('udpSend', opts, list)
 
     if (errSend) {
       if (cb) return cb(errSend)
@@ -415,7 +440,7 @@ export class Socket extends EventEmitter {
    */
   async close (cb) {
     if (typeof cb === 'function') {
-      this.on('close', cb)
+      this.once('close', cb)
     }
 
     const { err } = await ipc.send('udpClose', {
@@ -426,7 +451,7 @@ export class Socket extends EventEmitter {
     if (err) return { err }
 
     this.emit('close')
-    return {}
+    return
   }
 
   /**
@@ -495,7 +520,7 @@ export class Socket extends EventEmitter {
   }
 
   //
-  // For now wer aren't going to implement any of the multicast options,
+  // For now we aren't going to implement any of the multicast options,
   // mainly because 1. we don't need it in hyper and 2. if a user wants
   // to deploy their app to the app store, they will need to request the
   // multicast entitlement from apple. If someone really wants this they
@@ -550,6 +575,11 @@ export class Socket extends EventEmitter {
   }
 }
 
-export const createSocket = (type, listener) => {
-  return new Socket({ type, listener })
+export const createSocket = (options, callback) => {
+  if (typeof options === 'string') {
+    options = {
+      type: options
+    }
+  }
+  return new Socket(options, callback)
 }

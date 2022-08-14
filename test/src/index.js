@@ -25,4 +25,6 @@ setTimeout(function poll () {
 import './console.js'
 import './fs.js'
 import './os.js'
+import './dns.js'
 import './dgram.js'
+import './net.js'

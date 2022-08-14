@@ -1,52 +1,91 @@
-
-import * as dgram from '@socketsupply/io/dgram'
-//import dgram from 'dgram' //uncomment to tests the tests, should pass running node
 import { test } from 'tapzero'
+import * as dgram from '../../dgram.js'
+import * as dns from '../../dns.js'
+import { Buffer } from '../../buffer.js'
+import { EventEmitter } from '../../events.js'
 
-test('bind a dgram port and send a packet to it', function (t) {
-  var resolve
-  var socket = dgram.createSocket('udp4'), socket2
-//  var p = ~~(Math.random()*0xffff)
-  socket.on('message', function (b) {
-    t.equal(b.toString(), 'hello!')
-    socket.close(function () {})
-    resolve()
-  })
-  t.equal(socket.bind(), socket, 'bind returns this') //any port
+const MTU = 1518
 
-  socket.on('listening', function () {
-    var addr = socket.address()
-    var p = addr.port
-    t.equal(addr.address, '0.0.0.0')
-    t.ok(Number.isInteger(addr.port))
-    socket.send(Buffer.from('hello!'), p, '127.0.0.1') //any port
-  })
-  return new Promise(_resolve => resolve = _resolve)
+const makePayload = () => {
+  const random = Math.random() * MTU
+  return Array(Math.floor(MTU)).fill(0).join('')
+}
+
+test('dgram ', async t => {
+  t.ok(dgram, 'dgram is available')
+  t.ok(dgram.Socket.prototype instanceof EventEmitter, 'dgram.Socket is an EventEmitter')
+  t.ok(dgram.Socket.length === 2, 'dgram.Socket accepts two arguments')
+  t.ok(dgram.createSocket, 'dgram.createSocket is available')
+  t.ok(dgram.createSocket.length === 2, 'dgram.createSocket accepts two arguments')
+  const server = dgram.createSocket({ type: 'udp4' })
+  t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
+  t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
+  // t.throws(() => server.address(), /^Error: getsockname EBADF$/, 'server.address() throws an error if the socket is not bound')
+  t.ok(server.bind(41233) === server, 'dgram.bind returns the socket')
+  t.ok(server.address(), 'server.address() doesn\'t throw')
+  // t.equal(server.close(), void 0, 'server.close() returns undefined')
+  // t.throws(server.close, /ERR_SOCKET_DGRAM_NOT_RUNNING/, 'server.close() throws an error is the socket is already closed')
 })
 
-test('error if port is already bound', function (t) {
-  var resolve
-  var socket = dgram.createSocket('udp4')
-  var socket2 = dgram.createSocket('udp4')
-  var received = []
-  socket.on('message', function (b) {
-    console.log('receive:', b)
-    socket.close(function () {})
-    resolve()
+test('udp bind, send', async t => {
+  const server = dgram.createSocket({
+    type: 'udp4',
+    reuseAddr: false
   })
-  t.equal(socket.bind(), socket, 'bind returns this') //any port
 
-  socket.on('listening', function () {
-    var addr = socket.address()
-    var p = addr.port
-    t.equal(addr.address, '0.0.0.0')
-    t.ok(Number.isInteger(addr.port))
-    socket2.on('error', function (err) {
-      t.equal(err.code, 'EADDRINUSE', 'address in use err')
-      socket.close()
-      resolve()
-    })
-    t.equal(socket2.bind(p), socket2)
+  t.ok(!!server, 'server exists')
+  const client = dgram.createSocket('udp4')
+
+  const msg = new Promise((resolve, reject) => {
+    server.on('message', resolve)
+    server.on('error', reject)
   })
-  return new Promise(_resolve => resolve = _resolve)
+
+  const payload = makePayload()
+  t.ok(payload.length > 0, `${payload.length} bytes prepared`)
+
+  server.on('listening', () => {
+    client.send(Buffer.from(payload), 41234, '0.0.0.0')
+  })
+
+  t.ok(server.bind(41234) === server, 'server returned this')
+
+  try {
+    const r = Buffer.from(await msg).toString()
+    t.ok(r === payload, `${payload.length} bytes match`)
+  } catch (err) {
+    t.fail(err, err.message)
+  }
+})
+
+test('udp bind, connect, send', async t => {
+  const server = dgram.createSocket({
+    type: 'udp4',
+    reuseAddr: false
+  })
+
+  const client = dgram.createSocket('udp4')
+
+  const msg = new Promise((resolve, reject) => {
+    server.on('message', resolve)
+    server.on('error', reject)
+  })
+
+  const payload = makePayload()
+
+  server.on('listening', () => {
+    client.connect(41235, '0.0.0.0', (err) => {
+      if (err) return t.fail(err.message)
+      client.send(Buffer.from(payload))
+    })
+  })
+
+  t.ok(server.bind(41235) === server)
+
+  try {
+    const r = Buffer.from(await msg).toString()
+    t.ok(r === payload, `${payload.length} bytes match`)
+  } catch (err) {
+    t.fail(err, err.message)
+  }
 })

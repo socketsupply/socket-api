@@ -152,9 +152,13 @@ export function type () {
 
   if (typeof window !== 'object') {
     switch (platform()) {
+      case 'cygwin': return 'CYGWIN_NT'
+      case 'freebsd': return 'FreeBSD'
       case 'linux': return 'Linux'
       case 'mac': case 'darwin': return 'Darwin'
-      case 'win32': return 'Windows' // Windows_NT?
+      case 'Mac': case 'darwin': return 'Darwin'
+      case 'openbsd': return 'OpenBSD'
+      case 'win32': return 'Windows_NT'
     }
   }
 
@@ -182,3 +186,6 @@ export const EOL = (() => {
 
   return '\n'
 })()
+
+import * as exports from './os.js'
+export default exports

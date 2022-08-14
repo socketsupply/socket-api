@@ -2,16 +2,20 @@ import * as os from '@socketsupply/io/os'
 //import os from 'os' //uncomment to tests the tests, should pass running node
 import { test } from 'tapzero'
 
+const archs = ['arm64', 'ia32', 'x64',  'unknown']
+const platforms = ['android', 'cygwin', 'freebsd', 'linux', 'darwin', 'openbsd', 'win32', 'unknown']
+const types = ['CYGWIN_NT', 'Mac', 'FreeBSD', 'Linux', 'OpenBSD', 'Windows_NT', 'Unknown']
+
 test('os.arch()', (t) => {
-  t.ok(os.arch(), 'os.arch()')
+  t.ok(archs.includes(os.arch()), 'os.arch() value is valid')
 })
 
 test('os.platform()', (t) => {
-  t.ok(os.platform(), 'os.platform()')
+  t.ok(platforms.includes(os.platform()), 'os.platform()')
 })
 
 test('os.type()', (t) => {
-  t.ok(os.type(), 'os.type()')
+  t.ok(types.includes(os.type()), 'os.type()')
 })
 
 test('os.networkInterfaces()', (t) => {
@@ -35,6 +39,10 @@ test('os.networkInterfaces()', (t) => {
   for(var intf in int) {
     int[intf].forEach(isAddress)
   }  
+
+  const networkInterfaces = os.networkInterfaces()
+  t.ok(networkInterfaces, 'os.networkInterfaces()')
+  t.ok(Object.keys(networkInterfaces).length > 0, 'os.networkInterfaces() not empty')
 })
 
 test('os.EOL', (t) => {

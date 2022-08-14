@@ -39,6 +39,8 @@ import {
 } from './errors.js'
 
 import * as errors from './errors.js'
+import { Buffer } from './buffer.js'
+import { format } from './util.js'
 
 function getErrorClass (type, fallback) {
   if (typeof window !== 'undefined' && typeof window[type] === 'function') {
@@ -183,6 +185,264 @@ Object.defineProperty(debug, 'enabled', {
 })
 
 /**
+ * A container for a IPC message based on a `ipc://` URI scheme.
+ */
+export class Message extends URL {
+
+  /**
+   * The expected protocol for an IPC message.
+   */
+  static get PROTOCOL () {
+    return 'ipc:'
+  }
+
+  /**
+   * Creates a `Message` instance from a variety of input.
+   * @param {string|URL|Message|Buffer|object} input
+   * @param {?(object|string|URLSearchParams)} [params]
+   * @return {Message}
+   */
+  static from (input, params) {
+    const protocol = this.PROTOCOL
+
+    if (Buffer.isBuffer(input)) {
+      input = input.toString()
+    }
+
+    if (input instanceof Message) {
+      const message = new this(String(input))
+
+      if (typeof params === 'object') {
+        const entries = params.entris ? params.entries() : Object.entries(params)
+
+        for (const [key, value] of entries) {
+          message.set(key, value)
+        }
+      }
+
+      return message
+    } else if (input && typeof input === 'object') {
+      return new this(
+        `${input.protocol || protocol}//${input.command}?${new URLSearchParams({ ...input.params, ...params })}`
+      )
+    }
+
+    if (typeof input === 'string' && params) {
+      return new this(`${protocol}//${input}?${new URLSearchParams(params)}`)
+    }
+
+    // coerce input into a string
+    const string = String(input)
+
+    if (string.startsWith(`${protocol}//`)) {
+      return new this(string)
+    }
+
+    return new this(`${protocol}//${input}`)
+  }
+
+  /**
+   * Predicate to determine if `input` is valid for constructing
+   * a new `Message` instance.
+   * @param {string|URL|Message|Buffer|object} input
+   * @return {boolean}
+   */
+  static isValidInput (input) {
+    const protocol = this.PROTOCOL
+    const string = String(input)
+
+    return (
+      string.startsWith(`${protocol}//`) &&
+      string.length > protocol.length + 2
+    )
+  }
+
+  /**
+   * `Message` class constructor.
+   * @protected
+   * @param {string|URL} input
+   */
+  constructor (input) {
+    super(input)
+    if (this.protocol !== this.constructor.PROTOCOL) {
+      throw new TypeError(format(
+        'Invalid protocol in input. Expected \'%s\' but got \'%s\'',
+        this.constructor.PROTOCOL, this.protocol
+      ))
+    }
+  }
+
+  /**
+   * Computed command for the IPC message.
+   */
+  get command () {
+    return this.hostname
+  }
+
+  /**
+   * Computed `id` value for the command.
+   */
+  get id () {
+    return this.has('id') ? this.get('id') : null
+  }
+
+  /**
+   * Computed `seq` (sequence) value for the command.
+   */
+  get seq () {
+    return this.has('seq') ? this.get('seq') : null
+  }
+
+  /**
+   * Computed message value potentially given in message parameters.
+   * This value is automatically decoded, but not treated as JSON.
+   */
+  get value () {
+    return this.has('value') ? this.get('value') : null
+  }
+
+  /**
+   * Computed `index` value for the command potentially referring to
+   * the window index the command is scoped to or originating from. If not
+   * specified in the message parameters, then this value defaults to `-1`.
+   */
+  get index () {
+    const index = this.get('index')
+
+    if (index !== undefined) {
+      const value = parseInt(index)
+      if (Number.isFinite(value)) {
+        return value
+      }
+    }
+
+    return -1
+  }
+
+  /**
+   * Computed value parsed as JSON. This value is `null` if the value is not present
+   * or it is invalid JSON.
+   */
+  get json () {
+    try {
+      return JSON.parse(this.value)
+    } catch (err) {
+      void err
+      return null
+    }
+  }
+
+  /**
+   * Computed readonly object of message parameters.
+   */
+  get params () {
+    return Object.fromEntries(this.entries())
+  }
+
+  /**
+   * Returns computed parameters as entries
+   * @return {Array<Array<string,mixed>>}
+   */
+  entries () {
+    return Array.from(this.searchParams.entries()).map(([ key, value ]) => {
+      try {
+        return [key, JSON.parse(value)]
+      } catch (err) {
+        void err
+        return [key, value]
+      }
+    })
+  }
+
+  /**
+   * Set a parameter `value` by `key`.
+   * @param {string} key
+   * @param {mixed} value
+   */
+  set (key, value) {
+    if (value && typeof value === 'object') {
+      value = JSON.stringify(value)
+    }
+
+    return this.searchParams.set(key, value)
+  }
+
+  /**
+   * Get a parameter value by `key`.
+   * @param {string} key
+   * @param {mixed} defaultValue
+   * @return {mixed}
+   */
+  get (key, defaultValue) {
+    if (!this.has(key)) {
+      return defaultValue
+    }
+
+    const value = this.searchParams.get(key)
+
+    try {
+      return JSON.parse(value)
+    } catch (err) {
+      void err
+      return value
+    }
+  }
+
+  /**
+   * Delete a parameter by `key`.
+   * @param {string} key
+   * @return {boolean}
+   */
+  delete (key) {
+    if (this.has(key)) {
+      return this.searchParams.delete(key)
+    }
+
+    return false
+  }
+
+  /**
+   * Computed parameter keys.
+   * @return {Array<string>}
+   */
+  keys () {
+    return Array.from(this.searchParams.keys())
+  }
+
+  /**
+   * Computed parameter values.
+   * @return {Array<mixed>}
+   */
+  values () {
+    return Array.from(this.searchParams.values()).map((value) => {
+      try {
+        return JSON.parse(value)
+      } catch (err) {
+        void err
+        return value
+      }
+    })
+  }
+
+  /**
+   * Predicate to determine if parameter `key` is present in parameters.
+   * @param {string} key
+   * @return {boolean}
+   */
+  has (key) {
+    return this.searchParams.has(key)
+  }
+
+  /**
+   * Converts a `Message` instance into a plain JSON object.
+   */
+  toJSON () {
+    const { protocol, command, params } = this
+    return { protocol, command, params }
+  }
+}
+
+/**
  * A result type used internally for handling
  * IPC result values from the native layer that are in the form
  * of `{ err?, data? }`. The `data` and `err` properties on this
@@ -196,7 +456,7 @@ export class Result {
    * @param {?(object|Error|mixed)} result
    * @return {Result}
    */
-  static from (result) {
+  static from (result, maybeError) {
     if (result instanceof Result) {
       return result
     }
@@ -205,10 +465,10 @@ export class Result {
       return new this(null, result)
     }
 
-    const err = maybeMakeError(result?.err, Result.from)
+    const err = maybeMakeError(maybeError || result?.err, Result.from)
     const data = result?.data !== null && result?.data !== undefined
       ? result.data
-      : (result?.err ? null : result)
+      : result
 
     return new this(data, err)
   }
@@ -220,8 +480,8 @@ export class Result {
    * @param {?(Error)} err
    */
   constructor (data, err) {
-    this.data = data || null
-    this.err = err || null
+    this.data = typeof data !== 'undefined' ? data : null
+    this.err = typeof err !== 'undefined' ? err : null
 
     Object.defineProperty(this, 0, {
       get: () => this.data,
@@ -308,7 +568,7 @@ export function sendSync (command, params) {
   request.open('GET', uri + query, false)
   request.send()
 
-  const response = request.response || request.responseText
+  const response = request.response ?? request.responseText ?? 'null'
 
   try {
     return Result.from(JSON.parse(response))
@@ -425,9 +685,10 @@ export async function write (command, params, buffer, options) {
         resolved = true
         clearTimeout(timeout)
 
-        let data = request.response
+        const response = request.response ?? request.responseText ?? 'null'
+        let data = response
         try {
-          data = JSON.parse(request.response)
+          data = JSON.parse(response)
         } catch (err) {
           if (debug.enabled) {
             console.warn(err.message || err)

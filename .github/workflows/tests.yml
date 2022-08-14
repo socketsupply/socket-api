@@ -40,7 +40,7 @@ jobs:
 
     - name: npm test
       run: |
-        npm test --silent
+        npm test
 
       env:
         CI: true
@@ -81,7 +81,7 @@ jobs:
 
     - name: npm test
       run: |
-        npm test --silent
+        npm test
 
       env:
         CI: true
@@ -160,7 +160,7 @@ jobs:
         profile: pixel_5
         ndk: 25.0.8775105
         script: |
-          npm run test:android --silent
+          npm run test:android
 
       env:
         CI: true

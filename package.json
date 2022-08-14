@@ -1,17 +1,20 @@
 {
   "name": "@socketsupply/io",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "lint": "standardx -v",
-    "readme": "node ./bin/index.js",
-    "test": "cd test && npm install --silent --no-audit && npm test --silent",
+    "readme": "node ./bin/generate-docs.js",
+    "test": "cd test && npm install --silent --no-audit && npm test",
     "test:node": "node ./test/node/index.js",
-    "test:android": "cd test && npm install --silent --no-audit && npm run test:android --silent",
-    "test:android-emulator": "cd test && npm install --silent --no-audit && npm run test:android-emulator --silent",
+    "test:android": "cd test && npm install --silent --no-audit && npm run test:android",
+    "test:android-emulator": "cd test && npm install --silent --no-audit && npm run test:android-emulator",
     "test:clean": "cd test && rm -rf dist",
     "pub": "npm pub && npm publish --registry https://npm.pkg.github.com"
+  },
+  "bin": {
+    "ssc-repl": "bin/repl.js"
   },
   "author": "",
   "license": "ISC",
@@ -31,6 +34,7 @@
     "tapzero": "*"
   },
   "dependencies": {
-    "buffer": "6.0.3"
+    "buffer": "6.0.3",
+    "chalk": "5.0.1"
   }
 }
