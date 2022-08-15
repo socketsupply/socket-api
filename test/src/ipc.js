@@ -2,7 +2,7 @@ import * as ipc from '@socketsupply/io/ipc.js'
 import { test } from 'tapzero'
 import { Buffer } from '@socketsupply/io/buffer.js'
 
-test('ipc exports', (t) => {
+test('ipc exports', async (t) => {
   t.deepEqual(Object.keys(ipc), [
     'ERROR',
     'Message',
@@ -22,6 +22,11 @@ test('ipc exports', (t) => {
     'sendSync',
     'write'
   ])
+  try {
+    await ipc.ready()
+  } catch (err) {
+    t.fail(err)
+  }
 })
 
 test('ipc constants', (t) => {
