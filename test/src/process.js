@@ -16,7 +16,7 @@ test('process.exit()', (t) => {
 
 test('process.cwd', (t) => {
   t.ok(typeof process.cwd() === 'string', 'process.cwd() returns a string')
-  if (process.platform  === 'win32') {
+  if (process.platform  !== 'win32') {
     t.equal(process.cwd(), path.resolve(process.argv0, '../../Resources'), 'process.cwd() returns a correct value')
   }
 })
