@@ -65,3 +65,21 @@ test('ipc.Message', (t) => {
   t.ok(!ipc.Message.isValidInput("test"), 'is valid input')
   t.ok(!ipc.Message.isValidInput("foo://test"), 'is valid input')
 })
+
+test('ipc.sendSync not found', (t) => {
+  const response = ipc.sendSync('test', { foo: 'bar' })
+  t.ok(response instanceof ipc.Result)
+  const {err} = response
+  t.equal(err.toString(), 'NotFoundError: Not found')
+  t.equal(err.name, 'NotFoundError')
+  t.equal(err.message, 'Not found')
+  t.equal(err.url, 'ipc://test?foo=bar&index=0&seq=R1')
+  t.equal(err.code, 'NOT_FOUND_ERR')
+})
+
+test('ipc.sendSync success', (t) => {
+  const response = ipc.sendSync('getPlatformArch')
+  t.ok(response instanceof ipc.Result)
+  const {data} = response
+  t.ok(['x86_64', 'arm64'].includes(data))
+})
