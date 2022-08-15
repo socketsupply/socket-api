@@ -1,7 +1,6 @@
 import * as ipc from '@socketsupply/io/ipc.js'
 import { test } from 'tapzero'
 import { Buffer } from '@socketsupply/io/buffer.js'
-import { EventEmitter } from '@socketsupply/io/events.js'
 
 test('ipc exports', async (t) => {
   t.deepEqual(Object.keys(ipc), [

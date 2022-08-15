@@ -7,7 +7,7 @@ test('process', (t) => {
 })
 
 test('process.homedir()', (t) => {
-  t.equal(process.homedir(), process.cwd(), 'process.homedir() returns a correct value')
+  t.ok(typeof process.homedir() === 'string', 'process.homedir() returns a string')
 })
 
 test('process.exit()', (t) => {
