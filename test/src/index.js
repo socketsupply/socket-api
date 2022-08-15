@@ -26,6 +26,7 @@ setTimeout(function poll () {
 })
 
 import './console.js'
+import './ipc.js'
 import './fs.js'
 import './os.js'
 import './dns.js'
