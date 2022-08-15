@@ -1,6 +1,7 @@
 import * as ipc from '@socketsupply/io/ipc.js'
 import { test } from 'tapzero'
 import { Buffer } from '@socketsupply/io/buffer.js'
+import { EventEmitter } from '@socketsupply/io/events.js'
 
 test('ipc exports', async (t) => {
   t.deepEqual(Object.keys(ipc), [
@@ -73,12 +74,30 @@ test('ipc.sendSync not found', (t) => {
   t.equal(err.toString(), 'NotFoundError: Not found')
   t.equal(err.name, 'NotFoundError')
   t.equal(err.message, 'Not found')
-  t.equal(err.url, 'ipc://test?foo=bar&index=0&seq=R1')
+  t.ok(err.url.startsWith('ipc://test?foo=bar&index=0&seq=R'))
   t.equal(err.code, 'NOT_FOUND_ERR')
 })
 
 test('ipc.sendSync success', (t) => {
   const response = ipc.sendSync('getPlatformArch')
+  t.ok(response instanceof ipc.Result)
+  const {data} = response
+  t.ok(['x86_64', 'arm64'].includes(data))
+})
+
+test('ipc.send not found', async (t) => {
+  const response = await ipc.sendSync('test', { foo: 'bar' })
+  t.ok(response instanceof ipc.Result)
+  const {err} = response
+  t.equal(err.toString(), 'NotFoundError: Not found')
+  t.equal(err.name, 'NotFoundError')
+  t.equal(err.message, 'Not found')
+  t.ok(err.url.startsWith('ipc://test?foo=bar&index=0&seq=R'))
+  t.equal(err.code, 'NOT_FOUND_ERR')
+})
+
+test('ipc.send success', async (t) => {
+  const response = await ipc.sendSync('getPlatformArch')
   t.ok(response instanceof ipc.Result)
   const {data} = response
   t.ok(['x86_64', 'arm64'].includes(data))
