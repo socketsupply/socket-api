@@ -13,7 +13,7 @@ if (typeof parent?.addEventListener === 'function') {
 }
 
 function onerror (err) {
-  console.error(err.stack || err.message || err)
+  console.error(err.stack || err.message || err.reason || err)
   process.exit(1)
 }
 

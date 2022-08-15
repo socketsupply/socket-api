@@ -17,7 +17,7 @@ window.addEventListener('error', onerror)
 window.addEventListener('unhandledrejection', onerror)
 
 function onerror (err) {
-  console.error(err.stack || err.message || err)
+  console.error(err.stack || err.message || err.reason || err)
 }
 
 export function init (opts) {
