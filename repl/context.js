@@ -13,9 +13,12 @@ window.addEventListener('repl.context.init', (event) => {
   console.log('Welcome to SSC %s', process.version)
 })
 
-window.addEventListener('error', (err) => {
+window.addEventListener('error', onerror)
+window.addEventListener('unhandledrejection', onerror)
+
+function onerror (err) {
   console.error(err.stack || err.message || err)
-})
+}
 
 export function init (opts) {
   const ctx = {
