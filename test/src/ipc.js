@@ -44,7 +44,6 @@ test('ipc.debug', (t) => {
 
 test('ipc.Message', (t) => {
   t.ok(ipc.Message.prototype instanceof URL, 'is a URL')
-  console.log('ipc.Message', ipc.Message)
   // pass a Buffer
   let msg = ipc.Message.from(Buffer.from('test'), { foo: 'bar' })
   t.equal(msg.protocol, 'ipc:')
