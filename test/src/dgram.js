@@ -57,35 +57,34 @@ test('udp bind, send', async t => {
   }
 })
 
-// // TODO: uncomment when it's ready
-// test('udp bind, connect, send', async t => {
-//   const server = dgram.createSocket({
-//     type: 'udp4',
-//     reuseAddr: false
-//   })
+test('udp bind, connect, send', async t => {
+  const server = dgram.createSocket({
+    type: 'udp4',
+    reuseAddr: false
+  })
 
-//   const client = dgram.createSocket('udp4')
+  const client = dgram.createSocket('udp4')
 
-//   const msg = new Promise((resolve, reject) => {
-//     server.on('message', resolve)
-//     server.on('error', reject)
-//   })
+  const msg = new Promise((resolve, reject) => {
+    server.on('message', resolve)
+    server.on('error', reject)
+  })
 
-//   const payload = makePayload()
+  const payload = makePayload()
 
-//   server.on('listening', () => {
-//     client.connect(41235, '0.0.0.0', (err) => {
-//       if (err) return t.fail(err.message)
-//       client.send(Buffer.from(payload))
-//     })
-//   })
+  server.on('listening', () => {
+    client.connect(41235, '0.0.0.0', (err) => {
+      if (err) return t.fail(err.message)
+      client.send(Buffer.from(payload))
+    })
+  })
 
-//   t.ok(server.bind(41235) === server)
+  t.ok(server.bind(41235) === server)
 
-//   try {
-//     const r = Buffer.from(await msg).toString()
-//     t.ok(r === payload, `${payload.length} bytes match`)
-//   } catch (err) {
-//     t.fail(err, err.message)
-//   }
-// })
+  try {
+    const r = Buffer.from(await msg).toString()
+    t.ok(r === payload, `${payload.length} bytes match`)
+  } catch (err) {
+    t.fail(err, err.message)
+  }
+})
