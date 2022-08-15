@@ -1,7 +1,7 @@
 import { test } from 'tapzero'
 import { EventEmitter } from '@socketsupply/io/events.js'
 import * as net from '@socketsupply/io/net.js'
-import { Duplex } from '@socketsupply/io/stream'
+import { Duplex } from '@socketsupply/io/stream.js'
 
 test('net exports', t => {
   t.ok(net.Server.prototype instanceof EventEmitter, 'net.Server is an EventEmitter')

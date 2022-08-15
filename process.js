@@ -4,7 +4,7 @@ import { send } from './ipc.js'
 let didEmitExitEvent = false
 
 export function homedir () {
-  process.env.HOME || ''
+  return process.env.HOME || process.cwd()
 }
 
 export function exit (code) {
