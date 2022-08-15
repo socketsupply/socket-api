@@ -1,5 +1,6 @@
 import { test } from 'tapzero'
 import process from '@socketsupply/io/process.js' 
+import path from `path-browserify`
 
 test('process', (t) => {
   t.ok(typeof process.addListener === 'function', 'process is an EventEmitter')
@@ -14,8 +15,10 @@ test('process.exit()', (t) => {
 })
 
 test('process.cwd', (t) => {
-  // TODO: check the path is correct
   t.ok(typeof process.cwd() === 'string', 'process.cwd() returns a string')
+  if (process.platform  === 'win32') {
+    t.equal(process.cwd(), path.resolve(process.argv0, '../../Resources'), 'process.cwd() returns a correct value')
+  }
 })
 
 test('process.platform', (t) => {
