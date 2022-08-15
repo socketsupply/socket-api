@@ -45,18 +45,22 @@ test('ipc.debug', (t) => {
 test('ipc.Message', (t) => {
   t.ok(ipc.Message.prototype instanceof URL, 'is a URL')
   console.log('ipc.Message', ipc.Message)
+  // pass a Buffer
   let msg = ipc.Message.from(Buffer.from('test'), { foo: 'bar' })
   t.equal(msg.protocol, 'ipc:')
   t.equal(msg.command, 'test')
   t.deepEqual(msg.params, { foo: "bar" })
+  // pass an ipc.Message
   msg = ipc.Message.from(msg)
   t.equal(msg.protocol, 'ipc:')
   t.equal(msg.command, 'test')
   t.deepEqual(msg.params, { foo: "bar" })
+  // pass an object
   msg = ipc.Message.from({ protocol: 'ipc:', command: 'test'}, { foo: 'bar' })
   t.equal(msg.protocol, 'ipc:')
   t.equal(msg.command, 'test')
   t.deepEqual(msg.params, { foo: "bar" })
+  // pass a string
   msg = ipc.Message.from('test', { foo: 'bar' })
   t.equal(msg.protocol, 'ipc:')
   t.equal(msg.command, 'test')
