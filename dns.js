@@ -11,7 +11,6 @@ import { rand64 } from './util.js'
  * applications on the same system do, use dns.lookup().
  */
 
-const dns = {}
 /*
  * @param {string} hostname - The host name to resolve.
  * @param {Object} opts - An options object.
@@ -19,7 +18,7 @@ const dns = {}
  * @param {function} callback - The function to call after the method is complete.
  * @returns {Promise}
  */
-dns.lookup = async (hostname, opts, cb) => {
+export const lookup = async (hostname, opts, cb) => {
   let params = {
     serverId: opts.serverId ?? rand64(),
     hostname,
@@ -48,4 +47,6 @@ dns.lookup = async (hostname, opts, cb) => {
   return { err, data }
 }
 
-export default dns
+export default {
+  lookup
+}
