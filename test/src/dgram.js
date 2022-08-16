@@ -17,7 +17,8 @@ test('dgram exports', t => {
   t.ok(dgram.createSocket, 'dgram.createSocket is available')
   t.ok(dgram.createSocket.length === 2, 'dgram.createSocket accepts two arguments')
 })
-test('dgram createSocket, address, bind, close', async t => {
+
+test('dgram createSocket, address, bind, close', t => {
   const server = dgram.createSocket({ type: 'udp4' })
   t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
   t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
@@ -37,13 +38,12 @@ test('dgram createSocket, address, bind, close', async t => {
   // t.throws(server.close, /ERR_SOCKET_DGRAM_NOT_RUNNING/, 'server.close() throws an error is the socket is already closed')
 })
 
-test('udp bind, send', async t => {
+test('udp bind, send, remoteAddress', async t => {
   const server = dgram.createSocket({
     type: 'udp4',
     reuseAddr: false
   })
 
-  t.ok(!!server, 'server exists')
   const client = dgram.createSocket('udp4')
 
   const msg = new Promise((resolve, reject) => {
@@ -57,6 +57,8 @@ test('udp bind, send', async t => {
   server.on('listening', () => {
     client.send(Buffer.from(payload), 41234, '0.0.0.0')
   })
+
+  server.bind(41234)
 
   try {
     const r = Buffer.from(await msg).toString()
@@ -99,7 +101,7 @@ test('udp bind, connect, send', async t => {
     })
   })
 
-  t.ok(server.bind(41235) === server, 'dgram.bind returns the socket')
+  server.bind(41235)
 
   try {
     const r = Buffer.from(await msg).toString()
