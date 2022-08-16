@@ -55,7 +55,7 @@ export class Socket extends EventEmitter {
       recvBufferSize: options.recvBufferSize,
       sendBufferSize: options.sendBufferSize,
       _bindState: BIND_STATE_UNBOUND,
-      connectState: CONNECT_STATE_DISCONNECTED,
+      _connectState: CONNECT_STATE_DISCONNECTED,
       reuseAddr: options.reuseAddr,
       ipv6Only: options.ipv6Only
       // TODO: signal
@@ -251,7 +251,9 @@ export class Socket extends EventEmitter {
       address = data.ip
     }
 
-    if (!address) address = '0.0.0.0'
+    if (!address) address = this.type === 'udp4'
+      ? '127.0.0.1'
+      : '::1'
 
     const opts = {
       clientId: this.clientId,
@@ -269,7 +271,7 @@ export class Socket extends EventEmitter {
       return { err: errConnect }
     }
 
-    this.state.connectState = CONNECT_STATE_CONNECTED
+    this.state._connectState = CONNECT_STATE_CONNECTED
 
     // TODO udpConnect could return the peer data instead of putting it
     // into a different call and we could shave off a bit of time here.
@@ -352,7 +354,7 @@ export class Socket extends EventEmitter {
    */
   async send (buffer, ...args) {
     let offset, length, port, address, cb
-    const connected = this.state.connectState === CONNECT_STATE_CONNECTED
+    const connected = this.state._connectState === CONNECT_STATE_CONNECTED
 
     if (typeof buffer === 'string') {
       buffer = Buffer.from(buffer)
@@ -487,11 +489,19 @@ export class Socket extends EventEmitter {
    * if the socket is not connected.
    *
    * @returns {Object} socketInfo - Information about the remote socket
-   * @returns {string} socketInfo.remoteAddress - The IP address of the socket
-   * @returns {string} socketInfo.remotePort - The port of the socket
-   * @returns {string} socketInfo.remoteFamily - The IP family of the socket
+   * @returns {string} socketInfo.address - The IP address of the socket
+   * @returns {string} socketInfo.port - The port of the socket
+   * @returns {string} socketInfo.family - The IP family of the socket
    */
   remoteAddress () {
+    if (this.state._connectState === CONNECT_STATE_DISCONNECTED) {
+      throw new Error({
+        code: 'ERR_SOCKET_DGRAM_NOT_CONNECTED',
+        message: 'ERR_SOCKET_DGRAM_NOT_CONNECTED: The socket is not connected',
+        // errno: UV_ENOTCONN, // TODO: import the uv constants
+        syscall: 'getpeername'
+      })
+    }
     return {
       address: this._remoteAddress,
       port: this._remotePort,
