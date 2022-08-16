@@ -466,12 +466,11 @@ export class Socket extends EventEmitter {
    */
   address () {
     if (this.state._bindState === BIND_STATE_UNBOUND) {
-      throw new Error({
-        code: 'EBADF',
-        message: 'EBADF: The socket is not bound',
-        // errno: UV_EBADF, // TODO: import the uv constants
-        syscall: 'getsockname'
-      })
+      const err = new Error('getsockname EBADF')
+      err.code = 'EBADF'
+      // err.errno: UV_EBADF, // TODO: import the uv constants
+      err.syscall = 'getsockname'
+      throw err
     }
     return {
       address: this._address,
@@ -492,12 +491,11 @@ export class Socket extends EventEmitter {
    */
   remoteAddress () {
     if (this.state._connectState === CONNECT_STATE_DISCONNECTED) {
-      throw new Error({
-        code: 'ERR_SOCKET_DGRAM_NOT_CONNECTED',
-        message: 'ERR_SOCKET_DGRAM_NOT_CONNECTED: The socket is not connected',
-        // errno: UV_ENOTCONN, // TODO: import the uv constants
-        syscall: 'getpeername'
-      })
+      const err = new Error('Not connected')
+      err.code = 'ERR_SOCKET_DGRAM_NOT_CONNECTED'
+      // err.errno: UV_ENOTCONN, // TODO: import the uv constants
+      err.syscall = 'getpeername'
+      throw err
     }
     return {
       address: this._remoteAddress,
