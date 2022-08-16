@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
-ssc compile --headless --prod -r -o .
+if [ -z "$DEBUG" ]; then
+  ssc compile --headless --prod -r -o .
+else
+  ssc compile -r -o .
+fi
