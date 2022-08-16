@@ -144,7 +144,7 @@ export class Socket extends EventEmitter {
 
     const { err: errBind, data } = ipc.sendSync('udpBind', {
       serverId: this.serverId,
-      address: options.address || "",
+      address: options.address,
       port: options.port || 0,
       reuseAddr: options.reuseAddr ? "true" : "false",
       ipv6Only: options.ipv6Only ? "true" : "false"
@@ -443,8 +443,8 @@ export class Socket extends EventEmitter {
       this.once('close', cb)
     }
 
-    const { err } = await ipc.send('udpClose', {
-      id: this.clientId
+    const { err } = await ipc.send('close', {
+      clientId: this.clientId
     })
 
     if (err && cb) return cb(err)
