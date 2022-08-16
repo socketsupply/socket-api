@@ -21,6 +21,7 @@ test('process.cwd', (t) => {
   } else if (process.platform  === 'linux') {
     t.equal(process.cwd(), path.resolve(process.argv0, '../../socketsupply-io-tests'), 'process.cwd() returns a correct value')
   }
+  // TODO: iOS, Windows
 })
 
 test('process.platform', (t) => {

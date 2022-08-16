@@ -28,6 +28,12 @@ test('dgram createSocket, address, bind, close', t => {
     'server.address() throws an error if the socket is not bound'
   )
   t.ok(server.bind(41233) === server, 'dgram.bind returns the socket')
+  // FIXME:
+  // t.throws(
+  //   () => server.bind(41233),
+  //   RegExp('bind EADDRINUSE 0.0.0.0:41233'),
+  //   'server.bind throws an error if the socket is already bound'
+  // )
   t.deepEqual(
     server.address(),
     { address: '0.0.0.0', port: 41233, family: 'IPv4' },
