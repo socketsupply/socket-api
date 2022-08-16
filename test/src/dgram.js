@@ -19,9 +19,16 @@ test('dgram ', async t => {
   const server = dgram.createSocket({ type: 'udp4' })
   t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
   t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
-  // t.throws(() => server.address(), /^Error: getsockname EBADF$/, 'server.address() throws an error if the socket is not bound')
+  t.throws(
+    () => server.address(),
+    'EBADF: The socket is not bound',
+    'server.address() throws an error if the socket is not bound')
   t.ok(server.bind(41233) === server, 'dgram.bind returns the socket')
-  t.ok(server.address(), 'server.address() doesn\'t throw')
+  t.deepEqual(
+    server.address(),
+    { address: '0.0.0.0', port: 41233, family: 'IPv4' },
+    'server.address() doesn\'t throw'
+  )
   // t.equal(server.close(), void 0, 'server.close() returns undefined')
   // t.throws(server.close, /ERR_SOCKET_DGRAM_NOT_RUNNING/, 'server.close() throws an error is the socket is already closed')
 })
