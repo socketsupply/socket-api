@@ -155,7 +155,7 @@ export class Socket extends EventEmitter {
       return { err: errBind }
     }
 
-    this._bindState = BIND_STATE_BOUND
+    this.state._bindState = BIND_STATE_BOUND
     setTimeout(() => this.emit('listening'), 1)
 
     this._address = options.address
@@ -388,7 +388,7 @@ export class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
-    /* if (this._bindState === BIND_STATE_UNBOUND) {
+    /* if (this.state._bindState === BIND_STATE_UNBOUND) {
       const { err: errBind } = this.bind({ port: 0 }, null)
 
       if (errBind) {
@@ -405,7 +405,7 @@ export class Socket extends EventEmitter {
       throw new Error('Currently dns lookup on send is not supported')
     }
 
-    if (this._bindState === BIND_STATE_BOUND) {
+    if (this.state._bindState === BIND_STATE_BOUND) {
       if (!address) address = this._remoteAddress
       if (!port) port = this._remotePort
     }
@@ -462,14 +462,20 @@ export class Socket extends EventEmitter {
    * This method throws EBADF if called on an unbound socket.
    * @returns {Object} socketInfo - Information about the local socket
    * @returns {string} socketInfo.address - The IP address of the socket
-   * @returns {ip} socketInfo.ip - The IP address of the socket
    * @returns {string} socketInfo.port - The port of the socket
    * @returns {string} socketInfo.family - The IP family of the socket
    */
   address () {
+    if (this.state._bindState === BIND_STATE_UNBOUND) {
+      throw new Error({
+        code: 'EBADF',
+        message: 'EBADF: The socket is not bound',
+        // errno: UV_EBADF, // TODO: import the uv constants
+        syscall: 'getsockname'
+      })
+    }
     return {
       address: this._address,
-      ip: this._address,
       port: this._port,
       family: this._family
     }
@@ -482,16 +488,14 @@ export class Socket extends EventEmitter {
    *
    * @returns {Object} socketInfo - Information about the remote socket
    * @returns {string} socketInfo.remoteAddress - The IP address of the socket
-   * @returns {ip} socketInfo.remoteIp - The IP address of the socket
    * @returns {string} socketInfo.remotePort - The port of the socket
    * @returns {string} socketInfo.remoteFamily - The IP family of the socket
    */
   remoteAddress () {
     return {
-      remoteIp: this._remoteAddress,
-      remoteAddress: this._remoteAddress,
-      remotePort: this._remotePort,
-      remoteFamily: this._remoteFamily
+      address: this._remoteAddress,
+      port: this._remotePort,
+      family: this._remoteFamily
     }
   }
 
