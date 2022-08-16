@@ -21,7 +21,7 @@ test('dgram ', async t => {
   t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
   t.throws(
     () => server.address(),
-    'EBADF: The socket is not bound',
+    RegExp('getsockname EBADF'),
     'server.address() throws an error if the socket is not bound'
   )
   t.ok(server.bind(41233) === server, 'dgram.bind returns the socket')
@@ -83,7 +83,7 @@ test('udp bind, connect, send', async t => {
 
   t.throws(
     () => client.remoteAddress(),
-    'ERR_SOCKET_DGRAM_NOT_CONNECTED: The socket is not connected',
+    RegExp('Not connected'),
     'client.remoteAddress() throws an error if the socket is not connected'
   )
 
