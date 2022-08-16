@@ -165,11 +165,11 @@ export class Socket extends EventEmitter {
       const { data: buffer, params } = e.detail
       const { err, data } = params
 
-      if (err && err.peerId === this.id) {
+      if (err && err.id === this.id) {
         return this.emit('error', err)
       }
 
-      if (!data || BigInt(data.peerId) !== this.id) return
+      if (!data || BigInt(data.id) !== this.id) return
 
       if (data.source === 'dnsLookup') {
         this._address = data.params.ip
