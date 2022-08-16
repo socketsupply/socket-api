@@ -3,7 +3,7 @@ import * as os from '@socketsupply/io/os.js'
 import { test } from 'tapzero'
 
 const archs = ['arm64', 'ia32', 'x64',  'unknown']
-const platforms = ['android', 'cygwin', 'freebsd', 'linux', 'darwin', 'openbsd', 'win32', 'unknown']
+const platforms = ['android', 'cygwin', 'freebsd', 'linux', 'darwin', 'ios', 'openbsd', 'win32', 'unknown']
 const types = ['CYGWIN_NT', 'Mac', 'FreeBSD', 'Linux', 'OpenBSD', 'Windows_NT', 'Unknown']
 
 test('os.arch()', (t) => {
