@@ -67,19 +67,6 @@ export class Socket extends EventEmitter {
     }
   }
 
-  _getSockData ({ id }) {
-    return ipc.sendSync('udpGetSockName', { id: id || this.id })
-  }
-
-  async _getPeerData () {
-    const { err, data } = await ipc.send('udpGetPeerName', {
-      id: this.id
-    })
-
-    if (err) return { err }
-    return { data }
-  }
-
   async _recvStart () {
     return await ipc.write('udpReadStart', { id: this.id })
   }
