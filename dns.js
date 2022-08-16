@@ -20,7 +20,7 @@ import { rand64 } from './util.js'
  */
 export const lookup = async (hostname, opts, cb) => {
   let params = {
-    serverId: opts.serverId ?? rand64(),
+    id: opts.id ?? rand64(),
     hostname,
   }
 
