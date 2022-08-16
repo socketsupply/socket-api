@@ -47,8 +47,7 @@ export class Socket extends EventEmitter {
   constructor (options, callback) {
     super()
 
-    this.serverId = rand64()
-    this.clientId = rand64()
+    this.id = rand64()
     this.type = options.type ?? 'udp4'
 
     this.state = {
@@ -69,12 +68,12 @@ export class Socket extends EventEmitter {
   }
 
   _getSockData ({ id }) {
-    return ipc.sendSync('udpGetSockName', { id: id || this.clientId })
+    return ipc.sendSync('udpGetSockName', { id: id || this.id })
   }
 
   async _getPeerData () {
     const { err, data } = await ipc.send('udpGetPeerName', {
-      id: this.clientId
+      id: this.id
     })
 
     if (err) return { err }
@@ -82,7 +81,7 @@ export class Socket extends EventEmitter {
   }
 
   async _recvStart () {
-    return await ipc.write('udpReadStart', { serverId: this.serverId })
+    return await ipc.write('udpReadStart', { id: this.id })
   }
 
   /**
@@ -137,13 +136,13 @@ export class Socket extends EventEmitter {
       // fire off a dns lookup, listening or error will be emitted in response
       ipc.write('dnsLookup', {
         hostname: options.address,
-        serverId: this.serverId,
+        id: this.id,
         seq: -1
       })
     }
 
     const { err: errBind, data } = ipc.sendSync('udpBind', {
-      serverId: this.serverId,
+      id: this.id,
       address: options.address,
       port: options.port || 0,
       reuseAddr: options.reuseAddr ? "true" : "false",
@@ -166,11 +165,11 @@ export class Socket extends EventEmitter {
       const { data: buffer, params } = e.detail
       const { err, data } = params
 
-      if (err && err.serverId === this.serverId) {
+      if (err && err.peerId === this.id) {
         return this.emit('error', err)
       }
 
-      if (!data || BigInt(data.serverId) !== this.serverId) return
+      if (!data || BigInt(data.peerId) !== this.id) return
 
       if (data.source === 'dnsLookup') {
         this._address = data.params.ip
@@ -256,7 +255,7 @@ export class Socket extends EventEmitter {
       : '::1'
 
     const opts = {
-      clientId: this.clientId,
+      id: this.id,
       address: dataLookup?.ip || address,
       port: port || 0
     }
@@ -276,7 +275,7 @@ export class Socket extends EventEmitter {
     // TODO udpConnect could return the peer data instead of putting it
     // into a different call and we could shave off a bit of time here.
     const { err: errPeerData, data: dataPeerData } = ipc.sendSync('udpGetPeerName', {
-      clientId: this.clientId
+      id: this.id
     })
 
     if (errPeerData) {
@@ -415,9 +414,7 @@ export class Socket extends EventEmitter {
     if (port && !address) address = '0.0.0.0'
 
     const opts = {
-      ephemeral: !this.clientId,
-      clientId: this.clientId || rand64(),
-      serverId: this.serverId || 0,
+      id: this.id || rand64(),
       address,
       port
     }
@@ -446,7 +443,7 @@ export class Socket extends EventEmitter {
     }
 
     const { err } = await ipc.send('close', {
-      clientId: this.clientId
+      id: this.id
     })
 
     if (err && cb) return cb(err)

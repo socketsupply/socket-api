@@ -73,7 +73,7 @@ export class Server extends EventEmitter {
     }
 
     this._connections = 0
-    this._serverId = rand64()
+    this.id = rand64()
   }
 
   onconnection (data) {
@@ -102,11 +102,11 @@ export class Server extends EventEmitter {
       this._address = { port: data.port, address: data.address, family: data.family }
       this.connections = {}
 
-      window._ipc.streams[opts.serverId] = this
+      window._ipc.streams[opts.id] = this
 
       if (cb) return cb(null, data)
       this.emit('listening', data)
-    })({ port, address, serverId: this.serverId })
+    })({ port, address, id: this.id })
 
     return this
   }
@@ -117,12 +117,12 @@ export class Server extends EventEmitter {
 
   close (cb) {
     const params = {
-      serverId: this._serverId
+      id: this.id
     }
 
     ;(async () => {
       const { err } = await window._ipc.send('tcpClose', params)
-      delete window._ipc.streams[this._serverId]
+      delete window._ipc.streams[this.id]
       if (err && !cb) this.emit('error', err)
       else if (cb) cb(err)
     })()
@@ -131,7 +131,7 @@ export class Server extends EventEmitter {
   getConnections (cb) {
     assertType('Callback', 'function', typeof cb, 'ERR_INVALID_CALLBACK')
     const params = {
-      serverId: this._serverId
+      id: this.id
     }
 
     ;(async () => {
@@ -174,7 +174,7 @@ export class Socket extends Duplex {
   // next data is sent.
   setNoDelay (enable) {
     const params = {
-      clientId: this.clientId, enable
+      id: this.id, enable
     }
     window._ipc.send('tcpSetNoDelay', params)
   }
@@ -182,7 +182,7 @@ export class Socket extends Duplex {
   // note: see note for setNoDelay
   setKeepAlive (enabled) {
     const params = {
-      clientId: this.clientId,
+      id: this.id,
       enabled
     }
 
@@ -218,7 +218,7 @@ export class Socket extends Duplex {
     }
 
     const params = {
-      clientId: this.clientId
+      id: this.id
     }
     ;(async () => {
       const { err, data } = await window._ipc.send('tcpShutdown', params)
@@ -229,7 +229,7 @@ export class Socket extends Duplex {
   _destroy (cb) {
     if (this.destroyed) return
     ;(async () => {
-      await window._ipc.send('tcpClose', { clientId: this.clientId })
+      await window._ipc.send('tcpClose', { id: this.id })
       if (this._server) {
         this._server._connections--
 
@@ -275,7 +275,7 @@ export class Socket extends Duplex {
 
       for (const chunk of chunks) {
         const params = {
-          clientId: this.clientId,
+          id: this.id,
           data: chunk
         }
         // sent in order so could just await the last one?
@@ -296,7 +296,7 @@ export class Socket extends Duplex {
 
   _write (data, cb) {
     const params = {
-      clientId: this.clientId,
+      id: this.id,
       data
     }
     ;(async () => {
@@ -313,7 +313,7 @@ export class Socket extends Duplex {
     if (data.length && !this.destroyed) {
       if (!this.push(data)) {
         const params = {
-          clientId: this.clientId
+          id: this.id
         }
         this._flowing = false
         window._ipc.send('tcpReadStop', params)
@@ -334,7 +334,7 @@ export class Socket extends Duplex {
     this._flowing = true
 
     const params = {
-      clientId: this.clientId
+      id: this.id
     }
 
     ;(async () => {
@@ -354,7 +354,7 @@ export class Socket extends Duplex {
     // ipc is async, but it's ordered,
     if (this._flowing) {
       this._flowing = false
-      window._ipc.send('tcpReadStop', { clientId: this.clientId })
+      window._ipc.send('tcpReadStop', { id: this.id })
     }
     return this
   }
@@ -365,7 +365,7 @@ export class Socket extends Duplex {
     // ipc is async, but it's ordered,
     if (!this._flowing) {
       this._flowing = true
-      window._ipc.send('tcpReadStart', { clientId: this.clientId })
+      window._ipc.send('tcpReadStart', { id: this.id })
     }
     return this
   }
@@ -374,11 +374,11 @@ export class Socket extends Duplex {
     const [options, cb] = normalizeArgs(args)
 
     ;(async () => {
-      this.clientId = rand64()
+      this.id = rand64()
       const params = {
         port: options.port,
         address: options.host,
-        clientId: this.clientId
+        id: this.id
       }
 
       // TODO: if host is a ip address
@@ -396,7 +396,7 @@ export class Socket extends Duplex {
       // this.port = port
       // this.address = address
 
-      window._ipc.streams[this.clientId] = this
+      window._ipc.streams[this.id] = this
 
       if (cb) cb(null, this)
     })()
