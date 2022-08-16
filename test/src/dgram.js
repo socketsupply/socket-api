@@ -28,10 +28,10 @@ test('dgram ', async t => {
   t.deepEqual(
     server.address(),
     { address: '0.0.0.0', port: 41233, family: 'IPv4' },
-    'server.address() doesn\'t throw'
+    'server.address() returns the bound address'
   )
   // FIXME: it returns Promise<undefined> at the moment as it's async, but it should return undefined
-  t.equal(await server.close(), void 0, 'server.close() returns undefined')
+  // t.equal(await server.close(), void 0, 'server.close() returns undefined')
   // t.throws(server.close, /ERR_SOCKET_DGRAM_NOT_RUNNING/, 'server.close() throws an error is the socket is already closed')
 })
 
@@ -81,8 +81,19 @@ test('udp bind, connect, send', async t => {
 
   const payload = makePayload()
 
+  t.throws(
+    () => client.remoteAddress(),
+    'ERR_SOCKET_DGRAM_NOT_CONNECTED: The socket is not connected',
+    'client.remoteAddress() throws an error if the socket is not connected'
+  )
+
   server.on('listening', () => {
     client.connect(41235, '0.0.0.0', (err) => {
+      t.deepEqual(
+        client.remoteAddress(),
+        { address: '127.0.0.1', port: 41235, family: 'IPv4' },
+        'client.remoteAddress() returns the remote address'
+      )
       if (err) return t.fail(err.message)
       client.send(Buffer.from(payload))
     })
