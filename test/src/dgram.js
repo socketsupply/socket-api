@@ -164,11 +164,13 @@ test('udp createSocket AbortSignal', async t => {
   const controller = new AbortController();
   const { signal } = controller;
   const server = dgram.createSocket({ type: 'udp4', signal });
-  controller.abort();
-  server.close = new Proxy(server.close, {
-    get() {
-
-      Reflect.get(...arguments)
-    }
+  let isSocketClosed = false;
+  await new Promise(resolve => {
+    server.close(() => {
+      isSocketClosed = true
+      resolve()
+    })
+    controller.abort()
   })
+  t.ok(isSocketClosed, 'socket is closed after abort, close event is emitted')
 })
