@@ -18,7 +18,7 @@ test('dgram exports', t => {
   t.ok(dgram.createSocket.length === 2, 'dgram.createSocket accepts two arguments')
 })
 
-test('dgram createSocket, address, bind, close', t => {
+test('dgram createSocket, address, bind, close', async t => {
   const server = dgram.createSocket({ type: 'udp4' })
   t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
   t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
@@ -39,9 +39,12 @@ test('dgram createSocket, address, bind, close', t => {
     { address: '0.0.0.0', port: 41233, family: 'IPv4' },
     'server.address() returns the bound address'
   )
-  // FIXME: it returns Promise<undefined> at the moment as it's async, but it should return undefined
-  // t.equal(await server.close(), void 0, 'server.close() returns undefined')
-  // t.throws(server.close, /ERR_SOCKET_DGRAM_NOT_RUNNING/, 'server.close() throws an error is the socket is already closed')
+  t.equal(server.close(), void 0, 'server.close() returns undefined')
+  t.throws(
+    () => server.close(),
+    RegExp('ERR_SOCKET_DGRAM_NOT_RUNNING'),
+    'server.close() throws an error is the socket is already closed'
+  )
 })
 
 test('udp bind, send, remoteAddress', async t => {
