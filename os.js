@@ -155,8 +155,7 @@ export function type () {
       case 'cygwin': return 'CYGWIN_NT'
       case 'freebsd': return 'FreeBSD'
       case 'linux': return 'Linux'
-      case 'mac': case 'darwin': return 'Darwin'
-      case 'Mac': case 'darwin': return 'Darwin'
+      case 'mac': case 'Mac': case 'darwin': return 'Darwin'
       case 'openbsd': return 'OpenBSD'
       case 'win32': return 'Windows_NT'
     }

@@ -41,6 +41,7 @@ test('ipc.debug', (t) => {
   t.equal(ipc.debug.enabled, true)
   ipc.debug(false)
   t.equal(ipc.debug.enabled, false)
+  ipc.debug(true)
 })
 
 test('ipc.Message', (t) => {
