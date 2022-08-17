@@ -18,10 +18,50 @@ test('dgram exports', t => {
   t.ok(dgram.createSocket.length === 2, 'dgram.createSocket accepts two arguments')
 })
 
+test('Socket creation', t => {
+  t.throws(
+    () => dgram.createSocket(),
+    RegExp('Bad socket type specified. Valid types are: udp4, udp6'),
+    'throws on missing type for dgram.createSocket'
+  )
+  t.throws(
+    () => new dgram.Socket(),
+    RegExp('Bad socket type specified. Valid types are: udp4, udp6'),
+    'throws on  missing type for new dgram.Socket'
+  )
+  t.throws(
+    () => dgram.createSocket('udp5'),
+    RegExp('Bad socket type specified. Valid types are: udp4, udp6'),
+    'throws on invalid string type for dgram.createSocket'
+  )
+  t.throws(
+    () => dgram.createSocket({ type: 'udp5' }),
+    RegExp('Bad socket type specified. Valid types are: udp4, udp6'),
+    'throws on invalid object entry type for dgram.createSocket'
+  )
+  t.throws(
+    () => new dgram.Socket('udp5'),
+    RegExp('Bad socket type specified. Valid types are: udp4, udp6'),
+    'throws on invalid string type for new dgram.Socket'
+  )
+  t.throws(
+    () => new dgram.Socket({ type: 'udp5' }),
+    RegExp('Bad socket type specified. Valid types are: udp4, udp6'),
+    'throws on invalid object entry type for new dgram.Socket'
+  )
+  t.ok(dgram.createSocket('udp4'), 'works for dgram.createSocket with string type udp4')
+  t.ok(dgram.createSocket('udp6'), 'works for dgram.createSocket with string type udp6')
+  t.ok(dgram.createSocket({ type: 'udp4' }), 'works for dgram.createSocket with string type udp4')
+  t.ok(dgram.createSocket({ type: 'udp6' }), 'works for dgram.createSocket with object entry type udp6')
+  t.ok(new dgram.Socket('udp4'), 'works for new dgram.Socket with string type udp4')
+  t.ok(new dgram.Socket('udp6'), 'works for new dgram.Socket with string type udp6')
+  t.ok(new dgram.Socket({ type: 'udp4' }), 'works for new dgram.Socket with string type udp4')
+  t.ok(new dgram.Socket({ type: 'udp6' }), 'works for new dgram.Socket with object entry type udp6')
+})
+
 test('dgram createSocket, address, bind, close', t => {
   const server = dgram.createSocket({ type: 'udp4' })
   t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
-  t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
   t.throws(
     () => server.address(),
     RegExp('getsockname EBADF'),
@@ -42,7 +82,7 @@ test('dgram createSocket, address, bind, close', t => {
   t.equal(server.close(), void 0, 'server.close() returns undefined')
   t.throws(
     () => server.close(),
-    RegExp('ERR_SOCKET_DGRAM_NOT_RUNNING'),
+    RegExp('Not running'),
     'server.close() throws an error is the socket is already closed'
   )
 })
@@ -118,4 +158,17 @@ test('udp bind, connect, send', async t => {
   } catch (err) {
     t.fail(err, err.message)
   }
+})
+
+test('udp createSocket AbortSignal', async t => {
+  const controller = new AbortController();
+  const { signal } = controller;
+  const server = dgram.createSocket({ type: 'udp4', signal });
+  controller.abort();
+  server.close = new Proxy(server.close, {
+    get() {
+
+      Reflect.get(...arguments)
+    }
+  })
 })
