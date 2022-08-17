@@ -58,9 +58,9 @@ export class Socket extends EventEmitter {
       throw err
     }
 
-    if (typeof options === 'string') {
-      options = { type: options }
-    }
+    this.type = typeof options === 'string'
+      ? options
+      : options.type
 
     this.state = {
       recvBufferSize: options.recvBufferSize,
