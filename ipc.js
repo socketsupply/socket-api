@@ -167,6 +167,8 @@ export function debug (enable) {
   return debug.enabled
 }
 
+debug.write = console.debug
+
 Object.defineProperty(debug, 'enabled', {
   enumerable: false,
   set (value) {
@@ -544,7 +546,7 @@ export async function ready () {
 export function sendSync (command, params) {
   if (typeof window === 'undefined') {
     if (debug.enabled) {
-      console.debug('Global window object is not defined')
+      debug.write('Global window object is not defined')
     }
 
     return {}
@@ -562,7 +564,7 @@ export function sendSync (command, params) {
   const query = `?${params}`
 
   if (debug.enabled) {
-    console.debug('io.ipc.sendSync: %s', uri + query)
+    debug.write('io.ipc.sendSync: %s', uri + query)
   }
 
   request.open('GET', uri + query, false)
@@ -585,7 +587,7 @@ export async function emit (...args) {
   await ready()
 
   if (debug.enabled) {
-    console.debug('io.ipc.emit:', ...args)
+    debug.write('io.ipc.emit:', ...args)
   }
 
   return await window._ipc.emit(...args)
@@ -595,7 +597,7 @@ export async function resolve (...args) {
   await ready()
 
   if (debug.enabled) {
-    console.debug('io.ipc.resolve:', ...args)
+    debug.write('io.ipc.resolve:', ...args)
   }
 
   return await window._ipc.resolve(...args)
@@ -605,14 +607,14 @@ export async function send (command, ...args) {
   await ready()
 
   if (debug.enabled) {
-    console.debug('io.ipc.send:', command, ...args)
+    debug.write('io.ipc.send:', command, ...args)
   }
 
   const response = await window._ipc.send(command, ...args)
   const result = Result.from(response)
 
   if (debug.enabled) {
-    console.debug('io.ipc.send: (resolved)', command, result)
+    debug.write('io.ipc.send: (resolved)', command, result)
   }
 
   return result
@@ -657,7 +659,7 @@ export async function write (command, params, buffer, options) {
   request.send(buffer || null)
 
   if (debug.enabled) {
-    console.debug('io.ipc.write:', uri + query, buffer || null)
+    debug.write('io.ipc.write:', uri + query, buffer || null)
   }
 
   return await new Promise((resolve) => {
@@ -698,7 +700,7 @@ export async function write (command, params, buffer, options) {
         const result = Result.from(data)
 
         if (debug.enabled) {
-          console.debug('io.ipc.write: (resolved)', command, result)
+          debug.write('io.ipc.write: (resolved)', command, result)
         }
 
         return resolve(data)
@@ -726,7 +728,7 @@ export async function request (command, data, options) {
   }
 
   if (debug.enabled) {
-    console.debug('io.ipc.request:', command, data)
+    debug.write('io.ipc.request:', command, data)
   }
 
   let aborted = false
@@ -748,7 +750,7 @@ export async function request (command, data, options) {
     }
 
     if (debug.enabled) {
-      console.debug('io.ipc.request: (resolved)', command, result)
+      debug.write('io.ipc.request: (resolved)', command, result)
     }
 
     return result
