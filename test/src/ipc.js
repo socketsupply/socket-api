@@ -37,6 +37,7 @@ test('ipc constants', (t) => {
 })
 
 test('ipc.debug', (t) => {
+  ipc.debug(true)
   t.equal(ipc.debug.enabled, true)
   ipc.debug(false)
   t.equal(ipc.debug.enabled, false)

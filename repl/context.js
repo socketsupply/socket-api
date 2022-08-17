@@ -83,7 +83,7 @@ function patchConsole (method) {
 function makeError (err) {
   if (!err) { return null }
   const error = {}
-  const message = String(err.message || err)
+  const message = String(err.message || err.reason || err)
   error.message = message
     .replace(window.location.href, '')
     .trim()
