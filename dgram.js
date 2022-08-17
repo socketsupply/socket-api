@@ -433,6 +433,10 @@ export class Socket extends EventEmitter {
       id: this.id
     })
 
+    if (err && err.code === 'ERR_SOCKET_DGRAM_NOT_RUNNING') {
+      throw new Error(err.code)
+    }
+
     if (err && cb) return cb(err)
     if (err) return { err }
 
