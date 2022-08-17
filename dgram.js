@@ -149,7 +149,7 @@ export class Socket extends EventEmitter {
 
     if (errBind) {
       this.emit('error', errBind)
-      return { err: errBind }
+      return this
     }
 
     this.state._bindState = BIND_STATE_BOUND
