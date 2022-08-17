@@ -424,12 +424,12 @@ export class Socket extends EventEmitter {
    * @param {function} callback - Called when the connection is completed or on error.
    *
    */
-  async close (cb) {
+  close (cb) {
     if (typeof cb === 'function') {
       this.once('close', cb)
     }
 
-    const { err } = await ipc.send('close', {
+    const { err } = ipc.sendSync('close', {
       id: this.id
     })
 
