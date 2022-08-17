@@ -6,8 +6,9 @@ import { GLOBAL_TEST_RUNNER } from 'tapzero'
 
 const parent = typeof window === 'object' ? window : globalThis
 
-ipc.debug.enabled = true
-ipc.debug.write = (...args) => console.log(...args) // uncomment to get IPC debug output
+// uncomment below to get IPC debug output in stdout
+// ipc.debug.enabled = true
+// ipc.debug.write = (...args) => console.log(...args)
 
 if (typeof parent?.addEventListener === 'function') {
   parent.addEventListener('error', onerror)
