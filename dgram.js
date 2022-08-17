@@ -48,7 +48,19 @@ export class Socket extends EventEmitter {
     super()
 
     this.id = rand64()
-    this.type = options.type ?? 'udp4'
+
+    const validTypeString = typeof options === 'string' && ['udp4', 'udp6'].includes(options)
+    const validTypeObject = typeof options === 'object' && options !== null && ['udp4', 'udp6'].includes(options.type)
+
+    if (!validTypeString && !validTypeObject) {
+      const err = new TypeError('Bad socket type specified. Valid types are: udp4, udp6')
+      err.code = 'ERR_SOCKET_BAD_TYPE'
+      throw err
+    }
+
+    if (typeof options === 'string') {
+      options = { type: options }
+    }
 
     this.state = {
       recvBufferSize: options.recvBufferSize,
@@ -59,8 +71,6 @@ export class Socket extends EventEmitter {
       ipv6Only: options.ipv6Only
       // TODO: signal
     }
-
-    // this.connect()
 
     if (callback) {
       this.on('message', callback)
@@ -434,7 +444,9 @@ export class Socket extends EventEmitter {
     })
 
     if (err && err.code === 'ERR_SOCKET_DGRAM_NOT_RUNNING') {
-      throw new Error(err.code)
+      const e = new Error('Not running')
+      e.code = err.code
+      throw e
     }
 
     if (err && cb) return cb(err)
@@ -575,11 +587,4 @@ export class Socket extends EventEmitter {
   }
 }
 
-export const createSocket = (options, callback) => {
-  if (typeof options === 'string') {
-    options = {
-      type: options
-    }
-  }
-  return new Socket(options, callback)
-}
+export const createSocket = (options, callback) => new Socket(options, callback)
