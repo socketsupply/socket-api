@@ -429,7 +429,7 @@ export class Socket extends EventEmitter {
       this.once('close', cb)
     }
 
-    const { err } = ipc.sendSync('close', {
+    const { err } = ipc.sendSync('udpClose', {
       id: this.id
     })
 
