@@ -67,6 +67,7 @@ test('dgram createSocket, address, bind, close', t => {
     RegExp('getsockname EBADF'),
     'server.address() throws an error if the socket is not bound'
   )
+  t.ok(server.bind() === server, 'dgram.bind returns the socket')
   t.ok(server.bind(41233) === server, 'dgram.bind returns the socket')
   // FIXME:
   // t.throws(
@@ -138,7 +139,7 @@ test('udp socket message and bind callbacks', async t => {
   })
 
   const listeningCbResult = new Promise(resolve => {
-    server.bind(41235, resolve)
+    server.bind(41235, '0.0.0.0', resolve)
   })
 
   const [{ msg, rinfo }] = await Promise.all([msgCbResult, listeningCbResult])
