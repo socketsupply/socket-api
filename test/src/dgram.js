@@ -115,6 +115,36 @@ test('udp bind, send, remoteAddress', async t => {
   } catch (err) {
     t.fail(err, err.message)
   }
+
+  server.close()
+  client.close()
+})
+
+test('udp socket message callback', async t => {
+  let server
+  const result = new Promise(resolve => {
+    server = dgram.createSocket({
+      type: 'udp4',
+      reuseAddr: false
+    }, (msg, rinfo) => {
+      resolve({ msg, rinfo })
+    })
+  })
+
+  const client = dgram.createSocket('udp4')
+
+  server.on('listening', () => {
+    client.send('payload', 41235, '0.0.0.0')
+  })
+
+  server.bind(41235)
+
+  const { msg, rinfo } = await result
+  console.log(rinfo)
+  t.equal(Buffer.from(msg).toString(), 'payload', 'message matches')
+  t.equal(rinfo.address, '127.0.0.1', 'rinfo.address is correct')
+  t.ok(Number.isInteger(rinfo.port), 'rinfo.port is correct')
+  t.equal(rinfo.family, 'IPv4', 'rinfo.family is correct')
 })
 
 test('udp bind, connect, send', async t => {
@@ -139,10 +169,10 @@ test('udp bind, connect, send', async t => {
   )
 
   server.on('listening', () => {
-    client.connect(41235, '0.0.0.0', (err) => {
+    client.connect(41236, '0.0.0.0', (err) => {
       t.deepEqual(
         client.remoteAddress(),
-        { address: '127.0.0.1', port: 41235, family: 'IPv4' },
+        { address: '127.0.0.1', port: 41236, family: 'IPv4' },
         'client.remoteAddress() returns the remote address'
       )
       if (err) return t.fail(err.message)
@@ -150,7 +180,7 @@ test('udp bind, connect, send', async t => {
     })
   })
 
-  server.bind(41235)
+  server.bind(41236)
 
   try {
     const r = Buffer.from(await msg).toString()
