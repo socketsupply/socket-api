@@ -120,9 +120,9 @@ test('udp bind, send, remoteAddress', async t => {
   client.close()
 })
 
-test('udp socket message callback', async t => {
+test('udp socket message and bind callbacks', async t => {
   let server
-  const result = new Promise(resolve => {
+  const msgCbResult = new Promise(resolve => {
     server = dgram.createSocket({
       type: 'udp4',
       reuseAddr: false
@@ -137,10 +137,12 @@ test('udp socket message callback', async t => {
     client.send('payload', 41235, '0.0.0.0')
   })
 
-  server.bind(41235)
+  const listeningCbResult = new Promise(resolve => {
+    server.bind(41235, resolve)
+  })
 
-  const { msg, rinfo } = await result
-  console.log(rinfo)
+  const [{ msg, rinfo }] = await Promise.all([msgCbResult, listeningCbResult])
+  t.ok(true, 'listening callback called')
   t.equal(Buffer.from(msg).toString(), 'payload', 'message matches')
   t.equal(rinfo.address, '127.0.0.1', 'rinfo.address is correct')
   t.ok(Number.isInteger(rinfo.port), 'rinfo.port is correct')
