@@ -18,7 +18,7 @@ test('dgram exports', t => {
   t.ok(dgram.createSocket.length === 2, 'dgram.createSocket accepts two arguments')
 })
 
-test('dgram createSocket, address, bind, close', async t => {
+test('dgram createSocket, address, bind, close', t => {
   const server = dgram.createSocket({ type: 'udp4' })
   t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
   t.ok(server.type === 'udp4', 'dgram.createSocket sets the socket type')
