@@ -193,6 +193,18 @@ test('udp bind, connect, send', async t => {
   }
 })
 
+test('udp send callback', async t => {
+  const message = Buffer.from('Some bytes');
+  const client = dgram.createSocket('udp4');
+  const result = await new Promise(resolve => {
+    client.send(message, 41237, '0.0.0.0', (err) => {
+      client.close()
+      resolve(true)
+    })
+  })
+  t.ok(result, 'send callback called')
+})
+
 test('udp createSocket AbortSignal', async t => {
   const controller = new AbortController();
   const { signal } = controller;
