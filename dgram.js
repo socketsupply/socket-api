@@ -180,7 +180,7 @@ export class Socket extends EventEmitter {
         this.emit('message', buffer, {
           address: params.data.ip,
           port: params.data.port,
-          family: isIPv4(params.data.ip)
+          family: isIPv4(params.data.ip) ? 'IPv4' : 'IPv6'
         })
       }
 
@@ -288,7 +288,7 @@ export class Socket extends EventEmitter {
     this._remoteFamily = dataPeerData.family
 
     if (cb) cb(null)
-    return {}
+    return this
   }
 
   async disconnect () {
