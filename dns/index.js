@@ -41,7 +41,11 @@ const lookup = (hostname, opts, cb) => {
     opts = { family: opts }
   }
 
-  const { err, data } = ipc.sendSync('dnsLookup', params)
+  if (typeof opts !== 'object') {
+    opts = {}
+  }
+
+  const { err, data } = ipc.sendSync('dnsLookup', { ...opts, id: rand64(), hostname })
 
   if (err) {
     const e = new Error(`getaddrinfo ENOTFOUND ${hostname}`)
