@@ -109,8 +109,6 @@ export class Socket extends EventEmitter {
       options.address = arg2
     } else if (typeof arg1 === 'object') {
       options = { ...arg1 }
-    } else {
-      throw new Error('invalid arguments')
     }
 
     function removeListeners () {
