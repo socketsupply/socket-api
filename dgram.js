@@ -58,9 +58,11 @@ export class Socket extends EventEmitter {
       throw err
     }
 
-    this.type = typeof options === 'string'
-      ? options
-      : options.type
+    if (typeof options === 'string') {
+      options = { type: options }
+    }
+
+    this.type = options.type
 
     this.state = {
       recvBufferSize: options.recvBufferSize,
@@ -69,12 +71,13 @@ export class Socket extends EventEmitter {
       _connectState: CONNECT_STATE_DISCONNECTED,
       reuseAddr: options.reuseAddr,
       ipv6Only: options.ipv6Only
-      // TODO: signal
     }
 
     if (callback) {
       this.on('message', callback)
     }
+
+    options.signal?.addEventListener('abort', () => this.close())
   }
 
   async _recvStart () {
