@@ -1,5 +1,4 @@
 import * as os from '@socketsupply/io/os.js'
-//import os from 'os' //uncomment to tests the tests, should pass running node
 import { test } from 'tapzero'
 
 const archs = ['arm64', 'ia32', 'x64',  'unknown']
@@ -19,31 +18,19 @@ test('os.type()', (t) => {
 })
 
 test('os.networkInterfaces()', (t) => {
-  var int = os.networkInterfaces()
-  function isAddress (i) {
-    if(i.family === 4 || i.family === 'IPv4') {
-      t.ok(/\d+\.\d+\.\d+\.\d+/.test(i.address), 'matches the format')
-    } else {
-      t.ok(i.family === 6 || i.family === 'IPv6')
-    }
-
-    t.ok(i.netmask, 'has netmask')
-    if (i.internal) t.ok(i.mac, 'has mac address')
-    t.equal(typeof i.internal, 'boolean')
-    t.ok(i.cidr, 'has cidr')
-  }
-
-
-  t.ok(Array.isArray(int.lo) || Array.isArray(int.lo0), 'iterface is "lo"')
-  var interfaces = Object.keys(int).length
-  t.ok(interfaces >= 2, 'network interfaces has at least two keys, loopback + wifi, was:'+interfaces)
-  for (const intf in int) {
-    int[intf].forEach(isAddress)
+  function isValidAddress(address) {
+    return Object.keys(address).toString() === ['address', 'netmask', 'internal', 'family', 'cidr', 'mac'].toString()
   }
 
   const networkInterfaces = os.networkInterfaces()
-  t.ok(networkInterfaces, 'os.networkInterfaces()')
-  t.ok(Object.keys(networkInterfaces).length > 0, 'os.networkInterfaces() not empty')
+  t.ok(Array.isArray(networkInterfaces.lo) || Array.isArray(networkInterfaces.lo0), 'iterface is "lo"')
+  const interfaces = Object.values(networkInterfaces)
+  t.ok(interfaces.length >= 2, 'network interfaces has at least two keys, loopback + wifi, was:'+interfaces.length)
+  t.ok(interfaces.every(addresses => Array.isArray(addresses)), 'network interface is an array')
+  t.ok(
+    interfaces.every(addresses => addresses.every(isValidAddress)),
+    'all network interfaces addresses has correct keys'
+  )
 })
 
 test('os.EOL', (t) => {

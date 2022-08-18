@@ -68,6 +68,8 @@ test('dns.lookup', async t => {
       }),
       // TODO: call with other options
     ])
+  } else {
+    t.fail('offline')
   }
 })
 
@@ -81,6 +83,8 @@ test('dns.lookup bad hostname', async t => {
         resolve()
       })
     })
+  } else {
+    t.fail('offline')
   }
 })
 
@@ -126,6 +130,8 @@ test('dns.promises.lookup', async t => {
     } catch (err) {
       t.fail(err)
     }
+  } else {
+    t.fail('offline')
   }
 })
 
@@ -137,5 +143,7 @@ test('dns.promises.lookup bad hostname', async t => {
     } catch (err) {
       t.equal(err.message, `getaddrinfo ENOTFOUND ${BAD_HOSTNAME}`, 'returns an error on unexisting hostname')
     }
+  } else {
+    t.fail('offline')
   }
 })
