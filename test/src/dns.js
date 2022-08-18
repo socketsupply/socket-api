@@ -40,7 +40,7 @@ test('dns.lookup', async t => {
         })
       }),
       new Promise (resolve => {
-        dns.lookup('sockets.sh', 6, (err, info) => {
+        dns.lookup('cloudflare.com', 6, (err, info) => {
           if (err) return t.fail(err)
           t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
           t.equal(info.family, 6, 'is IPv6 family')
