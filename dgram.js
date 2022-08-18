@@ -9,7 +9,6 @@ import { Buffer } from 'buffer'
 
 import { EventEmitter } from './events.js'
 import { isIPv4 } from './net.js'
-import * as dns from './dns.js'
 import * as ipc from './ipc.js'
 import { rand64, isArrayBufferView } from './util.js'
 
@@ -63,6 +62,7 @@ export class Socket extends EventEmitter {
     }
 
     this.type = options.type
+    this.signal = options.signal
 
     this.state = {
       recvBufferSize: options.recvBufferSize,
@@ -77,7 +77,14 @@ export class Socket extends EventEmitter {
       this.on('message', callback)
     }
 
-    options.signal?.addEventListener('abort', () => this.close())
+    const _onAbort = () => this.close()
+    this.signal?.addEventListener('abort', _onAbort, { once: true })
+    this.once('close', () => {
+      if (this.dataListener) {
+        window.removeEventListener('data', this.dataListener)
+      }
+      this.signal?.removeEventListener('abort', _onAbort)
+    })
   }
 
   async _recvStart () {
@@ -159,7 +166,7 @@ export class Socket extends EventEmitter {
     this._port = options.port
     this._family = isIPv4(options.address) ? 'IPv4' : 'IPv6'
 
-    const listener = e => {
+    this.dataListener = e => {
       const { data: buffer, params } = e.detail
       const { err, data } = params
 
@@ -183,12 +190,12 @@ export class Socket extends EventEmitter {
       }
 
       if (data.EOF) {
-        window.removeListener('data', listener)
+        window.removeEventListener('data', this.dataListener)
       }
     }
 
     // subscribe this socket to the firehose
-    window.addEventListener('data', listener)
+    window.addEventListener('data', this.dataListener)
 
     this._recvStart()
 
@@ -436,10 +443,6 @@ export class Socket extends EventEmitter {
    *
    */
   close (cb) {
-    if (typeof cb === 'function') {
-      this.once('close', cb)
-    }
-
     const { err } = ipc.sendSync('udpClose', {
       id: this.id
     })
@@ -450,7 +453,7 @@ export class Socket extends EventEmitter {
       throw e
     }
 
-    if (err && cb) return cb(err)
+    if (err && typeof cb === 'function') return cb(err)
     if (err) return { err }
 
     this.emit('close')
