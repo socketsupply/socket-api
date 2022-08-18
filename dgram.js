@@ -83,6 +83,7 @@ export class Socket extends EventEmitter {
       if (this.dataListener) {
         window.removeEventListener('data', this.dataListener)
       }
+      this.removeAllListeners()
       this.signal?.removeEventListener('abort', _onAbort)
     })
   }
