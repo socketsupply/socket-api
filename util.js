@@ -358,8 +358,19 @@ export function inspect (value, options) {
       braces[0] =  ''
       braces[1] =  ''
       enumerableKeys.name = true
+
       if (value.cause) {
         keys.add('cause')
+      }
+
+      if (value.code) {
+        enumerableKeys.code = true
+        keys.add('code')
+      }
+
+      if (value.message) {
+        enumerableKeys.message = true
+        keys.add('message')
       }
     }
 

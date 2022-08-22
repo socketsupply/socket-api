@@ -41,7 +41,7 @@ import * as promises from './promises.js'
  * @param {function} callback - The function to call after the method is complete.
  * @returns {Promise}
  */
-export const lookup = (hostname, opts, cb) => {
+function lookup (hostname, opts, cb) {
   if (typeof hostname !== 'string') {
     const err = new TypeError(`The "hostname" argument must be of type string. Received type ${typeof hostname} (${hostname})`)
     err.code = 'ERR_INVALID_ARG_TYPE'
@@ -69,14 +69,16 @@ export const lookup = (hostname, opts, cb) => {
   const { err, data } = ipc.sendSync('dnsLookup', { ...opts, id: rand64(), hostname })
 
   if (err) {
-    const e = new Error(`getaddrinfo ENOTFOUND ${hostname}`)
-    e.code = 'ENOTFOUND'
+    const e = new Error(`getaddrinfo EAI_AGAIN ${hostname}`)
+    e.code = 'EAI_AGAIN'
     e.syscall = 'getaddrinfo'
     e.hostname = hostname
     // e.errno = -3008, // lib_uv constant?
-    return cb(e)
+    cb(e, null, null)
+    return
   }
-  return cb(null, data)
+
+  cb(null, data?.address ?? null, data?.family ?? null)
 }
 
 export {

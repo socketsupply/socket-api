@@ -1,7 +1,12 @@
 import { test } from 'tapzero'
+import { EventEmitter } from '@socketsupply/io/events.js'
 import * as dgram from '@socketsupply/io/dgram.js'
 import { Buffer } from '@socketsupply/io/buffer.js'
-import { EventEmitter } from '@socketsupply/io/events.js'
+
+// node compat
+//import { EventEmitter } from 'node:events'
+//import { Buffer } from 'node:buffer'
+//import dgram from 'node:dgram'
 
 const MTU = 1518
 
@@ -59,7 +64,7 @@ test('Socket creation', t => {
   t.ok(new dgram.Socket({ type: 'udp6' }), 'works for new dgram.Socket with object entry type udp6')
 })
 
-test('dgram createSocket, address, bind, close', t => {
+test('dgram createSocket, address, bind, close', async t => {
   const server = dgram.createSocket({ type: 'udp4' })
   t.ok(server instanceof dgram.Socket, 'dgram.createSocket returns a dgram.Socket')
   t.throws(
@@ -67,25 +72,30 @@ test('dgram createSocket, address, bind, close', t => {
     RegExp('getsockname EBADF'),
     'server.address() throws an error if the socket is not bound'
   )
-  t.ok(server.bind() === server, 'dgram.bind returns the socket')
   t.ok(server.bind(41233) === server, 'dgram.bind returns the socket')
-  // FIXME:
-  // t.throws(
-  //   () => server.bind(41233),
-  //   RegExp('bind EADDRINUSE 0.0.0.0:41233'),
-  //   'server.bind throws an error if the socket is already bound'
-  // )
-  t.deepEqual(
-    server.address(),
-    { address: '0.0.0.0', port: 41233, family: 'IPv4' },
-    'server.address() returns the bound address'
-  )
-  t.equal(server.close(), void 0, 'server.close() returns undefined')
-  t.throws(
-    () => server.close(),
-    RegExp('Not running'),
-    'server.close() throws an error is the socket is already closed'
-  )
+  await new Promise((done) => {
+    server.once('listening', () => {
+      // FIXME:
+      // t.throws(
+      //   () => server.bind(41233),
+      //   RegExp('bind EADDRINUSE 0.0.0.0:41233'),
+      //   'server.bind throws an error if the socket is already bound'
+      // )
+      t.deepEqual(
+        server.address(),
+        { address: '0.0.0.0', port: 41233, family: 'IPv4' },
+        'server.address() returns the bound address'
+      )
+      t.equal(server.close(), server, 'server.close() returns instance')
+      t.throws(
+        () => server.close(),
+        RegExp('Not running'),
+        'server.close() throws an error is the socket is already closed'
+      )
+
+      done()
+    })
+  })
 })
 
 test('udp bind, send, remoteAddress', async t => {
@@ -105,6 +115,7 @@ test('udp bind, send, remoteAddress', async t => {
   t.ok(payload.length > 0, `${payload.length} bytes prepared`)
 
   server.on('listening', () => {
+    t.ok(true, 'listening')
     client.send(Buffer.from(payload), 41234, '0.0.0.0')
   })
 
@@ -148,6 +159,9 @@ test('udp socket message and bind callbacks', async t => {
   t.equal(rinfo.address, '127.0.0.1', 'rinfo.address is correct')
   t.ok(Number.isInteger(rinfo.port), 'rinfo.port is correct')
   t.equal(rinfo.family, 'IPv4', 'rinfo.family is correct')
+
+  server.close()
+  client.close()
 })
 
 test('udp bind, connect, send', async t => {
@@ -191,6 +205,9 @@ test('udp bind, connect, send', async t => {
   } catch (err) {
     t.fail(err, err.message)
   }
+
+  server.close()
+  client.close()
 })
 
 test('udp send callback', async t => {
@@ -211,11 +228,19 @@ test('udp createSocket AbortSignal', async t => {
   const server = dgram.createSocket({ type: 'udp4', signal });
   let isSocketClosed = false;
   await new Promise(resolve => {
-    server.close(() => {
+    server.bind(44444)
+    server.once('listening', () => {
+      controller.abort()
       isSocketClosed = true
+
+      t.throws(
+        () => server.close(),
+        RegExp('Not running'),
+        'server.close() throws an error is the socket is already closed'
+      )
+
       resolve()
     })
-    controller.abort()
   })
   t.ok(isSocketClosed, 'socket is closed after abort, close event is emitted')
 })

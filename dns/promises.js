@@ -1,5 +1,6 @@
 import * as ipc from '../ipc.js'
 import { rand64 } from '../util.js'
+
 /*
  * @param {string} hostname - The host name to resolve.
  * @param {Object} opts - An options object.
@@ -7,7 +8,7 @@ import { rand64 } from '../util.js'
  * @param {function} callback - The function to call after the method is complete.
  * @returns {Promise}
  */
-export async function lookup(hostname, opts) {
+export async function lookup (hostname, opts) {
   if (typeof hostname !== 'string') {
     const err = new TypeError(`The "hostname" argument must be of type string. Received type ${typeof hostname} (${hostname})`)
     err.code = 'ERR_INVALID_ARG_TYPE'
@@ -22,15 +23,20 @@ export async function lookup(hostname, opts) {
     opts = {}
   }
 
+  if (!opts.family) {
+    opts.family = 4
+  }
+
   const { err, data } = await ipc.send('dnsLookup', { ...opts, id: rand64(), hostname })
 
   if (err) {
-    const e = new Error(`getaddrinfo ENOTFOUND ${hostname}`)
-    e.code = 'ENOTFOUND'
+    const e = new Error(`getaddrinfo EAI_AGAIN ${hostname}`)
+    e.code = 'EAI_AGAIN'
     e.syscall = 'getaddrinfo'
     e.hostname = hostname
     // e.errno = -3008, // lib_uv constant?
     return e
   }
+
   return data
 }
