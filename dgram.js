@@ -7,10 +7,11 @@
 
 import { Buffer } from 'buffer'
 
+import { rand64, isArrayBufferView } from './util.js'
+import { InternalError } from  './errors.js'
 import { EventEmitter } from './events.js'
 import { isIPv4 } from './net.js'
 import * as ipc from './ipc.js'
-import { rand64, isArrayBufferView } from './util.js'
 
 const BIND_STATE_UNBOUND = 0
 const BIND_STATE_BINDING = 1
@@ -20,7 +21,20 @@ const CONNECT_STATE_DISCONNECTED = 0
 const CONNECT_STATE_CONNECTING = 1
 const CONNECT_STATE_CONNECTED = 2
 
-const fixBufferList = list => {
+class SocketError extends InternalError {
+  get code () { return this.constructor.name }
+}
+
+class ERR_SOCKET_ALREADY_BOUND extends SocketError {}
+class ERR_SOCKET_BAD_BUFFER_SIZE extends SocketError {}
+class ERR_SOCKET_BUFFER_SIZE extends SocketError {}
+class ERR_SOCKET_DGRAM_IS_CONNECTED extends SocketError {}
+class ERR_SOCKET_DGRAM_NOT_CONNECTED extends SocketError {}
+class ERR_SOCKET_DGRAM_NOT_RUNNING extends SocketError {
+  get message () { return 'Not running' }
+}
+
+function fixBufferList (list) {
   const newlist = new Array(list.length)
 
   for (let i = 0, l = list.length; i < l; i++) {
@@ -36,6 +50,20 @@ const fixBufferList = list => {
   }
 
   return newlist
+}
+
+function getSocketState (socket) {
+  const result = ipc.sendSync('udp.getState', { id: socket.id })
+
+  if (result.err && result.err.code !== 'NOT_FOUND_ERR') {
+    throw result.err
+  }
+
+  return result.data || null
+}
+
+function healhCheck (socket) {
+  // @TODO(jwerle)
 }
 
 /*
@@ -147,7 +175,7 @@ export class Socket extends EventEmitter {
       })
     }
 
-    const { err: errBind, data } = ipc.sendSync('udpBind', {
+    const bind = ipc.sendSync('udpBind', {
       id: this.id,
       address: options.address,
       port: options.port || 0,
@@ -155,17 +183,17 @@ export class Socket extends EventEmitter {
       ipv6Only: options.ipv6Only ? "true" : "false"
     })
 
-    if (errBind) {
-      this.emit('error', errBind)
+    if (bind.err) {
+      this.emit('error', bind.err)
       return this
     }
 
     this.state._bindState = BIND_STATE_BOUND
     setTimeout(() => this.emit('listening'), 1)
 
-    this._address = options.address
-    this._port = options.port
-    this._family = isIPv4(options.address) ? 'IPv4' : 'IPv6'
+    this._address = bind.data.address
+    this._port = bind.data.port
+    this._family = isIPv4(bind.data.address) ? 'IPv4' : 'IPv6'
 
     this.dataListener = e => {
       const { data: buffer, params } = e.detail
@@ -178,15 +206,15 @@ export class Socket extends EventEmitter {
       if (!data || BigInt(data.id) !== this.id) return
 
       if (data.source === 'dnsLookup') {
-        this._address = data.params.ip
+        this._address = data.params.address
         return this.emit('listening')
       }
 
       if (data.source === 'udpReadStart') {
         this.emit('message', buffer, {
-          address: params.data.ip,
+          address: params.data.address,
           port: params.data.port,
-          family: isIPv4(params.data.ip) ? 'IPv4' : 'IPv6'
+          family: isIPv4(params.data.address) ? 'IPv4' : 'IPv6'
         })
       }
 
@@ -222,8 +250,9 @@ export class Socket extends EventEmitter {
   async connect (arg1, arg2, cb) {
     if (this.connectedState === CONNECT_STATE_CONNECTED) {
       const err = new Error('already connected')
-      if (cb) return cb(err)
-      return { err }
+      if (cb) cb(err)
+      else throw err
+      return this
     }
 
     const port = arg1
@@ -253,7 +282,7 @@ export class Socket extends EventEmitter {
         return { err }
       }
 
-      address = data.ip
+      address = data.address
     }
 
     if (!address) address = this.type === 'udp4'
@@ -262,7 +291,7 @@ export class Socket extends EventEmitter {
 
     const opts = {
       id: this.id,
-      address: dataLookup?.ip || address,
+      address: dataLookup?.address || address,
       port: port || 0
     }
 
@@ -289,7 +318,7 @@ export class Socket extends EventEmitter {
       return { err: errPeerData }
     }
 
-    this._remoteAddress = dataPeerData.ip
+    this._remoteAddress = dataPeerData.address
     this._remotePort = dataPeerData.port
     this._remoteFamily = dataPeerData.family
 
@@ -440,21 +469,28 @@ export class Socket extends EventEmitter {
    *
    */
   close (cb) {
+    const state = getSocketState(this)
+
+    if (!state) {
+      throw new ERR_SOCKET_DGRAM_NOT_RUNNING()
+    }
+
     const { err } = ipc.sendSync('udpClose', {
       id: this.id
     })
 
-    if (err && err.code === 'ERR_SOCKET_DGRAM_NOT_RUNNING') {
-      const e = new Error('Not running')
-      e.code = err.code
-      throw e
+    if (err) {
+      if (typeof cb === 'function') {
+        cb(err)
+      }
+
+      return this
     }
 
-    if (err && typeof cb === 'function') return cb(err)
-    if (err) return { err }
+    this.id = rand64()
 
     this.emit('close')
-    return
+    return this
   }
 
   /**

@@ -159,7 +159,7 @@ export function debug (enable) {
   return debug.enabled
 }
 
-debug.write = () => {} // console.debug.bind(console)
+debug.log = console.debug.bind(console)
 
 Object.defineProperty(debug, 'enabled', {
   enumerable: false,
@@ -538,7 +538,7 @@ export async function ready () {
 export function sendSync (command, params) {
   if (typeof window === 'undefined') {
     if (debug.enabled) {
-      debug.write('Global window object is not defined')
+      debug.log('Global window object is not defined')
     }
 
     return {}
@@ -556,7 +556,7 @@ export function sendSync (command, params) {
   const query = `?${params}`
 
   if (debug.enabled) {
-    debug.write('io.ipc.sendSync: %s', uri + query)
+    debug.log('ipc.sendSync: %s', uri + query)
   }
 
   request.open('GET', uri + query, false)
@@ -568,7 +568,7 @@ export function sendSync (command, params) {
     return Result.from(JSON.parse(response))
   } catch (err) {
     if (debug.enabled) {
-      console.warn('ipc.sendSync: error:', err.message || err)
+      debug.log('ipc.sendSync (error):', err.message || err)
     }
   }
 
@@ -579,7 +579,7 @@ export async function emit (...args) {
   await ready()
 
   if (debug.enabled) {
-    debug.write('io.ipc.emit:', ...args)
+    debug.log('ipc.emit:', ...args)
   }
 
   return await window._ipc.emit(...args)
@@ -589,7 +589,7 @@ export async function resolve (...args) {
   await ready()
 
   if (debug.enabled) {
-    debug.write('io.ipc.resolve:', ...args)
+    debug.log('ipc.resolve:', ...args)
   }
 
   return await window._ipc.resolve(...args)
@@ -599,14 +599,14 @@ export async function send (command, ...args) {
   await ready()
 
   if (debug.enabled) {
-    debug.write('io.ipc.send:', command, ...args)
+    debug.log('ipc.send:', command, ...args)
   }
 
   const response = await window._ipc.send(command, ...args)
   const result = Result.from(response)
 
   if (debug.enabled) {
-    debug.write('io.ipc.send: (resolved)', command, result)
+    debug.log('ipc.send: (resolved)', command, result)
   }
 
   return result
@@ -614,7 +614,7 @@ export async function send (command, ...args) {
 
 export async function write (command, params, buffer, options) {
   if (typeof window === 'undefined') {
-    console.warn('Global window object is not defined')
+    debug.log('Global window object is not defined')
     return {}
   }
 
@@ -651,7 +651,7 @@ export async function write (command, params, buffer, options) {
   request.send(buffer || null)
 
   if (debug.enabled) {
-    debug.write('io.ipc.write:', uri + query, buffer || null)
+    debug.log('ipc.write:', uri + query, buffer || null)
   }
 
   return await new Promise((resolve) => {
@@ -685,14 +685,14 @@ export async function write (command, params, buffer, options) {
           data = JSON.parse(response)
         } catch (err) {
           if (debug.enabled) {
-            console.warn(err.message || err)
+            debug.log('ipc.write (error):', err.message || err)
           }
         }
 
         const result = Result.from(data)
 
         if (debug.enabled) {
-          debug.write('io.ipc.write: (resolved)', command, result)
+          debug.log('ipc.write: (resolved)', command, result)
         }
 
         return resolve(data)
@@ -720,7 +720,7 @@ export async function request (command, data, options) {
   }
 
   if (debug.enabled) {
-    debug.write('io.ipc.request:', command, data)
+    debug.log('ipc.request:', command, data)
   }
 
   let aborted = false
@@ -742,7 +742,7 @@ export async function request (command, data, options) {
     }
 
     if (debug.enabled) {
-      debug.write('io.ipc.request: (resolved)', command, result)
+      debug.log('ipc.request: (resolved)', command, result)
     }
 
     return result

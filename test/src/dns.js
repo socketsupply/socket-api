@@ -1,8 +1,13 @@
 import { test } from 'tapzero'
-import * as dns from '@socketsupply/io/dns.js'
+import dns from '@socketsupply/io/dns.js'
+
+// node compat
+//import dns from 'node:dns'
 
 const IPV4_REGEX = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
 const IPV6_REGEX = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/
+
+const isOnline = Boolean(globalThis?.navigator?.onLine || process?.versions?.node)
 
 test('dns exports', t => {
   t.ok(typeof dns.lookup === 'function', 'lookup is available')
@@ -12,138 +17,133 @@ test('dns exports', t => {
 })
 
 test('dns.lookup', async t => {
-  if (globalThis?.navigator?.onLine) {
-    await Promise.all([
-      new Promise (resolve => {
-        dns.lookup('sockets.sh', (err, info) => {
-          if (err) return t.fail(err)
-          t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-
-          const isValidFamily = (info.family === 4) || (info.family === 6)
-
-          t.ok(isValidFamily, 'is either IPv4 or IPv6 family')
-
-          const v4 = IPV4_REGEX.test(info.address)
-          const v6 = IPV6_REGEX.test(info.address)
-
-          t.ok(v4 || v6, 'has valid address')
-          resolve()
-        })
-      }),
-      new Promise (resolve => {
-        dns.lookup('sockets.sh', 4, (err, info) => {
-          if (err) return t.fail(err)
-          t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-          t.equal(info.family, 4, 'is IPv4 family')
-          t.ok(IPV4_REGEX.test(info.address), 'has valid IPv4 address')
-          resolve()
-        })
-      }),
-      new Promise (resolve => {
-        dns.lookup('cloudflare.com', 6, (err, info) => {
-          if (err) return t.fail(err)
-          t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-          t.equal(info.family, 6, 'is IPv6 family')
-          t.ok(IPV6_REGEX.test(info.address), 'has valid IPv6 address')
-          resolve()
-        })
-      }),
-      new Promise (resolve => {
-        dns.lookup('sockets.sh', { family: 4 }, (err, info) => {
-          if (err) return t.fail(err)
-          t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-          t.equal(info.family, 4, 'is IPv4 family')
-          t.ok(IPV4_REGEX.test(info.address), 'has valid IPv4 address')
-          resolve()
-        })
-      }),
-      new Promise (resolve => {
-        dns.lookup('cloudflare.com', { family: 6 }, (err, info) => {
-          if (err) return t.fail(err)
-          t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-          t.equal(info.family, 6, 'is IPv6 family')
-          t.ok(IPV6_REGEX.test(info.address), 'has valid IPv6 address')
-          resolve()
-        })
-      }),
-      // TODO: call with other options
-    ])
-  } else {
-    t.fail('offline')
+  if (!isOnline) {
+    return t.fail('offline')
   }
+
+  await Promise.all([
+    new Promise (resolve => {
+      dns.lookup('sockets.sh', (err, address, family) => {
+        if (err) return t.fail(err)
+
+        const isValidFamily = (family === 4) || (family === 6)
+
+        t.ok(isValidFamily, 'is either IPv4 or IPv6 family')
+
+        const v4 = IPV4_REGEX.test(address)
+        const v6 = IPV6_REGEX.test(address)
+
+        t.ok(v4 || v6, 'has valid address')
+        resolve()
+      })
+    }),
+    new Promise (resolve => {
+      dns.lookup('sockets.sh', 4, (err, address, family) => {
+        if (err) return t.fail(err)
+        t.equal(family, 4, 'is IPv4 family')
+        t.ok(IPV4_REGEX.test(address), 'has valid IPv4 address')
+        resolve()
+      })
+    }),
+    new Promise (resolve => {
+      dns.lookup('cloudflare.com', 6, (err, address, family) => {
+        if (err) return t.fail(err)
+        t.equal(family, 6, 'is IPv6 family')
+        t.ok(IPV6_REGEX.test(address), 'has valid IPv6 address')
+        resolve()
+      })
+    }),
+    new Promise (resolve => {
+      dns.lookup('sockets.sh', { family: 4 }, (err, address, family) => {
+        if (err) return t.fail(err)
+        t.equal(family, 4, 'is IPv4 family')
+        t.ok(IPV4_REGEX.test(address), 'has valid IPv4 address')
+        resolve()
+      })
+    }),
+    new Promise (resolve => {
+      dns.lookup('cloudflare.com', { family: 6 }, (err, address, family) => {
+        if (err) return t.fail(err)
+        t.equal(family, 6, 'is IPv6 family')
+        t.ok(IPV6_REGEX.test(address), 'has valid IPv6 address')
+        resolve()
+      })
+    }),
+    // TODO: call with other options
+  ])
 })
 
 const BAD_HOSTNAME = 'thisisnotahostname'
 
 test('dns.lookup bad hostname', async t => {
-  if (globalThis?.navigator?.onLine) {
-    await new Promise (resolve => {
-      dns.lookup(BAD_HOSTNAME, (err, info) => {
-        t.equal(err.message, `getaddrinfo ENOTFOUND ${BAD_HOSTNAME}`, 'returns an error on unexisting hostname')
-        resolve()
-      })
-    })
-  } else {
-    t.fail('offline')
+  if (!isOnline) {
+    return t.fail('offline')
   }
+
+  await new Promise (resolve => {
+    dns.lookup(BAD_HOSTNAME, (err, info) => {
+      t.equal(err.message, `getaddrinfo EAI_AGAIN ${BAD_HOSTNAME}`, 'returns an error on unexisting hostname')
+      resolve()
+    })
+  })
 })
 
 test('dns.promises.lookup', async t => {
-  if (globalThis?.navigator?.onLine) {
-    try {
-      const info = await dns.promises.lookup('sockets.sh')
-      t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-      t.equal(info.family, 4, 'is IPv4 family')
-      t.ok(IPV4_REGEX.test(info.address), 'has valid IPv4 address')
-    } catch (err) {
-      t.fail(err)
-    }
-    try {
-      const info = await dns.promises.lookup('sockets.sh', 4)
-      t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-      t.equal(info.family, 4, 'is IPv4 family')
-      t.ok(IPV4_REGEX.test(info.address), 'has valid IPv4 address')
-    } catch (err) {
-      t.fail(err)
-    }
-    try {
-      const info = await dns.promises.lookup('sockets.sh', { family: 4 })
-      t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-      t.equal(info.family, 4, 'is IPv4 family')
-      t.ok(IPV4_REGEX.test(info.address), 'has valid IPv4 address')
-    } catch (err) {
-      t.fail(err)
-    }
-    try {
-      const info = await dns.promises.lookup('cloudflare.com', 6)
-      t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-      t.equal(info.family, 6, 'is IPv6 family')
-      t.ok(IPV6_REGEX.test(info.address), 'has valid IPv6 address')
-    } catch (err) {
-      t.fail(err)
-    }
-    try {
-      const info = await dns.promises.lookup('cloudflare.com', { family: 6 })
-      t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
-      t.equal(info.family, 6, 'is IPv6 family')
-      t.ok(IPV6_REGEX.test(info.address), 'has valid IPv6 address')
-    } catch (err) {
-      t.fail(err)
-    }
-  } else {
-    t.fail('offline')
+  if (!isOnline) {
+    return t.fail('offline')
+  }
+
+  try {
+    const info = await dns.promises.lookup('sockets.sh', 4)
+    t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
+    t.equal(info.family, 4, 'is IPv4 family')
+    t.ok(IPV4_REGEX.test(info.address), 'has valid IPv4 address')
+  } catch (err) {
+    t.fail(err)
+  }
+  try {
+    const info = await dns.promises.lookup('sockets.sh', 6)
+    t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
+    t.equal(info.family, 6, 'is IPv6 family')
+    t.ok(IPV6_REGEX.test(info.address), 'has valid IPv4 address')
+  } catch (err) {
+    t.fail(err)
+  }
+  try {
+    const info = await dns.promises.lookup('sockets.sh', { family: 4 })
+    t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
+    t.equal(info.family, 4, 'is IPv4 family')
+    t.ok(IPV4_REGEX.test(info.address), 'has valid IPv4 address')
+  } catch (err) {
+    t.fail(err)
+  }
+  try {
+    const info = await dns.promises.lookup('cloudflare.com', 6)
+    t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
+    t.equal(info.family, 6, 'is IPv6 family')
+    t.ok(IPV6_REGEX.test(info.address), 'has valid IPv6 address')
+  } catch (err) {
+    t.fail(err)
+  }
+  try {
+    const info = await dns.promises.lookup('cloudflare.com', { family: 6 })
+    t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
+    t.equal(info.family, 6, 'is IPv6 family')
+    t.ok(IPV6_REGEX.test(info.address), 'has valid IPv6 address')
+  } catch (err) {
+    t.fail(err)
   }
 })
 
 
 test('dns.promises.lookup bad hostname', async t => {
-  if (globalThis?.navigator?.onLine) {
-    try {
-      await dns.promises.lookup(BAD_HOSTNAME)
-    } catch (err) {
-      t.equal(err.message, `getaddrinfo ENOTFOUND ${BAD_HOSTNAME}`, 'returns an error on unexisting hostname')
-    }
-  } else {
-    t.fail('offline')
+  if (!isOnline) {
+    return t.fail('offline')
+  }
+
+  try {
+    await dns.promises.lookup(BAD_HOSTNAME)
+  } catch (err) {
+    t.equal(err.message, `getaddrinfo EAI_AGAIN ${BAD_HOSTNAME}`, 'returns an error on unexisting hostname')
   }
 })

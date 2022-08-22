@@ -8,8 +8,8 @@ const OriginalError = parent.Error
 import { GLOBAL_TEST_RUNNER } from 'tapzero'
 
 // uncomment below to get IPC debug output in stdout
-// ipc.debug.enabled = true
-// ipc.debug.write = (...args) => console.log(...args)
+ipc.debug.enabled = true
+ipc.debug.log = (...args) => console.log(...args)
 
 if (typeof parent?.addEventListener === 'function') {
   parent.addEventListener('error', onerror)
@@ -58,8 +58,8 @@ const pollTimeout = setTimeout(function poll () {
     return process.exit(0)
   }
 
- setTimeout(poll)
-})
+ setTimeout(poll, 500)
+}, 500)
 
 patchConsole('log')
 patchConsole('info')
