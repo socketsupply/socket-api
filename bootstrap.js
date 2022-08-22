@@ -49,8 +49,11 @@ class Bootstrap extends EventEmitter {
       return true
     }
     if (hashUnpacked) {
+      this.emit('hash-check', { status: 'started', check: 'unpacked' })
       this.#hashUnpackedActual = await this.getHash(buf, hashAlgorithm)
-      return this.#hashUnpackedActual !== hashUnpacked
+      const hashMatch = this.#hashUnpackedActual === hashUnpacked
+      this.emit('hash-check', { status: 'finished', check: 'unpacked', result: hashMatch })
+      return !hashMatch
     }
   }
 
@@ -85,8 +88,11 @@ class Bootstrap extends EventEmitter {
     }
 
     if (hashDownloaded) {
+      this.emit('hash-check', { status: 'started', check: 'downloaded' })
       const hashDownloadedActual = await this.getHash(uint8data, hashAlgorithm)
-      if (hashDownloadedActual !== hashDownloaded) {
+      const hashMatch = hashDownloadedActual === hashDownloaded
+      this.emit('hash-check', { status: 'finished', check: 'downloaded', result: hashMatch })
+      if (!hashMatch) {
         this.cleanup()
         throw new Error(`Hash mismatch (downloaded): ${hashDownloadedActual} !== ${hashDownloaded}`)  
       }
@@ -106,8 +112,11 @@ class Bootstrap extends EventEmitter {
     }
     this.emit('unpack', { status: 'finished' })
     if (hashUnpacked) {
+      this.emit('hash-check', { status: 'started', check: 'unpacked' })
       this.#hashUnpackedActual ??= await this.getHash(unpacked, hashAlgorithm)
-      if (this.#hashUnpackedActual !== hashUnpacked) {
+      const hashMatch = this.#hashUnpackedActual === hashUnpacked
+      this.emit('hash-check', { status: 'finished', check: 'unpacked', result: hashMatch })
+      if (!hashMatch) {
         this.cleanup()
         throw new Error(`Hash mismatch (unpacked): ${this.#hashUnpackedActual} !== ${hashUnpacked}`)
       }
