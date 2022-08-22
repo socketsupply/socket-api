@@ -487,7 +487,9 @@ export class Socket extends EventEmitter {
       return this
     }
 
-    this.id = rand64()
+    if (typeof cb === 'function') {
+      cb(null)
+    }
 
     this.emit('close')
     return this
