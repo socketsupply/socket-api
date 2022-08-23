@@ -86,6 +86,7 @@ export {
 }
 
 import * as exports from './index.js'
+export default exports
 
 for (const key in exports) {
   const value = exports[key]
