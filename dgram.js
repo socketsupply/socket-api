@@ -5,11 +5,10 @@
  * not (yet) provide any of the multicast methods or properties.
  */
 
-import { Buffer } from 'buffer'
-
 import { rand64, isArrayBufferView } from './util.js'
 import { InternalError } from  './errors.js'
 import { EventEmitter } from './events.js'
+import { Buffer } from './buffer.js'
 import { isIPv4 } from './net.js'
 import * as ipc from './ipc.js'
 
@@ -65,6 +64,8 @@ function getSocketState (socket) {
 function healhCheck (socket) {
   // @TODO(jwerle)
 }
+
+export const createSocket = (options, callback) => new Socket(options, callback)
 
 /*
  * New instances of dgram.Socket are created using dgram.createSocket().
@@ -152,9 +153,9 @@ export class Socket extends EventEmitter {
       this.removeListener('error', removeListeners)
     }
 
-    function onListening () {
+    function onListening (...args) {
       Function.prototype.call(removeListeners, this)
-      if (cb) Function.prototype.call(cb, this)
+      if (cb) Function.prototype.call(cb, this, ...args)
     }
 
     this.on('error', removeListeners)
@@ -429,7 +430,16 @@ export class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
-    if (list.length === 0) {
+    /* if (this.state._bindState === BIND_STATE_UNBOUND) {
+      const { err: errBind } = this.bind({ port: 0 }, null)
+
+      if (errBind) {
+        if (cb) return cb(errBind)
+        return { err: errBind }
+      }
+    } */
+
+    if (Array.isArray(list) && list.length === 0) {
       list.push(Buffer.alloc(0))
     }
 
@@ -450,15 +460,24 @@ export class Socket extends EventEmitter {
       port
     }
 
-    const { err: errSend } = await ipc.write('udpSend', opts, list)
+    const result = await ipc.write(
+      'udpSend',
+      opts,
+      Array.isArray(list) ? Buffer.concat(list) : list
+    )
 
-    if (errSend) {
-      if (cb) return cb(errSend)
-      return { err: errSend }
+    if (result.err) {
+      if (typeof cb === 'function') {
+        cb(result.err)
+        return
+      }
+
+      throw result.err
     }
 
-    if (cb) cb(null)
-    return {}
+    if (typeof cb === 'function') {
+      cb(null)
+    }
   }
 
   /**
@@ -626,4 +645,5 @@ export class Socket extends EventEmitter {
   }
 }
 
-export const createSocket = (options, callback) => new Socket(options, callback)
+import *  as exports from './dgram.js'
+export default exports
