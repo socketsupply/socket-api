@@ -1,6 +1,6 @@
 import { format } from '@socketsupply/io/util.js'
-import process from '@socketsupply/io/process'
-import ipc from '@socketsupply/io/ipc'
+import process from '@socketsupply/io/process.js'
+import ipc from '@socketsupply/io/ipc.js'
 
 const parent = typeof window === 'object' ? window : globalThis
 const OriginalError = parent.Error

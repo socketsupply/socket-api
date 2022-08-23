@@ -250,22 +250,22 @@ test('udp createSocket AbortSignal', async t => {
   t.ok(isSocketClosed, 'socket is closed after abort, close event is emitted')
 })
 
-test('client ~> server (1k messages)', async (t) => {
-  const buffers = Array.from(Array(1024), () => crypto.randomBytes(1024))
+test('client ~> server (~500 messages)', async (t) => {
+  const buffers = Array.from(Array(512), () => crypto.randomBytes(1024))
   const server = dgram.createSocket('udp4')
   const client = dgram.createSocket('udp4')
 
   await new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      t.fail('Not all messagess received')
+      resolve()
+    }, 10 * 1024)
+
     server.bind(3000, '0.0.0.0', () => {
       let i = 0
       server.on('message', (message) => {
-        const buffer = buffers[i++]
-        if (Buffer.compare(buffer, Buffer.from(message)) != 0) {
-          t.fail('Mismatched buffer received')
-          return resolve()
-        }
-
-        if (i === buffers.length) {
+        if (++i === buffers.length) {
+          clearTimeout(timeout)
           t.ok(true, `all ${buffers.length} messages received`)
           resolve()
         }

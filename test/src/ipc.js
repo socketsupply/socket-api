@@ -1,6 +1,11 @@
 import * as ipc from '@socketsupply/io/ipc.js'
 import { test } from 'tapzero'
 import { Buffer } from '@socketsupply/io/buffer.js'
+import { isBufferLike } from '@socketsupply/io/util.js'
+
+// node compat
+//import { Buffer } from 'node:buffer'
+//import './test-context.js'
 
 test('ipc exports', async (t) => {
   t.deepEqual(Object.keys(ipc), [
@@ -74,12 +79,12 @@ test('ipc.Message', (t) => {
 test('ipc.sendSync not found', (t) => {
   const response = ipc.sendSync('test', { foo: 'bar' })
   t.ok(response instanceof ipc.Result)
-  const {err} = response
-  t.equal(err.toString(), 'NotFoundError: Not found')
-  t.equal(err.name, 'NotFoundError')
-  t.equal(err.message, 'Not found')
-  t.ok(err.url.startsWith('ipc://test?foo=bar&index=0&seq=R'))
-  t.equal(err.code, 'NOT_FOUND_ERR')
+  const { err } = response
+  t.equal(err?.toString(), 'NotFoundError: Not found')
+  t.equal(err?.name, 'NotFoundError')
+  t.equal(err?.message, 'Not found')
+  t.ok(err?.url.startsWith('ipc://test?foo=bar&index=0&seq=R'))
+  t.equal(err?.code, 'NOT_FOUND_ERR')
 })
 
 test('ipc.sendSync success', (t) => {
@@ -92,17 +97,17 @@ test('ipc.sendSync success', (t) => {
 test('ipc.send not found', async (t) => {
   const response = await ipc.sendSync('test', { foo: 'bar' })
   t.ok(response instanceof ipc.Result)
-  const {err} = response
-  t.equal(err.toString(), 'NotFoundError: Not found')
-  t.equal(err.name, 'NotFoundError')
-  t.equal(err.message, 'Not found')
-  t.ok(err.url.startsWith('ipc://test?foo=bar&index=0&seq=R'))
-  t.equal(err.code, 'NOT_FOUND_ERR')
+  const { err } = response
+  t.equal(err?.toString(), 'NotFoundError: Not found')
+  t.equal(err?.name, 'NotFoundError')
+  t.equal(err?.message, 'Not found')
+  t.ok(err?.url.startsWith('ipc://test?foo=bar&index=0&seq=R'))
+  t.equal(err?.code, 'NOT_FOUND_ERR')
 })
 
 test('ipc.send success', async (t) => {
   const response = await ipc.sendSync('getPlatformArch')
   t.ok(response instanceof ipc.Result)
-  const {data} = response
+  const { data } = response
   t.ok(['x86_64', 'arm64'].includes(data))
 })
