@@ -167,7 +167,7 @@ export function debug (enable) {
   return debug.enabled
 }
 
-debug.write = console.debug.bind(console)
+debug.write = () => {} // console.debug.bind(console)
 
 Object.defineProperty(debug, 'enabled', {
   enumerable: false,

@@ -1,6 +1,8 @@
 /*
  * @module Net
  *
+ * THIS MODULE HAS BEEN DISABLED!
+ *
  * This module provides an asynchronous network API for creating
  * stream-based TCP or IPC servers (net.createServer()) and clients
  * (net.createConnection()).

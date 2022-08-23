@@ -1,7 +1,4 @@
 import * as ipc from '../ipc.js'
-import { rand64, isFunction } from '../util.js'
-import * as promises from './promises.js'
-
 /**
  * @module DNS
  *
@@ -12,6 +9,9 @@ import * as promises from './promises.js'
  * perform any network communication. To perform name resolution the way other
  * applications on the same system do, use dns.lookup().
  */
+
+import { rand64, isFunction } from '../util.js'
+import * as promises from './promises.js'
 
 /*
  * @param {string} hostname - The host name to resolve.
@@ -31,7 +31,7 @@ const lookup = (hostname, opts, cb) => {
     cb = opts
   }
 
-  if (typeof cb !== 'function') { 
+  if (typeof cb !== 'function') {
     const err = new TypeError(`The "callback" argument must be of type function. Received type ${typeof cb} undefined`)
     err.code = 'ERR_INVALID_ARG_TYPE'
     throw err

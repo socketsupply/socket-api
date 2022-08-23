@@ -6,8 +6,8 @@ import { EventEmitter } from '@socketsupply/io/events.js'
 const MTU = 1518
 
 const makePayload = () => {
-  const random = Math.random() * MTU
-  return Array(Math.floor(MTU)).fill(0).join('')
+  const r = Math.random() * MTU
+  return Array(Math.floor(r)).fill(0).join('')
 }
 
 test('dgram exports', t => {
