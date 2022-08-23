@@ -1,12 +1,17 @@
-import { test } from 'tapzero'
 import { EventEmitter } from '@socketsupply/io/events.js'
-import * as dgram from '@socketsupply/io/dgram.js'
-import { Buffer } from '@socketsupply/io/buffer.js'
+import crypto from '@socketsupply/io/crypto.js'
+import Buffer from '@socketsupply/io/buffer.js'
+import dgram from '@socketsupply/io/dgram.js'
+import util from '@socketsupply/io/util.js'
+
+import { test } from 'tapzero'
 
 // node compat
 //import { EventEmitter } from 'node:events'
+//import crypto from 'node:crypto'
 //import { Buffer } from 'node:buffer'
 //import dgram from 'node:dgram'
+//import util from 'node:util'
 
 const MTU = 1518
 
@@ -243,4 +248,41 @@ test('udp createSocket AbortSignal', async t => {
     })
   })
   t.ok(isSocketClosed, 'socket is closed after abort, close event is emitted')
+})
+
+test('client ~> server (1k messages)', async (t) => {
+  const buffers = Array.from(Array(1024), () => crypto.randomBytes(1024))
+  const server = dgram.createSocket('udp4')
+  const client = dgram.createSocket('udp4')
+
+  await new Promise((resolve) => {
+    server.bind(3000, '0.0.0.0', () => {
+      let i = 0
+      server.on('message', (message) => {
+        const buffer = buffers[i++]
+        if (Buffer.compare(buffer, Buffer.from(message)) != 0) {
+          t.fail('Mismatched buffer received')
+          return resolve()
+        }
+
+        if (i === buffers.length) {
+          t.ok(true, `all ${buffers.length} messages received`)
+          resolve()
+        }
+      })
+
+      client.connect(3000, '0.0.0.0', async () => {
+        for (const buffer of buffers) {
+          await new Promise((resolve) => {
+            setTimeout(() => client.send(buffer, resolve))
+          })
+        }
+      })
+    })
+  })
+
+  await Promise.all([
+    util.promisify(server.close.bind(server))(),
+    util.promisify(client.close.bind(client))()
+  ])
 })

@@ -8,8 +8,8 @@ const OriginalError = parent.Error
 import { GLOBAL_TEST_RUNNER } from 'tapzero'
 
 // uncomment below to get IPC debug output in stdout
-ipc.debug.enabled = true
-ipc.debug.log = (...args) => console.log(...args)
+//ipc.debug.enabled = true
+//ipc.debug.log = (...args) => console.log(...args)
 
 if (typeof parent?.addEventListener === 'function') {
   parent.addEventListener('error', onerror)
