@@ -99,3 +99,6 @@ export class Bluetooth extends EventEmitter {
     }
   }
 }
+
+import * as exports from './bluetooth.js'
+export default exports
