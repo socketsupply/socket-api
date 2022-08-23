@@ -159,7 +159,7 @@ export function debug (enable) {
   return debug.enabled
 }
 
-debug.log = console.debug.bind(console)
+debug.log = () => void 0
 
 Object.defineProperty(debug, 'enabled', {
   enumerable: false,
