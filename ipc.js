@@ -30,9 +30,9 @@ import {
   TimeoutError
 } from './errors.js'
 
+import { isBufferLike, isPlainObject, format } from './util.js'
 import * as errors from './errors.js'
 import { Buffer } from './buffer.js'
-import { format } from './util.js'
 
 function getErrorClass (type, fallback) {
   if (typeof window !== 'undefined' && typeof window[type] === 'function') {
@@ -199,8 +199,8 @@ export class Message extends URL {
   static from (input, params) {
     const protocol = this.PROTOCOL
 
-    if (Buffer.isBuffer(input)) {
-      input = input.toString()
+    if (isBufferLike(input)) {
+      input = Buffer.from(input).toString()
     }
 
     if (input instanceof Message) {
@@ -215,7 +215,7 @@ export class Message extends URL {
       }
 
       return message
-    } else if (input && typeof input === 'object') {
+    } else if (isPlainObject(input)) {
       return new this(
         `${input.protocol || protocol}//${input.command}?${new URLSearchParams({ ...input.params, ...params })}`
       )
@@ -270,7 +270,7 @@ export class Message extends URL {
    * Computed command for the IPC message.
    */
   get command () {
-    return this.hostname
+    return this.hostname || this.host || this.pathname.slice(2)
   }
 
   /**
@@ -562,13 +562,35 @@ export function sendSync (command, params) {
   request.open('GET', uri + query, false)
   request.send()
 
-  const response = request.response ?? request.responseText ?? 'null'
+  let response = request.response || request.responseText
 
-  try {
-    return Result.from(JSON.parse(response))
-  } catch (err) {
-    if (debug.enabled) {
-      debug.log('ipc.sendSync (error):', err.message || err)
+  if (!response) {
+    if (
+      request.status === 404 ||
+      (request.readyState === XMLHttpRequest.DONE && request.status === 0)
+    ) {
+      return Result.from({
+        err: {
+          url: uri + query,
+          code: 'NOT_FOUND_ERR',
+          type: 'NotFoundError',
+          message: request.statusText || 'Not found'
+        }
+      })
+    }
+  }
+
+  if (!response && request.statusText) {
+    response = JSON.stringify({ data: { status: request.statusText } })
+  }
+
+  if (typeof response === 'string') {
+    try {
+      return Result.from(JSON.parse(response))
+    } catch (err) {
+      if (debug.enabled) {
+        debug.log('ipc.sendSync (error):', err.message || err)
+      }
     }
   }
 
@@ -648,7 +670,7 @@ export async function write (command, params, buffer, options) {
   const query = `?${params}`
 
   request.open('PUT', uri + query, true)
-  request.send(buffer || null)
+  await request.send(buffer || null)
 
   if (debug.enabled) {
     debug.log('ipc.write:', uri + query, buffer || null)
