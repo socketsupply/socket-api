@@ -16,7 +16,7 @@ done
 echo "info: Android Emulator booted"
 
 adb uninstall "$id"
-ssc compile --headless --quiet --platform=android -r -o . >/dev/null || {
+ssc compile --headless --platform=android -r -o . >/dev/null || {
   rc=$?
   echo "info: Shutting Android Emulator"
   adb devices | grep emulator | cut -f1 | while read -r line; do
