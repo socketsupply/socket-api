@@ -2,13 +2,18 @@ import { getRandomValues } from './crypto.js'
 import { Buffer } from './buffer.js'
 import os from './os.js'
 
+const ObjectPrototype = Object.prototype
+const BufferPrototype = Buffer.prototype
+const Uint8ArrayPrototype = Uint8Array.prototype
+const TypedArrayPrototype = Object.getPrototypeOf(Uint8ArrayPrototype)
+
 const AsyncFunction = (async () => void 0).constructor
-const TypedArray = Object.getPrototypeOf(Object.getPrototypeOf(new Uint8Array())).constructor
+const TypedArray = TypedArrayPrototype.constructor
 
 const kCustomInspect = inspect.custom = Symbol.for('nodejs.util.inspect.custom')
 
 export function hasOwnProperty (object, property) {
-  return Object.prototype.hasOwnProperty.call(object, String(property))
+  return ObjectPrototype.hasOwnProperty.call(object, String(property))
 }
 
 export function isTypedArray (object) {
@@ -18,12 +23,12 @@ export function isTypedArray (object) {
 export function isArrayLike (object) {
   return (
     (Array.isArray(object) || isTypedArray(object)) &&
-    object !== TypedArray.prototype &&
+    object !== TypedArrayPrototype &&
     object !== Buffer.prototype
   )
 }
 
-export const isArrayBufferView = buf => {
+export function isArrayBufferView (buf) {
   return !Buffer.isBuffer(buf) && ArrayBuffer.isView(buf)
 }
 
@@ -37,6 +42,10 @@ export function isEmptyObject (object) {
     typeof object === 'object' &&
     Object.keys(object).length === 0
   )
+}
+
+export function isPlainObject (object) {
+  return Object.getPrototypeOf(object) === Object.prototype
 }
 
 export function isBufferLike (object) {
