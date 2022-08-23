@@ -28,7 +28,7 @@ export function transform (filename) {
       if (!block) return
       if (comment.includes('global window')) return
 
-      comment = comment.replace(/^\s*\*/g, '')
+      comment = comment.replace(/^ \*/g, '')
       comment = comment.replace(/\n?\s*\*\s*/g, '\n')
       comment = comment.replace(/^\n/, '')
       accumulateComments.push(comment.trim())
@@ -67,9 +67,10 @@ export function transform (filename) {
     }
 
     if (node.type.includes('ExportNamedDeclaration')) {
-      if (!node.declaration) return
+      const firstDeclaration = node.declarations ? node.declarations[0] : node.declaration
+      if (!firstDeclaration) return
 
-      item.type = node.declaration.type || item.type
+      item.type = firstDeclaration.type || item.type
 
       if (item.type === 'VariableDeclaration') {
         item.name = node.declaration.declarations[0].id.name
@@ -116,7 +117,6 @@ export function transform (filename) {
 
         if (propTypeMatch) {
           const propType = propTypeMatch[1] === 'param' ? 'params' : 'returns'
-          console.log('>>>', propTypeMatch)
           item.signature = item.signature || []
           const parts = attr.replace('@param ', '').split(/ - /)
           const { 1: type, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
@@ -125,7 +125,7 @@ export function transform (filename) {
 
           const param = {
             name,
-            type: (optional ? type.replace('?', '') : type).replace('|', '\\|')
+            type: (optional ? type.replace('?', '') : type).replace(/\|/g, '\\|')
           }
 
           const params = node.declaration?.params || node.value?.params
@@ -138,7 +138,8 @@ export function transform (filename) {
           param.optional = optional
           param.desc = parts[1]?.trim()
 
-          item[propType]?.push(param)
+          if (!item[propType]) item[propType] = []
+          item[propType].push(param)
           if (propType === 'param') item.signature.push(name)
         }
       }
@@ -146,6 +147,8 @@ export function transform (filename) {
 
     if (item.signature) {
       item.name = `\`${item.name}(${item.signature.join(', ')})\``
+    } else if (item.exports) {
+      item.name = `\`${item.name}\``
     }
 
     if (item.header) {
@@ -189,7 +192,7 @@ export function transform (filename) {
     if (doc.type === 'Module') h = '#'
 
     const title = `\n${h} [${doc.name}](${base}${doc.location})\n`
-    const header = `${doc.header.filter(Boolean).join('\n')}\n`
+    const header = `${doc.header.join('\n')}\n`
 
     const md = [
       title,

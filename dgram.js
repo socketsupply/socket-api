@@ -321,7 +321,7 @@ export class Socket extends EventEmitter {
    * other hand, will use their associated remote endpoint, so the port and
    * address arguments must not be set.
    *
-   * The msg argument contains the message to be sent. Depending on its type,
+   * > The msg argument contains the message to be sent. Depending on its type,
    * different behavior can apply. If msg is a Buffer, any TypedArray or a
    * DataView, the offset and length specify the offset within the Buffer where
    * the message begins and the number of bytes in the message, respectively.
@@ -331,30 +331,35 @@ export class Socket extends EventEmitter {
    * character position. If msg is an array, offset and length must not be
    * specified.
    *
-   * The address argument is a string. If the value of address is a host name,
+   * > The address argument is a string. If the value of address is a host name,
    * DNS will be used to resolve the address of the host. If address is not
    * provided or otherwise nullish, '127.0.0.1' (for udp4 sockets) or '::1'
    * (for udp6 sockets) will be used by default.
    *
-   * If the socket has not been previously bound with a call to bind, the socket
+   * > If the socket has not been previously bound with a call to bind, the socket
    * is assigned a random port number and is bound to the "all interfaces"
    * address ('0.0.0.0' for udp4 sockets, '::0' for udp6 sockets.)
    *
-   * An optional callback function may be specified to as a way of reporting DNS
+   * > An optional callback function may be specified to as a way of reporting DNS
    * errors or for determining when it is safe to reuse the buf object. DNS
    * lookups delay the time to send for at least one tick of the Node.js event
    * loop.
    *
-   * The only way to know for sure that the datagram has been sent is by using a
+   * > The only way to know for sure that the datagram has been sent is by using a
    * callback. If an error occurs and a callback is given, the error will be
    * passed as the first argument to the callback. If a callback is not given,
    * the error is emitted as an 'error' event on the socket object.
    *
-   * Offset and length are optional but both must be set if either are used.
+   * > Offset and length are optional but both must be set if either are used.
    * They are supported only when the first argument is a Buffer, a TypedArray,
    * or a DataView.
    *
-   * @param {ArrayBuffer} buffer - An array buffer of data to send
+   * @param {Buffer | TypedArray | DataView | string | Array} msg - Message to be sent.
+   * @param {integer} offset - Offset in the buffer where the message starts.
+   * @param {integer} length - Number of bytes in the message.
+   * @param {integer} port - Destination port.
+   * @param {string} address - Destination host name or IP address.
+   * @param {Function} callback - Called when the message has been sent.
    *
    */
   async send (buffer, ...args) {
@@ -394,15 +399,6 @@ export class Socket extends EventEmitter {
     } else if (!(list = fixBufferList(buffer))) {
       throw new Error('Invalid buffer')
     }
-
-    /* if (this.state._bindState === BIND_STATE_UNBOUND) {
-      const { err: errBind } = this.bind({ port: 0 }, null)
-
-      if (errBind) {
-        if (cb) return cb(errBind)
-        return { err: errBind }
-      }
-    } */
 
     if (list.length === 0) {
       list.push(Buffer.alloc(0))

@@ -13,14 +13,35 @@ import * as ipc from '../ipc.js'
 import { rand64, isFunction } from '../util.js'
 import * as promises from './promises.js'
 
-/*
+/**
+ * Resolves a host name (e.g. `example.org`) into the first found A (IPv4) or
+ * AAAA (IPv6) record. All option properties are optional. If options is an
+ * integer, then it must be 4 or 6 – if options is 0 or not provided, then IPv4
+ * and IPv6 addresses are both returned if found.
+ *
+ * From the node.js website...
+ *
+ * > With the all option set to true, the arguments for callback change to (err,
+ * addresses), with addresses being an array of objects with the properties
+ * address and family.
+ *
+ * > On error, err is an Error object, where err.code is the error code. Keep in
+ * mind that err.code will be set to 'ENOTFOUND' not only when the host name does
+ * not exist but also when the lookup fails in other ways such as no available
+ * file descriptors. dns.lookup() does not necessarily have anything to do with
+ * the DNS protocol. The implementation uses an operating system facility that
+ * can associate names with addresses and vice versa. This implementation can
+ * have subtle but important consequences on the behavior of any Node.js program.
+ * Please take some time to consult the Implementation considerations section
+ * before using dns.lookup().
+ *
  * @param {string} hostname - The host name to resolve.
  * @param {Object} opts - An options object.
  * @param {number|string} opts.family - The record family. Must be 4, 6, or 0. For backward compatibility reasons,'IPv4' and 'IPv6' are interpreted as 4 and 6 respectively. The value 0 indicates that IPv4 and IPv6 addresses are both returned. Default: 0.
  * @param {function} callback - The function to call after the method is complete.
  * @returns {Promise}
  */
-const lookup = (hostname, opts, cb) => {
+export const lookup = (hostname, opts, cb) => {
   if (typeof hostname !== 'string') {
     const err = new TypeError(`The "hostname" argument must be of type string. Received type ${typeof hostname} (${hostname})`)
     err.code = 'ERR_INVALID_ARG_TYPE'
@@ -59,7 +80,6 @@ const lookup = (hostname, opts, cb) => {
 }
 
 export {
-  lookup,
   promises
 }
 

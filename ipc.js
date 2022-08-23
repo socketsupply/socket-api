@@ -1,37 +1,29 @@
-/* global window */
-
 /*
  * @module IPC
  *
- * There are three important concepts for an application built with the Socket
- * SDK. The `Render` process, the `Main` process, and the `Bridge` process.
+ * This is a low level API which you don't need unless you are implementing
+ * a library on top of Socket SDK. A Socket SDK app has two or three processes.
  *
- * `IPC` is an acronym for Inter Process Communication. It's the method for
- * which these [processes][processes] work together.
+ * - The `Render` process, the UI where the HTML, CSS and JS is run.
+ * - The `Bridge` process, the thin layer of code that managers everything.
+ * - The `Main` processs, for apps that need to run heavier compute jobs. And
+ *   unlike electron it's optional.
  *
- * The Bridge process handles communication between the Render and Main
- * processes. For Desktop apps, the Render process is the user interface, and
- * the Main process, which is optional, is strictly for computing and IO.
- *
- * When an applicaiton starts, the Bridge process will spawn a child process
- * if one is specified.
+ * The Bridge process manages the Render and Main process, it may also broker
+ * data between them.
  *
  * The Binding process uses standard input and output as a way to communicate.
  * Data written to the write-end of the pipe is buffered by the OS until it is
  * read from the read-end of the pipe.
  *
- * The IPC protocol uses a simple URI-like scheme.
+ * The IPC protocol uses a simple URI-like scheme. Data is passed as ArrayBuffers.
  *
  * ```uri
  * ipc://command?key1=value1&key2=value2...
  * ```
- *
- * The query is encoded with `encodeURIComponent`.
- *
- * Here is a reference [implementation][0] if you would like to use a language
- * that does not yet have one.
  */
 
+/* global window */
 import {
   AbortError,
   InternalError,
