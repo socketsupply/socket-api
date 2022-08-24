@@ -212,11 +212,13 @@ export class Socket extends EventEmitter {
       }
 
       if (data.source === 'udpReadStart') {
-        this.emit('message', buffer, {
+        const info = {
           address: params.data.address,
           port: params.data.port,
           family: isIPv4(params.data.address) ? 'IPv4' : 'IPv6'
-        })
+        }
+
+        this.emit('message', buffer, info)
       }
 
       if (data.EOF) {
@@ -443,8 +445,8 @@ export class Socket extends EventEmitter {
       list.push(Buffer.alloc(0))
     }
 
-    if (!connected && !isIPv4(address)) {
-      throw new Error('Currently dns lookup on send is not supported')
+    if (!connected && address && !isIPv4(address)) {
+      throw new Error(`Currently dns lookup on send is not supported (received <${address}>)`)
     }
 
     if (this.state._bindState === BIND_STATE_BOUND) {

@@ -50,12 +50,27 @@ export class Bluetooth extends EventEmitter {
     })
   }
 
+  /**
+   * Start the bluetooth service.
+   * @return ${Promise<Any>}
+   *
+   */
   start () {
     return ipc.send('bluetooth-start', { serviceId: this.serviceId })
   }
 
   /**
-   * Start scanning for published values that correspond to a well-known UUID
+   * Start scanning for published values that correspond to a well-known UUID.
+   * Once subscribed to a UUID, events that correspond to that UUID will be
+   * emitted. To receive these events you can add an event listener, for example...
+   *
+   * ```js
+   * const ble = new Bluetooth(id)
+   * ble.subscribe(uuid)
+   * ble.on(uuid, (data, details) => {
+   *   // ...do something interesting
+   * })
+   * ```
    *
    * @param {string} id - A well-known UUID
    * @return {Promise<any>}

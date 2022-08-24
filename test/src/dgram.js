@@ -286,3 +286,39 @@ test('client ~> server (~500 messages)', async (t) => {
     util.promisify(client.close.bind(client))()
   ])
 })
+
+test('tight loop', async t => {
+  const MTU = 1518
+
+  const makePayload = () => {
+    const random = Math.max(1, Math.random() * MTU)
+    return Array(Math.floor(random)).fill(0).join('')
+  }
+
+  const server = io.dgram.createSocket('udp4')
+  const client = io.dgram.createSocket('udp4')
+  const max = 10000
+  let inmsg = 0
+  let outmsg = max
+
+  const msgs = new Promise((resolve, reject) => {
+    server.on('message', e => {
+      if (++inmsg >= max) resolve()
+    })
+    server.on('error', reject)
+  })
+
+  server.on('listening', () => {
+    while (outmsg--) {
+      client.send(Buffer.from(makePayload()), 41238, '0.0.0.0')
+    }
+  })
+
+  server.bind(41238, '0.0.0.0')
+
+  try {
+    await msgs
+  } catch (err) {
+    console.log('ERR', err)
+  }
+})
