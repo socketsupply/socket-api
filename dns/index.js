@@ -41,7 +41,7 @@ import * as promises from './promises.js'
  * @param {function} callback - The function to call after the method is complete.
  * @returns {Promise}
  */
-function lookup (hostname, opts, cb) {
+export function lookup (hostname, opts, cb) {
   if (typeof hostname !== 'string') {
     const err = new TypeError(`The "hostname" argument must be of type string. Received type ${typeof hostname} (${hostname})`)
     err.code = 'ERR_INVALID_ARG_TYPE'
