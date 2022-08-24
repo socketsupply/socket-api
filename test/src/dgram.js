@@ -295,8 +295,8 @@ test('tight loop', async t => {
     return Array(Math.floor(random)).fill(0).join('')
   }
 
-  const server = io.dgram.createSocket('udp4')
-  const client = io.dgram.createSocket('udp4')
+  const server = dgram.createSocket('udp4')
+  const client = dgram.createSocket('udp4')
   const max = 10000
   let inmsg = 0
   let outmsg = max
