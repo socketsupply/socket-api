@@ -20,6 +20,8 @@ test('process.cwd', (t) => {
     t.equal(process.cwd(), path.resolve(process.argv0, '../../Resources'), 'process.cwd() returns a correct value')
   } else if (process.platform  === 'linux') {
     t.equal(process.cwd(), path.resolve(process.argv0, '../../socketsupply-io-tests'), 'process.cwd() returns a correct value')
+  } else if (process.platform  === 'android') {
+    t.ok(process.cwd(), 'process.cwd() returns a correct value')
   } else {
     // TODO: iOS, Windows
     t.fail(`FIXME: not implemented for platform ${process.platform}`)

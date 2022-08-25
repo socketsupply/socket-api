@@ -103,7 +103,6 @@ test('dns.promises.lookup', async t => {
   }
   try {
     const info = await dns.promises.lookup('google.com', 6)
-    console.log(info)
     t.ok(info && typeof info === 'object', 'returns a non-error object after resolving a hostname')
     t.equal(info.family, 6, 'is IPv6 family')
     t.ok(IPV6_REGEX.test(info.address), 'has valid IPv4 address')

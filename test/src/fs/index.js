@@ -1,42 +1,47 @@
 import { Buffer } from '@socketsupply/io'
 import process from '@socketsupply/io/process.js'
-import * as fs from '@socketsupply/io/fs.js'
+import fs from '@socketsupply/io/fs.js'
+import os from '@socketsupply/io/os.js'
 
 import { test } from 'tapzero'
 
+// node compat
+//import fs from 'node:fs'
+//import os from 'node:os'
+
 test('fs.access', async (t) => {
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.F_OK, (err, mode) => {
-      if (err) t.fail(err)
-
-      t.ok(mode, '(F_OK) fixtures/ directory is accessible')
+    fs.access('fixtures', fs.constants.F_OK, (err) => {
+      if (err) t.fail(err, '(F_OK) fixtures/ is not accessible')
+      else t.ok(true, '(F_OK) fixtures/ directory is accessible')
       resolve()
     })
   })
 
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.F_OK | fs.constants.R_OK, (err, mode) => {
-      if (err) t.fail(err)
-
-      t.ok(mode, '(F_OK | R_OK) fixtures/ directory is readable')
+    fs.access('fixtures', fs.constants.F_OK | fs.constants.R_OK, (err) => {
+      if (err) t.fail(err, '(F_OK | R_OK) fixtures/ directory is not readable')
+      else t.ok(true, '(F_OK | R_OK) fixtures/ directory is readable')
       resolve()
     })
   })
 
   await new Promise((resolve, reject) => {
-    fs.access('.', fs.constants.W_OK, (err, mode) => {
-      if (err) t.fail(err)
+    if (os.platform() === 'android') {
+      return resolve()
+    }
 
-      t.ok(mode, '(W_OK) fixtures/ directory is writable')
+    fs.access('.', fs.constants.W_OK, (err) => {
+      if (err) t.fail(err, '(W_OK) fixtures/ directory is not writable')
+      else t.ok(true, '(W_OK) fixtures/ directory is writable')
       resolve()
     })
   })
 
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.X_OK, (err, mode) => {
-      if (err) t.fail(err)
-
-      t.ok(mode, '(X_OK) fixtures/ directory is "executable" - can list items')
+    fs.access('fixtures', fs.constants.X_OK, (err) => {
+      if (err) t.fail(err, '(X_OK) fixtures/ directory is not "executable" - cannot list items')
+      else t.ok(true, '(X_OK) fixtures/ directory is "executable" - can list items')
       resolve()
     })
   })
@@ -46,6 +51,10 @@ test('fs.appendFile', async (t) => {})
 test('fs.chmod', async (t) => {})
 test('fs.chown', async (t) => {})
 test('fs.close', async (t) => {
+  if (os.platform() === 'android') {
+    return
+  }
+
   await new Promise((resolve, reject) => {
     fs.open('fixtures/file.txt', (err, fd) => {
       if (err) t.fail(err)
@@ -63,6 +72,10 @@ test('fs.close', async (t) => {
 
 test('fs.copyFile', async (t) => {})
 test('fs.createReadStream', async (t) => {
+  if (os.platform() === 'android') {
+    return
+  }
+
   const buffers = []
   await new Promise((resolve, reject) => {
     const stream = fs.createReadStream('fixtures/file.txt')
