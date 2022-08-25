@@ -256,14 +256,18 @@ test('client ~> server (~500 messages)', async (t) => {
   const client = dgram.createSocket('udp4')
 
   await new Promise((resolve) => {
-    const timeout = setTimeout(() => {
+    let timeout = setTimeout(ontimeout, 1024)
+
+    function ontimeout () {
       t.fail('Not all messagess received')
       resolve()
-    }, 10 * 1024)
+    }
 
     server.bind(3000, '0.0.0.0', () => {
       let i = 0
       server.on('message', (message) => {
+        clearTimeout(timeout)
+        timeout = setTimeout(ontimeout, 1024)
         if (++i === buffers.length) {
           clearTimeout(timeout)
           t.ok(true, `all ${buffers.length} messages received`)
@@ -285,40 +289,4 @@ test('client ~> server (~500 messages)', async (t) => {
     util.promisify(server.close.bind(server))(),
     util.promisify(client.close.bind(client))()
   ])
-})
-
-test('tight loop', async t => {
-  const MTU = 1518
-
-  const makePayload = () => {
-    const random = Math.max(1, Math.random() * MTU)
-    return Array(Math.floor(random)).fill(0).join('')
-  }
-
-  const server = dgram.createSocket('udp4')
-  const client = dgram.createSocket('udp4')
-  const max = 10000
-  let inmsg = 0
-  let outmsg = max
-
-  const msgs = new Promise((resolve, reject) => {
-    server.on('message', e => {
-      if (++inmsg >= max) resolve()
-    })
-    server.on('error', reject)
-  })
-
-  server.on('listening', () => {
-    while (outmsg--) {
-      client.send(Buffer.from(makePayload()), 41238, '0.0.0.0')
-    }
-  })
-
-  server.bind(41238, '0.0.0.0')
-
-  try {
-    await msgs
-  } catch (err) {
-    console.log('ERR', err)
-  }
 })
