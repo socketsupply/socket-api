@@ -28,6 +28,7 @@ test('fs.access', async (t) => {
 
   await new Promise((resolve, reject) => {
     if (os.platform() === 'android') {
+      t.comment('FIXME for Android - (W_OK) fixtures/ directory is writable')
       return resolve()
     }
 
@@ -52,6 +53,7 @@ test('fs.chmod', async (t) => {})
 test('fs.chown', async (t) => {})
 test('fs.close', async (t) => {
   if (os.platform() === 'android') {
+    t.comment('FIXME for Android')
     return
   }
 
@@ -73,6 +75,7 @@ test('fs.close', async (t) => {
 test('fs.copyFile', async (t) => {})
 test('fs.createReadStream', async (t) => {
   if (os.platform() === 'android') {
+    t.comment('FIXME for Android')
     return
   }
 
