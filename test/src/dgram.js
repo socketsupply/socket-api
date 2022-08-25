@@ -251,23 +251,27 @@ test('udp createSocket AbortSignal', async t => {
 })
 
 test('client ~> server (~500 messages)', async (t) => {
+  const TIMEOUT = 1024
   const buffers = Array.from(Array(512), () => crypto.randomBytes(1024))
   const server = dgram.createSocket('udp4')
   const client = dgram.createSocket('udp4')
+  const addr = '0.0.0.0'
+  const port = 3000
 
   await new Promise((resolve) => {
-    let timeout = setTimeout(ontimeout, 1024)
+    let timeout = setTimeout(ontimeout, TIMEOUT)
+    let i = 0
 
     function ontimeout () {
-      t.fail('Not all messagess received')
+      t.fail(`Not all messagess received (${buffers.length - 1} missing)`)
       resolve()
     }
 
-    server.bind(3000, '0.0.0.0', () => {
-      let i = 0
+    server.bind(port, addr, () => {
       server.on('message', (message) => {
         clearTimeout(timeout)
-        timeout = setTimeout(ontimeout, 1024)
+        timeout = setTimeout(ontimeout, TIMEOUT)
+
         if (++i === buffers.length) {
           clearTimeout(timeout)
           t.ok(true, `all ${buffers.length} messages received`)
@@ -275,7 +279,7 @@ test('client ~> server (~500 messages)', async (t) => {
         }
       })
 
-      client.connect(3000, '0.0.0.0', async () => {
+      client.connect(port, addr, async () => {
         for (const buffer of buffers) {
           await new Promise((resolve) => {
             setTimeout(() => client.send(buffer, resolve))
