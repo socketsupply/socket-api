@@ -145,10 +145,12 @@ export function transform (filename) {
       }
     }
 
+    const prefix = filename.includes('promises') ? 'promises.' : ''
+
     if (item.signature) {
-      item.name = `\`${item.name}(${item.signature.join(', ')})\``
+      item.name = `\`${prefix}${item.name}(${item.signature.join(', ')})\``
     } else if (item.exports) {
-      item.name = `\`${item.name}\``
+      item.name = `\`${prefix}${item.name}\``
     }
 
     if (item.header) {
@@ -191,7 +193,7 @@ export function transform (filename) {
     let h = doc.export ? '##' : '###'
     if (doc.type === 'Module') h = '#'
 
-    const title = `\n${h} [${filename.includes('promises') ? 'promises.' : ''}${doc.name}](${base}${doc.location})\n`
+    const title = `\n${h} [${doc.name}](${base}${doc.location})\n`
     const header = `${doc.header.join('\n')}\n`
 
     const md = [
