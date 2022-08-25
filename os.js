@@ -152,6 +152,7 @@ export function type () {
 
   if (typeof window !== 'object') {
     switch (platform()) {
+      case 'android': return 'Linux'
       case 'cygwin': return 'CYGWIN_NT'
       case 'freebsd': return 'FreeBSD'
       case 'linux': return 'Linux'
@@ -168,6 +169,8 @@ export function type () {
       UNKNOWN
     )
   }
+
+  value = value.replace(/android/i, 'Linux')
 
   if (value !== UNKNOWN) {
     value = toProperCase(value)
