@@ -185,13 +185,13 @@ export function transform (filename) {
     return (table + '\n')
   }
 
-  const base = `https://github.com/socketsupply/io/blob/master/`
+  const base = 'https://github.com/socketsupply/io/blob/master'
 
   for (const doc of docs) {
     let h = doc.export ? '##' : '###'
     if (doc.type === 'Module') h = '#'
 
-    const title = `\n${h} [${doc.name}](${base}${doc.location})\n`
+    const title = `\n${h} [${filename.includes('promises') ? 'promises.' : ''}${doc.name}](${base}${doc.location})\n`
     const header = `${doc.header.join('\n')}\n`
 
     const md = [
@@ -205,13 +205,17 @@ export function transform (filename) {
   }
 }
 
-const files = [
+[
   'bluetooth.js',
+  'crypto.js',
   'dgram.js',
   'dns/index.js',
+  'dns/promises.js',
   'ipc.js',
   'os.js',
-  'network.js',
-  'fs/index.js'
-].map(transform)
+  'fs/index.js',
+  'fs/promises.js',
+  'stream.js',
+  'path/path.js'
+].forEach(transform)
 
