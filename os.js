@@ -125,7 +125,7 @@ export function platform () {
 
   if (typeof window !== 'object') {
     if (typeof process === 'object' && typeof process.platform === 'string') {
-      return process.platform
+      return process.platform.toLowerCase()
     }
   }
 
@@ -138,7 +138,9 @@ export function platform () {
     )
   }
 
-  cache.platform = value.replace(/^mac/i, 'darwin')
+  cache.platform = value
+    .replace(/^mac/i, 'darwin')
+    .toLowerCase()
 
   return cache.platform
 }
@@ -156,9 +158,10 @@ export function type () {
       case 'cygwin': return 'CYGWIN_NT'
       case 'freebsd': return 'FreeBSD'
       case 'linux': return 'Linux'
-      case 'mac': case 'Mac': case 'darwin': return 'Darwin'
       case 'openbsd': return 'OpenBSD'
       case 'win32': return 'Windows_NT'
+
+      case 'ios': case 'mac': case 'darwin': return 'Darwin'
     }
   }
 
@@ -171,6 +174,7 @@ export function type () {
   }
 
   value = value.replace(/android/i, 'Linux')
+  value = value.replace(/ios/i, 'Darwin')
 
   if (value !== UNKNOWN) {
     value = toProperCase(value)

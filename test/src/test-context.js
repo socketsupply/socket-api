@@ -48,7 +48,8 @@ function makeError (err) {
 }
 
 function onerror (err) {
-  console.error(makeError(err))
+  //console.error(makeError(err))
+  console.error(err.stack || err.reason || err.message || err)
   process.exit(1)
 }
 
