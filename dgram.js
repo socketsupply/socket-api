@@ -20,16 +20,16 @@ const CONNECT_STATE_DISCONNECTED = 0
 const CONNECT_STATE_CONNECTING = 1
 const CONNECT_STATE_CONNECTED = 2
 
-class SocketError extends InternalError {
+export class SocketError extends InternalError {
   get code () { return this.constructor.name }
 }
 
-class ERR_SOCKET_ALREADY_BOUND extends SocketError {}
-class ERR_SOCKET_BAD_BUFFER_SIZE extends SocketError {}
-class ERR_SOCKET_BUFFER_SIZE extends SocketError {}
-class ERR_SOCKET_DGRAM_IS_CONNECTED extends SocketError {}
-class ERR_SOCKET_DGRAM_NOT_CONNECTED extends SocketError {}
-class ERR_SOCKET_DGRAM_NOT_RUNNING extends SocketError {
+export class ERR_SOCKET_ALREADY_BOUND extends SocketError {}
+export class ERR_SOCKET_BAD_BUFFER_SIZE extends SocketError {}
+export class ERR_SOCKET_BUFFER_SIZE extends SocketError {}
+export class ERR_SOCKET_DGRAM_IS_CONNECTED extends SocketError {}
+export class ERR_SOCKET_DGRAM_NOT_CONNECTED extends SocketError {}
+export class ERR_SOCKET_DGRAM_NOT_RUNNING extends SocketError {
   get message () { return 'Not running' }
 }
 
@@ -496,13 +496,21 @@ export class Socket extends EventEmitter {
       throw new ERR_SOCKET_DGRAM_NOT_RUNNING()
     }
 
-    const { err } = ipc.sendSync('udpClose', {
+    let { err } = ipc.sendSync('udpClose', {
       id: this.id
     })
 
     if (err) {
+      if (err?.code === 'ERR_SOCKET_DGRAM_NOT_RUNNING') {
+        const cause = err
+        err = new ERR_SOCKET_DGRAM_NOT_RUNNING()
+        err.cause = cause
+      }
+
       if (typeof cb === 'function') {
         cb(err)
+      } else {
+        throw err
       }
 
       return this
