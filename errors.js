@@ -181,6 +181,10 @@ export class InternalError extends Error {
   get code () {
     return this[kInternalErrorCode] || 'INTERNAL_ERR'
   }
+
+  set code (code) {
+    this[kInternalErrorCode] = code
+  }
 }
 
 /**
