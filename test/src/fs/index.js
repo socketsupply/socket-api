@@ -3,6 +3,7 @@ import process from '@socketsupply/io/process.js'
 import fs from '@socketsupply/io/fs.js'
 import os from '@socketsupply/io/os.js'
 
+import deepEqual from 'tapzero/fast-deep-equal.js'
 import { test } from 'tapzero'
 
 // node compat
@@ -59,7 +60,7 @@ test('fs.close', async (t) => {
 
   await new Promise((resolve, reject) => {
     fs.open('fixtures/file.txt', (err, fd) => {
-      if (err) t.fail(err)
+      if (err) return t.fail(err)
 
       t.ok(Number.isFinite(fd), 'isFinite(fd)')
       fs.close(fd, (err) => {
@@ -120,7 +121,30 @@ test('fs.open', async (t) => {})
 test('fs.opendir', async (t) => {})
 test('fs.read', async (t) => {})
 test('fs.readdir', async (t) => {})
-test('fs.readFile', async (t) => {})
+test('fs.readFile', async (t) => {
+  let failed = false
+  const expected = { data: 'test 123' }
+  const iterations = 64
+  const promises = Array.from(Array(1024), (_, i) => new Promise((resolve) => {
+    if (failed) return resolve(false)
+    fs.readFile('fixtures/file.json', (err, buf) => {
+      const message = `fs.readFile('fixtures/file.json') [iteration=${i+1}]`
+
+      if (err) {
+        t.fail(err, message)
+        failed = true
+      } else if (!deepEqual(expected, JSON.parse(buf))) {
+        failed = true
+      }
+
+      resolve(!failed)
+    })
+  }))
+
+  const results = await Promise.all(promises)
+  t.ok(results.every(Boolean), 'fs.readFile(\'fixtures/file.json\')')
+})
+
 test('fs.readlink', async (t) => {})
 test('fs.realpath', async (t) => {})
 test('fs.rename', async (t) => {})
