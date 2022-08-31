@@ -81,25 +81,26 @@ function maybeMakeError (error, caller) {
   delete error.type
 
   if (type in errors) {
-    err = new errors[type](error.message || '', error)
+    err = new errors[type](error.message || '')
   } else {
     for (const E of Object.values(errors)) {
       if ((E.code && type === E.code) || (code && code === E.code)) {
-        err = new E(error.message || '', error)
+        err = new E(error.message || '')
+        break
       }
     }
   }
 
   if (!err) {
-    err = new Error(error.message || '', error)
+    err = new Error(error.message || '')
   }
 
   // assign extra data to `err` like an error `code`
   for (const key in error) {
     try {
       err[key] = error[key]
-    } catch (err) {
-      void err
+    } catch (_) {
+      void _
     }
   }
 
@@ -563,13 +564,14 @@ export function sendSync (command, params) {
   request.send()
 
   let response = request.response || request.responseText
+  let result = null
 
   if (!response) {
     if (
       request.status === 404 ||
       (request.readyState === XMLHttpRequest.DONE && request.status === 0)
     ) {
-      return Result.from({
+      result = Result.from({
         err: {
           url: uri + query,
           code: 'NOT_FOUND_ERR',
@@ -584,9 +586,9 @@ export function sendSync (command, params) {
     response = JSON.stringify({ data: { status: request.statusText } })
   }
 
-  if (typeof response === 'string') {
+  if (!result && typeof response === 'string') {
     try {
-      return Result.from(JSON.parse(response))
+      result = Result.from(JSON.parse(response))
     } catch (err) {
       if (debug.enabled) {
         debug.log('ipc.sendSync (error):', err.message || err)
@@ -594,7 +596,12 @@ export function sendSync (command, params) {
     }
   }
 
-  return Result.from(response)
+  if (!result) {
+    result = Result.from(response)
+  }
+
+  debug.log('ipc.sendSync: (resolved)', command, result)
+  return result
 }
 
 export async function emit (...args) {
