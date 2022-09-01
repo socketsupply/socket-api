@@ -174,8 +174,8 @@ This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `Soc
 | :--- | :--- | :---:   | :---:    | :---        |
 | options | string\|Object |  | false | either a string ('udp4' or 'udp6') or an options object |
 | options.type | string |  | true | The family of socket. Must be either 'udp4' or 'udp6'. Required. |
-| [options.reuseAddr=false] | boolean |  | true | When true socket.bind() will reuse the address, even if another process has already bound a socket on it. Default: false. |
-| [options.ipv6Only=false] | boolean |  | true | Setting ipv6Only to true will disable dual-stack support, i.e., binding to address :: won't make 0.0.0.0 be bound. Default: false. |
+| options.reuseAddr | boolean | false | true | When true socket.bind() will reuse the address, even if another process has already bound a socket on it. Default: false. |
+| options.ipv6Only | boolean | false | true | Setting ipv6Only to true will disable dual-stack support, i.e., binding to address :: won't make 0.0.0.0 be bound. Default: false. |
 | options.recvBufferSize | number |  | true | Sets the SO_RCVBUF socket value. |
 | options.sendBufferSize | number |  | true | Sets the SO_SNDBUF socket value. |
 | options.signal | AbortSignal |  | true | An AbortSignal that may be used to close a socket. |
@@ -459,8 +459,8 @@ Parses `seq` as integer value
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | seq | string\|number |  | false |  |
-| [options] | object |  | true |  |
-| [options.bigint = false] | boolean |  | false |  |
+| options | object |  | true |  |
+| options.bigint  | boolean | false | false |  |
 
 
 
@@ -470,7 +470,7 @@ If `debug.enabled === true`, then debug output will be printed to console.
 
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
-| [enable] | boolean |  | false |  |
+| enable | boolean |  | false |  |
 
 
 
@@ -493,7 +493,7 @@ Creates a `Message` instance from a variety of input.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | input | string\|URL\|Message\|Buffer\|object |  | false |  |
-| [params] | object\|string\|URLSearchParams |  | true |  |
+| params | object\|string\|URLSearchParams |  | true |  |
 
 
 
@@ -723,7 +723,7 @@ Factory for creating a proxy based IPC API.
 | :--- | :--- | :---:   | :---:    | :---        |
 | domain | string |  | false |  |
 | ctx | function\|object |  | true |  |
-| [ctx.default] | string |  | true |  |
+| ctx.default | string |  | true |  |
 
 
 
@@ -798,7 +798,7 @@ upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| [mode = F_OK(0)] | string |  | true |  |
+| mode  | string | F_OK(0) | true |  |
 | callback | functionerr, fd |  | false |  |
 
 
@@ -919,8 +919,8 @@ Asynchronously open a file calling `callback` upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| [flags = 'r'] | string |  | true |  |
-| [mode = 0o666] | string |  | true |  |
+| flags  | string | r | true |  |
+| mode  | string | 0o666 | true |  |
 | callback | functionerr, fd |  | false |  |
 
 
@@ -954,7 +954,7 @@ Asynchronously read all entries in a directory.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL  |  | false |  |
-| [options] | object |  | false |  |
+| options | object |  | false |  |
 | callback | functionerr, buffer |  | false |  |
 
 
@@ -966,7 +966,7 @@ Asynchronously read all entries in a directory.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL \| number  |  | false |  |
-| [options] | object |  | false |  |
+| options | object |  | false |  |
 | callback | functionerr, buffer |  | false |  |
 
 
@@ -1082,8 +1082,8 @@ Asynchronously check access a file.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| [mode = F_OK(0)] | string |  | true |  |
-| [options] | object |  | true |  |
+| mode  | string | F_OK(0) | true |  |
+| options | object |  | true |  |
 
 
 
@@ -1180,7 +1180,7 @@ https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string |  | false |  |
-| [options] | object |  | true |  |
+| options | object |  | true |  |
 
 
 
@@ -1258,7 +1258,7 @@ https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string |  | false |  |
 | data | string\|Buffer\|Array\|TypedArray |  | false |  |
-| [options] | object |  | true |  |
+| options | object |  | true |  |
 
 
 
@@ -1275,8 +1275,8 @@ Computes current working directory for a path
 
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
-| [opts] | object |  | true |  |
-| [opts.posix] Set to `true` to force POSIX style path | boolean |  | true |  |
+| opts | object |  | true |  |
+| opts.posix Set to `true` to force POSIX style path | boolean |  | true |  |
 
 
 
@@ -1286,12 +1286,12 @@ Computes current working directory for a path
 
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
-| [opts] | object |  | true |  |
-| [opts.root] | string |  | true |  |
-| [opts.base] | string |  | true |  |
-| [opts.name] | string |  | true |  |
-| [opts.dir] | string |  | true |  |
-| [opts.ext] | string |  | true |  |
+| opts | object |  | true |  |
+| opts.root | string |  | true |  |
+| opts.base | string |  | true |  |
+| opts.name | string |  | true |  |
+| opts.dir | string |  | true |  |
+| opts.ext | string |  | true |  |
 
 
 

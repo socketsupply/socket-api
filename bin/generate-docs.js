@@ -121,10 +121,11 @@ export function transform (filename) {
           const parts = attr.replace('@param ', '').split(/ - /)
           const { 1: type, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
           const optional = type.endsWith('=')
-          const name = (rawName || `(Position ${position++})`).trim()
+          const [name, defaultValue] = rawName.replace(/[\[\]']+/g, '').trim().split('=')
+
 
           const param = {
-            name,
+            name: name || `(Position ${position++})`,
             type: (optional ? type.replace('=', '') : type).replace(/\|/g, '\\|').replace(/[\(\)']+/g, ''),
           }
 
@@ -134,7 +135,7 @@ export function transform (filename) {
             if (assign) param.default = assign.right.raw
           }
 
-          param.default = ''
+          param.default = defaultValue?.trim() ?? ''
           param.optional = optional
           param.desc = parts[1]?.trim()
 
