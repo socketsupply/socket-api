@@ -1,3 +1,6 @@
+/**
+ * @module FS.promises
+ */
 import { DirectoryHandle, FileHandle } from './handle.js'
 import { Dir, sortDirectoryEntries } from './dir.js'
 
@@ -13,7 +16,7 @@ async function visit (path, options, callback) {
   if (path instanceof FileHandle) {
     return await callback(handle)
   } else if (path?.fd) {
-    const value = await callback(FileHandle.from(path.fd))
+    return await callback(FileHandle.from(path.fd))
   }
 
   const handle = await FileHandle.open(path, flags || flag, mode, options)

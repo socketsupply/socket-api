@@ -1,4 +1,4 @@
-/*
+/**
  * @module Net
  *
  * THIS MODULE HAS BEEN DISABLED!

@@ -65,9 +65,25 @@ function healhCheck (socket) {
   // @TODO(jwerle)
 }
 
+/** 
+ * @typedef {Object} SocketOptions
+
+ */
+
+/**
+ * @param {string|Object} options - either a string ('udp4' or 'udp6') or an options object
+ * @param {?string} options.type - The family of socket. Must be either 'udp4' or 'udp6'. Required.
+ * @param {?boolean} [options.reuseAddr=false] - When true socket.bind() will reuse the address, even if another process has already bound a socket on it. Default: false.
+ * @param {?boolean} [options.ipv6Only=false] - Setting ipv6Only to true will disable dual-stack support, i.e., binding to address :: won't make 0.0.0.0 be bound. Default: false.
+ * @param {?number} options.recvBufferSize - Sets the SO_RCVBUF socket value.
+ * @param {?number} options.sendBufferSize - Sets the SO_SNDBUF socket value.
+ * @param {?AbortSignal} options.signal - An AbortSignal that may be used to close a socket.
+ * @param {?function} callback - Attached as a listener for 'message' events. Optional.
+ * @return {Socket}
+ */
 export const createSocket = (options, callback) => new Socket(options, callback)
 
-/*
+/**
  * New instances of dgram.Socket are created using dgram.createSocket().
  * The new keyword is not to be used to create dgram.Socket instances.
  */
@@ -347,7 +363,7 @@ export class Socket extends EventEmitter {
     return {}
   }
 
-  /*
+  /**
    * Broadcasts a datagram on the socket. For connectionless sockets, the
    * destination port and address must be specified. Connected sockets, on the
    * other hand, will use their associated remote endpoint, so the port and
@@ -432,14 +448,16 @@ export class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
-    /* if (this.state._bindState === BIND_STATE_UNBOUND) {
+    /*
+    if (this.state._bindState === BIND_STATE_UNBOUND) {
       const { err: errBind } = this.bind({ port: 0 }, null)
 
       if (errBind) {
         if (cb) return cb(errBind)
         return { err: errBind }
       }
-    } */
+    }
+    */
 
     if (Array.isArray(list) && list.length === 0) {
       list.push(Buffer.alloc(0))

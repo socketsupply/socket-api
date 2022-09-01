@@ -26,7 +26,7 @@ export function transform (filename) {
     },
     onComment: (block, comment) => {
       if (!block) return
-      if (comment.includes('global window')) return
+      if (comment[0] !== '*') return // not a JSDoc comment
 
       comment = comment.replace(/^ \*/g, '')
       comment = comment.replace(/\n?\s*\*\s*/g, '\n')
@@ -145,12 +145,10 @@ export function transform (filename) {
       }
     }
 
-    const prefix = filename.includes('promises') ? 'promises.' : ''
-
     if (item.signature) {
-      item.name = `\`${prefix}${item.name}(${item.signature.join(', ')})\``
+      item.name = `\`${item.name}(${item.signature.join(', ')})\``
     } else if (item.exports) {
-      item.name = `\`${prefix}${item.name}\``
+      item.name = `\`${item.name}\``
     }
 
     if (item.header) {

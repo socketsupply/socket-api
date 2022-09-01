@@ -1,4 +1,4 @@
-/*
+/**
  * @module File System
  *
  * This module enables interacting with the file system in a way modeled on
@@ -202,7 +202,7 @@ export function createWriteStream (path, options) {
   return stream
 }
 
-/*
+/**
  * Invokes the callback with the <fs.Stats> for the file descriptor. See
  * the POSIX fstat(2) documentation for more detail.
  *

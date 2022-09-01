@@ -1,4 +1,4 @@
-/*
+/**
  * @module IPC
  *
  * This is a low level API which you don't need unless you are implementing
