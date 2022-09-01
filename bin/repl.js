@@ -141,8 +141,9 @@ async function onmessage (message) {
           }
 
           if (value.err.stack) {
-            error.stack = value.err.stack
+            error.stack = value.err.stack.split('\n').slice(1).join('\n')
           }
+
           callback(error)
         }
       } else if (hasError) {
@@ -247,7 +248,7 @@ async function evaluate (cmd, ctx, file, callback) {
   if (!isTry && !/import\s*\(/.test(cmd)) {
     if (/^\s*await/.test(cmd)) {
       cmd = cmd.replace(/^\s*await\s*/, '')
-      cmd = `void (${cmd}).then((result) => console.log(io.util.format(result)))`
+      cmd = `void Promise.resolve(${cmd}).then((result) => console.log(io.util.format(result)))`
     } else if (lastName) {
       cmd = `${cmd}; io.util.format(${lastName});`
     } else if (!/^\s*((throw\s)|(with\s*\()|(try\s*{)|(const\s)|(let\s)|(var\s)|(if\s*\()|(for\s*\()|(while\s*\()|(do\s*{)|(return\s)|(import\s*\())/.test(cmd)) {

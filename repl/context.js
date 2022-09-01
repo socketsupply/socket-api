@@ -83,7 +83,7 @@ function patchConsole (method) {
 function makeError (err) {
   if (!err) { return null }
   const error = {}
-  const message = String(err.message || err.reason || err)
+  const message = String(err.message || err.reason || err.stack || err)
   error.message = message
     .replace(window.location.href, '')
     .trim()
@@ -93,7 +93,7 @@ function makeError (err) {
 
   error.stack = [
     `${error.message || 'Error:'}`,
-    ...(err.stack || '').split('\n').map((s) => `  at ${s}`)
+    ...(err.stack || '').split('\n').slice(1).map((s) => `  at ${s}`)
   ]
 
   const stack = (message.match(RegExp(`(${window.location.href}:[0-9]+:[0-9]+):\s*`)) || [])[1]
