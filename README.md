@@ -470,7 +470,7 @@ If `debug.enabled === true`, then debug output will be printed to console.
 
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
-| [enable] | (boolean) |  | false |  |
+| [enable] | boolean |  | false |  |
 
 
 
@@ -493,7 +493,7 @@ Creates a `Message` instance from a variety of input.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | input | string\|URL\|Message\|Buffer\|object |  | false |  |
-| [params] | (object\|string\|URLSearchParams) |  | true |  |
+| [params] | object\|string\|URLSearchParams |  | true |  |
 
 
 
@@ -646,7 +646,7 @@ like `{ err?, data? }`, an `Error` instance, or just `data`.
 
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
-| result | (object\|Error\|mixed) |  | true |  |
+| result | object\|Error\|mixed |  | true |  |
 
 
 
@@ -676,7 +676,7 @@ upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | command | string |  | false |  |
-| params | (object\|string) |  | true |  |
+| params | object\|string |  | true |  |
 
 
 
@@ -722,7 +722,7 @@ Factory for creating a proxy based IPC API.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | domain | string |  | false |  |
-| ctx | (function\|object) |  | true |  |
+| ctx | function\|object |  | true |  |
 | [ctx.default] | string |  | true |  |
 
 
@@ -799,7 +799,7 @@ upon success or error.
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
 | [mode = F_OK(0)] | string |  | true |  |
-| callback | function(err, fd) |  | false |  |
+| callback | functionerr, fd |  | false |  |
 
 
 
@@ -831,7 +831,7 @@ Asynchronously close a file descriptor calling `callback` upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | fd | number |  | false |  |
-| callback | function(err) |  | false |  |
+| callback | functionerr |  | false |  |
 
 
 
@@ -921,7 +921,7 @@ Asynchronously open a file calling `callback` upon success or error.
 | path | string \| Buffer \| URL |  | false |  |
 | [flags = 'r'] | string |  | true |  |
 | [mode = 0o666] | string |  | true |  |
-| callback | function(err, fd) |  | false |  |
+| callback | functionerr, fd |  | false |  |
 
 
 
@@ -932,7 +932,7 @@ Asynchronously open a directory calling `callback` upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| callback | function(err, fd) |  | false |  |
+| callback | functionerr, fd |  | false |  |
 
 
 
@@ -955,7 +955,7 @@ Asynchronously read all entries in a directory.
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL  |  | false |  |
 | [options] | object |  | false |  |
-| callback | function(err, buffer) |  | false |  |
+| callback | functionerr, buffer |  | false |  |
 
 
 
@@ -967,7 +967,7 @@ Asynchronously read all entries in a directory.
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL \| number  |  | false |  |
 | [options] | object |  | false |  |
-| callback | function(err, buffer) |  | false |  |
+| callback | functionerr, buffer |  | false |  |
 
 
 

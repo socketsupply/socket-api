@@ -125,7 +125,7 @@ export function transform (filename) {
 
           const param = {
             name,
-            type: (optional ? type.replace('=', '') : type).replace(/\|/g, '\\|')
+            type: (optional ? type.replace('=', '') : type).replace(/\|/g, '\\|').replace(/[\(\)']+/g, ''),
           }
 
           const params = node.declaration?.params || node.value?.params
