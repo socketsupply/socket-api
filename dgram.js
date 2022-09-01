@@ -263,8 +263,8 @@ export class Socket extends EventEmitter {
    * is emitted.
    *
    * @param {number} port - Port the client should connect to.
-   * @param {string?} host - Host the client should connect to.
-   * @param {function?} connectListener - Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once.
+   * @param {string=} host - Host the client should connect to.
+   * @param {function=} connectListener - Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once.
    */
   async connect (arg1, arg2, cb) {
     if (this.connectedState === CONNECT_STATE_CONNECTED) {

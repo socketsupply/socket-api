@@ -224,8 +224,8 @@ is emitted.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | port | number |  | false | Port the client should connect to. |
-| host | string? |  | false | Host the client should connect to. |
-| connectListener | function? |  | false | Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once. |
+| host | string |  | true | Host the client should connect to. |
+| connectListener | function |  | true | Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once. |
 
 
 
