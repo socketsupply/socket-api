@@ -224,8 +224,8 @@ is emitted.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | port | number |  | false | Port the client should connect to. |
-| host | string |  | true | Host the client should connect to. |
-| connectListener | function |  | true | Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once. |
+| host | string? |  | false | Host the client should connect to. |
+| connectListener | function? |  | false | Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once. |
 
 
 
@@ -459,7 +459,7 @@ Parses `seq` as integer value
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | seq | string\|number |  | false |  |
-| [options] | (object) |  | true |  |
+| [options] | object |  | true |  |
 | [options.bigint = false] | boolean |  | false |  |
 
 
@@ -656,8 +656,8 @@ like `{ err?, data? }`, an `Error` instance, or just `data`.
 
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
-| data | (object) |  | true |  |
-| err | (Error) |  | true |  |
+| data | object |  | true |  |
+| err | Error |  | true |  |
 
 
 
@@ -723,7 +723,7 @@ Factory for creating a proxy based IPC API.
 | :--- | :--- | :---:   | :---:    | :---        |
 | domain | string |  | false |  |
 | ctx | (function\|object) |  | true |  |
-| [ctx.default] | (string) |  | true |  |
+| [ctx.default] | string |  | true |  |
 
 
 
@@ -798,7 +798,7 @@ upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| [mode = F_OK(0)] | (string) |  | true |  |
+| [mode = F_OK(0)] | string |  | true |  |
 | callback | function(err, fd) |  | false |  |
 
 
@@ -919,8 +919,8 @@ Asynchronously open a file calling `callback` upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| [flags = 'r'] | (string) |  | true |  |
-| [mode = 0o666] | (string) |  | true |  |
+| [flags = 'r'] | string |  | true |  |
+| [mode = 0o666] | string |  | true |  |
 | callback | function(err, fd) |  | false |  |
 
 
@@ -1082,8 +1082,8 @@ Asynchronously check access a file.
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| [mode = F_OK(0)] | (string) |  | true |  |
-| [options] | (object) |  | true |  |
+| [mode = F_OK(0)] | string |  | true |  |
+| [options] | object |  | true |  |
 
 
 
@@ -1180,7 +1180,7 @@ https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string |  | false |  |
-| [options] | (object) |  | true |  |
+| [options] | object |  | true |  |
 
 
 
@@ -1258,7 +1258,7 @@ https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
 | :--- | :--- | :---:   | :---:    | :---        |
 | path | string |  | false |  |
 | data | string\|Buffer\|Array\|TypedArray |  | false |  |
-| [options] | (object) |  | true |  |
+| [options] | object |  | true |  |
 
 
 
@@ -1275,8 +1275,8 @@ Computes current working directory for a path
 
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
-| [opts] | (object) |  | true |  |
-| [opts.posix] Set to `true` to force POSIX style path | (boolean) |  | true |  |
+| [opts] | object |  | true |  |
+| [opts.posix] Set to `true` to force POSIX style path | boolean |  | true |  |
 
 
 
@@ -1286,12 +1286,12 @@ Computes current working directory for a path
 
 | Argument | Type | Default | Optional | Description |
 | :--- | :--- | :---:   | :---:    | :---        |
-| [opts] | (object) |  | true |  |
-| [opts.root] | (string) |  | true |  |
-| [opts.base] | (string) |  | true |  |
-| [opts.name] | (string) |  | true |  |
-| [opts.dir] | (string) |  | true |  |
-| [opts.ext] | (string) |  | true |  |
+| [opts] | object |  | true |  |
+| [opts.root] | string |  | true |  |
+| [opts.base] | string |  | true |  |
+| [opts.name] | string |  | true |  |
+| [opts.dir] | string |  | true |  |
+| [opts.ext] | string |  | true |  |
 
 
 

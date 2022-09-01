@@ -120,12 +120,12 @@ export function transform (filename) {
           item.signature = item.signature || []
           const parts = attr.replace('@param ', '').split(/ - /)
           const { 1: type, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
-          const optional = type.includes('?')
+          const optional = type.endsWith('=')
           const name = (rawName || `(Position ${position++})`).trim()
 
           const param = {
             name,
-            type: (optional ? type.replace('?', '') : type).replace(/\|/g, '\\|')
+            type: (optional ? type.replace('=', '') : type).replace(/\|/g, '\\|')
           }
 
           const params = node.declaration?.params || node.value?.params

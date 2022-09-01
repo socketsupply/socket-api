@@ -72,13 +72,13 @@ function healhCheck (socket) {
 
 /**
  * @param {string|Object} options - either a string ('udp4' or 'udp6') or an options object
- * @param {?string} options.type - The family of socket. Must be either 'udp4' or 'udp6'. Required.
- * @param {?boolean} [options.reuseAddr=false] - When true socket.bind() will reuse the address, even if another process has already bound a socket on it. Default: false.
- * @param {?boolean} [options.ipv6Only=false] - Setting ipv6Only to true will disable dual-stack support, i.e., binding to address :: won't make 0.0.0.0 be bound. Default: false.
- * @param {?number} options.recvBufferSize - Sets the SO_RCVBUF socket value.
- * @param {?number} options.sendBufferSize - Sets the SO_SNDBUF socket value.
- * @param {?AbortSignal} options.signal - An AbortSignal that may be used to close a socket.
- * @param {?function} callback - Attached as a listener for 'message' events. Optional.
+ * @param {string=} options.type - The family of socket. Must be either 'udp4' or 'udp6'. Required.
+ * @param {boolean=} [options.reuseAddr=false] - When true socket.bind() will reuse the address, even if another process has already bound a socket on it. Default: false.
+ * @param {boolean=} [options.ipv6Only=false] - Setting ipv6Only to true will disable dual-stack support, i.e., binding to address :: won't make 0.0.0.0 be bound. Default: false.
+ * @param {number=} options.recvBufferSize - Sets the SO_RCVBUF socket value.
+ * @param {number=} options.sendBufferSize - Sets the SO_SNDBUF socket value.
+ * @param {AbortSignal=} options.signal - An AbortSignal that may be used to close a socket.
+ * @param {function=} callback - Attached as a listener for 'message' events. Optional.
  * @return {Socket}
  */
 export const createSocket = (options, callback) => new Socket(options, callback)

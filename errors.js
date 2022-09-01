@@ -23,7 +23,7 @@ export class AbortError extends Error {
   /**
    * `AbortError` class constructor.
    * @param {AbortSignal|string} reasonOrSignal
-   * @param {?(AbortSignal)} [signal]
+   * @param {AbortSignal=} [signal]
    */
   constructor (reason, signal, ...args) {
     if (reason?.reason) {

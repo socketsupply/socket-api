@@ -50,7 +50,7 @@ export class Dir {
   /**
    * `Dir` class constructor.
    * @param {DirectoryHandle} handle
-   * @param {?(object)} options
+   * @param {object=} options
    */
   constructor (handle, options) {
     this.path = handle?.path ?? null
@@ -61,8 +61,8 @@ export class Dir {
 
   /**
    * Closes container and underlying handle.
-   * @param {?(object)|function} options
-   * @param {?(function)} callback
+   * @param {object|function} options
+   * @param {function=} callback
    */
   async close (options, callback) {
     if (typeof options === 'function') {
@@ -85,9 +85,9 @@ export class Dir {
 
   /**
    * Reads and returns directory entry.
-   * @param {?(object)|function} options
-   * @param {?(function)} callback
-   * @return {?(Dirent|string)}
+   * @param {object|function} options
+   * @param {function=} callback
+   * @return {Dirent|string}
    */
   async read (options, callback) {
     if (typeof options === 'function') {
@@ -144,7 +144,7 @@ export class Dir {
 
   /**
    * AsyncGenerator which yields directory entries.
-   * @param {?(object)} options
+   * @param {object=} options
    */
   async *entries (options) {
     try {
@@ -195,7 +195,7 @@ export class Dirent {
   /**
    * Creates `Dirent` instance from input.
    * @param {object|string} name
-   * @param {?(string|number)} type
+   * @param {(string|number)=} type
    */
   static from (name, type) {
     if (typeof name === 'object') {

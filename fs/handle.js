@@ -63,8 +63,8 @@ export class FileHandle extends EventEmitter {
   /**
    * Determines if access to `path` for `mode` is possible.
    * @param {string} path
-   * @param {(number)} [mode = 0o666]
-   * @param {?(object)} [options]
+   * @param {number} [mode = 0o666]
+   * @param {object=} [options]
    * @return {boolean}
    */
   static async access (path, mode, options) {
@@ -90,9 +90,9 @@ export class FileHandle extends EventEmitter {
    * Asynchronously open a file.
    * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesopenpath-flags-mode}
    * @param {string | Buffer | URL} path
-   * @param {?(string)} [flags = 'r']
-   * @param {?(string)} [mode = 0o666]
-   * @param {?(object)} [options]
+   * @param {string=} [flags = 'r']
+   * @param {string=} [mode = 0o666]
+   * @param {object=} [options]
    */
   static async open (path, flags, mode, options) {
     if (flags === undefined) {
@@ -197,9 +197,9 @@ export class FileHandle extends EventEmitter {
    * Appends to a file, if handle was opened with `O_APPEND`, otherwise this
    * method is just an alias to `FileHandle#writeFile()`.
    * @param {string|Buffer|TypedArray|Array} data
-   * @param {?(object)} [options]
-   * @param {?(string)} [options.encoding = 'utf8']
-   * @param {?(object)} [options.signal]
+   * @param {object=} [options]
+   * @param {string=} [options.encoding = 'utf8']
+   * @param {object=} [options.signal]
    */
   async appendFile (data, options) {
     if (this.closing || this.closed) {
@@ -212,7 +212,7 @@ export class FileHandle extends EventEmitter {
   /**
    * Change permissions of file handle.
    * @param {number} mode
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async chmod (mode, options) {
     if (this.closing || this.closed) {
@@ -224,7 +224,7 @@ export class FileHandle extends EventEmitter {
    * Change ownership of file handle.
    * @param {number} uid
    * @param {number} gid
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async chown (uid, gid, options) {
     if (this.closing || this.closed) {
@@ -234,7 +234,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * Close underlying file handle
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async close (options) {
     // wait for opening to finish before proceeding to close
@@ -277,7 +277,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * Creates a `ReadStream` for the underlying file.
-   * @param {?(object)} [options] - An options object
+   * @param {object=} [options] - An options object
    */
   createReadStream (options) {
     if (this.closing || this.closed) {
@@ -305,7 +305,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * Creates a `WriteStream` for the underlying file.
-   * @param {?(object)} [options] - An options object
+   * @param {object=} [options] - An options object
    */
   createWriteStream (options) {
     if (this.closing || this.closed) {
@@ -332,7 +332,7 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async datasync () {
     if (this.closing || this.closed) {
@@ -342,7 +342,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * Opens the underlying descriptor for the file handle.
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async open (options) {
     if (this.closing) {
@@ -398,7 +398,7 @@ export class FileHandle extends EventEmitter {
    * @param {number} offset
    * @param {number} length
    * @param {number} position
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async read (buffer, offset, length, position, options) {
     if (this.closing || this.closed) {
@@ -506,9 +506,9 @@ export class FileHandle extends EventEmitter {
   /**
    * Reads the entire contents of a file and returns it as a buffer or a string
    * specified of a given encoding specified at `options.encoding`.
-   * @param {?(object)} [options]
-   * @param {?(string)} [options.encoding = 'utf8']
-   * @param {?(object)} [options.signal]
+   * @param {object=} [options]
+   * @param {string=} [options.encoding = 'utf8']
+   * @param {object=} [options.signal]
    */
   async readFile (options) {
     if (this.closing || this.closed) {
@@ -548,7 +548,7 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async readv (buffers, position) {
     if (this.closing || this.closed) {
@@ -558,7 +558,7 @@ export class FileHandle extends EventEmitter {
 
   /**
    * Returns the stats of the underlying file.
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async stat (options) {
     if (this.closing || this.closed) {
@@ -577,7 +577,7 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async sync () {
     if (this.closing || this.closed) {
@@ -586,7 +586,7 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async truncate (length) {
     if (this.closing || this.closed) {
@@ -595,7 +595,7 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async utimes (atime, mtime) {
     if (this.closing || this.closed) {
@@ -610,7 +610,7 @@ export class FileHandle extends EventEmitter {
    * @param {number} offset
    * @param {number} length
    * @param {number} position
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async write (buffer, offset, length, position, options) {
     if (this.closing || this.closed) {
@@ -686,9 +686,9 @@ export class FileHandle extends EventEmitter {
   /**
    * Writes `data` to file.
    * @param {string|Buffer|TypedArray|Array} data
-   * @param {?(object)} [options]
-   * @param {?(string)} [options.encoding = 'utf8']
-   * @param {?(object)} [options.signal]
+   * @param {object=} [options]
+   * @param {string=} [options.encoding = 'utf8']
+   * @param {object=} [options.signal]
    */
   async writeFile (data, options) {
     if (this.closing || this.closed) {
@@ -732,7 +732,7 @@ export class FileHandle extends EventEmitter {
   }
 
   /**
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async writev (buffers, position) {
   }
@@ -778,7 +778,7 @@ export class DirectoryHandle extends EventEmitter {
   /**
    * Asynchronously open a directory.
    * @param {string | Buffer | URL} path
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   static async open (path, options) {
     const handle = new this({ path })
@@ -883,7 +883,7 @@ export class DirectoryHandle extends EventEmitter {
 
   /**
    * Opens the underlying handle for a directory.
-   * @param {?(object)} options
+   * @param {object=} options
    */
   async open (options) {
     if (this.opened) {
@@ -921,7 +921,7 @@ export class DirectoryHandle extends EventEmitter {
 
   /**
    * Close underlying directory handle
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async close (options) {
     // wait for opening to finish before proceeding to close
@@ -967,7 +967,7 @@ export class DirectoryHandle extends EventEmitter {
 
   /**
    * Reads
-   * @param {?(object)} [options]
+   * @param {object=} [options]
    */
   async read (options) {
     if (this[kOpening]) {

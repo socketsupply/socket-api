@@ -30,8 +30,8 @@ async function visit (path, options, callback) {
  * Asynchronously check access a file.
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesaccesspath-mode}
  * @param {string | Buffer | URL} path
- * @param {?(string)} [mode = F_OK(0)]
- * @param {?(object)} [options]
+ * @param {string=} [mode = F_OK(0)]
+ * @param {object=} [options]
  */
 export async function access (path, mode, options) {
   return await FileHandle.access(path, mode, options)
@@ -148,7 +148,7 @@ export async function readdir (path, options) {
 /**
  * @TODO
  * @param {string} path
- * @param {?(object)} [options]
+ * @param {object=} [options]
  */
 export async function readFile (path, options) {
   if (typeof options === 'string') {
@@ -233,7 +233,7 @@ export async function watch (path, options) {
  * @TODO
  * @param {string} path
  * @param {string|Buffer|Array|TypedArray} data
- * @param {?(object)} [options]
+ * @param {object=} [options]
  */
 export async function writeFile (path, data, options) {
   if (typeof options === 'string') {

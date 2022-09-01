@@ -7,8 +7,8 @@ export class Path {
 
   /**
    * Computes current working directory for a path
-   * @param {?(object)} [opts]
-   * @param {?(boolean)} [opts.posix] Set to `true` to force POSIX style path
+   * @param {object=} [opts]
+   * @param {boolean=} [opts.posix] Set to `true` to force POSIX style path
    */
   static cwd (opts) {
     if (isWin32 && opts?.posix === true) {
@@ -32,12 +32,12 @@ export class Path {
   /**
    * `Path` class constructor.
    * @protected
-   * @param {?(object)} [opts]
-   * @param {?(string)} [opts.root]
-   * @param {?(string)} [opts.base]
-   * @param {?(string)} [opts.name]
-   * @param {?(string)} [opts.dir]
-   * @param {?(string)} [opts.ext]
+   * @param {object=} [opts]
+   * @param {string=} [opts.root]
+   * @param {string=} [opts.base]
+   * @param {string=} [opts.name]
+   * @param {string=} [opts.dir]
+   * @param {string=} [opts.ext]
    */
   constructor (opts) {
     this.root = opts?.root ?? ''

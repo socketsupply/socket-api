@@ -66,7 +66,7 @@ async function visit (path, options, callback) {
  * upon success or error.
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsopenpath-flags-mode-callback}
  * @param {string | Buffer | URL} path
- * @param {?(string)} [mode = F_OK(0)]
+ * @param {string=} [mode = F_OK(0)]
  * @param {function(err, fd)} callback
  */
 export function access (path, mode, callback) {
@@ -253,8 +253,8 @@ export function mkdir (path, options, callback) {
  * Asynchronously open a file calling `callback` upon success or error.
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsopenpath-flags-mode-callback}
  * @param {string | Buffer | URL} path
- * @param {?(string)} [flags = 'r']
- * @param {?(string)} [mode = 0o666]
+ * @param {string=} [flags = 'r']
+ * @param {string=} [mode = 0o666]
  * @param {function(err, fd)} callback
  */
 export function open (path, flags, mode, options, callback) {

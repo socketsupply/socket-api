@@ -137,7 +137,7 @@ export const kDebugEnabled = Symbol.for('ipc.debug.enabled')
 /**
  * Parses `seq` as integer value
  * @param {string|number} seq
- * @param {?(object)} [options]
+ * @param {object=} [options]
  * @param {boolean} [options.bigint = false]
  */
 export function parseSeq (seq, options) {
@@ -194,7 +194,7 @@ export class Message extends URL {
   /**
    * Creates a `Message` instance from a variety of input.
    * @param {string|URL|Message|Buffer|object} input
-   * @param {?(object|string|URLSearchParams)} [params]
+   * @param {(object|string|URLSearchParams)=} [params]
    * @return {Message}
    */
   static from (input, params) {
@@ -448,7 +448,7 @@ export class Result {
   /**
    * Creates a `Result` instance from input that may be an object
    * like `{ err?, data? }`, an `Error` instance, or just `data`.
-   * @param {?(object|Error|mixed)} result
+   * @param {(object|Error|mixed)=} result
    * @return {Result}
    */
   static from (result, maybeError) {
@@ -471,8 +471,8 @@ export class Result {
   /**
    * `Result` class constructor.
    * @private
-   * @param {?(object)} data
-   * @param {?(Error)} err
+   * @param {object=} data
+   * @param {Error=} err
    */
   constructor (data, err) {
     this.data = typeof data !== 'undefined' ? data : null
@@ -533,7 +533,7 @@ export async function ready () {
  * Sends a synchronous IPC command over XHR returning a `Result`
  * upon success or error.
  * @param {string} command
- * @param {?(object|string)} params
+ * @param {(object|string)=} params
  * @return {Result}
  */
 export function sendSync (command, params) {
@@ -835,8 +835,8 @@ export async function request (command, data, options) {
 /**
  * Factory for creating a proxy based IPC API.
  * @param {string} domain
- * @param {?(function|object)} ctx
- * @param {?(string)} [ctx.default]
+ * @param {(function|object)=} ctx
+ * @param {string=} [ctx.default]
  * @return {Proxy}
  */
 export function createBinding (domain, ctx) {
