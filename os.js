@@ -50,6 +50,12 @@ export function arch () {
 }
 
 export function networkInterfaces () {
+  const now = Date.now()
+
+  if (cache.networkInterfaces && cache.networkInterfacesTTL > now) {
+    return cache.networkInterfaces
+  }
+
   const { ipv4, ipv6 } = ipc.sendSync('getNetworkInterfaces')?.data || {}
   const interfaces = {}
 
@@ -112,6 +118,9 @@ export function networkInterfaces () {
       mac
     })
   }
+
+  cache.networkInterfaces = interfaces
+  cache.networkInterfacesTTL = Date.now() + 512
 
   return interfaces
 }
