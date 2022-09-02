@@ -112,7 +112,11 @@ test('udp bind, send, remoteAddress', async t => {
   const client = dgram.createSocket('udp4')
 
   const msg = new Promise((resolve, reject) => {
-    server.on('message', resolve)
+    server.on('message', (data, addr) => {
+      t.equal('number', typeof addr.port, 'port is a number')
+      t.equal(addr.address, '127.0.0.1')
+      resolve(data)
+    })
     server.on('error', reject)
   })
 
