@@ -65,7 +65,7 @@ function healhCheck (socket) {
   // @TODO(jwerle)
 }
 
-/** 
+/**
  * @typedef {Object} SocketOptions
 
  */
@@ -492,7 +492,7 @@ export class Socket extends EventEmitter {
         return
       }
 
-      throw result.err
+      this.emit('error', result.err)
     }
 
     if (typeof cb === 'function') {
