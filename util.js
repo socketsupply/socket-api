@@ -458,7 +458,13 @@ export function inspect (value, options) {
     ctx.seen.pop()
 
     if (value instanceof Error) {
-      let out = value.stack
+      let out = ''
+
+      if (value?.message && !value?.stack?.startsWith(`${value?.name}: ${value?.message}`)) {
+        out += `${value.name}: ${value.message}\n`
+      }
+
+      out += value.stack
       if (keys.size) {
         out += ' {\n'
       }

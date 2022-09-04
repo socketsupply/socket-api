@@ -128,6 +128,8 @@ test('fs.readFile', async (t) => {
   const promises = Array.from(Array(1024), (_, i) => new Promise((resolve) => {
     if (failed) return resolve(false)
     fs.readFile('fixtures/file.json', (err, buf) => {
+      if (failed) return resolve(false)
+
       const message = `fs.readFile('fixtures/file.json') [iteration=${i+1}]`
 
       if (err) {
