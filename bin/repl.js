@@ -4,7 +4,6 @@ import { Recoverable, REPLServer }from 'node:repl'
 import { createConnection } from 'net'
 import * as acorn from 'acorn'
 import { spawn } from 'node:child_process'
-import chalk from 'chalk'
 import path from 'node:path'
 import os from 'node:os'
 

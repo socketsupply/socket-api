@@ -402,374 +402,6 @@ applications on the same system do, use dns.lookup().
 | (Position 0) | Promise |  | false |  |
 
 
-# [IPC](https://github.com/socketsupply/io/blob/master/ipc.js#L27)
-
-
-This is a low level API which you don't need unless you are implementing
-a library on top of Socket SDK. A Socket SDK app has two or three processes.
-
-- The `Render` process, the UI where the HTML, CSS and JS is run.
-- The `Bridge` process, the thin layer of code that managers everything.
-- The `Main` processs, for apps that need to run heavier compute jobs. And
-unlike electron it's optional.
-
-The Bridge process manages the Render and Main process, it may also broker
-data between them.
-
-The Binding process uses standard input and output as a way to communicate.
-Data written to the write-end of the pipe is buffered by the OS until it is
-read from the read-end of the pipe.
-
-The IPC protocol uses a simple URI-like scheme. Data is passed as ArrayBuffers.
-
-```uri
-ipc://command?key1=value1&key2=value2...
-```
-
-
-
-## [OK](https://github.com/socketsupply/io/blob/master/ipc.js#L120)
-
-Represents an OK IPC status.
-
-
-
-## [ERROR](https://github.com/socketsupply/io/blob/master/ipc.js#L125)
-
-Represents an ERROR IPC status.
-
-
-
-## [TIMEOUT](https://github.com/socketsupply/io/blob/master/ipc.js#L130)
-
-Timeout in milliseconds for IPC requests.
-
-
-
-## [kDebugEnabled](https://github.com/socketsupply/io/blob/master/ipc.js#L135)
-
-Symbol for the `ipc.debug.enabled` property
-
-
-
-## [`parseSeq()`](https://github.com/socketsupply/io/blob/master/ipc.js#L143)
-
-Parses `seq` as integer value
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| seq | string\|number |  | false |  |
-| options | object |  | true |  |
-| options.bigint  | boolean | false | false |  |
-
-
-
-## [`debug()`](https://github.com/socketsupply/io/blob/master/ipc.js#L153)
-
-If `debug.enabled === true`, then debug output will be printed to console.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| enable | boolean |  | false |  |
-
-
-
-## [`Message` (extends `URL`)](https://github.com/socketsupply/io/blob/master/ipc.js#L185)
-
-A container for a IPC message based on a `ipc://` URI scheme.
-
-
-
-### [PROTOCOL](https://github.com/socketsupply/io/blob/master/ipc.js#L190)
-
-The expected protocol for an IPC message.
-
-
-
-### [`from()`](https://github.com/socketsupply/io/blob/master/ipc.js#L200)
-
-Creates a `Message` instance from a variety of input.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| input | string\|URL\|Message\|Buffer\|object |  | false |  |
-| params | object\|string\|URLSearchParams |  | true |  |
-
-
-
-### [`isValidInput()`](https://github.com/socketsupply/io/blob/master/ipc.js#L245)
-
-Predicate to determine if `input` is valid for constructing
-a new `Message` instance.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| input | string\|URL\|Message\|Buffer\|object |  | false |  |
-
-
-
-### [`constructor()`](https://github.com/socketsupply/io/blob/master/ipc.js#L260)
-
-`Message` class constructor.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| input | string\|URL |  | false |  |
-
-
-
-### [command](https://github.com/socketsupply/io/blob/master/ipc.js#L273)
-
-Computed command for the IPC message.
-
-
-
-### [id](https://github.com/socketsupply/io/blob/master/ipc.js#L280)
-
-Computed `id` value for the command.
-
-
-
-### [seq](https://github.com/socketsupply/io/blob/master/ipc.js#L287)
-
-Computed `seq` (sequence) value for the command.
-
-
-
-### [value](https://github.com/socketsupply/io/blob/master/ipc.js#L295)
-
-Computed message value potentially given in message parameters.
-This value is automatically decoded, but not treated as JSON.
-
-
-
-### [index](https://github.com/socketsupply/io/blob/master/ipc.js#L304)
-
-Computed `index` value for the command potentially referring to
-the window index the command is scoped to or originating from. If not
-specified in the message parameters, then this value defaults to `-1`.
-
-
-
-### [json](https://github.com/socketsupply/io/blob/master/ipc.js#L321)
-
-Computed value parsed as JSON. This value is `null` if the value is not present
-or it is invalid JSON.
-
-
-
-### [params](https://github.com/socketsupply/io/blob/master/ipc.js#L333)
-
-Computed readonly object of message parameters.
-
-
-
-### [entries](https://github.com/socketsupply/io/blob/master/ipc.js#L341)
-
-Returns computed parameters as entries
-
-
-
-### [`set()`](https://github.com/socketsupply/io/blob/master/ipc.js#L357)
-
-Set a parameter `value` by `key`.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| key | string |  | false |  |
-| value | mixed |  | false |  |
-
-
-
-### [`get()`](https://github.com/socketsupply/io/blob/master/ipc.js#L371)
-
-Get a parameter value by `key`.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| key | string |  | false |  |
-| defaultValue | mixed |  | false |  |
-
-
-
-### [`delete()`](https://github.com/socketsupply/io/blob/master/ipc.js#L391)
-
-Delete a parameter by `key`.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| key | string |  | false |  |
-
-
-
-### [keys](https://github.com/socketsupply/io/blob/master/ipc.js#L403)
-
-Computed parameter keys.
-
-
-
-### [values](https://github.com/socketsupply/io/blob/master/ipc.js#L411)
-
-Computed parameter values.
-
-
-
-### [`has()`](https://github.com/socketsupply/io/blob/master/ipc.js#L427)
-
-Predicate to determine if parameter `key` is present in parameters.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| key | string |  | false |  |
-
-
-
-### [toJSON](https://github.com/socketsupply/io/blob/master/ipc.js#L434)
-
-Converts a `Message` instance into a plain JSON object.
-
-
-
-## [Result](https://github.com/socketsupply/io/blob/master/ipc.js#L446)
-
-A result type used internally for handling
-IPC result values from the native layer that are in the form
-of `{ err?, data? }`. The `data` and `err` properties on this
-type of object are in tuple form and be accessed at `[data?,err?]`
-
-
-
-### [`from()`](https://github.com/socketsupply/io/blob/master/ipc.js#L454)
-
-Creates a `Result` instance from input that may be an object
-like `{ err?, data? }`, an `Error` instance, or just `data`.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| result | object\|Error\|mixed |  | true |  |
-
-
-
-### [`constructor()`](https://github.com/socketsupply/io/blob/master/ipc.js#L477)
-
-`Result` class constructor.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| data | object |  | true |  |
-| err | Error |  | true |  |
-
-
-
-## [ready](https://github.com/socketsupply/io/blob/master/ipc.js#L514)
-
-Waits for the native IPC layer to be ready and exposed on the
-global window object.
-
-
-
-## [`sendSync()`](https://github.com/socketsupply/io/blob/master/ipc.js#L539)
-
-Sends a synchronous IPC command over XHR returning a `Result`
-upon success or error.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| command | string |  | false |  |
-| params | object\|string |  | true |  |
-
-
-
-## [emit](https://github.com/socketsupply/io/blob/master/ipc.js#L607)
-
-This is a `FunctionDeclaration` named `emit`in `ipc.js`, it's exported but undocumented.
-
-
-
-
-## [resolve](https://github.com/socketsupply/io/blob/master/ipc.js#L617)
-
-This is a `FunctionDeclaration` named `resolve`in `ipc.js`, it's exported but undocumented.
-
-
-
-
-## [send](https://github.com/socketsupply/io/blob/master/ipc.js#L627)
-
-This is a `FunctionDeclaration` named `send`in `ipc.js`, it's exported but undocumented.
-
-
-
-
-## [write](https://github.com/socketsupply/io/blob/master/ipc.js#L644)
-
-This is a `FunctionDeclaration` named `write`in `ipc.js`, it's exported but undocumented.
-
-
-
-
-## [request](https://github.com/socketsupply/io/blob/master/ipc.js#L739)
-
-This is a `FunctionDeclaration` named `request`in `ipc.js`, it's exported but undocumented.
-
-
-
-
-## [`createBinding()`](https://github.com/socketsupply/io/blob/master/ipc.js#L842)
-
-Factory for creating a proxy based IPC API.
-
-| Argument | Type | Default | Optional | Description |
-| :--- | :--- | :---:   | :---:    | :---        |
-| domain | string |  | false |  |
-| ctx | function\|object |  | true |  |
-| ctx.default | string |  | true |  |
-
-
-
-# [OS](https://github.com/socketsupply/io/blob/master/os.js#L8)
-
-
-This module provides normalized system information from all the major
-operating systems.
-
-
-
-## [arch](https://github.com/socketsupply/io/blob/master/os.js#L19)
-
-This is a `FunctionDeclaration` named `arch`in `os.js`, it's exported but undocumented.
-
-
-
-
-## [networkInterfaces](https://github.com/socketsupply/io/blob/master/os.js#L52)
-
-This is a `FunctionDeclaration` named `networkInterfaces`in `os.js`, it's exported but undocumented.
-
-
-
-
-## [platform](https://github.com/socketsupply/io/blob/master/os.js#L119)
-
-This is a `FunctionDeclaration` named `platform`in `os.js`, it's exported but undocumented.
-
-
-
-
-## [type](https://github.com/socketsupply/io/blob/master/os.js#L148)
-
-This is a `FunctionDeclaration` named `type`in `os.js`, it's exported but undocumented.
-
-
-
-
-## [EOL](https://github.com/socketsupply/io/blob/master/os.js#L188)
-
-This is a `VariableDeclaration` named `EOL`in `os.js`, it's exported but undocumented.
-
-
-
-
 # [File System](https://github.com/socketsupply/io/blob/master/fs/index.js#L20)
 
 
@@ -1262,14 +894,507 @@ https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
 
 
 
-## [Path](https://github.com/socketsupply/io/blob/master/path/path.js#L6)
+# [FS.Stream](https://github.com/socketsupply/io/blob/master/fs/stream.js#L4)
+
+
+
+
+
+## [DEFAULT_STREAM_HIGH_WATER_MARK](https://github.com/socketsupply/io/blob/master/fs/stream.js#L7)
+
+This is a `VariableDeclaration` named `DEFAULT_STREAM_HIGH_WATER_MARK`in `fs/stream.js`, it's exported but undocumented.
+
+
+
+
+## [`ReadStream` (extends `Readable`)](https://github.com/socketsupply/io/blob/master/fs/stream.js#L12)
+
+A `Readable` stream for a `FileHandle`.
+
+
+
+### [constructor](https://github.com/socketsupply/io/blob/master/fs/stream.js#L17)
+
+`ReadStream` class constructor
+
+
+
+### [`setHandle()`](https://github.com/socketsupply/io/blob/master/fs/stream.js#L53)
+
+Sets file handle for the ReadStream.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| handle | FileHandle |  | false |  |
+
+
+
+### [highWaterMark](https://github.com/socketsupply/io/blob/master/fs/stream.js#L60)
+
+The max buffer size for the ReadStream.
+
+
+
+### [path](https://github.com/socketsupply/io/blob/master/fs/stream.js#L67)
+
+Relative or absolute path of the underlying `FileHandle`.
+
+
+
+### [pending](https://github.com/socketsupply/io/blob/master/fs/stream.js#L74)
+
+`true` if the stream is in a pending state.
+
+
+
+### [emit](https://github.com/socketsupply/io/blob/master/fs/stream.js#L82)
+
+Handles `shouldEmitClose` setting from `options.emitClose` in constructor.
+
+
+
+## [`WriteStream` (extends `Writable`)](https://github.com/socketsupply/io/blob/master/fs/stream.js#L163)
+
+A `Writable` stream for a `FileHandle`.
+
+
+
+### [constructor](https://github.com/socketsupply/io/blob/master/fs/stream.js#L168)
+
+`WriteStream` class constructor
+
+
+
+### [`setHandle()`](https://github.com/socketsupply/io/blob/master/fs/stream.js#L195)
+
+Sets file handle for the WriteStream.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| handle | FileHandle |  | false |  |
+
+
+
+### [highWaterMark](https://github.com/socketsupply/io/blob/master/fs/stream.js#L202)
+
+The max buffer size for the Writetream.
+
+
+
+### [path](https://github.com/socketsupply/io/blob/master/fs/stream.js#L209)
+
+Relative or absolute path of the underlying `FileHandle`.
+
+
+
+### [pending](https://github.com/socketsupply/io/blob/master/fs/stream.js#L216)
+
+`true` if the stream is in a pending state.
+
+
+
+### [emit](https://github.com/socketsupply/io/blob/master/fs/stream.js#L251)
+
+Handles `shouldEmitClose` setting from `options.emitClose` in constructor.
+
+
+
+## [FileReadStream](https://github.com/socketsupply/io/blob/master/fs/stream.js#L324)
+
+This is a `VariableDeclaration` named `FileReadStream`in `fs/stream.js`, it's exported but undocumented.
+
+
+
+
+## [FileWriteStream](https://github.com/socketsupply/io/blob/master/fs/stream.js#L325)
+
+This is a `VariableDeclaration` named `FileWriteStream`in `fs/stream.js`, it's exported but undocumented.
+
+
+
+
+# [IPC](https://github.com/socketsupply/io/blob/master/ipc.js#L27)
+
+
+This is a low level API which you don't need unless you are implementing
+a library on top of Socket SDK. A Socket SDK app has two or three processes.
+
+- The `Render` process, the UI where the HTML, CSS and JS is run.
+- The `Bridge` process, the thin layer of code that managers everything.
+- The `Main` processs, for apps that need to run heavier compute jobs. And
+unlike electron it's optional.
+
+The Bridge process manages the Render and Main process, it may also broker
+data between them.
+
+The Binding process uses standard input and output as a way to communicate.
+Data written to the write-end of the pipe is buffered by the OS until it is
+read from the read-end of the pipe.
+
+The IPC protocol uses a simple URI-like scheme. Data is passed as ArrayBuffers.
+
+```uri
+ipc://command?key1=value1&key2=value2...
+```
+
+
+
+## [OK](https://github.com/socketsupply/io/blob/master/ipc.js#L120)
+
+Represents an OK IPC status.
+
+
+
+## [ERROR](https://github.com/socketsupply/io/blob/master/ipc.js#L125)
+
+Represents an ERROR IPC status.
+
+
+
+## [TIMEOUT](https://github.com/socketsupply/io/blob/master/ipc.js#L130)
+
+Timeout in milliseconds for IPC requests.
+
+
+
+## [kDebugEnabled](https://github.com/socketsupply/io/blob/master/ipc.js#L135)
+
+Symbol for the `ipc.debug.enabled` property
+
+
+
+## [`parseSeq()`](https://github.com/socketsupply/io/blob/master/ipc.js#L143)
+
+Parses `seq` as integer value
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| seq | string\|number |  | false |  |
+| options | object |  | true |  |
+| options.bigint  | boolean | false | false |  |
+
+
+
+## [`debug()`](https://github.com/socketsupply/io/blob/master/ipc.js#L153)
+
+If `debug.enabled === true`, then debug output will be printed to console.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| enable | boolean |  | false |  |
+
+
+
+## [`Message` (extends `URL`)](https://github.com/socketsupply/io/blob/master/ipc.js#L185)
+
+A container for a IPC message based on a `ipc://` URI scheme.
+
+
+
+### [PROTOCOL](https://github.com/socketsupply/io/blob/master/ipc.js#L190)
+
+The expected protocol for an IPC message.
+
+
+
+### [`from()`](https://github.com/socketsupply/io/blob/master/ipc.js#L200)
+
+Creates a `Message` instance from a variety of input.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| input | string\|URL\|Message\|Buffer\|object |  | false |  |
+| params | object\|string\|URLSearchParams |  | true |  |
+
+
+
+### [`isValidInput()`](https://github.com/socketsupply/io/blob/master/ipc.js#L245)
+
+Predicate to determine if `input` is valid for constructing
+a new `Message` instance.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| input | string\|URL\|Message\|Buffer\|object |  | false |  |
+
+
+
+### [`constructor()`](https://github.com/socketsupply/io/blob/master/ipc.js#L260)
+
+`Message` class constructor.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| input | string\|URL |  | false |  |
+
+
+
+### [command](https://github.com/socketsupply/io/blob/master/ipc.js#L273)
+
+Computed command for the IPC message.
+
+
+
+### [id](https://github.com/socketsupply/io/blob/master/ipc.js#L280)
+
+Computed `id` value for the command.
+
+
+
+### [seq](https://github.com/socketsupply/io/blob/master/ipc.js#L287)
+
+Computed `seq` (sequence) value for the command.
+
+
+
+### [value](https://github.com/socketsupply/io/blob/master/ipc.js#L295)
+
+Computed message value potentially given in message parameters.
+This value is automatically decoded, but not treated as JSON.
+
+
+
+### [index](https://github.com/socketsupply/io/blob/master/ipc.js#L304)
+
+Computed `index` value for the command potentially referring to
+the window index the command is scoped to or originating from. If not
+specified in the message parameters, then this value defaults to `-1`.
+
+
+
+### [json](https://github.com/socketsupply/io/blob/master/ipc.js#L321)
+
+Computed value parsed as JSON. This value is `null` if the value is not present
+or it is invalid JSON.
+
+
+
+### [params](https://github.com/socketsupply/io/blob/master/ipc.js#L333)
+
+Computed readonly object of message parameters.
+
+
+
+### [entries](https://github.com/socketsupply/io/blob/master/ipc.js#L341)
+
+Returns computed parameters as entries
+
+
+
+### [`set()`](https://github.com/socketsupply/io/blob/master/ipc.js#L357)
+
+Set a parameter `value` by `key`.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| key | string |  | false |  |
+| value | mixed |  | false |  |
+
+
+
+### [`get()`](https://github.com/socketsupply/io/blob/master/ipc.js#L371)
+
+Get a parameter value by `key`.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| key | string |  | false |  |
+| defaultValue | mixed |  | false |  |
+
+
+
+### [`delete()`](https://github.com/socketsupply/io/blob/master/ipc.js#L391)
+
+Delete a parameter by `key`.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| key | string |  | false |  |
+
+
+
+### [keys](https://github.com/socketsupply/io/blob/master/ipc.js#L403)
+
+Computed parameter keys.
+
+
+
+### [values](https://github.com/socketsupply/io/blob/master/ipc.js#L411)
+
+Computed parameter values.
+
+
+
+### [`has()`](https://github.com/socketsupply/io/blob/master/ipc.js#L427)
+
+Predicate to determine if parameter `key` is present in parameters.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| key | string |  | false |  |
+
+
+
+### [toJSON](https://github.com/socketsupply/io/blob/master/ipc.js#L434)
+
+Converts a `Message` instance into a plain JSON object.
+
+
+
+## [Result](https://github.com/socketsupply/io/blob/master/ipc.js#L446)
+
+A result type used internally for handling
+IPC result values from the native layer that are in the form
+of `{ err?, data? }`. The `data` and `err` properties on this
+type of object are in tuple form and be accessed at `[data?,err?]`
+
+
+
+### [`from()`](https://github.com/socketsupply/io/blob/master/ipc.js#L454)
+
+Creates a `Result` instance from input that may be an object
+like `{ err?, data? }`, an `Error` instance, or just `data`.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| result | object\|Error\|mixed |  | true |  |
+
+
+
+### [`constructor()`](https://github.com/socketsupply/io/blob/master/ipc.js#L477)
+
+`Result` class constructor.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| data | object |  | true |  |
+| err | Error |  | true |  |
+
+
+
+## [ready](https://github.com/socketsupply/io/blob/master/ipc.js#L514)
+
+Waits for the native IPC layer to be ready and exposed on the
+global window object.
+
+
+
+## [`sendSync()`](https://github.com/socketsupply/io/blob/master/ipc.js#L539)
+
+Sends a synchronous IPC command over XHR returning a `Result`
+upon success or error.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| command | string |  | false |  |
+| params | object\|string |  | true |  |
+
+
+
+## [emit](https://github.com/socketsupply/io/blob/master/ipc.js#L607)
+
+This is a `FunctionDeclaration` named `emit`in `ipc.js`, it's exported but undocumented.
+
+
+
+
+## [resolve](https://github.com/socketsupply/io/blob/master/ipc.js#L617)
+
+This is a `FunctionDeclaration` named `resolve`in `ipc.js`, it's exported but undocumented.
+
+
+
+
+## [send](https://github.com/socketsupply/io/blob/master/ipc.js#L627)
+
+This is a `FunctionDeclaration` named `send`in `ipc.js`, it's exported but undocumented.
+
+
+
+
+## [write](https://github.com/socketsupply/io/blob/master/ipc.js#L644)
+
+This is a `FunctionDeclaration` named `write`in `ipc.js`, it's exported but undocumented.
+
+
+
+
+## [request](https://github.com/socketsupply/io/blob/master/ipc.js#L739)
+
+This is a `FunctionDeclaration` named `request`in `ipc.js`, it's exported but undocumented.
+
+
+
+
+## [`createBinding()`](https://github.com/socketsupply/io/blob/master/ipc.js#L842)
+
+Factory for creating a proxy based IPC API.
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| domain | string |  | false |  |
+| ctx | function\|object |  | true |  |
+| ctx.default | string |  | true |  |
+
+
+
+# [OS](https://github.com/socketsupply/io/blob/master/os.js#L8)
+
+
+This module provides normalized system information from all the major
+operating systems.
+
+
+
+## [arch](https://github.com/socketsupply/io/blob/master/os.js#L19)
+
+This is a `FunctionDeclaration` named `arch`in `os.js`, it's exported but undocumented.
+
+
+
+
+## [networkInterfaces](https://github.com/socketsupply/io/blob/master/os.js#L52)
+
+This is a `FunctionDeclaration` named `networkInterfaces`in `os.js`, it's exported but undocumented.
+
+
+
+
+## [platform](https://github.com/socketsupply/io/blob/master/os.js#L128)
+
+This is a `FunctionDeclaration` named `platform`in `os.js`, it's exported but undocumented.
+
+
+
+
+## [type](https://github.com/socketsupply/io/blob/master/os.js#L157)
+
+This is a `FunctionDeclaration` named `type`in `os.js`, it's exported but undocumented.
+
+
+
+
+## [EOL](https://github.com/socketsupply/io/blob/master/os.js#L197)
+
+This is a `VariableDeclaration` named `EOL`in `os.js`, it's exported but undocumented.
+
+
+
+
+# [Path](https://github.com/socketsupply/io/blob/master/path/path.js#L4)
+
+
+
+
+
+## [Path](https://github.com/socketsupply/io/blob/master/path/path.js#L9)
 
 This is a `ClassDeclaration` named `Path`in `path/path.js`, it's exported but undocumented.
 
 
 
 
-### [`cwd()`](https://github.com/socketsupply/io/blob/master/path/path.js#L13)
+### [`cwd()`](https://github.com/socketsupply/io/blob/master/path/path.js#L16)
 
 Computes current working directory for a path
 
@@ -1280,7 +1405,7 @@ Computes current working directory for a path
 
 
 
-### [`constructor()`](https://github.com/socketsupply/io/blob/master/path/path.js#L42)
+### [`constructor()`](https://github.com/socketsupply/io/blob/master/path/path.js#L45)
 
 `Path` class constructor.
 
@@ -1295,13 +1420,45 @@ Computes current working directory for a path
 
 
 
-### [resolve](https://github.com/socketsupply/io/blob/master/path/path.js#L58)
+### [resolve](https://github.com/socketsupply/io/blob/master/path/path.js#L61)
 
 
 
 
 
-### [normalize](https://github.com/socketsupply/io/blob/master/path/path.js#L64)
+### [normalize](https://github.com/socketsupply/io/blob/master/path/path.js#L67)
+
+
+
+
+
+# [Process](https://github.com/socketsupply/io/blob/master/process.js#L4)
+
+
+
+
+
+## [`homedir()`](https://github.com/socketsupply/io/blob/master/process.js#L12)
+
+
+
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| The home directory of the current user. | string |  | false |  |
+
+
+## [`exit()`](https://github.com/socketsupply/io/blob/master/process.js#L19)
+
+
+
+| Argument | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| code | number | 0 | true | The exit code. Default: 0. |
+
+
+
+# [Stream](https://github.com/socketsupply/io/blob/master/stream.js#L5)
 
 
 

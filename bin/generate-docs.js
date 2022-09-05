@@ -212,11 +212,14 @@ export function transform (filename) {
   'dgram.js',
   'dns/index.js',
   'dns/promises.js',
-  'ipc.js',
-  'os.js',
+  'events.js',
   'fs/index.js',
   'fs/promises.js',
-  'stream.js',
-  'path/path.js'
+  'fs/stream.js',
+  'ipc.js',
+  'os.js',
+  'path/path.js',
+  'process.js',
+  'stream.js'
 ].forEach(transform)
 

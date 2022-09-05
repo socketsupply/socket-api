@@ -1,3 +1,6 @@
+/**
+ * @module Path
+ */
 import process from '../process.js'
 import os from '../os.js'
 

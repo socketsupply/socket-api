@@ -1,6 +1,5 @@
 import { DirectoryHandle } from './handle.js'
 import { Buffer } from 'buffer'
-import { Stats } from './stats.js'
 import {
   UV_DIRENT_UNKNOWN,
   UV_DIRENT_FILE,

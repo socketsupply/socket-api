@@ -1,3 +1,6 @@
+/**
+ * @module FS.Stream
+ */
 import { Readable, Writable } from '../stream.js'
 import { Buffer } from 'buffer'
 

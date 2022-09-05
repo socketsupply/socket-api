@@ -1,12 +1,21 @@
+/**
+ * @module Process
+ */
 import { EventEmitter } from './events.js'
 import { send } from './ipc.js'
 
 let didEmitExitEvent = false
 
+/**
+ * @returns {string} The home directory of the current user.
+ */
 export function homedir () {
   return process.env.HOME ?? ''
 }
 
+/**
+ * @param {number=} [code=0] - The exit code. Default: 0.
+ */
 export function exit (code) {
   if (!didEmitExitEvent) {
     didEmitExitEvent = true

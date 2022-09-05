@@ -1,7 +1,3 @@
-/**
- * @module path
- */
-
 import { posix, win32 } from './path/index.js'
 import os from './os.js'
 
