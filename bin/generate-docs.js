@@ -58,6 +58,11 @@ export function transform (filename) {
       if (name) item.name = name[1]
     }
 
+    if (item.header?.join('').includes('@link')) {
+      const url = item.header.join('').match(/@link\s*(.*)}/)
+      if (url) item.url = url[1]
+    }
+
     if (node.type.includes('ExportAllDeclaration')) {
       return
     }
@@ -113,10 +118,10 @@ export function transform (filename) {
       let position = 0
 
       for (const attr of attrs) {
-        const propTypeMatch = attr.match(/^@(param|returns)/)
+        const isParamOrReturn = attr.match(/^@(param|returns)/)
 
-        if (propTypeMatch) {
-          const propType = propTypeMatch[1] === 'param' ? 'params' : 'returns'
+        if (isParamOrReturn) {
+          const propType = isParamOrReturn[1] === 'param' ? 'params' : 'returns'
           item.signature = item.signature || []
           const parts = attr.replace('@param ', '').split(/ - /)
           const { 1: type, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
@@ -196,11 +201,12 @@ export function transform (filename) {
     const header = `${doc.header.join('\n')}\n`
 
     const md = [
-      title,
-      header,
+      title ?? [],
+      doc?.url ? `External docs: ${doc.url}` : [],
+      header ?? [],
       createTable(doc?.params, 'Argument'),
       createTable(doc?.returns, 'Return Value')
-    ].join('\n')
+    ].flatMap(item => item).join('\n')
 
     fs.appendFileSync(destFile, md, { flags: 'a' })
   }
@@ -208,6 +214,7 @@ export function transform (filename) {
 
 [
   'bluetooth.js',
+  'buffer.js',
   'crypto.js',
   'dgram.js',
   'dns/index.js',

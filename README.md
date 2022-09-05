@@ -60,6 +60,13 @@ Start advertising a new value for a well-known UUID
 
 
 
+# [Buffer](https://github.com/socketsupply/io/blob/master/buffer.js#L7)
+
+External docs: https://nodejs.org/api/buffer.html#buffer_class_buffer
+
+
+
+
 # [Crypto](https://github.com/socketsupply/io/blob/master/crypto.js#L8)
 
 
@@ -339,6 +346,7 @@ applications on the same system do, use dns.lookup().
 
 ## [`lookup()`](https://github.com/socketsupply/io/blob/master/dns/index.js#L45)
 
+External docs: https://nodejs.org/api/dns.html#dns_dns_lookup_hostname_options_callback
 Resolves a host name (e.g. `example.org`) into the first found A (IPv4) or
 AAAA (IPv6) record. All option properties are optional. If options is an
 integer, then it must be 4 or 6 – if options is 0 or not provided, then IPv4
@@ -388,6 +396,7 @@ applications on the same system do, use dns.lookup().
 
 ## [`lookup()`](https://github.com/socketsupply/io/blob/master/dns/promises.js#L23)
 
+External docs: https://nodejs.org/api/dns.html#dnspromiseslookuphostname-options
 
 
 | Argument | Type | Default | Optional | Description |
