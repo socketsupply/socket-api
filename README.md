@@ -23,10 +23,14 @@ Creates a new service with key-value pairs
 
 
 
-### [start](https://github.com/socketsupply/io/blob/master/bluetooth.js#L58)
+### [`start()`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L58)
 
 Start the bluetooth service.
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Promise<Any> |  | false |  |
 
 
 ### [`subscribe()`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L78)
@@ -49,6 +53,10 @@ ble.on(uuid, (data, details) => {
 | id | string |  | false | A well-known UUID |
 
 
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Promise<any> |  | false |  |
+
 
 ### [`publish()`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L90)
 
@@ -58,6 +66,10 @@ Start advertising a new value for a well-known UUID
 | :--- | :--- | :---:   | :---:    | :---        |
 | id | string |  | false | A well-known UUID |
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Promise<any> |  | false |  |
 
 
 # [Buffer](https://github.com/socketsupply/io/blob/master/buffer.js#L7)
@@ -83,6 +95,10 @@ Generate cryptographically strong random values into `buffer`
 | :--- | :--- | :---:   | :---:    | :---        |
 | buffer | TypedArray |  | false |  |
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | TypedArray |  | false |  |
 
 
 ## [`randomBytes()`](https://github.com/socketsupply/io/blob/master/crypto.js#L26)
@@ -188,6 +204,10 @@ This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `Soc
 | options.signal | AbortSignal |  | true | An AbortSignal that may be used to close a socket. |
 | callback | function |  | true | Attached as a listener for 'message' events. Optional. |
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Socket |  | false |  |
 
 
 ## [`Socket` (extends `EventEmitter`)](https://github.com/socketsupply/io/blob/master/dgram.js#L90)
@@ -801,6 +821,10 @@ https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
 | mode | string |  | false | default: 0o666 |
 
 
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Promise<FileHandle> |  | false |  |
+
 
 ## [opendir](https://github.com/socketsupply/io/blob/master/fs/promises.js#L116)
 
@@ -1093,6 +1117,10 @@ If `debug.enabled === true`, then debug output will be printed to console.
 | enable | boolean |  | false |  |
 
 
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | boolean |  | false |  |
+
 
 ## [`Message` (extends `URL`)](https://github.com/socketsupply/io/blob/master/ipc.js#L185)
 
@@ -1116,6 +1144,10 @@ Creates a `Message` instance from a variety of input.
 | params | object\|string\|URLSearchParams |  | true |  |
 
 
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Message |  | false |  |
+
 
 ### [`isValidInput()`](https://github.com/socketsupply/io/blob/master/ipc.js#L245)
 
@@ -1126,6 +1158,10 @@ a new `Message` instance.
 | :--- | :--- | :---:   | :---:    | :---        |
 | input | string\|URL\|Message\|Buffer\|object |  | false |  |
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | boolean |  | false |  |
 
 
 ### [`constructor()`](https://github.com/socketsupply/io/blob/master/ipc.js#L260)
@@ -1184,10 +1220,14 @@ Computed readonly object of message parameters.
 
 
 
-### [entries](https://github.com/socketsupply/io/blob/master/ipc.js#L341)
+### [`entries()`](https://github.com/socketsupply/io/blob/master/ipc.js#L341)
 
 Returns computed parameters as entries
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Array<Array<string,mixed>> |  | false |  |
 
 
 ### [`set()`](https://github.com/socketsupply/io/blob/master/ipc.js#L357)
@@ -1211,6 +1251,10 @@ Get a parameter value by `key`.
 | defaultValue | mixed |  | false |  |
 
 
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | mixed |  | false |  |
+
 
 ### [`delete()`](https://github.com/socketsupply/io/blob/master/ipc.js#L391)
 
@@ -1221,17 +1265,29 @@ Delete a parameter by `key`.
 | key | string |  | false |  |
 
 
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | boolean |  | false |  |
 
-### [keys](https://github.com/socketsupply/io/blob/master/ipc.js#L403)
+
+### [`keys()`](https://github.com/socketsupply/io/blob/master/ipc.js#L403)
 
 Computed parameter keys.
 
 
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Array<string> |  | false |  |
 
-### [values](https://github.com/socketsupply/io/blob/master/ipc.js#L411)
+
+### [`values()`](https://github.com/socketsupply/io/blob/master/ipc.js#L411)
 
 Computed parameter values.
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Array<mixed> |  | false |  |
 
 
 ### [`has()`](https://github.com/socketsupply/io/blob/master/ipc.js#L427)
@@ -1242,6 +1298,10 @@ Predicate to determine if parameter `key` is present in parameters.
 | :--- | :--- | :---:   | :---:    | :---        |
 | key | string |  | false |  |
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | boolean |  | false |  |
 
 
 ### [toJSON](https://github.com/socketsupply/io/blob/master/ipc.js#L434)
@@ -1268,6 +1328,10 @@ like `{ err?, data? }`, an `Error` instance, or just `data`.
 | :--- | :--- | :---:   | :---:    | :---        |
 | result | object\|Error\|mixed |  | true |  |
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Result |  | false |  |
 
 
 ### [`constructor()`](https://github.com/socketsupply/io/blob/master/ipc.js#L477)
@@ -1298,6 +1362,10 @@ upon success or error.
 | command | string |  | false |  |
 | params | object\|string |  | true |  |
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Result |  | false |  |
 
 
 ## [emit](https://github.com/socketsupply/io/blob/master/ipc.js#L607)
@@ -1345,6 +1413,10 @@ Factory for creating a proxy based IPC API.
 | ctx | function\|object |  | true |  |
 | ctx.default | string |  | true |  |
 
+
+| Return Value | Type | Default | Optional | Description |
+| :--- | :--- | :---:   | :---:    | :---        |
+| (Position 0) | Proxy |  | false |  |
 
 
 # [OS](https://github.com/socketsupply/io/blob/master/os.js#L8)
