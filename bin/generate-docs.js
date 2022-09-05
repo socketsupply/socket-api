@@ -118,7 +118,7 @@ export function transform (filename) {
       let position = 0
 
       for (const attr of attrs) {
-        const isParamOrReturn = attr.match(/^@(param|returns)/)
+        const isParamOrReturn = attr.match(/^@(param|returns?)/)
 
         if (isParamOrReturn) {
           const propType = isParamOrReturn[1] === 'param' ? 'params' : 'returns'
