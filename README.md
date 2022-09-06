@@ -431,11 +431,15 @@ External docs: https://nodejs.org/api/dns.html#dnspromiseslookuphostname-options
 | (Position 0) | Promise |  | false |  |
 
 
-# [File System](https://github.com/socketsupply/io/blob/master/fs/index.js#L20)
+# [File System](https://github.com/socketsupply/io/blob/master/fs/index.js#L24)
 
 
 This module enables interacting with the file system in a way modeled on
 standard POSIX functions.
+
+The Application Sandbox restricts access to the file system.
+Please see the Application Sandbox documentation for more information:
+https://sockets.sh/guides/#working-with-the-file-system-on-ios
 
 To use the promise-based APIs:
 
@@ -451,7 +455,7 @@ import
 
 
 
-## [`access()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L72)
+## [`access()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L76)
 
 Asynchronously check access a file for a given mode calling `callback`
 upon success or error.
@@ -464,28 +468,28 @@ upon success or error.
 
 
 
-## [appendFile](https://github.com/socketsupply/io/blob/master/fs/index.js#L88)
+## [appendFile](https://github.com/socketsupply/io/blob/master/fs/index.js#L92)
 
 This is a `FunctionDeclaration` named `appendFile`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [chmod](https://github.com/socketsupply/io/blob/master/fs/index.js#L91)
+## [chmod](https://github.com/socketsupply/io/blob/master/fs/index.js#L95)
 
 This is a `FunctionDeclaration` named `chmod`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [chown](https://github.com/socketsupply/io/blob/master/fs/index.js#L109)
+## [chown](https://github.com/socketsupply/io/blob/master/fs/index.js#L113)
 
 This is a `FunctionDeclaration` named `chown`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [`close()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L118)
+## [`close()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L122)
 
 Asynchronously close a file descriptor calling `callback` upon success or error.
 
@@ -496,28 +500,28 @@ Asynchronously close a file descriptor calling `callback` upon success or error.
 
 
 
-## [copyFile](https://github.com/socketsupply/io/blob/master/fs/index.js#L134)
+## [copyFile](https://github.com/socketsupply/io/blob/master/fs/index.js#L138)
 
 This is a `FunctionDeclaration` named `copyFile`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [createReadStream](https://github.com/socketsupply/io/blob/master/fs/index.js#L137)
+## [createReadStream](https://github.com/socketsupply/io/blob/master/fs/index.js#L141)
 
 This is a `FunctionDeclaration` named `createReadStream`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [createWriteStream](https://github.com/socketsupply/io/blob/master/fs/index.js#L171)
+## [createWriteStream](https://github.com/socketsupply/io/blob/master/fs/index.js#L175)
 
 This is a `FunctionDeclaration` named `createWriteStream`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [`fstat()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L213)
+## [`fstat()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L217)
 
 Invokes the callback with the <fs.Stats> for the file descriptor. See
 the POSIX fstat(2) documentation for more detail.
@@ -531,49 +535,49 @@ the POSIX fstat(2) documentation for more detail.
 
 
 
-## [lchmod](https://github.com/socketsupply/io/blob/master/fs/index.js#L234)
+## [lchmod](https://github.com/socketsupply/io/blob/master/fs/index.js#L238)
 
 This is a `FunctionDeclaration` named `lchmod`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [lchown](https://github.com/socketsupply/io/blob/master/fs/index.js#L237)
+## [lchown](https://github.com/socketsupply/io/blob/master/fs/index.js#L241)
 
 This is a `FunctionDeclaration` named `lchown`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [lutimes](https://github.com/socketsupply/io/blob/master/fs/index.js#L240)
+## [lutimes](https://github.com/socketsupply/io/blob/master/fs/index.js#L244)
 
 This is a `FunctionDeclaration` named `lutimes`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [link](https://github.com/socketsupply/io/blob/master/fs/index.js#L243)
+## [link](https://github.com/socketsupply/io/blob/master/fs/index.js#L247)
 
 This is a `FunctionDeclaration` named `link`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [lstat](https://github.com/socketsupply/io/blob/master/fs/index.js#L246)
+## [lstat](https://github.com/socketsupply/io/blob/master/fs/index.js#L250)
 
 This is a `FunctionDeclaration` named `lstat`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [mkdir](https://github.com/socketsupply/io/blob/master/fs/index.js#L249)
+## [mkdir](https://github.com/socketsupply/io/blob/master/fs/index.js#L253)
 
 This is a `FunctionDeclaration` named `mkdir`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [`open()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L260)
+## [`open()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L264)
 
 Asynchronously open a file calling `callback` upon success or error.
 
@@ -586,7 +590,7 @@ Asynchronously open a file calling `callback` upon success or error.
 
 
 
-## [`opendir()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L310)
+## [`opendir()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L314)
 
 Asynchronously open a directory calling `callback` upon success or error.
 
@@ -597,7 +601,7 @@ Asynchronously open a directory calling `callback` upon success or error.
 
 
 
-## [`read()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L332)
+## [`read()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L336)
 
 Asynchronously read from an open file descriptor.
 
@@ -608,7 +612,7 @@ Asynchronously read from an open file descriptor.
 
 
 
-## [`readdir()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L364)
+## [`readdir()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L368)
 
 Asynchronously read all entries in a directory.
 
@@ -620,7 +624,7 @@ Asynchronously read all entries in a directory.
 
 
 
-## [`readFile()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L412)
+## [`readFile()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L416)
 
 
 
@@ -632,98 +636,98 @@ Asynchronously read all entries in a directory.
 
 
 
-## [readlink](https://github.com/socketsupply/io/blob/master/fs/index.js#L450)
+## [readlink](https://github.com/socketsupply/io/blob/master/fs/index.js#L454)
 
 This is a `FunctionDeclaration` named `readlink`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [realpath](https://github.com/socketsupply/io/blob/master/fs/index.js#L453)
+## [realpath](https://github.com/socketsupply/io/blob/master/fs/index.js#L457)
 
 This is a `FunctionDeclaration` named `realpath`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [rename](https://github.com/socketsupply/io/blob/master/fs/index.js#L456)
+## [rename](https://github.com/socketsupply/io/blob/master/fs/index.js#L460)
 
 This is a `FunctionDeclaration` named `rename`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [rmdir](https://github.com/socketsupply/io/blob/master/fs/index.js#L459)
+## [rmdir](https://github.com/socketsupply/io/blob/master/fs/index.js#L463)
 
 This is a `FunctionDeclaration` named `rmdir`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [rm](https://github.com/socketsupply/io/blob/master/fs/index.js#L462)
+## [rm](https://github.com/socketsupply/io/blob/master/fs/index.js#L466)
 
 This is a `FunctionDeclaration` named `rm`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [stat](https://github.com/socketsupply/io/blob/master/fs/index.js#L465)
+## [stat](https://github.com/socketsupply/io/blob/master/fs/index.js#L469)
 
 This is a `FunctionDeclaration` named `stat`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [symlink](https://github.com/socketsupply/io/blob/master/fs/index.js#L494)
+## [symlink](https://github.com/socketsupply/io/blob/master/fs/index.js#L498)
 
 This is a `FunctionDeclaration` named `symlink`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [truncate](https://github.com/socketsupply/io/blob/master/fs/index.js#L497)
+## [truncate](https://github.com/socketsupply/io/blob/master/fs/index.js#L501)
 
 This is a `FunctionDeclaration` named `truncate`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [unlink](https://github.com/socketsupply/io/blob/master/fs/index.js#L500)
+## [unlink](https://github.com/socketsupply/io/blob/master/fs/index.js#L504)
 
 This is a `FunctionDeclaration` named `unlink`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [utimes](https://github.com/socketsupply/io/blob/master/fs/index.js#L503)
+## [utimes](https://github.com/socketsupply/io/blob/master/fs/index.js#L507)
 
 This is a `FunctionDeclaration` named `utimes`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [watch](https://github.com/socketsupply/io/blob/master/fs/index.js#L506)
+## [watch](https://github.com/socketsupply/io/blob/master/fs/index.js#L510)
 
 This is a `FunctionDeclaration` named `watch`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [write](https://github.com/socketsupply/io/blob/master/fs/index.js#L509)
+## [write](https://github.com/socketsupply/io/blob/master/fs/index.js#L513)
 
 This is a `FunctionDeclaration` named `write`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [writeFile](https://github.com/socketsupply/io/blob/master/fs/index.js#L512)
+## [writeFile](https://github.com/socketsupply/io/blob/master/fs/index.js#L516)
 
 This is a `FunctionDeclaration` named `writeFile`in `fs/index.js`, it's exported but undocumented.
 
 
 
 
-## [writev](https://github.com/socketsupply/io/blob/master/fs/index.js#L549)
+## [writev](https://github.com/socketsupply/io/blob/master/fs/index.js#L553)
 
 This is a `FunctionDeclaration` named `writev`in `fs/index.js`, it's exported but undocumented.
 
