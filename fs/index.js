@@ -3,6 +3,10 @@
  *
  * This module enables interacting with the file system in a way modeled on
  * standard POSIX functions.
+ * 
+ * The Application Sandbox restricts access to the file system.
+ * Please see the Application Sandbox documentation for more information:
+ * https://sockets.sh/guides/#working-with-the-file-system-on-ios
  *
  * To use the promise-based APIs:
  *
