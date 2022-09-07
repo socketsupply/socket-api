@@ -309,6 +309,9 @@ export function open (path, flags, mode, options, callback) {
  * Asynchronously open a directory calling `callback` upon success or error.
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsreaddirpath-options-callback}
  * @param {string | Buffer | URL} path
+ * @param {Object=} options
+ * @param {string=} [options.encoding = 'utf8']
+ * @param {boolean=} [options.withFileTypes = false]
  * @param {function(err, fd)} callback
  */
 export function opendir (path, options, callback) {

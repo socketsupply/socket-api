@@ -2,6 +2,7 @@
 import * as acorn from 'acorn'
 import * as walk from 'acorn-walk'
 import fs from 'node:fs'
+import { type } from 'node:os'
 import path from 'node:path'
 
 try {
@@ -127,13 +128,23 @@ export function transform (filename) {
           const propType = 'params'
           item.signature = item.signature || []
           const parts = attr.replace(/(@param|@arg|@argument)/, '').split(/ - /)
-          const { 1: type, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
-          const optional = type.endsWith('=')
+          const { 1: rawType, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
           const [name, defaultValue] = rawName.replace(/[\[\]']+/g, '').trim().split('=')
+
+          // type could be [(string|number)=]
+          const parenthasisedType = rawType
+            .replace(/\|/g, '\\|')
+            .replace(/[]+/g, '')
+          // now it is (string|number)=
+          const optional = parenthasisedType.endsWith('=')
+          const compundType = parenthasisedType.replace(/=+$/, '')
+          // now it is (string|number)
+          const type = compundType.match(/^\((.*)\)$/)?.[1] ?? compundType
+          // now it is string|number
 
           const param = {
             name: name || `(Position ${position++})`,
-            type: (optional ? type.replace('=', '') : type).replace(/\|/g, '\\|').replace(/[\(\)']+/g, ''),
+            type
           }
 
           const params = node.declaration?.params || node.value?.params

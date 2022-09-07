@@ -420,7 +420,7 @@ upon success or error.
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
 | mode  | string | F_OK(0) | true |  |
-| callback | functionerr, fd |  | false |  |
+| callback | function(err, fd) |  | false |  |
 
 
 ## [`appendFile()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L92)
@@ -445,7 +445,7 @@ Asynchronously close a file descriptor calling `callback` upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | fd | number |  | false |  |
-| callback | functionerr |  | false |  |
+| callback | function(err) |  | false |  |
 
 
 ## [`copyFile()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L138)
@@ -515,20 +515,23 @@ Asynchronously open a file calling `callback` upon success or error.
 | path | string \| Buffer \| URL |  | false |  |
 | flags  | string | r | true |  |
 | mode  | string | 0o666 | true |  |
-| callback | functionerr, fd |  | false |  |
+| callback | function(err, fd) |  | false |  |
 
 
-## [`opendir(path, callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L314)
+## [`opendir(path, options, callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L317)
 
 Asynchronously open a directory calling `callback` upon success or error.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| callback | functionerr, fd |  | false |  |
+| options | Object |  | true |  |
+| options.encoding  | string | utf8 | true |  |
+| options.withFileTypes  | boolean | false | true |  |
+| callback | function(err, fd) |  | false |  |
 
 
-## [`read(fd, buffer)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L336)
+## [`read(fd, buffer)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L339)
 
 Asynchronously read from an open file descriptor.
 
@@ -538,7 +541,7 @@ Asynchronously read from an open file descriptor.
 | buffer | object \| Buffer \| TypedArray |  | false |  |
 
 
-## [`readdir(path, options, callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L368)
+## [`readdir(path, options, callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L371)
 
 Asynchronously read all entries in a directory.
 
@@ -546,10 +549,10 @@ Asynchronously read all entries in a directory.
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL  |  | false |  |
 | options | object |  | false |  |
-| callback | functionerr, buffer |  | false |  |
+| callback | function(err, buffer) |  | false |  |
 
 
-## [`readFile(path, options, callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L416)
+## [`readFile(path, options, callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L419)
 
 
 
@@ -557,75 +560,75 @@ Asynchronously read all entries in a directory.
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL \| number  |  | false |  |
 | options | object |  | false |  |
-| callback | functionerr, buffer |  | false |  |
+| callback | function(err, buffer) |  | false |  |
 
 
-## [`readlink()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L454)
+## [`readlink()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L457)
 
 This is a `FunctionDeclaration` named `readlink`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`realpath()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L457)
+## [`realpath()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L460)
 
 This is a `FunctionDeclaration` named `realpath`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`rename()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L460)
+## [`rename()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L463)
 
 This is a `FunctionDeclaration` named `rename`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`rmdir()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L463)
+## [`rmdir()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L466)
 
 This is a `FunctionDeclaration` named `rmdir`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`rm()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L466)
+## [`rm()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L469)
 
 This is a `FunctionDeclaration` named `rm`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`stat()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L469)
+## [`stat()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L472)
 
 This is a `FunctionDeclaration` named `stat`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`symlink()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L498)
+## [`symlink()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L501)
 
 This is a `FunctionDeclaration` named `symlink`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`truncate()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L501)
+## [`truncate()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L504)
 
 This is a `FunctionDeclaration` named `truncate`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`unlink()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L504)
+## [`unlink()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L507)
 
 This is a `FunctionDeclaration` named `unlink`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`utimes()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L507)
+## [`utimes()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L510)
 
 This is a `FunctionDeclaration` named `utimes`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`watch()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L510)
+## [`watch()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L513)
 
 This is a `FunctionDeclaration` named `watch`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`write()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L513)
+## [`write()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L516)
 
 This is a `FunctionDeclaration` named `write`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`writeFile()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L516)
+## [`writeFile()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L519)
 
 This is a `FunctionDeclaration` named `writeFile`in `fs/index.js`, it's exported but undocumented.
 
 
-## [`writev()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L553)
+## [`writev()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L556)
 
 This is a `FunctionDeclaration` named `writev`in `fs/index.js`, it's exported but undocumented.
 
