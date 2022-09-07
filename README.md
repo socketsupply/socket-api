@@ -103,7 +103,7 @@ Generate `size` random bytes.
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
-| A promise that resolves with an instance of io.Buffer with random bytes. | Buffer |  |
+| Not specified | Buffer | A promise that resolves with an instance of io.Buffer with random bytes. |
 
 
 ## [`createDigest(algorithm, message)`](https://github.com/socketsupply/io/blob/master/crypto.js#L37)
@@ -118,7 +118,7 @@ Generate `size` random bytes.
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
-| A promise that resolves with an instance of io.Buffer with the hash. | Promise<Buffer> |  |
+| Not specified | Promise<Buffer> | A promise that resolves with an instance of io.Buffer with the hash. |
 
 
 # [Dgram](https://github.com/socketsupply/io/blob/master/dgram.js#L8)
@@ -1266,7 +1266,7 @@ Computes current working directory for a path
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
-| The home directory of the current user. | string |  |
+| Not specified | string | The home directory of the current user. |
 
 
 ## [`exit(code)`](https://github.com/socketsupply/io/blob/master/process.js#L19)
