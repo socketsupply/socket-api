@@ -362,11 +362,6 @@ before using dns.lookup().
 | cb | function |  | false | The function to call after the method is complete. |
 
 
-| Return Value | Type | Description |
-| :---         | :--- | :---        |
-| Not specified | void |  |
-
-
 # [DNS.promises](https://github.com/socketsupply/io/blob/master/dns/promises.js#L13)
 
 

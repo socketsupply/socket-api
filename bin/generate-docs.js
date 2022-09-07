@@ -154,6 +154,7 @@ export function transform (filename) {
           const { 1: type, 2: rawName } = attr.match(/{([^}]+)}(?:\s*-\s*)?(.*)/)
           const [name, description] = rawName.split(/\s-\s/s)
           const param = { name: name.trim() || 'Not specified' , type, description: description?.trim() }
+          if (['undefined', 'void'].includes(type)) continue;
           if (!item[propType]) item[propType] = []
           item[propType].push(param)
         }
