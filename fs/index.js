@@ -304,6 +304,7 @@ export function mkdir (path, options, callback) {
   }
 
   const mode = options.mode || 0o777
+  const recursive = options.recurisve === true
 
   if (typeof mode !== 'number') {
     throw new TypeError('mode must be a number.')
@@ -313,7 +314,7 @@ export function mkdir (path, options, callback) {
     throw new RangeError('mode must be a positive finite number.')
   }
 
-  ipc.request('fsMkdir', { mode, path }).then((result) => {
+  ipc.request('fsMkdir', { mode, path, recursive }).then((result) => {
     result?.err ? callback(result.err) : callback(null)
   })
 }
