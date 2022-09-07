@@ -244,3 +244,6 @@ export async function writeFile (path, data, options) {
     return await handle.writeFile(data, options)
   })
 }
+
+import * as exports from './index.js'
+export default exports
