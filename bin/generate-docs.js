@@ -126,7 +126,7 @@ export function transform (filename) {
         if (isParam) {
           const propType = 'params'
           item.signature = item.signature || []
-          const parts = attr.replace(/(@param|@arg|@argument)/, '').split(/-\s+(.*)/)
+          const parts = attr.split(/-\s+(.*)/)
           const { 1: rawType, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
           const [name, defaultValue] = rawName.replace(/[\[\]']+/g, '').trim().split('=')
 
