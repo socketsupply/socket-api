@@ -164,7 +164,7 @@ This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_CONNECTED` (extends `S
 This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `SocketError`)`in `dgram.js`, it's exported but undocumented.
 
 
-## [`createSocket(options, options.type, options.reuseAddr, options.ipv6Only, options.recvBufferSize, options.sendBufferSize, options.signal, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L84)
+## [`createSocket(options, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L84)
 
 
 
@@ -329,7 +329,7 @@ operating system facilities to perform name resolution. It may not need to
 perform any network communication. To perform name resolution the way other
 applications on the same system do, use dns.lookup().
 
-## [`lookup(hostname, opts, opts.family, cb)`](https://github.com/socketsupply/io/blob/master/dns/index.js#L45)
+## [`lookup(hostname, opts, cb)`](https://github.com/socketsupply/io/blob/master/dns/index.js#L45)
 
 External docs: https://nodejs.org/api/dns.html#dns_dns_lookup_hostname_options_callback
 Resolves a host name (e.g. `example.org`) into the first found A (IPv4) or
@@ -372,7 +372,7 @@ operating system facilities to perform name resolution. It may not need to
 perform any network communication. To perform name resolution the way other
 applications on the same system do, use dns.lookup().
 
-## [`lookup(hostname, opts, opts.family)`](https://github.com/socketsupply/io/blob/master/dns/promises.js#L23)
+## [`lookup(hostname, opts)`](https://github.com/socketsupply/io/blob/master/dns/promises.js#L23)
 
 External docs: https://nodejs.org/api/dns.html#dnspromiseslookuphostname-options
 
@@ -901,7 +901,7 @@ Timeout in milliseconds for IPC requests.
 
 Symbol for the `ipc.debug.enabled` property
 
-## [`parseSeq(seq, options, options.bigint )`](https://github.com/socketsupply/io/blob/master/ipc.js#L143)
+## [`parseSeq(seq, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L143)
 
 Parses `seq` as integer value
 
@@ -1167,7 +1167,7 @@ This is a `FunctionDeclaration` named `write`in `ipc.js`, it's exported but undo
 This is a `FunctionDeclaration` named `request`in `ipc.js`, it's exported but undocumented.
 
 
-## [`createBinding(domain, ctx, ctx.default)`](https://github.com/socketsupply/io/blob/master/ipc.js#L842)
+## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L842)
 
 Factory for creating a proxy based IPC API.
 
@@ -1223,7 +1223,7 @@ This is a `VariableDeclaration` named `EOL`in `os.js`, it's exported but undocum
 This is a `ClassDeclaration` named `Path`in `path/path.js`, it's exported but undocumented.
 
 
-### [`cwd(opts, opts.posix Set to `true` to force POSIX style path)`](https://github.com/socketsupply/io/blob/master/path/path.js#L16)
+### [`cwd(opts)`](https://github.com/socketsupply/io/blob/master/path/path.js#L16)
 
 Computes current working directory for a path
 
@@ -1233,7 +1233,7 @@ Computes current working directory for a path
 | opts.posix Set to `true` to force POSIX style path | boolean |  | true |  |
 
 
-### [`constructor(opts, opts.root, opts.base, opts.name, opts.dir, opts.ext)`](https://github.com/socketsupply/io/blob/master/path/path.js#L45)
+### [`constructor(opts)`](https://github.com/socketsupply/io/blob/master/path/path.js#L45)
 
 `Path` class constructor.
 

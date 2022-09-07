@@ -146,7 +146,7 @@ export function transform (filename) {
 
           if (!item[propType]) item[propType] = []
           item[propType].push(param)
-          if (propType === 'params') item.signature.push(name)
+          if (propType === 'params' && !name.includes('.')) item.signature.push(name)
         }
 
         if (isReturn) {
