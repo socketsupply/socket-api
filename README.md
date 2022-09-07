@@ -22,9 +22,10 @@ Creates a new service with key-value pairs
 
 Start the bluetooth service.
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Promise<Any> |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<Any> |  |
+
 
 ### [`subscribe(id)`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L78)
 
@@ -46,9 +47,10 @@ ble.on(uuid, (data, details) => {
 | id | string |  | false | A well-known UUID |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Promise<any> |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<any> |  |
+
 
 ### [`publish(id)`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L90)
 
@@ -59,9 +61,10 @@ Start advertising a new value for a well-known UUID
 | id | string |  | false | A well-known UUID |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Promise<any> |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<any> |  |
+
 
 # [Buffer](https://github.com/socketsupply/io/blob/master/buffer.js#L7)
 
@@ -84,9 +87,10 @@ Generate cryptographically strong random values into `buffer`
 | buffer | TypedArray |  | false |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | TypedArray |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | TypedArray |  |
+
 
 ## [`randomBytes(size)`](https://github.com/socketsupply/io/blob/master/crypto.js#L26)
 
@@ -99,9 +103,10 @@ Generate `size` random bytes.
 | size | number |  | false | The number of bytes to generate. The size must not be larger than 2 |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-| A promise that resolves with an instance of io.Buffer with random bytes. | Buffer |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| A promise that resolves with an instance of io.Buffer with random bytes. | Buffer |  |
+
 
 ## [`createDigest(algorithm, message)`](https://github.com/socketsupply/io/blob/master/crypto.js#L37)
 
@@ -113,9 +118,10 @@ Generate `size` random bytes.
 | message | Buffer \| TypedArray \| DataView |  | false | An instance of io.Buffer, TypedArray or Dataview. |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-| A promise that resolves with an instance of io.Buffer with the hash. | Promise<Buffer> |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| A promise that resolves with an instance of io.Buffer with the hash. | Promise<Buffer> |  |
+
 
 # [Dgram](https://github.com/socketsupply/io/blob/master/dgram.js#L8)
 
@@ -174,9 +180,10 @@ This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `Soc
 | callback | function |  | true | Attached as a listener for 'message' events. Optional. |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Socket |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Socket |  |
+
 
 ## [`Socket` (extends `EventEmitter`)](https://github.com/socketsupply/io/blob/master/dgram.js#L90)
 
@@ -289,9 +296,13 @@ UDP sockets, this object will contain address, family, and port properties.
 
 This method throws EBADF if called on an unbound socket.
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  socketInfo.family - The IP family of the socket | string |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| socketInfo | Object | Information about the local socket |
+| socketInfo.address | string | The IP address of the socket |
+| socketInfo.port | string | The port of the socket |
+| socketInfo.family | string | The IP family of the socket |
+
 
 ### [remoteAddress](https://github.com/socketsupply/io/blob/master/dgram.js#L581)
 
@@ -300,9 +311,13 @@ endpoint. This method throws an ERR_SOCKET_DGRAM_NOT_CONNECTED exception
 if the socket is not connected.
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  socketInfo.family - The IP family of the socket | string |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| socketInfo | Object | Information about the remote socket |
+| socketInfo.address | string | The IP address of the socket |
+| socketInfo.port | string | The port of the socket |
+| socketInfo.family | string | The IP family of the socket |
+
 
 # [DNS](https://github.com/socketsupply/io/blob/master/dns/index.js#L13)
 
@@ -347,9 +362,10 @@ before using dns.lookup().
 | cb | function |  | false | The function to call after the method is complete. |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | void |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | void |  |
+
 
 # [DNS.promises](https://github.com/socketsupply/io/blob/master/dns/promises.js#L13)
 
@@ -373,9 +389,10 @@ External docs: https://nodejs.org/api/dns.html#dnspromiseslookuphostname-options
 | opts.family | number\|string |  | false | The record family. Must be 4, 6, or 0. For backward compatibility reasons,'IPv4' and 'IPv6' are interpreted as 4 and 6 respectively. The value 0 indicates that IPv4 and IPv6 addresses are both returned. Default: 0. |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Promise |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise |  |
+
 
 # [File System](https://github.com/socketsupply/io/blob/master/fs/index.js#L24)
 
@@ -686,9 +703,10 @@ https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
 | mode | string |  | false | default: 0o666 |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Promise<FileHandle> |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<FileHandle> |  |
+
 
 ## [opendir](https://github.com/socketsupply/io/blob/master/fs/promises.js#L116)
 
@@ -908,9 +926,10 @@ If `debug.enabled === true`, then debug output will be printed to console.
 | enable | boolean |  | false |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | boolean |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | boolean |  |
+
 
 ## [`Message` (extends `URL`)](https://github.com/socketsupply/io/blob/master/ipc.js#L185)
 
@@ -930,9 +949,10 @@ Creates a `Message` instance from a variety of input.
 | params | object\|string\|URLSearchParams |  | true |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Message |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Message |  |
+
 
 ### [`isValidInput(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L245)
 
@@ -944,9 +964,10 @@ a new `Message` instance.
 | input | string\|URL\|Message\|Buffer\|object |  | false |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | boolean |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | boolean |  |
+
 
 ### [`constructor(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L260)
 
@@ -993,9 +1014,10 @@ Computed readonly object of message parameters.
 
 Returns computed parameters as entries
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Array<Array<string,mixed>> |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Array<Array<string,mixed>> |  |
+
 
 ### [`set(key, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L357)
 
@@ -1017,9 +1039,10 @@ Get a parameter value by `key`.
 | defaultValue | mixed |  | false |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | mixed |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | mixed |  |
+
 
 ### [`delete(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L391)
 
@@ -1030,25 +1053,28 @@ Delete a parameter by `key`.
 | key | string |  | false |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | boolean |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | boolean |  |
+
 
 ### [keys](https://github.com/socketsupply/io/blob/master/ipc.js#L403)
 
 Computed parameter keys.
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Array<string> |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Array<string> |  |
+
 
 ### [values](https://github.com/socketsupply/io/blob/master/ipc.js#L411)
 
 Computed parameter values.
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Array<mixed> |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Array<mixed> |  |
+
 
 ### [`has(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L427)
 
@@ -1059,9 +1085,10 @@ Predicate to determine if parameter `key` is present in parameters.
 | key | string |  | false |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | boolean |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | boolean |  |
+
 
 ### [toJSON](https://github.com/socketsupply/io/blob/master/ipc.js#L434)
 
@@ -1084,9 +1111,10 @@ like `{ err?, data? }`, an `Error` instance, or just `data`.
 | result | object\|Error\|mixed |  | true |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Result |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Result |  |
+
 
 ### [`constructor(data, err)`](https://github.com/socketsupply/io/blob/master/ipc.js#L477)
 
@@ -1114,9 +1142,10 @@ upon success or error.
 | params | object\|string |  | true |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Result |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Result |  |
+
 
 ## [emit](https://github.com/socketsupply/io/blob/master/ipc.js#L607)
 
@@ -1154,9 +1183,10 @@ Factory for creating a proxy based IPC API.
 | ctx.default | string |  | true |  |
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  | Proxy |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Proxy |  |
+
 
 # [OS](https://github.com/socketsupply/io/blob/master/os.js#L8)
 
@@ -1238,9 +1268,10 @@ Computes current working directory for a path
 
 
 
-| Return Value        | Type         |
-| :---                | :---         |
-|  The home directory of the current user. | string |
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| The home directory of the current user. | string |  |
+
 
 ## [`exit(code)`](https://github.com/socketsupply/io/blob/master/process.js#L19)
 

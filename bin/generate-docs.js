@@ -101,7 +101,7 @@ export function transform (filename) {
         item.static = node.static
         item.async = node.value.async
         item.params = []
-        item.returns = null
+        item.returns = []
       }
     }
 
@@ -151,8 +151,11 @@ export function transform (filename) {
 
         if (isReturn) {
           const propType = 'returns'
-          const { 1: type, 2: description = '' } = attr.match(/{([^}]+)}(?:\s*-\s*)?(.*)/)
-          item[propType] = { type, description }
+          const { 1: type, 2: rawName } = attr.match(/{([^}]+)}(?:\s*-\s*)?(.*)/)
+          const [name, description] = rawName.split(/\s-\s/s)
+          const param = { name: name.trim() || 'Not specified' , type, description: description?.trim() }
+          if (!item[propType]) item[propType] = []
+          item[propType].push(param)
         }
       }
     }
@@ -197,14 +200,22 @@ export function transform (filename) {
     return (table + '\n')
   }
 
-  const createTableReturn = (item) => {
-    if (!item) return []
+  const createTableReturn = (arr) => {
+    if (!arr?.length) return []
 
-    const table = [
-      `| Return Value        | Type         |`,
-      '| :---                | :---         |',
-      `| ${item.description} | ${item.type} |`
+    const tableHeader = [
+      `| Return Value | Type | Description |`,
+      '| :---         | :--- | :---        |',
     ].join('\n')
+
+    let table = `${tableHeader}\n`
+
+    for (const param of arr) {
+      // let type = param.type || 'Unknown'
+      // const desc = param.header?.join(' ')
+
+      table += `| ${Object.values(param).join(' | ')} |\n`
+    }
 
     return (table + '\n')
   }
