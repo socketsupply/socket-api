@@ -108,7 +108,7 @@ export function transform (filename) {
 
     if (item.export && !item.header) {
       item.header = [
-        `This is a \`${item.type}\` named \`${item.name}\`` +
+        `This is a \`${item.type}\` named \`${item.name}\` ` +
         `in \`${srcFile}\`, it's exported but undocumented.\n`
       ]
     }

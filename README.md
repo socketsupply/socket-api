@@ -129,37 +129,37 @@ Generate `size` random bytes.
 
 ## [`SocketError` (extends `InternalError`)](https://github.com/socketsupply/io/blob/master/dgram.js#L23)
 
-This is a `ClassDeclaration` named ``SocketError` (extends `InternalError`)`in `dgram.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named ``SocketError` (extends `InternalError`)` in `dgram.js`, it's exported but undocumented.
 
 
 ## [`ERR_SOCKET_ALREADY_BOUND` (extends `SocketError`)](https://github.com/socketsupply/io/blob/master/dgram.js#L27)
 
-This is a `ClassDeclaration` named ``ERR_SOCKET_ALREADY_BOUND` (extends `SocketError`)`in `dgram.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named ``ERR_SOCKET_ALREADY_BOUND` (extends `SocketError`)` in `dgram.js`, it's exported but undocumented.
 
 
 ## [`ERR_SOCKET_BAD_BUFFER_SIZE` (extends `SocketError`)](https://github.com/socketsupply/io/blob/master/dgram.js#L28)
 
-This is a `ClassDeclaration` named ``ERR_SOCKET_BAD_BUFFER_SIZE` (extends `SocketError`)`in `dgram.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named ``ERR_SOCKET_BAD_BUFFER_SIZE` (extends `SocketError`)` in `dgram.js`, it's exported but undocumented.
 
 
 ## [`ERR_SOCKET_BUFFER_SIZE` (extends `SocketError`)](https://github.com/socketsupply/io/blob/master/dgram.js#L29)
 
-This is a `ClassDeclaration` named ``ERR_SOCKET_BUFFER_SIZE` (extends `SocketError`)`in `dgram.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named ``ERR_SOCKET_BUFFER_SIZE` (extends `SocketError`)` in `dgram.js`, it's exported but undocumented.
 
 
 ## [`ERR_SOCKET_DGRAM_IS_CONNECTED` (extends `SocketError`)](https://github.com/socketsupply/io/blob/master/dgram.js#L30)
 
-This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_IS_CONNECTED` (extends `SocketError`)`in `dgram.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_IS_CONNECTED` (extends `SocketError`)` in `dgram.js`, it's exported but undocumented.
 
 
 ## [`ERR_SOCKET_DGRAM_NOT_CONNECTED` (extends `SocketError`)](https://github.com/socketsupply/io/blob/master/dgram.js#L31)
 
-This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_CONNECTED` (extends `SocketError`)`in `dgram.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_CONNECTED` (extends `SocketError`)` in `dgram.js`, it's exported but undocumented.
 
 
 ## [`ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `SocketError`)](https://github.com/socketsupply/io/blob/master/dgram.js#L32)
 
-This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `SocketError`)`in `dgram.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `SocketError`)` in `dgram.js`, it's exported but undocumented.
 
 
 ## [`createSocket(options, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L84)
@@ -423,17 +423,17 @@ Asynchronously check access a file for a given mode calling `callback`
 
 ## [`appendFile()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L92)
 
-This is a `FunctionDeclaration` named `appendFile`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `appendFile` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`chmod()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L95)
 
-This is a `FunctionDeclaration` named `chmod`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `chmod` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`chown()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L113)
 
-This is a `FunctionDeclaration` named `chown`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `chown` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`close(fd, callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L122)
@@ -448,17 +448,17 @@ Asynchronously close a file descriptor calling `callback` upon success or error.
 
 ## [`copyFile()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L138)
 
-This is a `FunctionDeclaration` named `copyFile`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `copyFile` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`createReadStream()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L141)
 
-This is a `FunctionDeclaration` named `createReadStream`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `createReadStream` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`createWriteStream()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L175)
 
-This is a `FunctionDeclaration` named `createWriteStream`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `createWriteStream` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`fstat(fd, options, callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L217)
@@ -476,32 +476,32 @@ Invokes the callback with the <fs.Stats> for the file descriptor. See
 
 ## [`lchmod()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L238)
 
-This is a `FunctionDeclaration` named `lchmod`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `lchmod` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`lchown()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L241)
 
-This is a `FunctionDeclaration` named `lchown`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `lchown` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`lutimes()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L244)
 
-This is a `FunctionDeclaration` named `lutimes`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `lutimes` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`link()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L247)
 
-This is a `FunctionDeclaration` named `link`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `link` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`lstat()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L250)
 
-This is a `FunctionDeclaration` named `lstat`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `lstat` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`mkdir()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L253)
 
-This is a `FunctionDeclaration` named `mkdir`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `mkdir` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`open(path, flags , mode , callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L264)
@@ -563,72 +563,72 @@ Asynchronously read all entries in a directory.
 
 ## [`readlink()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L457)
 
-This is a `FunctionDeclaration` named `readlink`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `readlink` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`realpath()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L460)
 
-This is a `FunctionDeclaration` named `realpath`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `realpath` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`rename()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L463)
 
-This is a `FunctionDeclaration` named `rename`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `rename` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`rmdir()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L466)
 
-This is a `FunctionDeclaration` named `rmdir`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `rmdir` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`rm()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L469)
 
-This is a `FunctionDeclaration` named `rm`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `rm` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`stat()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L472)
 
-This is a `FunctionDeclaration` named `stat`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `stat` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`symlink()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L501)
 
-This is a `FunctionDeclaration` named `symlink`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `symlink` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`truncate()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L504)
 
-This is a `FunctionDeclaration` named `truncate`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `truncate` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`unlink()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L507)
 
-This is a `FunctionDeclaration` named `unlink`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `unlink` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`utimes()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L510)
 
-This is a `FunctionDeclaration` named `utimes`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `utimes` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`watch()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L513)
 
-This is a `FunctionDeclaration` named `watch`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `watch` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`write()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L516)
 
-This is a `FunctionDeclaration` named `write`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `write` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`writeFile()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L519)
 
-This is a `FunctionDeclaration` named `writeFile`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `writeFile` in `fs/index.js`, it's exported but undocumented.
 
 
 ## [`writev()`](https://github.com/socketsupply/io/blob/master/fs/index.js#L556)
 
-This is a `FunctionDeclaration` named `writev`in `fs/index.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `writev` in `fs/index.js`, it's exported but undocumented.
 
 
 # [FS.promises](https://github.com/socketsupply/io/blob/master/fs/promises.js#L4)
@@ -783,7 +783,7 @@ Asynchronously open a file.
 
 ## [DEFAULT_STREAM_HIGH_WATER_MARK](https://github.com/socketsupply/io/blob/master/fs/stream.js#L7)
 
-This is a `VariableDeclaration` named `DEFAULT_STREAM_HIGH_WATER_MARK`in `fs/stream.js`, it's exported but undocumented.
+This is a `VariableDeclaration` named `DEFAULT_STREAM_HIGH_WATER_MARK` in `fs/stream.js`, it's exported but undocumented.
 
 
 ## [`ReadStream` (extends `Readable`)](https://github.com/socketsupply/io/blob/master/fs/stream.js#L12)
@@ -854,12 +854,12 @@ Handles `shouldEmitClose` setting from `options.emitClose` in constructor.
 
 ## [FileReadStream](https://github.com/socketsupply/io/blob/master/fs/stream.js#L324)
 
-This is a `VariableDeclaration` named `FileReadStream`in `fs/stream.js`, it's exported but undocumented.
+This is a `VariableDeclaration` named `FileReadStream` in `fs/stream.js`, it's exported but undocumented.
 
 
 ## [FileWriteStream](https://github.com/socketsupply/io/blob/master/fs/stream.js#L325)
 
-This is a `VariableDeclaration` named `FileWriteStream`in `fs/stream.js`, it's exported but undocumented.
+This is a `VariableDeclaration` named `FileWriteStream` in `fs/stream.js`, it's exported but undocumented.
 
 
 # [IPC](https://github.com/socketsupply/io/blob/master/ipc.js#L27)
@@ -1145,27 +1145,27 @@ Sends a synchronous IPC command over XHR returning a `Result`
 
 ## [`emit()`](https://github.com/socketsupply/io/blob/master/ipc.js#L607)
 
-This is a `FunctionDeclaration` named `emit`in `ipc.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `emit` in `ipc.js`, it's exported but undocumented.
 
 
 ## [`resolve()`](https://github.com/socketsupply/io/blob/master/ipc.js#L617)
 
-This is a `FunctionDeclaration` named `resolve`in `ipc.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `resolve` in `ipc.js`, it's exported but undocumented.
 
 
 ## [`send()`](https://github.com/socketsupply/io/blob/master/ipc.js#L627)
 
-This is a `FunctionDeclaration` named `send`in `ipc.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `send` in `ipc.js`, it's exported but undocumented.
 
 
 ## [`write()`](https://github.com/socketsupply/io/blob/master/ipc.js#L644)
 
-This is a `FunctionDeclaration` named `write`in `ipc.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `write` in `ipc.js`, it's exported but undocumented.
 
 
 ## [`request()`](https://github.com/socketsupply/io/blob/master/ipc.js#L739)
 
-This is a `FunctionDeclaration` named `request`in `ipc.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `request` in `ipc.js`, it's exported but undocumented.
 
 
 ## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L842)
@@ -1192,27 +1192,27 @@ Factory for creating a proxy based IPC API.
 
 ## [`arch()`](https://github.com/socketsupply/io/blob/master/os.js#L19)
 
-This is a `FunctionDeclaration` named `arch`in `os.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `arch` in `os.js`, it's exported but undocumented.
 
 
 ## [`networkInterfaces()`](https://github.com/socketsupply/io/blob/master/os.js#L52)
 
-This is a `FunctionDeclaration` named `networkInterfaces`in `os.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `networkInterfaces` in `os.js`, it's exported but undocumented.
 
 
 ## [`platform()`](https://github.com/socketsupply/io/blob/master/os.js#L128)
 
-This is a `FunctionDeclaration` named `platform`in `os.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `platform` in `os.js`, it's exported but undocumented.
 
 
 ## [`type()`](https://github.com/socketsupply/io/blob/master/os.js#L157)
 
-This is a `FunctionDeclaration` named `type`in `os.js`, it's exported but undocumented.
+This is a `FunctionDeclaration` named `type` in `os.js`, it's exported but undocumented.
 
 
 ## [EOL](https://github.com/socketsupply/io/blob/master/os.js#L197)
 
-This is a `VariableDeclaration` named `EOL`in `os.js`, it's exported but undocumented.
+This is a `VariableDeclaration` named `EOL` in `os.js`, it's exported but undocumented.
 
 
 # [Path](https://github.com/socketsupply/io/blob/master/path/path.js#L4)
@@ -1221,7 +1221,7 @@ This is a `VariableDeclaration` named `EOL`in `os.js`, it's exported but undocum
 
 ## [Path](https://github.com/socketsupply/io/blob/master/path/path.js#L9)
 
-This is a `ClassDeclaration` named `Path`in `path/path.js`, it's exported but undocumented.
+This is a `ClassDeclaration` named `Path` in `path/path.js`, it's exported but undocumented.
 
 
 ### [`cwd(opts)`](https://github.com/socketsupply/io/blob/master/path/path.js#L16)
