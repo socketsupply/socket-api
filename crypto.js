@@ -13,7 +13,7 @@ const { crypto } = parent
 /**
  * Generate cryptographically strong random values into `buffer`
  * @param {TypedArray} buffer
- * @see {https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues}
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues}
  * @return {TypedArray}
  */
 export const getRandomValues = crypto?.getRandomValues?.bind(crypto)

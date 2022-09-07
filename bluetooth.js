@@ -52,7 +52,7 @@ export class Bluetooth extends EventEmitter {
 
   /**
    * Start the bluetooth service.
-   * @return ${Promise<Any>}
+   * @return {Promise<Any>}
    *
    */
   start () {

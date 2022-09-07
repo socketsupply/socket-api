@@ -60,7 +60,7 @@ export function transform (filename) {
 
     if (item.header?.join('').includes('@link')) {
       const url = item.header.join('').match(/@link\s*(.*)}/)
-      if (url) item.url = url[1]
+      if (url) item.url = url[1].trim()
     }
 
     if (node.type.includes('ExportAllDeclaration')) {
@@ -101,7 +101,7 @@ export function transform (filename) {
         item.static = node.static
         item.async = node.value.async
         item.params = []
-        item.returns = []
+        item.returns = null
       }
     }
 
@@ -118,16 +118,16 @@ export function transform (filename) {
       let position = 0
 
       for (const attr of attrs) {
-        const isParamOrReturn = attr.match(/^@(param|returns?)/)
+        const isParam = attr.match(/^@(param|arg|argument)/)
+        const isReturn = attr.match(/^@(returns?)/)
 
-        if (isParamOrReturn) {
-          const propType = isParamOrReturn[1] === 'param' ? 'params' : 'returns'
+        if (isParam) {
+          const propType = 'params'
           item.signature = item.signature || []
-          const parts = attr.replace('@param ', '').split(/ - /)
+          const parts = attr.replace(/(@param|@arg|@argument)/, '').split(/ - /)
           const { 1: type, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
           const optional = type.endsWith('=')
           const [name, defaultValue] = rawName.replace(/[\[\]']+/g, '').trim().split('=')
-
 
           const param = {
             name: name || `(Position ${position++})`,
@@ -146,7 +146,13 @@ export function transform (filename) {
 
           if (!item[propType]) item[propType] = []
           item[propType].push(param)
-          if (propType === 'param') item.signature.push(name)
+          if (propType === 'params') item.signature.push(name)
+        }
+
+        if (isReturn) {
+          const propType = 'returns'
+          const { 1: type, 2: description = '' } = attr.match(/{([^}]+)}(?:\s*-\s*)?(.*)/)
+          item[propType] = { type, description }
         }
       }
     }
@@ -162,7 +168,7 @@ export function transform (filename) {
         return !line.match(/@\w*/)
       })
 
-      const index = docs.findIndex(d => d.sort === item.sort)
+      // const index = docs.findIndex(d => d.sort === item.sort)
       // if (docs.length === 0 || index === -1)
       docs.push(item)
     }
@@ -171,22 +177,34 @@ export function transform (filename) {
   walk.full(ast, onNode)
   docs.sort((a, b) => a.sort - b.sort)
 
-  const createTable = (arr, h) => {
-    if (!arr || !arr.length) return ''
+  const createTableParams = arr => {
+    if (!arr || !arr.length) return []
 
     const tableHeader = [
-      `| ${h} | Type | Default | Optional | Description |`,
-      '| :--- | :--- | :---:   | :---:    | :---        |'
+      `| Argument | Type | Default | Optional | Description |`,
+      '| :---     | :--- | :---:   | :---:    | :---        |'
     ].join('\n')
 
     let table = `${tableHeader}\n`
 
     for (const param of arr) {
-      let type = param.type || 'Unknown'
-      const desc = param.header?.join(' ')
+      // let type = param.type || 'Unknown'
+      // const desc = param.header?.join(' ')
 
       table += `| ${Object.values(param).join(' | ')} |\n`
     }
+
+    return (table + '\n')
+  }
+
+  const createTableReturn = (item) => {
+    if (!item) return []
+
+    const table = [
+      `| Return Value        | Type         |`,
+      '| :---                | :---         |',
+      `| ${item.description} | ${item.type} |`
+    ].join('\n')
 
     return (table + '\n')
   }
@@ -204,8 +222,8 @@ export function transform (filename) {
       title ?? [],
       doc?.url ? `External docs: ${doc.url}` : [],
       header ?? [],
-      createTable(doc?.params, 'Argument'),
-      createTable(doc?.returns, 'Return Value')
+      createTableParams(doc?.params),
+      createTableReturn(doc?.returns)
     ].flatMap(item => item).join('\n')
 
     fs.appendFileSync(destFile, md, { flags: 'a' })
