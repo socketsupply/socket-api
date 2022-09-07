@@ -314,9 +314,10 @@ export function mkdir (path, options, callback) {
     throw new RangeError('mode must be a positive finite number.')
   }
 
-  ipc.request('fsMkdir', { mode, path, recursive }).then((result) => {
-    result?.err ? callback(result.err) : callback(null)
-  })
+  ipc
+    .request('fsMkdir', { mode, path, recursive })
+    .then(result => result?.err ? callback(result.err) : callback(null))
+    .catch(err => callback(err))
 }
 
 /**

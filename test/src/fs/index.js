@@ -157,7 +157,20 @@ test('fs.lchown', async (t) => {})
 test('fs.lutimes', async (t) => {})
 test('fs.link', async (t) => {})
 test('fs.lstat', async (t) => {})
-test('fs.mkdir', async (t) => {})
+test('fs.mkdir', async (t) => {
+  const filename = Math.random().toString(16).slice(2)
+
+  await new Promise((resolveMkdir, reject) => {
+    fs.mkdir(filename, {}, (err) => {
+      if (err) reject(err)
+
+      fs.stat(dirname, (err) => {
+        if (err) reject(err)
+        resolve()
+      })
+    })
+  })
+})
 test('fs.open', async (t) => {})
 test('fs.opendir', async (t) => {})
 test('fs.read', async (t) => {})
