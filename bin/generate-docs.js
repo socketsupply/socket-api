@@ -28,8 +28,7 @@ export function transform (filename) {
       if (!block) return
       if (comment[0] !== '*') return // not a JSDoc comment
 
-      comment = comment.replace(/^ \*/g, '')
-      comment = comment.replace(/\n?\s*\*\s+/g, '\n')
+      comment = comment.replace(/^\s*\*/gm, '').trim()
       comment = comment.replace(/^\n/, '')
       accumulateComments.push(comment.trim())
     },

@@ -2,7 +2,7 @@
 # [Bluetooth](https://github.com/socketsupply/io/blob/master/bluetooth.js#L7)
 
 
-A high level, cross-platform API for Bluetooth Pub-Sub
+ A high level, cross-platform API for Bluetooth Pub-Sub
 
 ## [`Bluetooth` (extends `EventEmitter`)](https://github.com/socketsupply/io/blob/master/bluetooth.js#L13)
 
@@ -11,7 +11,7 @@ Create an instance of a Bluetooth service.
 ### [`constructor(serviceId)`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L21)
 
 constructor is an example property that is set to `true`
-Creates a new service with key-value pairs
+ Creates a new service with key-value pairs
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
@@ -30,16 +30,16 @@ Start the bluetooth service.
 ### [`subscribe(id)`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L78)
 
 Start scanning for published values that correspond to a well-known UUID.
-Once subscribed to a UUID, events that correspond to that UUID will be
-emitted. To receive these events you can add an event listener, for example...
+ Once subscribed to a UUID, events that correspond to that UUID will be
+ emitted. To receive these events you can add an event listener, for example...
 
-```js
-const ble = new Bluetooth(id)
-ble.subscribe(uuid)
-ble.on(uuid, (data, details) => {
-// ...do something interesting
-})
-```
+ ```js
+ const ble = new Bluetooth(id)
+ ble.subscribe(uuid)
+ ble.on(uuid, (data, details) => {
+   // ...do something interesting
+ })
+ ```
 
 
 | Argument | Type | Default | Optional | Description |
@@ -74,8 +74,8 @@ External docs: https://nodejs.org/api/buffer.html#buffer_class_buffer
 # [Crypto](https://github.com/socketsupply/io/blob/master/crypto.js#L8)
 
 
-Some high level methods around the `crypto.subtle` api for getting
-random bytes and hashing.
+ Some high level methods around the `crypto.subtle` api for getting
+ random bytes and hashing.
 
 ## [`getRandomValues(buffer)`](https://github.com/socketsupply/io/blob/master/crypto.js#L19)
 
@@ -124,8 +124,8 @@ Generate `size` random bytes.
 # [Dgram](https://github.com/socketsupply/io/blob/master/dgram.js#L8)
 
 
-This module provides an implementation of UDP datagram sockets. It does
-not (yet) provide any of the multicast methods or properties.
+ This module provides an implementation of UDP datagram sockets. It does
+ not (yet) provide any of the multicast methods or properties.
 
 ## [`SocketError` (extends `InternalError`)](https://github.com/socketsupply/io/blob/master/dgram.js#L23)
 
@@ -186,16 +186,16 @@ This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `Soc
 ## [`Socket` (extends `EventEmitter`)](https://github.com/socketsupply/io/blob/master/dgram.js#L90)
 
 New instances of dgram.Socket are created using dgram.createSocket().
-The new keyword is not to be used to create dgram.Socket instances.
+ The new keyword is not to be used to create dgram.Socket instances.
 
 ### [`bind(port, address, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L152)
 
 Listen for datagram messages on a named port and optional address
-If address is not specified, the operating system will attempt to
-listen on all addresses. Once binding is complete, a 'listening'
-event is emitted and the optional callback function is called.
+ If address is not specified, the operating system will attempt to
+ listen on all addresses. Once binding is complete, a 'listening'
+ event is emitted and the optional callback function is called.
 
-If binding fails, an 'error' event is emitted.
+ If binding fails, an 'error' event is emitted.
 
 
 | Argument | Type | Default | Optional | Description |
@@ -208,14 +208,14 @@ If binding fails, an 'error' event is emitted.
 ### [`connect(port, host, connectListener)`](https://github.com/socketsupply/io/blob/master/dgram.js#L269)
 
 Associates the dgram.Socket to a remote address and port. Every message sent
-by this handle is automatically sent to that destination. Also, the socket
-will only receive messages from that remote peer. Trying to call connect()
-on an already connected socket will result in an ERR_SOCKET_DGRAM_IS_CONNECTED
-exception. If address is not provided, '127.0.0.1' (for udp4 sockets) or '::1'
-(for udp6 sockets) will be used by default. Once the connection is complete,
-a 'connect' event is emitted and the optional callback function is called.
-In case of failure, the callback is called or, failing this, an 'error' event
-is emitted.
+ by this handle is automatically sent to that destination. Also, the socket
+ will only receive messages from that remote peer. Trying to call connect()
+ on an already connected socket will result in an ERR_SOCKET_DGRAM_IS_CONNECTED
+ exception. If address is not provided, '127.0.0.1' (for udp4 sockets) or '::1'
+ (for udp6 sockets) will be used by default. Once the connection is complete,
+ a 'connect' event is emitted and the optional callback function is called.
+ In case of failure, the callback is called or, failing this, an 'error' event
+ is emitted.
 
 
 | Argument | Type | Default | Optional | Description |
@@ -228,42 +228,42 @@ is emitted.
 ### [`send(msg, offset, length, port, address, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L413)
 
 Broadcasts a datagram on the socket. For connectionless sockets, the
-destination port and address must be specified. Connected sockets, on the
-other hand, will use their associated remote endpoint, so the port and
-address arguments must not be set.
+ destination port and address must be specified. Connected sockets, on the
+ other hand, will use their associated remote endpoint, so the port and
+ address arguments must not be set.
 
-> The msg argument contains the message to be sent. Depending on its type,
-different behavior can apply. If msg is a Buffer, any TypedArray or a
-DataView, the offset and length specify the offset within the Buffer where
-the message begins and the number of bytes in the message, respectively.
-If msg is a String, then it is automatically converted to a Buffer with
-'utf8' encoding. With messages that contain multi-byte characters, offset
-and length will be calculated with respect to byte length and not the
-character position. If msg is an array, offset and length must not be
-specified.
+ > The msg argument contains the message to be sent. Depending on its type,
+ different behavior can apply. If msg is a Buffer, any TypedArray or a
+ DataView, the offset and length specify the offset within the Buffer where
+ the message begins and the number of bytes in the message, respectively.
+ If msg is a String, then it is automatically converted to a Buffer with
+ 'utf8' encoding. With messages that contain multi-byte characters, offset
+ and length will be calculated with respect to byte length and not the
+ character position. If msg is an array, offset and length must not be
+ specified.
 
-> The address argument is a string. If the value of address is a host name,
-DNS will be used to resolve the address of the host. If address is not
-provided or otherwise nullish, '127.0.0.1' (for udp4 sockets) or '::1'
-(for udp6 sockets) will be used by default.
+ > The address argument is a string. If the value of address is a host name,
+ DNS will be used to resolve the address of the host. If address is not
+ provided or otherwise nullish, '127.0.0.1' (for udp4 sockets) or '::1'
+ (for udp6 sockets) will be used by default.
 
-> If the socket has not been previously bound with a call to bind, the socket
-is assigned a random port number and is bound to the "all interfaces"
-address ('0.0.0.0' for udp4 sockets, '::0' for udp6 sockets.)
+ > If the socket has not been previously bound with a call to bind, the socket
+ is assigned a random port number and is bound to the "all interfaces"
+ address ('0.0.0.0' for udp4 sockets, '::0' for udp6 sockets.)
 
-> An optional callback function may be specified to as a way of reporting DNS
-errors or for determining when it is safe to reuse the buf object. DNS
-lookups delay the time to send for at least one tick of the Node.js event
-loop.
+ > An optional callback function may be specified to as a way of reporting DNS
+ errors or for determining when it is safe to reuse the buf object. DNS
+ lookups delay the time to send for at least one tick of the Node.js event
+ loop.
 
-> The only way to know for sure that the datagram has been sent is by using a
-callback. If an error occurs and a callback is given, the error will be
-passed as the first argument to the callback. If a callback is not given,
-the error is emitted as an 'error' event on the socket object.
+ > The only way to know for sure that the datagram has been sent is by using a
+ callback. If an error occurs and a callback is given, the error will be
+ passed as the first argument to the callback. If a callback is not given,
+ the error is emitted as an 'error' event on the socket object.
 
-> Offset and length are optional but both must be set if either are used.
-They are supported only when the first argument is a Buffer, a TypedArray,
-or a DataView.
+ > Offset and length are optional but both must be set if either are used.
+ They are supported only when the first argument is a Buffer, a TypedArray,
+ or a DataView.
 
 
 | Argument | Type | Default | Optional | Description |
@@ -279,7 +279,7 @@ or a DataView.
 ### [`close(callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L510)
 
 Close the underlying socket and stop listening for data on it. If a
-callback is provided, it is added as a listener for the 'close' event.
+ callback is provided, it is added as a listener for the 'close' event.
 
 
 | Argument | Type | Default | Optional | Description |
@@ -290,9 +290,9 @@ callback is provided, it is added as a listener for the 'close' event.
 ### [`address()`](https://github.com/socketsupply/io/blob/master/dgram.js#L556)
 
 Returns an object containing the address information for a socket. For
-UDP sockets, this object will contain address, family, and port properties.
+ UDP sockets, this object will contain address, family, and port properties.
 
-This method throws EBADF if called on an unbound socket.
+ This method throws EBADF if called on an unbound socket.
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
@@ -305,8 +305,8 @@ This method throws EBADF if called on an unbound socket.
 ### [`remoteAddress()`](https://github.com/socketsupply/io/blob/master/dgram.js#L581)
 
 Returns an object containing the address, family, and port of the remote
-endpoint. This method throws an ERR_SOCKET_DGRAM_NOT_CONNECTED exception
-if the socket is not connected.
+ endpoint. This method throws an ERR_SOCKET_DGRAM_NOT_CONNECTED exception
+ if the socket is not connected.
 
 
 | Return Value | Type | Description |
@@ -320,36 +320,36 @@ if the socket is not connected.
 # [DNS](https://github.com/socketsupply/io/blob/master/dns/index.js#L13)
 
 
-This module enables name resolution. For example, use it to look up IP
-addresses of host names. Although named for the Domain Name System (DNS),
-it does not always use the DNS protocol for lookups. dns.lookup() uses the
-operating system facilities to perform name resolution. It may not need to
-perform any network communication. To perform name resolution the way other
-applications on the same system do, use dns.lookup().
+ This module enables name resolution. For example, use it to look up IP
+ addresses of host names. Although named for the Domain Name System (DNS),
+ it does not always use the DNS protocol for lookups. dns.lookup() uses the
+ operating system facilities to perform name resolution. It may not need to
+ perform any network communication. To perform name resolution the way other
+ applications on the same system do, use dns.lookup().
 
 ## [`lookup(hostname, opts, cb)`](https://github.com/socketsupply/io/blob/master/dns/index.js#L45)
 
 External docs: https://nodejs.org/api/dns.html#dns_dns_lookup_hostname_options_callback
 Resolves a host name (e.g. `example.org`) into the first found A (IPv4) or
-AAAA (IPv6) record. All option properties are optional. If options is an
-integer, then it must be 4 or 6 – if options is 0 or not provided, then IPv4
-and IPv6 addresses are both returned if found.
+ AAAA (IPv6) record. All option properties are optional. If options is an
+ integer, then it must be 4 or 6 – if options is 0 or not provided, then IPv4
+ and IPv6 addresses are both returned if found.
 
-From the node.js website...
+ From the node.js website...
 
-> With the all option set to true, the arguments for callback change to (err,
-addresses), with addresses being an array of objects with the properties
-address and family.
+ > With the all option set to true, the arguments for callback change to (err,
+ addresses), with addresses being an array of objects with the properties
+ address and family.
 
-> On error, err is an Error object, where err.code is the error code. Keep in
-mind that err.code will be set to 'ENOTFOUND' not only when the host name does
-not exist but also when the lookup fails in other ways such as no available
-file descriptors. dns.lookup() does not necessarily have anything to do with
-the DNS protocol. The implementation uses an operating system facility that
-can associate names with addresses and vice versa. This implementation can
-have subtle but important consequences on the behavior of any Node.js program.
-Please take some time to consult the Implementation considerations section
-before using dns.lookup().
+ > On error, err is an Error object, where err.code is the error code. Keep in
+ mind that err.code will be set to 'ENOTFOUND' not only when the host name does
+ not exist but also when the lookup fails in other ways such as no available
+ file descriptors. dns.lookup() does not necessarily have anything to do with
+ the DNS protocol. The implementation uses an operating system facility that
+ can associate names with addresses and vice versa. This implementation can
+ have subtle but important consequences on the behavior of any Node.js program.
+ Please take some time to consult the Implementation considerations section
+ before using dns.lookup().
 
 
 | Argument | Type | Default | Optional | Description |
@@ -363,12 +363,12 @@ before using dns.lookup().
 # [DNS.promises](https://github.com/socketsupply/io/blob/master/dns/promises.js#L13)
 
 
-This module enables name resolution. For example, use it to look up IP
-addresses of host names. Although named for the Domain Name System (DNS),
-it does not always use the DNS protocol for lookups. dns.lookup() uses the
-operating system facilities to perform name resolution. It may not need to
-perform any network communication. To perform name resolution the way other
-applications on the same system do, use dns.lookup().
+ This module enables name resolution. For example, use it to look up IP
+ addresses of host names. Although named for the Domain Name System (DNS),
+ it does not always use the DNS protocol for lookups. dns.lookup() uses the
+ operating system facilities to perform name resolution. It may not need to
+ perform any network communication. To perform name resolution the way other
+ applications on the same system do, use dns.lookup().
 
 ## [`lookup(hostname, opts)`](https://github.com/socketsupply/io/blob/master/dns/promises.js#L23)
 
@@ -390,29 +390,27 @@ External docs: https://nodejs.org/api/dns.html#dnspromiseslookuphostname-options
 # [File System](https://github.com/socketsupply/io/blob/master/fs/index.js#L24)
 
 
-This module enables interacting with the file system in a way modeled on
-standard POSIX functions.
+ This module enables interacting with the file system in a way modeled on
+ standard POSIX functions.
+ 
+ The Application Sandbox restricts access to the file system.
+ Please see the Application Sandbox documentation for more information:
+ https://sockets.sh/guides/#working-with-the-file-system-on-ios
 
-The Application Sandbox restricts access to the file system.
-Please see the Application Sandbox documentation for more information:
-https://sockets.sh/guides/#working-with-the-file-system-on-ios
+ To use the promise-based APIs:
 
-To use the promise-based APIs:
+ ```js
+ ```
 
-```js
-import
-```
+ To use the callback and async APIs:
 
-To use the callback and async APIs:
-
-```js
-import
-```
+ ```js
+ ```
 
 ## [`access(path, mode , callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L76)
 
 Asynchronously check access a file for a given mode calling `callback`
-upon success or error.
+ upon success or error.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
@@ -464,7 +462,7 @@ This is a `FunctionDeclaration` named `createWriteStream`in `fs/index.js`, it's 
 ## [`fstat(fd, options, callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L217)
 
 Invokes the callback with the <fs.Stats> for the file descriptor. See
-the POSIX fstat(2) documentation for more detail.
+ the POSIX fstat(2) documentation for more detail.
 
 
 | Argument | Type | Default | Optional | Description |
@@ -689,7 +687,7 @@ Asynchronously check access a file.
 ## [`open(path, flags, mode)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L109)
 
 Asynchronously open a file.
-https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
+ https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
 
 
 | Argument | Type | Default | Optional | Description |
@@ -865,26 +863,26 @@ This is a `VariableDeclaration` named `FileWriteStream`in `fs/stream.js`, it's e
 # [IPC](https://github.com/socketsupply/io/blob/master/ipc.js#L27)
 
 
-This is a low level API which you don't need unless you are implementing
-a library on top of Socket SDK. A Socket SDK app has two or three processes.
+ This is a low level API which you don't need unless you are implementing
+ a library on top of Socket SDK. A Socket SDK app has two or three processes.
 
-- The `Render` process, the UI where the HTML, CSS and JS is run.
-- The `Bridge` process, the thin layer of code that managers everything.
-- The `Main` processs, for apps that need to run heavier compute jobs. And
-unlike electron it's optional.
+ - The `Render` process, the UI where the HTML, CSS and JS is run.
+ - The `Bridge` process, the thin layer of code that managers everything.
+ - The `Main` processs, for apps that need to run heavier compute jobs. And
+   unlike electron it's optional.
 
-The Bridge process manages the Render and Main process, it may also broker
-data between them.
+ The Bridge process manages the Render and Main process, it may also broker
+ data between them.
 
-The Binding process uses standard input and output as a way to communicate.
-Data written to the write-end of the pipe is buffered by the OS until it is
-read from the read-end of the pipe.
+ The Binding process uses standard input and output as a way to communicate.
+ Data written to the write-end of the pipe is buffered by the OS until it is
+ read from the read-end of the pipe.
 
-The IPC protocol uses a simple URI-like scheme. Data is passed as ArrayBuffers.
+ The IPC protocol uses a simple URI-like scheme. Data is passed as ArrayBuffers.
 
-```uri
-ipc://command?key1=value1&key2=value2...
-```
+ ```uri
+ ipc://command?key1=value1&key2=value2...
+ ```
 
 ## [OK](https://github.com/socketsupply/io/blob/master/ipc.js#L120)
 
@@ -953,7 +951,7 @@ Creates a `Message` instance from a variety of input.
 ### [`isValidInput(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L245)
 
 Predicate to determine if `input` is valid for constructing
-a new `Message` instance.
+ a new `Message` instance.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
@@ -989,18 +987,18 @@ Computed `seq` (sequence) value for the command.
 ### [`value()`](https://github.com/socketsupply/io/blob/master/ipc.js#L295)
 
 Computed message value potentially given in message parameters.
-This value is automatically decoded, but not treated as JSON.
+ This value is automatically decoded, but not treated as JSON.
 
 ### [`index()`](https://github.com/socketsupply/io/blob/master/ipc.js#L304)
 
 Computed `index` value for the command potentially referring to
-the window index the command is scoped to or originating from. If not
-specified in the message parameters, then this value defaults to `-1`.
+ the window index the command is scoped to or originating from. If not
+ specified in the message parameters, then this value defaults to `-1`.
 
 ### [`json()`](https://github.com/socketsupply/io/blob/master/ipc.js#L321)
 
 Computed value parsed as JSON. This value is `null` if the value is not present
-or it is invalid JSON.
+ or it is invalid JSON.
 
 ### [`params()`](https://github.com/socketsupply/io/blob/master/ipc.js#L333)
 
@@ -1093,14 +1091,14 @@ Converts a `Message` instance into a plain JSON object.
 ## [Result](https://github.com/socketsupply/io/blob/master/ipc.js#L446)
 
 A result type used internally for handling
-IPC result values from the native layer that are in the form
-of `{ err?, data? }`. The `data` and `err` properties on this
-type of object are in tuple form and be accessed at `[data?,err?]`
+ IPC result values from the native layer that are in the form
+ of `{ err?, data? }`. The `data` and `err` properties on this
+ type of object are in tuple form and be accessed at `[data?,err?]`
 
 ### [`from(result)`](https://github.com/socketsupply/io/blob/master/ipc.js#L454)
 
 Creates a `Result` instance from input that may be an object
-like `{ err?, data? }`, an `Error` instance, or just `data`.
+ like `{ err?, data? }`, an `Error` instance, or just `data`.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
@@ -1125,12 +1123,12 @@ like `{ err?, data? }`, an `Error` instance, or just `data`.
 ## [`ready()`](https://github.com/socketsupply/io/blob/master/ipc.js#L514)
 
 Waits for the native IPC layer to be ready and exposed on the
-global window object.
+ global window object.
 
 ## [`sendSync(command, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L539)
 
 Sends a synchronous IPC command over XHR returning a `Result`
-upon success or error.
+ upon success or error.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
@@ -1187,8 +1185,8 @@ Factory for creating a proxy based IPC API.
 # [OS](https://github.com/socketsupply/io/blob/master/os.js#L8)
 
 
-This module provides normalized system information from all the major
-operating systems.
+ This module provides normalized system information from all the major
+ operating systems.
 
 ## [`arch()`](https://github.com/socketsupply/io/blob/master/os.js#L19)
 
