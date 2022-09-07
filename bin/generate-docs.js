@@ -142,7 +142,7 @@ export function transform (filename) {
           // now it is string|number
 
           const param = {
-            name: name || `(Position ${position++})`,
+            name: name.trim() || `(Position ${position++})`,
             type
           }
 

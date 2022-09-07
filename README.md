@@ -417,7 +417,7 @@ upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| mode  | string | F_OK(0) | true |  |
+| mode | string | F_OK(0) | true |  |
 | callback | function(err, fd) |  | false |  |
 
 
@@ -511,8 +511,8 @@ Asynchronously open a file calling `callback` upon success or error.
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| flags  | string | r | true |  |
-| mode  | string | 0o666 | true |  |
+| flags | string | r | true |  |
+| mode | string | 0o666 | true |  |
 | callback | function(err, fd) |  | false |  |
 
 
@@ -524,8 +524,8 @@ Asynchronously open a directory calling `callback` upon success or error.
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
 | options | Object |  | true |  |
-| options.encoding  | string | utf8 | true |  |
-| options.withFileTypes  | boolean | false | true |  |
+| options.encoding | string | utf8 | true |  |
+| options.withFileTypes | boolean | false | true |  |
 | callback | function(err, fd) |  | false |  |
 
 
@@ -642,7 +642,7 @@ Asynchronously check access a file.
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| mode  | string | F_OK(0) | true |  |
+| mode | string | F_OK(0) | true |  |
 | options | object |  | true |  |
 
 
@@ -910,7 +910,7 @@ Parses `seq` as integer value
 | :---     | :--- | :---:   | :---:    | :---        |
 | seq | string\|number |  | false |  |
 | options | object |  | true |  |
-| options.bigint  | boolean | false | false |  |
+| options.bigint | boolean | false | false |  |
 
 
 ## [`debug(enable)`](https://github.com/socketsupply/io/blob/master/ipc.js#L153)
