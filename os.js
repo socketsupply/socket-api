@@ -6,7 +6,8 @@
  */
 
 import { toProperCase } from './util.js'
-import * as ipc from './ipc.js'
+import process from './process.js'
+import ipc from './ipc.js'
 
 const UNKNOWN = 'unknown'
 
@@ -194,8 +195,48 @@ export function type () {
   return cache.type
 }
 
+export function isWindows () {
+  if ('isWindows' in cache) {
+    return cache.isWindows
+  }
+
+  cache.isWindows = /^win.*/i.test(type())
+  return cache.isWindows
+}
+
+export function tmpdir () {
+  let path = ''
+
+  if (isWindows()) {
+    path = (
+      process.env.TEMP ||
+      process.env.TMP ||
+      (process.env.SystemRoot || process.env.windir || '') + '\\temp'
+    )
+
+    if (path.length > 1 && path.endsWith('\\') && !path.endsWith(':\\')) {
+      path = path.slice(0, -1)
+    }
+
+  } else {
+    path = (
+      process.env.TEMPDIR ||
+      process.env.TMPDIR ||
+      process.env.TEMP ||
+      process.env.TMP ||
+      '/tmp'
+    )
+
+    if (path.length > 1 && path.endsWith('/')) {
+      path = path.slice(0, -1)
+    }
+  }
+
+  return path
+}
+
 export const EOL = (() => {
-  if (/^win/i.test(type())) {
+  if (isWindows()) {
     return '\r\n'
   }
 
