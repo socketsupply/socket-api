@@ -3,7 +3,7 @@
  *
  * This module enables interacting with the file system in a way modeled on
  * standard POSIX functions.
- * 
+ *
  * The Application Sandbox restricts access to the file system.
  * Please see the Application Sandbox documentation for more information:
  * https://sockets.sh/guides/#working-with-the-file-system-on-ios
@@ -295,6 +295,27 @@ export function lstat (path, options, callback) {
  * @ignore
  */
 export function mkdir (path, options, callback) {
+  if ((typeof options === 'undefined') || (typeof options === 'function')) {
+    throw new TypeError('options must be an object.')
+  }
+
+  if (typeof callback !== 'function') {
+    throw new TypeError('callback must be a function.')
+  }
+
+  const mode = options.mode || 0o777
+
+  if (typeof mode !== 'number') {
+    throw new TypeError('mode must be a number.')
+  }
+
+  if (mode < 0 || !Number.isFinite(mode)) {
+    throw new RangeError('mode must be a positive finite number.')
+  }
+
+  ipc.request('fsMkdir', { mode, path }).then((result) => {
+    result?.err ? callback(result.err) : callback(null)
+  })
 }
 
 /**
