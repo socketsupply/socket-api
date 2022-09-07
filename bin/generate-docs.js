@@ -90,11 +90,13 @@ export function transform (filename) {
       if (item.type === 'FunctionDeclaration') {
         item.name = item.name
         item.params = [] // node.declaration.params
+        item.signature = []
       }
     }
 
     if (node.type.includes('MethodDefinition')) {
       item.name = node.key?.name
+      item.signature = []
 
       if (node.value.type === 'FunctionExpression') {
         item.generator = node.value.generator
@@ -162,7 +164,7 @@ export function transform (filename) {
     }
 
     if (item.signature) {
-      item.name = `\`${item.name}(${item.signature.join(', ')})\``
+      item.name = `\`${item.name}(${item.signature?.join(', ') || ''})\``
     } else if (item.exports) {
       item.name = `\`${item.name}\``
     }
