@@ -400,11 +400,13 @@ External docs: https://nodejs.org/api/dns.html#dnspromiseslookuphostname-options
  To use the promise-based APIs:
 
  ```js
+ import * as fs from '@socketsupply/io/fs/promises.js';
  ```
 
  To use the callback and async APIs:
 
  ```js
+ import * as fs from '@socketsupply/io/fs/index.js';
  ```
 
 ## [`access(path, mode , callback)`](https://github.com/socketsupply/io/blob/master/fs/index.js#L76)

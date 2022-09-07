@@ -18,7 +18,7 @@ export function transform (filename) {
   const ast = acorn.parse(String(src), {
     tokens: true,
     comment: true,
-    ecmaVersion: 13,
+    ecmaVersion: 'latest',
     sourceType: 'module',
     onToken: (token) => {
       comments[token.start] = accumulateComments;
@@ -179,12 +179,7 @@ export function transform (filename) {
     }
 
     if (item.header) {
-      item.header = item.header.join('\n').split('\n').filter(line => {
-        return !line.match(/@\w*/)
-      })
-
-      // const index = docs.findIndex(d => d.sort === item.sort)
-      // if (docs.length === 0 || index === -1)
+      item.header = item.header.join('\n').split('\n').filter(line => !line.trim().startsWith('@'))
       docs.push(item)
     }
   }
