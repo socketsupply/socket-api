@@ -8,7 +8,12 @@
 import { Buffer } from './buffer.js'
 
 const parent = typeof window === 'object' ? window : globalThis
-const { crypto } = parent
+
+/**
+ * WebCrypto API
+ * @see {https://developer.mozilla.org/en-US/docs/Web/API/Crypto}
+ */
+export const webcrypto = parent.crypto?.webcrypto ?? parent.crypto
 
 /**
  * Generate cryptographically strong random values into `buffer`
@@ -16,7 +21,7 @@ const { crypto } = parent
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues}
  * @return {TypedArray}
  */
-export const getRandomValues = crypto?.getRandomValues?.bind(crypto)
+export const getRandomValues = webcrypto.getRandomValues.bind(webcrypto)
 
 /**
  * Generate `size` random bytes.
@@ -35,7 +40,7 @@ export function randomBytes (size) {
  * @returns {Promise<Buffer>} - A promise that resolves with an instance of io.Buffer with the hash.
  */
 export async function createDigest (algorithm, buf) {
-  return Buffer.from(await crypto.subtle.digest(algorithm, buf))
+  return Buffer.from(await webcrypto.subtle.digest(algorithm, buf))
 }
 
 import * as exports from './crypto.js'
