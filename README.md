@@ -96,11 +96,9 @@ Generate cryptographically strong random values into `buffer`
 
 Generate `size` random bytes.
 
-31 - 1.
-
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| size | number |  | false | The number of bytes to generate. The size must not be larger than 2 |
+| size | number |  | false | The number of bytes to generate. The size must not be larger than 2**31 - 1. |
 
 
 | Return Value | Type | Description |

@@ -2,7 +2,6 @@
 import * as acorn from 'acorn'
 import * as walk from 'acorn-walk'
 import fs from 'node:fs'
-import { type } from 'node:os'
 import path from 'node:path'
 
 try {
@@ -30,7 +29,7 @@ export function transform (filename) {
       if (comment[0] !== '*') return // not a JSDoc comment
 
       comment = comment.replace(/^ \*/g, '')
-      comment = comment.replace(/\n?\s*\*\s*/g, '\n')
+      comment = comment.replace(/\n?\s*\*\s+/g, '\n')
       comment = comment.replace(/^\n/, '')
       accumulateComments.push(comment.trim())
     },
@@ -127,7 +126,7 @@ export function transform (filename) {
         if (isParam) {
           const propType = 'params'
           item.signature = item.signature || []
-          const parts = attr.replace(/(@param|@arg|@argument)/, '').split(/ - /)
+          const parts = attr.replace(/(@param|@arg|@argument)/, '').split(/ - (.*)/)
           const { 1: rawType, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
           const [name, defaultValue] = rawName.replace(/[\[\]']+/g, '').trim().split('=')
 
@@ -137,7 +136,7 @@ export function transform (filename) {
             .replace(/[]+/g, '')
           // now it is (string|number)=
           const optional = parenthasisedType.endsWith('=')
-          const compundType = parenthasisedType.replace(/=+$/, '')
+          const compundType = parenthasisedType.replace(/=$/, '')
           // now it is (string|number)
           const type = compundType.match(/^\((.*)\)$/)?.[1] ?? compundType
           // now it is string|number
