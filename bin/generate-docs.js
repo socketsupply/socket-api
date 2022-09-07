@@ -131,7 +131,7 @@ export function transform (filename) {
 
           // type could be [(string|number)=]
           const parenthasisedType = rawType
-            .replace(/\|/g, '\\|')
+            .replace(/\s*\|\s*/g, ' \\| ')
             .replace(/[]+/g, '')
           // now it is (string|number)=
           const optional = parenthasisedType.endsWith('=')

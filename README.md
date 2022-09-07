@@ -168,7 +168,7 @@ This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `Soc
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| options | string\|Object |  | false | either a string ('udp4' or 'udp6') or an options object |
+| options | string \| Object |  | false | either a string ('udp4' or 'udp6') or an options object |
 | options.type | string |  | true | The family of socket. Must be either 'udp4' or 'udp6'. Required. |
 | options.reuseAddr | boolean | false | true | When true socket.bind() will reuse the address, even if another process has already bound a socket on it. Default: false. |
 | options.ipv6Only | boolean | false | true | Setting ipv6Only to true will disable dual-stack support, i.e., binding to address :: won't make 0.0.0.0 be bound. Default: false. |
@@ -356,7 +356,7 @@ Resolves a host name (e.g. `example.org`) into the first found A (IPv4) or
 | :---     | :--- | :---:   | :---:    | :---        |
 | hostname | string |  | false | The host name to resolve. |
 | opts | Object |  | false | An options object. |
-| opts.family | number\|string |  | false | The record family. Must be 4, 6, or 0. For backward compatibility reasons,'IPv4' and 'IPv6' are interpreted as 4 and 6 respectively. The value 0 indicates that IPv4 and IPv6 addresses are both returned. Default: 0. |
+| opts.family | number \| string |  | false | The record family. Must be 4, 6, or 0. For backward compatibility reasons,'IPv4' and 'IPv6' are interpreted as 4 and 6 respectively. The value 0 indicates that IPv4 and IPv6 addresses are both returned. Default: 0. |
 | cb | function |  | false | The function to call after the method is complete. |
 
 
@@ -379,7 +379,7 @@ External docs: https://nodejs.org/api/dns.html#dnspromiseslookuphostname-options
 | :---     | :--- | :---:   | :---:    | :---        |
 | hostname | string |  | false | The host name to resolve. |
 | opts | Object |  | false | An options object. |
-| opts.family | number\|string |  | false | The record family. Must be 4, 6, or 0. For backward compatibility reasons,'IPv4' and 'IPv6' are interpreted as 4 and 6 respectively. The value 0 indicates that IPv4 and IPv6 addresses are both returned. Default: 0. |
+| opts.family | number \| string |  | false | The record family. Must be 4, 6, or 0. For backward compatibility reasons,'IPv4' and 'IPv6' are interpreted as 4 and 6 respectively. The value 0 indicates that IPv4 and IPv6 addresses are both returned. Default: 0. |
 
 
 | Return Value | Type | Description |
@@ -773,7 +773,7 @@ Asynchronously open a file.
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string |  | false |  |
-| data | string\|Buffer\|Array\|TypedArray |  | false |  |
+| data | string \| Buffer \| Array \| TypedArray |  | false |  |
 | options | object |  | true |  |
 
 
@@ -908,7 +908,7 @@ Parses `seq` as integer value
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| seq | string\|number |  | false |  |
+| seq | string \| number |  | false |  |
 | options | object |  | true |  |
 | options.bigint | boolean | false | false |  |
 
@@ -941,8 +941,8 @@ Creates a `Message` instance from a variety of input.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| input | string\|URL\|Message\|Buffer\|object |  | false |  |
-| params | object\|string\|URLSearchParams |  | true |  |
+| input | string \| URL \| Message \| Buffer \| object |  | false |  |
+| params | object \| string \| URLSearchParams |  | true |  |
 
 
 | Return Value | Type | Description |
@@ -957,7 +957,7 @@ Predicate to determine if `input` is valid for constructing
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| input | string\|URL\|Message\|Buffer\|object |  | false |  |
+| input | string \| URL \| Message \| Buffer \| object |  | false |  |
 
 
 | Return Value | Type | Description |
@@ -971,7 +971,7 @@ Predicate to determine if `input` is valid for constructing
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| input | string\|URL |  | false |  |
+| input | string \| URL |  | false |  |
 
 
 ### [`command()`](https://github.com/socketsupply/io/blob/master/ipc.js#L273)
@@ -1104,7 +1104,7 @@ Creates a `Result` instance from input that may be an object
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| result | object\|Error\|mixed |  | true |  |
+| result | object \| Error \| mixed |  | true |  |
 
 
 | Return Value | Type | Description |
@@ -1135,7 +1135,7 @@ Sends a synchronous IPC command over XHR returning a `Result`
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | command | string |  | false |  |
-| params | object\|string |  | true |  |
+| params | object \| string |  | true |  |
 
 
 | Return Value | Type | Description |
@@ -1175,7 +1175,7 @@ Factory for creating a proxy based IPC API.
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | domain | string |  | false |  |
-| ctx | function\|object |  | true |  |
+| ctx | function \| object |  | true |  |
 | ctx.default | string |  | true |  |
 
 
