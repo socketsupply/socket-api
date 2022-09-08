@@ -376,11 +376,6 @@ export function inspect (value, options) {
         enumerableKeys.code = true
         keys.add('code')
       }
-
-      if (value.message) {
-        enumerableKeys.message = true
-        keys.add('message')
-      }
     }
 
     if (!(value instanceof Map || value instanceof Set)) {
