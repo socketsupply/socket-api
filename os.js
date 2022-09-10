@@ -224,8 +224,19 @@ export function tmpdir () {
       process.env.TMPDIR ||
       process.env.TEMP ||
       process.env.TMP ||
-      '/tmp'
+      ''
     )
+
+    // derive default
+    if (!path) {
+      if (platform() === 'ios') {
+        path = [process.cwd(), 'tmp'].join('/') // @TODO(jwerle): path
+      } else if (platform() === 'android') {
+        path = '/data/local/tmp'
+      } else {
+        path = '/tmp'
+      }
+    }
 
     if (path.length > 1 && path.endsWith('/')) {
       path = path.slice(0, -1)
