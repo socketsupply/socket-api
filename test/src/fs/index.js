@@ -127,6 +127,7 @@ test('fs.readFile', async (t) => {
   let failed = false
   const expected = { data: 'test 123' }
   const iterations = 64
+  // generate ~1k _concurrent_ requests
   const promises = Array.from(Array(1024), (_, i) => new Promise((resolve) => {
     if (failed) return resolve(false)
     fs.readFile(TMPDIR + 'fixtures/file.json', (err, buf) => {
@@ -134,10 +135,15 @@ test('fs.readFile', async (t) => {
 
       const message = `fs.readFile('fixtures/file.json') [iteration=${i+1}]`
 
-      if (err) {
+      try {
+        if (err) {
+          t.fail(err, message)
+          failed = true
+        } else if (!deepEqual(expected, JSON.parse(buf))) {
+          failed = true
+        }
+      } catch (err) {
         t.fail(err, message)
-        failed = true
-      } else if (!deepEqual(expected, JSON.parse(buf))) {
         failed = true
       }
 
