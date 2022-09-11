@@ -449,34 +449,49 @@ export class Result {
    * Creates a `Result` instance from input that may be an object
    * like `{ err?, data? }`, an `Error` instance, or just `data`.
    * @param {(object|Error|mixed)=} result
+   * @param {?(Error)} [maybeError]
+   * @param {?(string)} [maybeSource
    * @return {Result}
    */
-  static from (result, maybeError) {
+  static from (result, maybeError, maybeSource, ...args) {
     if (result instanceof Result) {
+      if (!result.source && maybeSource) {
+        result.source = maybeSource
+      }
+
+      if (!result.err && maybeError) {
+        result.err = maybeError
+      }
+
       return result
     }
 
     if (result instanceof Error) {
-      return new this(null, result)
+      return this.from({ err: result }, maybeError, maybeSource, ...args)
     }
 
-    const err = maybeMakeError(maybeError || result?.err, Result.from)
+    const err = maybeMakeError(result?.err || maybeError || null, Result.from)
     const data = !err && result?.data !== null && result?.data !== undefined
       ? result.data
       : (!err ? result : null)
+     const source = result?.source || maybeSource || null
 
-    return new this(data, err)
+    return new this(data, err, source, ...args)
   }
 
   /**
    * `Result` class constructor.
    * @private
-   * @param {object=} data
-   * @param {Error=} err
+   * @param {?(object)} data
+   * @param {?(Error)} err
+   * @param {?(string)} source
    */
-  constructor (data, err) {
+  constructor (data, err, source) {
     this.data = typeof data !== 'undefined' ? data : null
     this.err = typeof err !== 'undefined' ? err : null
+    this.source = typeof source === 'string' && source.length
+      ? source
+      : undefined
 
     Object.defineProperty(this, 0, {
       get: () => this.data,
@@ -489,21 +504,29 @@ export class Result {
       enumerable: false,
       configurable: false
     })
+
+    Object.defineProperty(this, 2, {
+      get: () => this.source,
+      enumerable: false,
+      configurable: false
+    })
   }
 
+  /**
+   * Computed result length.
+   */
   get length () {
-    if (this.data !== null && this.err !== null) {
-      return 2
-    } else if (this.data !== null || this.err !== null) {
-      return 1
-    }
-
-    return 0
+    const { data, err, source } = this
+    return [data, err, source].filter((v) => v !== undefined).length
   }
 
+  /**
+   * Generator for an `Iterable` interface over this instance.
+   */
   *[Symbol.iterator]() {
     yield this.data
     yield this.err
+    yield this.source
   }
 }
 
@@ -600,30 +623,49 @@ export function sendSync (command, params) {
     result = Result.from(response)
   }
 
+  if (!result.source) {
+    result.source = command
+  }
+
   debug.log('ipc.sendSync: (resolved)', command, result)
   return result
 }
 
-export async function emit (...args) {
+/**
+ * Emit event to be dispatched on `window` object.
+ * @param {string} name
+ * @param {..Mixed} ...args
+ */
+export async function emit (name, ...args) {
   await ready()
 
   if (debug.enabled) {
-    debug.log('ipc.emit:', ...args)
+    debug.log('ipc.emit:', name, ...args)
   }
 
-  return await window._ipc.emit(...args)
+  return await window._ipc.emit(name, ...args)
 }
 
-export async function resolve (...args) {
+/**
+ * Resolves a request by `seq` with possible value.
+ * @param {string} seq
+ * @param {..Mixed} ...args
+ */
+export async function resolve (seq, ...args) {
   await ready()
 
   if (debug.enabled) {
-    debug.log('ipc.resolve:', ...args)
+    debug.log('ipc.resolve:', seq, ...args)
   }
 
-  return await window._ipc.resolve(...args)
+  return await window._ipc.resolve(seq, ...args)
 }
 
+/**
+ * Sends an async IPC command request with parameters.
+ * @param {string} command
+ * @param {..Mixed} ...args
+ */
 export async function send (command, ...args) {
   await ready()
 
@@ -638,9 +680,20 @@ export async function send (command, ...args) {
     debug.log('ipc.send: (resolved)', command, result)
   }
 
+  if (!result.source) {
+    result.source = command
+  }
+
   return result
 }
 
+/**
+ * Sends an async IPC command request with parameters and buffered bytes.
+ * @param {string} command
+ * @param {?(object)} params
+ * @param {?(Buffer|TypeArray|ArrayBuffer|string|Array)} buffer
+ * @param {?(object)} options
+ */
 export async function write (command, params, buffer, options) {
   if (typeof window === 'undefined') {
     debug.log('Global window object is not defined')
@@ -659,7 +712,7 @@ export async function write (command, params, buffer, options) {
 
   if (signal) {
     if (signal.aborted) {
-      return Result.from(new AbortError(signal))
+      return Result.from(null, new AbortError(signal), command)
     }
 
     signal.addEventListener('abort', () => {
@@ -686,7 +739,7 @@ export async function write (command, params, buffer, options) {
   return await new Promise((resolve) => {
     if (options?.timeout) {
       timeout = setTimeout(() => {
-        resolve(Result.from(new TimeoutError('ipc.write timedout')))
+        resolve(Result.from(null, new TimeoutError('ipc.write timedout'), command))
         request.abort()
       }, typeof options.timeout === 'number' ? options.timeout : TIMEOUT)
     }
@@ -696,7 +749,7 @@ export async function write (command, params, buffer, options) {
       if (options?.timeout) {
         clearTimeout(timeout)
       }
-      resolve(Result.from(new AbortError(signal)))
+      resolve(Result.from(null, new AbortError(signal), command))
     }
 
     request.onreadystatechange = () => {
@@ -724,6 +777,10 @@ export async function write (command, params, buffer, options) {
           debug.log('ipc.write: (resolved)', command, result)
         }
 
+        if (!result.source) {
+          result.source = command
+        }
+
         return resolve(data)
       }
     }
@@ -731,16 +788,23 @@ export async function write (command, params, buffer, options) {
     request.onerror = () => {
       resolved = true
       clearTimeout(timeout)
-      resolve(Result.from(new Error(request.responseText)))
+      resolve(Result.from(null, new Error(request.responseText), command))
     }
   })
 }
 
-export async function request (command, data, options) {
+/**
+ * Sends an async IPC command request with parameters requesting a response
+ * with buffered bytes.
+ * @param {string} command
+ * @param {?(object)} params
+ * @param {?(object)} options
+ */
+export async function request (command, params, options) {
   await ready()
 
   const signal = options?.signal
-  const params = { ...data }
+  params = { ...params }
 
   for (const key in params) {
     if (params[key] === undefined) {
@@ -749,7 +813,7 @@ export async function request (command, data, options) {
   }
 
   if (debug.enabled) {
-    debug.log('ipc.request:', command, data)
+    debug.log('ipc.request:', command, params)
   }
 
   let aborted = false
@@ -774,6 +838,10 @@ export async function request (command, data, options) {
       debug.log('ipc.request: (resolved)', command, result)
     }
 
+    if (!result.source) {
+      result.source = command
+    }
+
     return result
   })
 
@@ -781,13 +849,14 @@ export async function request (command, data, options) {
     aborted = true
     cleanup()
     resolve(seq, ERROR, {
+      source: command,
       err: new TimeoutError('ipc.request  timedout')
     })
   }
 
   if (signal) {
     if (signal.aborted) {
-      return Result.from(new AbortError(signal))
+      return Result.from(null, new AbortError(signal), command)
     }
 
     signal.addEventListener('abort', onabort)
