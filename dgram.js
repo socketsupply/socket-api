@@ -134,7 +134,7 @@ export class Socket extends EventEmitter {
   }
 
   async _recvStart () {
-    return await ipc.write('udpReadStart', { id: this.id })
+    return await ipc.send('udp.readStart', { id: this.id })
   }
 
   /**
@@ -185,14 +185,14 @@ export class Socket extends EventEmitter {
       }
     } else if (!isIPv4(options.address)) {
       // fire off a dns lookup, listening or error will be emitted in response
-      ipc.write('dnsLookup', {
+      ipc.write('dns.lookup', {
         hostname: options.address,
         id: this.id,
         seq: -1
       })
     }
 
-    const bind = ipc.sendSync('udpBind', {
+    const bind = ipc.sendSync('udp.bind', {
       id: this.id,
       address: options.address,
       port: options.port || 0,
@@ -214,7 +214,7 @@ export class Socket extends EventEmitter {
 
     this.dataListener = e => {
       const { data: buffer, params } = e.detail
-      const { err, data } = params
+      const { err, data, source } = params
 
       if (err && err.id === this.id) {
         return this.emit('error', err)
@@ -222,12 +222,12 @@ export class Socket extends EventEmitter {
 
       if (!data || BigInt(data.id) !== this.id) return
 
-      if (data.source === 'dnsLookup') {
+      if (source === 'dns.lookup') {
         this._address = data.params.address
         return this.emit('listening')
       }
 
-      if (data.source === 'udpReadStart') {
+      if (source === 'udp.readStart') {
         const info = {
           address: params.data.address,
           port: params.data.port,
@@ -294,7 +294,7 @@ export class Socket extends EventEmitter {
     let dataLookup
 
     if (address && !isIPv4(address)) {
-      const { err, data } = await window._ipc.send('dnsLookup', { hostname: address })
+      const { err, data } = await window._ipc.send('dns.lookup', { hostname: address })
 
       if (err) {
         this.emit('error', err)
@@ -317,7 +317,7 @@ export class Socket extends EventEmitter {
     const {
       err: errConnect,
       data: dataConnect
-    } = await ipc.send('udpConnect', opts)
+    } = await ipc.send('udp.connect', opts)
 
     if (errConnect) {
       this.emit('error', errConnect)
@@ -328,7 +328,7 @@ export class Socket extends EventEmitter {
 
     // TODO udpConnect could return the peer data instead of putting it
     // into a different call and we could shave off a bit of time here.
-    const { err: errPeerData, data: dataPeerData } = ipc.sendSync('udpGetPeerName', {
+    const { err: errPeerData, data: dataPeerData } = ipc.sendSync('udp.getPeerName', {
       id: this.id
     })
 
@@ -346,7 +346,7 @@ export class Socket extends EventEmitter {
   }
 
   async disconnect () {
-    const { err: errConnect } = await ipc.send('udpDisconnect', {
+    const { err: errConnect } = await ipc.send('udp.disconnect', {
       ip: this._remoteAddress,
       port: this._remotePort || 0
     })
@@ -481,7 +481,7 @@ export class Socket extends EventEmitter {
     }
 
     const result = await ipc.write(
-      'udpSend',
+      'udp.send',
       opts,
       Array.isArray(list) ? Buffer.concat(list) : list
     )
@@ -514,7 +514,7 @@ export class Socket extends EventEmitter {
       throw new ERR_SOCKET_DGRAM_NOT_RUNNING()
     }
 
-    let { err } = ipc.sendSync('udpClose', {
+    let { err } = ipc.sendSync('udp.close', {
       id: this.id
     })
 
