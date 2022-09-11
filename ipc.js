@@ -450,7 +450,7 @@ export class Result {
    * like `{ err?, data? }`, an `Error` instance, or just `data`.
    * @param {(object|Error|mixed)=} result
    * @param {?(Error)} [maybeError]
-   * @param {?(string)} [maybeSource
+   * @param {?(string)} [maybeSource]
    * @return {Result}
    */
   static from (result, maybeError, maybeSource, ...args) {
@@ -467,7 +467,7 @@ export class Result {
     }
 
     if (result instanceof Error) {
-      return this.from({ err: result }, maybeError, maybeSource, ...args)
+      result = { err: result }
     }
 
     const err = maybeMakeError(result?.err || maybeError || null, Result.from)
@@ -476,31 +476,31 @@ export class Result {
       : (!err ? result : null)
      const source = result?.source || maybeSource || null
 
-    return new this(data, err, source, ...args)
+    return new this(err, data, source, ...args)
   }
 
   /**
    * `Result` class constructor.
    * @private
-   * @param {?(object)} data
-   * @param {?(Error)} err
-   * @param {?(string)} source
+   * @param {?(Error)} [err = null]
+   * @param {?(object)} [data = null]
+   * @param {?(string)} [source = undefined]
    */
-  constructor (data, err, source) {
-    this.data = typeof data !== 'undefined' ? data : null
+  constructor (err, data, source) {
     this.err = typeof err !== 'undefined' ? err : null
+    this.data = typeof data !== 'undefined' ? data : null
     this.source = typeof source === 'string' && source.length
       ? source
       : undefined
 
     Object.defineProperty(this, 0, {
-      get: () => this.data,
+      get: () => this.err,
       enumerable: false,
       configurable: false
     })
 
     Object.defineProperty(this, 1, {
-      get: () => this.err,
+      get: () => this.data,
       enumerable: false,
       configurable: false
     })
@@ -516,16 +516,15 @@ export class Result {
    * Computed result length.
    */
   get length () {
-    const { data, err, source } = this
-    return [data, err, source].filter((v) => v !== undefined).length
+    return [...this].filter((v) => v !== undefined).length
   }
 
   /**
    * Generator for an `Iterable` interface over this instance.
    */
   *[Symbol.iterator]() {
-    yield this.data
     yield this.err
+    yield this.data
     yield this.source
   }
 }
