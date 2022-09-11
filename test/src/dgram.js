@@ -267,7 +267,7 @@ test('client ~> server (~500 messages)', async (t) => {
     let i = 0
 
     function ontimeout () {
-      t.fail(`Not all messagess received (${buffers.length - 1} missing)`)
+      t.fail(`Not all messagess received (${buffers.length - i} missing)`)
       resolve()
     }
 

@@ -18,7 +18,7 @@ done
 ## Process logs from 'adb logcat'
 while read -r line; do
   if grep 'ExternalWebViewInterface' < <(echo "$line") >/dev/null; then
-    line="$(echo "$line" | sed 's/.*ExternalWebViewInterface:\s//g' | sed 's/.*ExternalWebViewInterface:\s*$//g')"
+    line="$(echo "$line" | sed 's/.*ExternalWebViewInterface:\s*//g')"
 
     if [[ "$line" =~ __EXIT_SIGNAL__ ]]; then
       status="${line//__EXIT_SIGNAL__=/}"

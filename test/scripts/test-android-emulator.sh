@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 declare id=""
-declare uid=""
 declare root=""
 
 id="co.socketsupply.io.tests"
@@ -25,13 +24,8 @@ ssc compile --headless --platform=android -r -o . >/dev/null || {
   exit "$rc"
 }
 
-adb root
-uid="$(adb shell dumpsys package "$id" | grep userId | xargs | sed 's/userId=//g')"
-
-adb shell rm -rf "/sdcard/Android/data/$id/files/fixtures"
-adb push "$root/fixtures/" "/sdcard/Android/data/$id/files/fixtures"
-adb shell chmod -R 777 "/sdcard/Android/data/$id/files"
-adb shell chown -R "$uid:ext_data_rw" "/sdcard/Android/data/$id/files"
+adb shell rm -rf "/data/local/tmp/fixtures"
+adb push "$root/fixtures/" "/data/local/tmp/fixtures"
 
 "$root/scripts/poll-adb-logcat.sh"
 
@@ -40,5 +34,4 @@ adb devices | grep emulator | cut -f1 | while read -r line; do
   adb -s "$line" emu kill
 done
 
-adb unroot
 adb kill-server

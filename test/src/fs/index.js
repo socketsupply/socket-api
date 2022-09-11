@@ -6,13 +6,17 @@ import os from '@socketsupply/io/os.js'
 import deepEqual from 'tapzero/fast-deep-equal.js'
 import { test } from 'tapzero'
 
+const TMPDIR = /android/i.test(os.platform())
+  ? '/data/local/tmp/'
+  : `${os.tmpdir()}/`
+
 // node compat
 //import fs from 'node:fs'
 //import os from 'node:os'
 
 test('fs.access', async (t) => {
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.F_OK, (err) => {
+    fs.access(TMPDIR + 'fixtures', fs.constants.F_OK, (err) => {
       if (err) t.fail(err, '(F_OK) fixtures/ is not accessible')
       else t.ok(true, '(F_OK) fixtures/ directory is accessible')
       resolve()
@@ -20,7 +24,7 @@ test('fs.access', async (t) => {
   })
 
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.F_OK | fs.constants.R_OK, (err) => {
+    fs.access(TMPDIR + 'fixtures', fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) t.fail(err, '(F_OK | R_OK) fixtures/ directory is not readable')
       else t.ok(true, '(F_OK | R_OK) fixtures/ directory is readable')
       resolve()
@@ -28,20 +32,15 @@ test('fs.access', async (t) => {
   })
 
   await new Promise((resolve, reject) => {
-    if (os.platform() === 'android') {
-      t.comment('FIXME for Android - (W_OK) fixtures/ directory is writable')
-      return resolve()
-    }
-
     fs.access('.', fs.constants.W_OK, (err) => {
-      if (err) t.fail(err, '(W_OK) fixtures/ directory is not writable')
-      else t.ok(true, '(W_OK) fixtures/ directory is writable')
+      if (err) t.fail(err, '(W_OK) ./ directory is not writable')
+      else t.ok(true, '(W_OK) ./ directory is writable')
       resolve()
     })
   })
 
   await new Promise((resolve, reject) => {
-    fs.access('fixtures', fs.constants.X_OK, (err) => {
+    fs.access(TMPDIR + 'fixtures', fs.constants.X_OK, (err) => {
       if (err) t.fail(err, '(X_OK) fixtures/ directory is not "executable" - cannot list items')
       else t.ok(true, '(X_OK) fixtures/ directory is "executable" - can list items')
       resolve()
@@ -59,8 +58,11 @@ test('fs.close', async (t) => {
   }
 
   await new Promise((resolve, reject) => {
-    fs.open('fixtures/file.txt', (err, fd) => {
-      if (err) return t.fail(err)
+    fs.open(TMPDIR + 'fixtures/file.txt', (err, fd) => {
+      if (err) {
+        t.fail(err)
+        return resolve()
+      }
 
       t.ok(Number.isFinite(fd), 'isFinite(fd)')
       fs.close(fd, (err) => {
@@ -82,7 +84,7 @@ test('fs.createReadStream', async (t) => {
 
   const buffers = []
   await new Promise((resolve, reject) => {
-    const stream = fs.createReadStream('fixtures/file.txt')
+    const stream = fs.createReadStream(TMPDIR + 'fixtures/file.txt')
     const expected = Buffer.from('test 123')
 
     stream.on('close', resolve)
@@ -127,7 +129,7 @@ test('fs.readFile', async (t) => {
   const iterations = 64
   const promises = Array.from(Array(1024), (_, i) => new Promise((resolve) => {
     if (failed) return resolve(false)
-    fs.readFile('fixtures/file.json', (err, buf) => {
+    fs.readFile(TMPDIR + 'fixtures/file.json', (err, buf) => {
       if (failed) return resolve(false)
 
       const message = `fs.readFile('fixtures/file.json') [iteration=${i+1}]`

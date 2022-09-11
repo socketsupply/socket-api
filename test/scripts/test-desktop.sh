@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+declare root=""
+
+root="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
+rm -rf "$TMPDIR/fixtures"
+cp -rf "$root/fixtures/" "$TMPDIR/fixtures"
+
 if [ -z "$DEBUG" ]; then
   ssc compile --headless --prod -r -o .
 else
