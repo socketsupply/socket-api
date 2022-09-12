@@ -187,70 +187,100 @@ export class Socket extends EventEmitter {
         options.address = '::'
       }
     } else if (!isIPv4(options.address)) {
-      // fire off a dns lookup, listening or error will be emitted in response
-      ipc.write('dns.lookup', {
+      const result = ipc.sendSync('dns.lookup', {
         hostname: options.address,
-        id: this.id,
-        seq: -1
+        id: this.id
       })
-    }
 
-    const bind = ipc.sendSync('udp.bind', {
-      id: this.id,
-      address: options.address,
-      port: options.port || 0,
-      reuseAddr: options.reuseAddr ? "true" : "false",
-      ipv6Only: options.ipv6Only ? "true" : "false"
-    })
-
-    if (bind.err) {
-      this.emit('error', bind.err)
-      return this
-    }
-
-    this.state._bindState = BIND_STATE_BOUND
-    setTimeout(() => this.emit('listening'), 1)
-
-    this._address = bind.data.address
-    this._port = bind.data.port
-    this._family = isIPv4(bind.data.address) ? 'IPv4' : 'IPv6'
-
-    this.dataListener = e => {
-      const { data: buffer, params } = e.detail
-      const { err, data, source } = params
-
-      if (err && err.id === this.id) {
-        return this.emit('error', err)
-      }
-
-      if (!data || BigInt(data.id) !== this.id) return
-
-      if (source === 'dns.lookup') {
-        this._address = data.params.address
-        return this.emit('listening')
-      }
-
-      if (source === 'udp.readStart') {
-        const info = {
-          address: params.data.address,
-          port: params.data.port,
-          family: isIPv4(params.data.address) ? 'IPv4' : 'IPv6'
+      if (result?.err) {
+        if (typeof cb === 'function') {
+          cb(result.err)
+        } else {
+          this.emit('error', result.err)
         }
 
-        this.emit('message', buffer, info)
+        return
       }
 
-      if (data.EOF) {
-        window.removeEventListener('data', this.dataListener)
-      }
+      options.address = result.data.address
     }
 
-    // subscribe this socket to the firehose
-    window.addEventListener('data', this.dataListener)
+    const bind = ipc.send('udp.bind', {
+      id: this.id,
+      port: options.port || 0,
+      address: options.address,
+      ipv6Only: options.ipv6Only ? true : false,
+      reuseAddr: options.reuseAddr ? true : false
+    })
 
-    this._recvStart()
+    bind.catch((err) => {
+      if (typeof cb === 'function') {
+        cb(err)
+      } else {
+        this.emit('error', err)
+      }
+    })
 
-    if (cb) cb(null)
+    bind.then((result) => {
+      const { err, data } = result
+
+      if (err) {
+        if (typeof cb === 'function') {
+          cb(err)
+        } else {
+          this.emit('error', err)
+        }
+        return
+      }
+
+      this._port = data.port
+      this._family = isIPv4(data.address) ? 'IPv4' : 'IPv6'
+      this._address = data.address
+      this.state._bindState = BIND_STATE_BOUND
+
+      if (typeof cb === 'function') {
+        queueMicrotask(() => cb(null))
+      }
+
+      this.emit('listening')
+
+      this._recvStart().catch((err) => {
+        if (typeof cb === 'function') {
+          cb(err)
+        } else {
+          this.emit('error', err)
+        }
+      })
+
+      this.dataListener = ({ detail }) => {
+        const { data: buffer, params } = detail
+        const { err, data, source } = params
+
+        if (err && err.id === this.id) {
+          return this.emit('error', err)
+        }
+
+        if (!data || BigInt(data.id) !== this.id) return
+
+        if (source === 'udp.readStart') {
+          const info = {
+            address: params.data.address,
+            port: params.data.port,
+            family: isIPv4(params.data.address) ? 'IPv4' : 'IPv6'
+          }
+
+          this.emit('message', buffer, info)
+        }
+
+        if (data.EOF) {
+          window.removeEventListener('data', this.dataListener)
+        }
+      }
+
+      // subscribe this socket to the firehose
+      window.addEventListener('data', this.dataListener)
+    })
+
     return this
   }
 
@@ -300,7 +330,7 @@ export class Socket extends EventEmitter {
     let dataLookup
 
     if (address && !isIPv4(address)) {
-      const { err, data } = await window._ipc.send('dns.lookup', { hostname: address })
+      const { err, data } = await ipc.send('dns.lookup', { hostname: address })
 
       if (err) {
         this.emit('error', err)
@@ -334,7 +364,7 @@ export class Socket extends EventEmitter {
 
     // TODO udpConnect could return the peer data instead of putting it
     // into a different call and we could shave off a bit of time here.
-    const { err: errPeerData, data: dataPeerData } = ipc.sendSync('udp.getPeerName', {
+    const { err: errPeerData, data: dataPeerData } = await ipc.send('udp.getPeerName', {
       id: this.id
     })
 
