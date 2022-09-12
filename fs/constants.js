@@ -1,6 +1,6 @@
 import { sendSync } from '../ipc.js'
 
-const constants = sendSync('getFSConstants')?.data || {}
+const constants = sendSync('fs.constants')?.data || {}
 
 /**
  * This flag can be used with uv_fs_copyfile() to return an error if the

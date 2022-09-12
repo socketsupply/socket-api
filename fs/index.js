@@ -105,7 +105,7 @@ export function chmod (path, mode, callback) {
     throw new TypeError('callback must be a function.')
   }
 
-  ipc.request('fsChmod', { mode, path }).then((result) => {
+  ipc.send('fs.chmod', { mode, path }).then((result) => {
     result?.err ? callback(result.err) : callback(null)
   })
 }

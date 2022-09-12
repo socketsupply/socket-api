@@ -77,7 +77,7 @@ export class FileHandle extends EventEmitter {
       mode = FileHandle.DEFAULT_ACCESS_MODE
     }
 
-    const result = await ipc.request('fsAccess', { mode, path }, options)
+    const result = await ipc.request('fs.access', { mode, path }, options)
 
     if (result.err) {
       throw result.err
@@ -186,7 +186,7 @@ export class FileHandle extends EventEmitter {
       async handle (id) {
         if (fds.has(id)) {
           console.warn('Closing FileHandle on garbage collection')
-          await ipc.request('fsClose', { id }, options)
+          await ipc.request('fs.close', { id }, options)
           fds.release(id)
         }
       }
@@ -252,7 +252,7 @@ export class FileHandle extends EventEmitter {
 
     this[kClosing] = new InvertedPromise()
 
-    const result = await ipc.request('fsClose', { id: this.id }, options)
+    const result = await ipc.request('fs.close', { id: this.id }, options)
 
     if (result.err) {
       return this[kClosing].reject(result.err)
@@ -369,7 +369,7 @@ export class FileHandle extends EventEmitter {
 
     this[kOpening] = new InvertedPromise()
 
-    const result = await ipc.request('fsOpen', {
+    const result = await ipc.request('fs.open', {
       id,
       mode,
       path,
@@ -478,7 +478,7 @@ export class FileHandle extends EventEmitter {
       )
     }
 
-    const result = await ipc.request('fsRead', {
+    const result = await ipc.request('fs.read', {
       id,
       size: length,
       offset: position
@@ -565,7 +565,7 @@ export class FileHandle extends EventEmitter {
       throw new Error('FileHandle is not opened')
     }
 
-    const result = await ipc.request('fsFStat', { ...options, id: this.id })
+    const result = await ipc.request('fs.fstat', { ...options, id: this.id })
 
     if (result.err) {
       throw result.err
@@ -668,7 +668,7 @@ export class FileHandle extends EventEmitter {
     const data = Buffer.from(buffer).slice(offset, offset + length)
     const params = { id: this.id, offset: position }
 
-    const result = await ipc.write('fsWrite', params, data, {
+    const result = await ipc.write('fs.write', params, data, {
       timeout,
       signal
     })
@@ -874,7 +874,7 @@ export class DirectoryHandle extends EventEmitter {
       async handle (id) {
         if (fds.has(id)) {
           console.warn('Closing DirectoryHandle on garbage collection')
-          await ipc.request('fsClosedir', { id }, options)
+          await ipc.request('fs.closedir', { id }, options)
           fds.release(id)
         }
       }
@@ -902,7 +902,7 @@ export class DirectoryHandle extends EventEmitter {
 
     this[kOpening] = new InvertedPromise()
 
-    const result = await ipc.request('fsOpendir', { id, path }, options)
+    const result = await ipc.request('fs.opendir', { id, path }, options)
 
     if (result.err) {
       return this[kOpening].reject(result.err)
@@ -945,7 +945,7 @@ export class DirectoryHandle extends EventEmitter {
 
     this[kClosing] = new InvertedPromise()
 
-    const result = await ipc.request('fsClosedir', { id, }, options)
+    const result = await ipc.request('fs.closedir', { id, }, options)
 
     if (result.err) {
       return this[kClosing].reject(result.err)
@@ -985,7 +985,7 @@ export class DirectoryHandle extends EventEmitter {
     const entries = clamp(options.entries, 1, DirectoryHandle.MAX_ENTRIES)
     const { id } = this
 
-    const result = await ipc.request('fsReaddir', {
+    const result = await ipc.request('fs.readdir', {
       id,
       entries
     }, options)
