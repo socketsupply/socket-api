@@ -68,7 +68,7 @@ async function visit (path, options, callback) {
 /**
  * Asynchronously check access a file for a given mode calling `callback`
  * upon success or error.
- * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsopenpath-flags-mode-callback}
+ * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsopenpath-flags-mode-callback}
  * @param {string | Buffer | URL} path
  * @param {string=} [mode = F_OK(0)]
  * @param {function(err, fd)} callback
@@ -92,6 +92,17 @@ export function access (path, mode, callback) {
 export function appendFile (path, data, options, callback) {
 }
 
+/**
+ * 
+ * Asynchronously changes the permissions of a file.
+ * No arguments other than a possible exception are given to the completion callback
+ * 
+ * @see {@link https://nodejs.org/api/fs.html#fschmodpath-mode-callback}
+ * 
+ * @param {string | Buffer | URL} path
+ * @param {number} mode
+ * @param {function(err)} callback
+ */
 export function chmod (path, mode, callback) {
   if (typeof mode !== 'number') {
     throw new TypeError('mode must be a number.')
@@ -117,7 +128,7 @@ export function chown (path, uid, gid, callback) {
  * Asynchronously close a file descriptor calling `callback` upon success or error.
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsclosefd-callback}
  * @param {number} fd
- * @param {function(err)} callback
+ * @param {function(err)=} callback
  */
 export function close (fd, callback) {
   if (typeof callback !== 'function') {
@@ -138,6 +149,12 @@ export function close (fd, callback) {
 export function copyFile (src, dst, mode, callback) {
 }
 
+/**
+ * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fscreatewritestreampath-options}
+ * @param {string | Buffer | URL} path
+ * @param {object=} options
+ * @returns {fs.ReadStream}
+ */ 
 export function createReadStream (path, options) {
   if (path?.fd) {
     options = path
@@ -172,6 +189,12 @@ export function createReadStream (path, options) {
   return stream
 }
 
+/**
+ * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fscreatewritestreampath-options}
+ * @param {string | Buffer | URL} path
+ * @param {object=} options
+ * @returns {fs.WriteStream}
+ */
 export function createWriteStream (path, options) {
   if (path?.fd) {
     options = path
@@ -210,8 +233,10 @@ export function createWriteStream (path, options) {
  * Invokes the callback with the <fs.Stats> for the file descriptor. See
  * the POSIX fstat(2) documentation for more detail.
  *
+ * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsfstatfd-options-callback}
+ * 
  * @param {number} fd - A file descriptor.
- * @param {Object} options - An options object.
+ * @param {Object=} options - An options object.
  * @param {function} callback - The function to call after completion.
  */
 export function fstat (fd, options, callback) {
@@ -334,7 +359,11 @@ export function opendir (path, options, callback) {
  * Asynchronously read from an open file descriptor.
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsreadfd-buffer-offset-length-position-callback}
  * @param {number} fd
- * @param {object | Buffer | TypedArray} buffer
+ * @param {object | Buffer | TypedArray} buffer - The buffer that the data will be written to.
+ * @param {number} offset - The position in buffer to write the data to.
+ * @param {number} length - The number of bytes to read.
+ * @param {number | BigInt | null} position - Specifies where to begin reading from in the file. If position is null or -1 , data will be read from the current file position, and the file position will be updated. If position is an integer, the file position will be unchanged.
+ * @param {function(err, bytesRead, buffer)} callback
  */
 export function read (fd, buffer, offset, length, position, options, callback) {
   if (typeof options === 'function') {
@@ -365,7 +394,9 @@ export function read (fd, buffer, offset, length, position, options, callback) {
  * Asynchronously read all entries in a directory.
  * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsreaddirpath-options-callback}
  * @param {string | Buffer | URL } path
- * @param {object} [options]
+ * @param {object=} [options]
+ * @param {string=} [options.encoding = 'utf8']
+ * @param {boolean=} [options.withFileTypes = false]
  * @param {function(err, buffer)} callback
  */
 export function readdir (path, options, callback) {
@@ -413,7 +444,10 @@ export function readdir (path, options, callback) {
 
 /**
  * @param {string | Buffer | URL | number } path
- * @param {object} [options]
+ * @param {object=} [options]
+ * @param {string=} [options.encoding = 'utf8']
+ * @param {string=} [options.flag = 'r']
+ * @param {AbortSignal=} [options.signal]
  * @param {function(err, buffer)} callback
  */
 export function readFile (path, options, callback) {
@@ -469,6 +503,15 @@ export function rmdir (path, options, callback) {
 export function rm (path, options, callback) {
 }
 
+/**
+ * 
+ * @param {string | Buffer | URL | number } path - filename or file descriptor
+ * @param {object=} options 
+ * @param {string=} [options.encoding = 'utf8']
+ * @param {string=} [options.flag = 'r']
+ * @param {AbortSignal=} [options.signal]
+ * @param {function(err, data)} callback 
+ */
 export function stat (path, options, callback) {
   if (typeof options === 'function') {
     callback = options
@@ -516,6 +559,17 @@ export function watch (path, options, callback) {
 export function write (fd, buffer, offset, length, position, callback) {
 }
 
+/**
+ * @see {@url https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fswritefilefile-data-options-callback}
+ * @param {string | Buffer | URL | number } path - filename or file descriptor
+ * @param {string | Buffer | TypedArray | DataView | object } data
+ * @param {object=} options
+ * @param {string=} [options.encoding = 'utf8']
+ * @param {string=} [options.mode = 0o666]
+ * @param {string=} [options.flag = 'w']
+ * @param {AbortSignal=} [options.signal]
+ * @param {function(err)} callback
+ */
 export function writeFile (path, data, options, callback) {
   if (typeof options === 'function') {
     callback = options
