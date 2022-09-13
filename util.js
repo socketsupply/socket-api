@@ -459,7 +459,34 @@ export function inspect (value, options) {
         out += `${value.name}: ${value.message}\n`
       }
 
-      out += value.stack
+      const formatWebkitErrorStackLine = (line) => {
+        const [symbol, location] = line.split('@')
+        const [context, lineno, colno] = location.split(':')
+        const output = ['    at']
+
+        if (symbol) {
+          output.push(symbol)
+        }
+
+        if (context && lineno && colno) {
+          output.push(`(${context}:${lineno}:${colno})`)
+        } else if (context && lineno) {
+          output.push(`(${context}:${lineno})`)
+        } else if (context) {
+          output.push(`${context}`)
+        }
+
+        return output.join(' ')
+      }
+
+      out += (value.stack || '')
+        .split('\n')
+        .map((line) => /^\s*at\s/.test(line)
+          ? line
+          : formatWebkitErrorStackLine(line)
+        )
+        .join('\n')
+
       if (keys.size) {
         out += ' {\n'
       }
