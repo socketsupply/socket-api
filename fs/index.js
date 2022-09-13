@@ -89,6 +89,9 @@ export function access (path, mode, callback) {
     .catch((err) => callback(err))
 }
 
+/**
+ * @ignore
+ */
 export function appendFile (path, data, options, callback) {
 }
 
@@ -121,6 +124,9 @@ export function chmod (path, mode, callback) {
   })
 }
 
+/**
+ * @ignore
+ */
 export function chown (path, uid, gid, callback) {
 }
 
@@ -260,21 +266,34 @@ export function fstat (fd, options, callback) {
   }
 }
 
+/**
+ * @ignore
+ */
 export function lchmod (path, mode, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function lchown (path, uid, gid, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function lutimes (path, atime, mtime, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function link (existingPath, newPath, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function lstat (path, options, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function mkdir (path, options, callback) {
 }
 
@@ -488,18 +507,29 @@ export function readFile (path, options, callback) {
   })
 }
 
+/**
+ * @ignore
+ */
 export function readlink (path, options, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function realpath (path, options, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function rename (oldPath, newPath, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function rmdir (path, options, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function rm (path, options, callback) {
 }
 
@@ -540,22 +570,34 @@ export function stat (path, options, callback) {
     callback(null, stats)
   })
 }
-
+/**
+ * @ignore
+ */
 export function symlink (target, path, type, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function truncate (path, length, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function unlink (path, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function utimes (path, atime, mtime, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function watch (path, options, callback) {
 }
-
+/**
+ * @ignore
+ */
 export function write (fd, buffer, offset, length, position, callback) {
 }
 

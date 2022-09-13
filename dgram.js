@@ -20,15 +20,35 @@ const CONNECT_STATE_DISCONNECTED = 0
 const CONNECT_STATE_CONNECTING = 1
 const CONNECT_STATE_CONNECTED = 2
 
+/**
+ * @ignore
+ */
 export class SocketError extends InternalError {
   get code () { return this.constructor.name }
 }
-
+/**
+ * @ignore
+ */
 export class ERR_SOCKET_ALREADY_BOUND extends SocketError {}
+/**
+ * @ignore
+ */
 export class ERR_SOCKET_BAD_BUFFER_SIZE extends SocketError {}
+/**
+ * @ignore
+ */
 export class ERR_SOCKET_BUFFER_SIZE extends SocketError {}
+/**
+ * @ignore
+ */
 export class ERR_SOCKET_DGRAM_IS_CONNECTED extends SocketError {}
+/**
+ * @ignore
+ */
 export class ERR_SOCKET_DGRAM_NOT_CONNECTED extends SocketError {}
+/**
+ * @ignore
+ */
 export class ERR_SOCKET_DGRAM_NOT_RUNNING extends SocketError {
   get message () { return 'Not running' }
 }

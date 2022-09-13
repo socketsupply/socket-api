@@ -51,6 +51,10 @@ export function transform (filename) {
       header: comments[node.start]
     }
 
+    if (item.header?.join('').includes('@ignore')) {
+      return
+    }
+
     if (item.header?.join('').includes('@module')) {
       item.type = 'Module'
       const name = item.header.join('').match(/@module\s*(.*)/)
