@@ -71,6 +71,7 @@ Start advertising a new value for a well-known UUID
 External docs: https://nodejs.org/api/buffer.html#buffer_class_buffer
 
 
+
 # [Crypto](https://github.com/socketsupply/io/blob/master/crypto.js#L8)
 
 
@@ -84,6 +85,7 @@ WebCrypto API
 ## [`getRandomValues(buffer)`](https://github.com/socketsupply/io/blob/master/crypto.js#L24)
 
 External docs: https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
+
 Generate cryptographically strong random values into `buffer`
 
 | Argument | Type | Default | Optional | Description |
@@ -195,6 +197,7 @@ New instances of dgram.Socket are created using dgram.createSocket().
 ### [`bind(port, address, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L155)
 
 External docs: https://nodejs.org/api/dgram.html#socketbindport-address-callback
+
 Listen for datagram messages on a named port and optional address
  If address is not specified, the operating system will attempt to
  listen on all addresses. Once binding is complete, a 'listening'
@@ -214,6 +217,7 @@ Listen for datagram messages on a named port and optional address
 ### [`connect(port, host, connectListener)`](https://github.com/socketsupply/io/blob/master/dgram.js#L275)
 
 External docs: https://nodejs.org/api/dgram.html#socketconnectport-address-callback
+
 Associates the dgram.Socket to a remote address and port. Every message sent
  by this handle is automatically sent to that destination. Also, the socket
  will only receive messages from that remote peer. Trying to call connect()
@@ -236,6 +240,7 @@ Associates the dgram.Socket to a remote address and port. Every message sent
 ### [`disconnect()`](https://github.com/socketsupply/io/blob/master/dgram.js#L362)
 
 External docs: https://nodejs.org/api/dgram.html#socketdisconnect
+
 A synchronous function that disassociates a connected dgram.Socket from
  its remote address. Trying to call disconnect() on an unbound or already
  disconnected socket will result in an ERR_SOCKET_DGRAM_NOT_CONNECTED exception.
@@ -244,6 +249,7 @@ A synchronous function that disassociates a connected dgram.Socket from
 ### [`send(msg, offset, length, port, address, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L429)
 
 External docs: https://nodejs.org/api/dgram.html#socketsendmsg-offset-length-port-address-callback
+
 Broadcasts a datagram on the socket. For connectionless sockets, the
  destination port and address must be specified. Connected sockets, on the
  other hand, will use their associated remote endpoint, so the port and
@@ -297,6 +303,7 @@ Broadcasts a datagram on the socket. For connectionless sockets, the
 ### [`close(callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L527)
 
 External docs: https://nodejs.org/api/dgram.html#socketclosecallback
+
 Close the underlying socket and stop listening for data on it. If a
  callback is provided, it is added as a listener for the 'close' event.
 
@@ -310,6 +317,7 @@ Close the underlying socket and stop listening for data on it. If a
 ### [`address()`](https://github.com/socketsupply/io/blob/master/dgram.js#L575)
 
 External docs: https://nodejs.org/api/dgram.html#socketaddress
+
 Returns an object containing the address information for a socket. For
  UDP sockets, this object will contain address, family, and port properties.
 
@@ -327,6 +335,7 @@ Returns an object containing the address information for a socket. For
 ### [`remoteAddress()`](https://github.com/socketsupply/io/blob/master/dgram.js#L602)
 
 External docs: https://nodejs.org/api/dgram.html#socketremoteaddress
+
 Returns an object containing the address, family, and port of the remote
  endpoint. This method throws an ERR_SOCKET_DGRAM_NOT_CONNECTED exception
  if the socket is not connected.
@@ -344,6 +353,7 @@ Returns an object containing the address, family, and port of the remote
 ### [`setRecvBufferSize(size)`](https://github.com/socketsupply/io/blob/master/dgram.js#L625)
 
 External docs: https://nodejs.org/api/dgram.html#socketsetrecvbuffersizesize
+
 Sets the SO_RCVBUF socket option. Sets the maximum socket receive buffer in
  bytes.
  
@@ -357,6 +367,7 @@ Sets the SO_RCVBUF socket option. Sets the maximum socket receive buffer in
 ### [`setSendBufferSize(size)`](https://github.com/socketsupply/io/blob/master/dgram.js#L637)
 
 External docs: https://nodejs.org/api/dgram.html#socketsetsendbuffersizesize
+
 Sets the SO_SNDBUF socket option. Sets the maximum socket send buffer in
  bytes.
 
@@ -370,6 +381,7 @@ Sets the SO_SNDBUF socket option. Sets the maximum socket send buffer in
 ### [`getRecvBufferSize()`](https://github.com/socketsupply/io/blob/master/dgram.js#L646)
 
 External docs: https://nodejs.org/api/dgram.html#socketgetrecvbuffersize
+
  
 
 | Return Value | Type | Description |
@@ -380,6 +392,7 @@ External docs: https://nodejs.org/api/dgram.html#socketgetrecvbuffersize
 ### [`getSendBufferSize()`](https://github.com/socketsupply/io/blob/master/dgram.js#L655)
 
 External docs: https://nodejs.org/api/dgram.html#socketgetsendbuffersize
+
  
 
 | Return Value | Type | Description |
@@ -400,6 +413,7 @@ External docs: https://nodejs.org/api/dgram.html#socketgetsendbuffersize
 ## [`lookup(hostname, opts, cb)`](https://github.com/socketsupply/io/blob/master/dns/index.js#L45)
 
 External docs: https://nodejs.org/api/dns.html#dns_dns_lookup_hostname_options_callback
+
 Resolves a host name (e.g. `example.org`) into the first found A (IPv4) or
  AAAA (IPv6) record. All option properties are optional. If options is an
  integer, then it must be 4 or 6 – if options is 0 or not provided, then IPv4
@@ -443,6 +457,7 @@ Resolves a host name (e.g. `example.org`) into the first found A (IPv4) or
 ## [`lookup(hostname, opts)`](https://github.com/socketsupply/io/blob/master/dns/promises.js#L23)
 
 External docs: https://nodejs.org/api/dns.html#dnspromiseslookuphostname-options
+
 
 
 | Argument | Type | Default | Optional | Description |

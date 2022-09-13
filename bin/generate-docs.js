@@ -238,7 +238,7 @@ export function transform (filename) {
 
     const md = [
       title ?? [],
-      doc?.url ? `External docs: ${doc.url}` : [],
+      doc?.url ? `External docs: ${doc.url}\n` : [],
       header ?? [],
       createTableParams(doc?.params),
       createTableReturn(doc?.returns)
