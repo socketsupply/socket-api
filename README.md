@@ -789,14 +789,16 @@ This is a `FunctionDeclaration` named `writev` in `fs/index.js`, it's exported b
 
 
 
-## [`access(path, mode , options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L36)
+## [`access(path, mode, options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L36)
+
+External docs: https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesaccesspath-mode
 
 Asynchronously check access a file.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string \| Buffer \| URL |  | false |  |
-| mode | string | F_OK(0) | true |  |
+| mode | string |  | true |  |
 | options | object |  | true |  |
 
 
@@ -842,8 +844,9 @@ Asynchronously check access a file.
 
 ## [`open(path, flags, mode)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L109)
 
+External docs: https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
+
 Asynchronously open a file.
- https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
 
 
 | Argument | Type | Default | Optional | Description |
@@ -858,15 +861,42 @@ Asynchronously open a file.
 | Not specified | Promise<FileHandle> |  |
 
 
-## [`opendir()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L116)
+## [`opendir(path, options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L121)
+
+External docs: https://nodejs.org/api/fs.html#fspromisesopendirpath-options
 
 
 
-## [`readdir()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L124)
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| path | string \| Buffer \| URL |  | false |  |
+| options | object |  | true |  |
+| options.encoding | string | utf8 | true |  |
+| options.bufferSize | number | 32 | true |  |
+
+
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<FileSystem,Dir> |  |
+
+
+## [`readdir(path, options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L133)
+
+External docs: https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesreaddirpath-options
 
 
 
-## [`readFile(path, options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L153)
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| path | string \| Buffer \| URL |  | false |  |
+| options | object |  | true |  |
+| options.encoding | string | utf8 | true |  |
+| options.withFileTypes | boolean | false | true |  |
+
+
+## [`readFile(path, options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L166)
+
+External docs: https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesreadfilepath-options
 
 
 
@@ -874,53 +904,63 @@ Asynchronously open a file.
 | :---     | :--- | :---:   | :---:    | :---        |
 | path | string |  | false |  |
 | options | object |  | true |  |
+| options.encoding | string \| null | null | true |  |
+| options.flag | string | r | true |  |
+| options.signal | AbortSignal |  | true |  |
 
 
-## [`readlink()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L169)
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<Buffer | string> |  |
 
 
-
-## [`realpath()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L175)
-
-
-
-## [`rename()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L181)
-
-
-
-## [`rmdir()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L187)
+## [`readlink()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L182)
 
 
 
-## [`rm()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L193)
+## [`realpath()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L188)
 
 
 
-## [`stat()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L199)
+## [`rename()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L194)
 
 
 
-## [`symlink()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L205)
+## [`rmdir()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L200)
 
 
 
-## [`truncate()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L211)
+## [`rm()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L206)
 
 
 
-## [`unlink()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L217)
+## [`stat()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L212)
 
 
 
-## [`utimes()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L223)
+## [`symlink()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L218)
 
 
 
-## [`watch()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L229)
+## [`truncate()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L224)
 
 
 
-## [`writeFile(path, data, options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L238)
+## [`unlink()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L230)
+
+
+
+## [`utimes()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L236)
+
+
+
+## [`watch()`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L242)
+
+
+
+## [`writeFile(path, data, options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L251)
+
+External docs: https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromiseswritefilefile-data-options
 
 
 

@@ -28,9 +28,9 @@ async function visit (path, options, callback) {
 
 /**
  * Asynchronously check access a file.
- * @see {https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesaccesspath-mode}
+ * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesaccesspath-mode}
  * @param {string | Buffer | URL} path
- * @param {string=} [mode = F_OK(0)]
+ * @param {string=} [mode]
  * @param {object=} [options]
  */
 export async function access (path, mode, options) {
@@ -99,7 +99,7 @@ export async function mkdir (path, options) {
 
 /**
  * Asynchronously open a file.
- * https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode
+ * @see {@link https://nodejs.org/api/fs.html#fspromisesopenpath-flags-mode }
  *
  * @param {string | Buffer | URL} path
  * @param {string} flags - default: 'r'
@@ -111,7 +111,12 @@ export async function open (path, flags, mode) {
 }
 
 /**
- * @TODO
+ * @see {@link https://nodejs.org/api/fs.html#fspromisesopendirpath-options}
+ * @param {string | Buffer | URL} path
+ * @param {object=} [options]
+ * @param {string=} [options.encoding = 'utf8']
+ * @param {number=} [options.bufferSize = 32]
+ * @return {Promise<FileSystem,Dir>}
  */
 export async function opendir (path, options) {
   const handle = await DirectoryHandle.open(path, options)
@@ -119,7 +124,11 @@ export async function opendir (path, options) {
 }
 
 /**
- * @TODO
+ * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesreaddirpath-options}
+ * @param {string | Buffer | URL} path
+ * @param {object=} options
+ * @param {string=} [options.encoding = 'utf8']
+ * @param {boolean=} [options.withFileTypes = false]
  */
 export async function readdir (path, options) {
   options = { entries: DirectoryHandle.MAX_ENTRIES, ...options }
@@ -146,9 +155,13 @@ export async function readdir (path, options) {
 }
 
 /**
- * @TODO
+ * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesreadfilepath-options}
  * @param {string} path
  * @param {object=} [options]
+ * @param {(string|null)=} [options.encoding = null]
+ * @param {string=} [options.flag = 'r']
+ * @param {AbortSignal=} [options.signal]
+ * @return {Promise<Buffer | string>}
  */
 export async function readFile (path, options) {
   if (typeof options === 'string') {
@@ -230,7 +243,7 @@ export async function watch (path, options) {
 }
 
 /**
- * @TODO
+ * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromiseswritefilefile-data-options}
  * @param {string} path
  * @param {string|Buffer|Array|TypedArray} data
  * @param {object=} [options]
