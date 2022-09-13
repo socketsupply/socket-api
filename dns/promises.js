@@ -16,8 +16,8 @@ import { rand64 } from '../util.js'
  * @async
  * @see {@link https://nodejs.org/api/dns.html#dnspromiseslookuphostname-options}
  * @param {string} hostname - The host name to resolve.
- * @param {Object} opts - An options object.
- * @param {number|string} opts.family - The record family. Must be 4, 6, or 0. For backward compatibility reasons,'IPv4' and 'IPv6' are interpreted as 4 and 6 respectively. The value 0 indicates that IPv4 and IPv6 addresses are both returned. Default: 0.
+ * @param {Object=} opts - An options object.
+ * @param {number|string} [opts.family=0] - The record family. Must be 4, 6, or 0. For backward compatibility reasons,'IPv4' and 'IPv6' are interpreted as 4 and 6 respectively. The value 0 indicates that IPv4 and IPv6 addresses are both returned. Default: 0.
  * @returns {Promise}
  */
 export async function lookup (hostname, opts) {
