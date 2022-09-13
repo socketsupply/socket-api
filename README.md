@@ -77,7 +77,11 @@ External docs: https://nodejs.org/api/buffer.html#buffer_class_buffer
  Some high level methods around the `crypto.subtle` api for getting
  random bytes and hashing.
 
-## [`getRandomValues(buffer)`](https://github.com/socketsupply/io/blob/master/crypto.js#L19)
+## [webcrypto](https://github.com/socketsupply/io/blob/master/crypto.js#L16)
+
+WebCrypto API
+
+## [`getRandomValues(buffer)`](https://github.com/socketsupply/io/blob/master/crypto.js#L24)
 
 External docs: https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
 Generate cryptographically strong random values into `buffer`
@@ -92,7 +96,7 @@ Generate cryptographically strong random values into `buffer`
 | Not specified | TypedArray |  |
 
 
-## [`randomBytes(size)`](https://github.com/socketsupply/io/blob/master/crypto.js#L26)
+## [`randomBytes(size)`](https://github.com/socketsupply/io/blob/master/crypto.js#L31)
 
 Generate `size` random bytes.
 
@@ -106,7 +110,7 @@ Generate `size` random bytes.
 | Not specified | Buffer | A promise that resolves with an instance of io.Buffer with random bytes. |
 
 
-## [`createDigest(algorithm, message)`](https://github.com/socketsupply/io/blob/master/crypto.js#L37)
+## [`createDigest(algorithm, message)`](https://github.com/socketsupply/io/blob/master/crypto.js#L42)
 
 
 
@@ -188,8 +192,9 @@ This is a `ClassDeclaration` named ``ERR_SOCKET_DGRAM_NOT_RUNNING` (extends `Soc
 New instances of dgram.Socket are created using dgram.createSocket().
  The new keyword is not to be used to create dgram.Socket instances.
 
-### [`bind(port, address, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L152)
+### [`bind(port, address, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L155)
 
+External docs: https://nodejs.org/api/dgram.html#socketbindport-address-callback
 Listen for datagram messages on a named port and optional address
  If address is not specified, the operating system will attempt to
  listen on all addresses. Once binding is complete, a 'listening'
@@ -197,6 +202,7 @@ Listen for datagram messages on a named port and optional address
 
  If binding fails, an 'error' event is emitted.
 
+ 
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
@@ -205,8 +211,9 @@ Listen for datagram messages on a named port and optional address
 | callback | function |  | false | With no parameters. Called when binding is complete. |
 
 
-### [`connect(port, host, connectListener)`](https://github.com/socketsupply/io/blob/master/dgram.js#L269)
+### [`connect(port, host, connectListener)`](https://github.com/socketsupply/io/blob/master/dgram.js#L275)
 
+External docs: https://nodejs.org/api/dgram.html#socketconnectport-address-callback
 Associates the dgram.Socket to a remote address and port. Every message sent
  by this handle is automatically sent to that destination. Also, the socket
  will only receive messages from that remote peer. Trying to call connect()
@@ -217,6 +224,7 @@ Associates the dgram.Socket to a remote address and port. Every message sent
  In case of failure, the callback is called or, failing this, an 'error' event
  is emitted.
 
+ 
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
@@ -225,8 +233,17 @@ Associates the dgram.Socket to a remote address and port. Every message sent
 | connectListener | function |  | true | Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once. |
 
 
-### [`send(msg, offset, length, port, address, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L413)
+### [`disconnect()`](https://github.com/socketsupply/io/blob/master/dgram.js#L362)
 
+External docs: https://nodejs.org/api/dgram.html#socketdisconnect
+A synchronous function that disassociates a connected dgram.Socket from
+ its remote address. Trying to call disconnect() on an unbound or already
+ disconnected socket will result in an ERR_SOCKET_DGRAM_NOT_CONNECTED exception.
+ 
+
+### [`send(msg, offset, length, port, address, callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L429)
+
+External docs: https://nodejs.org/api/dgram.html#socketsendmsg-offset-length-port-address-callback
 Broadcasts a datagram on the socket. For connectionless sockets, the
  destination port and address must be specified. Connected sockets, on the
  other hand, will use their associated remote endpoint, so the port and
@@ -265,34 +282,39 @@ Broadcasts a datagram on the socket. For connectionless sockets, the
  They are supported only when the first argument is a Buffer, a TypedArray,
  or a DataView.
 
+ 
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | msg | Buffer \| TypedArray \| DataView \| string \| Array |  | false | Message to be sent. |
-| offset | integer |  | false | Offset in the buffer where the message starts. |
-| length | integer |  | false | Number of bytes in the message. |
-| port | integer |  | false | Destination port. |
-| address | string |  | false | Destination host name or IP address. |
-| callback | Function |  | false | Called when the message has been sent. |
+| offset | integer |  | true | Offset in the buffer where the message starts. |
+| length | integer |  | true | Number of bytes in the message. |
+| port | integer |  | true | Destination port. |
+| address | string |  | true | Destination host name or IP address. |
+| callback | Function |  | true | Called when the message has been sent. |
 
 
-### [`close(callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L510)
+### [`close(callback)`](https://github.com/socketsupply/io/blob/master/dgram.js#L527)
 
+External docs: https://nodejs.org/api/dgram.html#socketclosecallback
 Close the underlying socket and stop listening for data on it. If a
  callback is provided, it is added as a listener for the 'close' event.
 
 
+
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| callback | function |  | false | Called when the connection is completed or on error. |
+| callback | function |  | true | Called when the connection is completed or on error. |
 
 
-### [`address()`](https://github.com/socketsupply/io/blob/master/dgram.js#L556)
+### [`address()`](https://github.com/socketsupply/io/blob/master/dgram.js#L575)
 
+External docs: https://nodejs.org/api/dgram.html#socketaddress
 Returns an object containing the address information for a socket. For
  UDP sockets, this object will contain address, family, and port properties.
 
  This method throws EBADF if called on an unbound socket.
+ 
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
@@ -302,12 +324,14 @@ Returns an object containing the address information for a socket. For
 | socketInfo.family | string | The IP family of the socket |
 
 
-### [`remoteAddress()`](https://github.com/socketsupply/io/blob/master/dgram.js#L581)
+### [`remoteAddress()`](https://github.com/socketsupply/io/blob/master/dgram.js#L602)
 
+External docs: https://nodejs.org/api/dgram.html#socketremoteaddress
 Returns an object containing the address, family, and port of the remote
  endpoint. This method throws an ERR_SOCKET_DGRAM_NOT_CONNECTED exception
  if the socket is not connected.
 
+ 
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
@@ -315,6 +339,52 @@ Returns an object containing the address, family, and port of the remote
 | socketInfo.address | string | The IP address of the socket |
 | socketInfo.port | string | The port of the socket |
 | socketInfo.family | string | The IP family of the socket |
+
+
+### [`setRecvBufferSize(size)`](https://github.com/socketsupply/io/blob/master/dgram.js#L625)
+
+External docs: https://nodejs.org/api/dgram.html#socketsetrecvbuffersizesize
+Sets the SO_RCVBUF socket option. Sets the maximum socket receive buffer in
+ bytes.
+ 
+
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| size | number |  | false | The size of the new receive buffer |
+
+
+### [`setSendBufferSize(size)`](https://github.com/socketsupply/io/blob/master/dgram.js#L637)
+
+External docs: https://nodejs.org/api/dgram.html#socketsetsendbuffersizesize
+Sets the SO_SNDBUF socket option. Sets the maximum socket send buffer in
+ bytes.
+
+ 
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| size | number |  | false | The size of the new send buffer |
+
+
+### [`getRecvBufferSize()`](https://github.com/socketsupply/io/blob/master/dgram.js#L646)
+
+External docs: https://nodejs.org/api/dgram.html#socketgetrecvbuffersize
+ 
+
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | number | the SO_RCVBUF socket receive buffer size in bytes. |
+
+
+### [`getSendBufferSize()`](https://github.com/socketsupply/io/blob/master/dgram.js#L655)
+
+External docs: https://nodejs.org/api/dgram.html#socketgetsendbuffersize
+ 
+
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | number | the SO_SNDBUF socket send buffer size in bytes. |
 
 
 # [DNS](https://github.com/socketsupply/io/blob/master/dns/index.js#L13)
@@ -1097,7 +1167,7 @@ A result type used internally for handling
  of `{ err?, data? }`. The `data` and `err` properties on this
  type of object are in tuple form and be accessed at `[data?,err?]`
 
-### [`from(result)`](https://github.com/socketsupply/io/blob/master/ipc.js#L454)
+### [`from(result, maybeError, maybeSource)`](https://github.com/socketsupply/io/blob/master/ipc.js#L456)
 
 Creates a `Result` instance from input that may be an object
  like `{ err?, data? }`, an `Error` instance, or just `data`.
@@ -1105,6 +1175,8 @@ Creates a `Result` instance from input that may be an object
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | result | object \| Error \| mixed |  | true |  |
+| maybeError | ?(Error) |  | false |  |
+| maybeSource | ?(string) |  | false |  |
 
 
 | Return Value | Type | Description |
@@ -1112,22 +1184,31 @@ Creates a `Result` instance from input that may be an object
 | Not specified | Result |  |
 
 
-### [`constructor(data, err)`](https://github.com/socketsupply/io/blob/master/ipc.js#L477)
+### [`constructor(err , data , source )`](https://github.com/socketsupply/io/blob/master/ipc.js#L489)
 
 `Result` class constructor.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| data | object |  | true |  |
-| err | Error |  | true |  |
+| err | ?(Error) | null | false |  |
+| data | ?(object) | null | false |  |
+| source | ?(string) | undefined | false |  |
 
 
-## [`ready()`](https://github.com/socketsupply/io/blob/master/ipc.js#L514)
+### [`length()`](https://github.com/socketsupply/io/blob/master/ipc.js#L518)
+
+Computed result length.
+
+### [`undefined()`](https://github.com/socketsupply/io/blob/master/ipc.js#L525)
+
+Generator for an `Iterable` interface over this instance.
+
+## [`ready()`](https://github.com/socketsupply/io/blob/master/ipc.js#L536)
 
 Waits for the native IPC layer to be ready and exposed on the
  global window object.
 
-## [`sendSync(command, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L539)
+## [`sendSync(command, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L561)
 
 Sends a synchronous IPC command over XHR returning a `Result`
  upon success or error.
@@ -1143,32 +1224,61 @@ Sends a synchronous IPC command over XHR returning a `Result`
 | Not specified | Result |  |
 
 
-## [`emit()`](https://github.com/socketsupply/io/blob/master/ipc.js#L607)
+## [`emit(name)`](https://github.com/socketsupply/io/blob/master/ipc.js#L638)
 
-This is a `FunctionDeclaration` named `emit` in `ipc.js`, it's exported but undocumented.
+Emit event to be dispatched on `window` object.
 
-
-## [`resolve()`](https://github.com/socketsupply/io/blob/master/ipc.js#L617)
-
-This is a `FunctionDeclaration` named `resolve` in `ipc.js`, it's exported but undocumented.
-
-
-## [`send()`](https://github.com/socketsupply/io/blob/master/ipc.js#L627)
-
-This is a `FunctionDeclaration` named `send` in `ipc.js`, it's exported but undocumented.
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| name | string |  | false |  |
+| ...args | ..Mixed |  | false |  |
 
 
-## [`write()`](https://github.com/socketsupply/io/blob/master/ipc.js#L644)
+## [`resolve(seq)`](https://github.com/socketsupply/io/blob/master/ipc.js#L653)
 
-This is a `FunctionDeclaration` named `write` in `ipc.js`, it's exported but undocumented.
+Resolves a request by `seq` with possible value.
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| seq | string |  | false |  |
+| ...args | ..Mixed |  | false |  |
 
 
-## [`request()`](https://github.com/socketsupply/io/blob/master/ipc.js#L739)
+## [`send(command)`](https://github.com/socketsupply/io/blob/master/ipc.js#L668)
 
-This is a `FunctionDeclaration` named `request` in `ipc.js`, it's exported but undocumented.
+Sends an async IPC command request with parameters.
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| command | string |  | false |  |
+| ...args | ..Mixed |  | false |  |
 
 
-## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L842)
+## [`write(command, params, buffer, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L696)
+
+Sends an async IPC command request with parameters and buffered bytes.
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| command | string |  | false |  |
+| params | ?(object) |  | false |  |
+| buffer | ?(Buffer \| TypeArray \| ArrayBuffer \| string \| Array) |  | false |  |
+| options | ?(object) |  | false |  |
+
+
+## [`request(command, params, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L802)
+
+Sends an async IPC command request with parameters requesting a response
+ with buffered bytes.
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| command | string |  | false |  |
+| params | ?(object) |  | false |  |
+| options | ?(object) |  | false |  |
+
+
+## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L910)
 
 Factory for creating a proxy based IPC API.
 
@@ -1190,27 +1300,37 @@ Factory for creating a proxy based IPC API.
  This module provides normalized system information from all the major
  operating systems.
 
-## [`arch()`](https://github.com/socketsupply/io/blob/master/os.js#L19)
+## [`arch()`](https://github.com/socketsupply/io/blob/master/os.js#L20)
 
 This is a `FunctionDeclaration` named `arch` in `os.js`, it's exported but undocumented.
 
 
-## [`networkInterfaces()`](https://github.com/socketsupply/io/blob/master/os.js#L52)
+## [`networkInterfaces()`](https://github.com/socketsupply/io/blob/master/os.js#L53)
 
 This is a `FunctionDeclaration` named `networkInterfaces` in `os.js`, it's exported but undocumented.
 
 
-## [`platform()`](https://github.com/socketsupply/io/blob/master/os.js#L128)
+## [`platform()`](https://github.com/socketsupply/io/blob/master/os.js#L129)
 
 This is a `FunctionDeclaration` named `platform` in `os.js`, it's exported but undocumented.
 
 
-## [`type()`](https://github.com/socketsupply/io/blob/master/os.js#L157)
+## [`type()`](https://github.com/socketsupply/io/blob/master/os.js#L158)
 
 This is a `FunctionDeclaration` named `type` in `os.js`, it's exported but undocumented.
 
 
-## [EOL](https://github.com/socketsupply/io/blob/master/os.js#L197)
+## [`isWindows()`](https://github.com/socketsupply/io/blob/master/os.js#L198)
+
+This is a `FunctionDeclaration` named `isWindows` in `os.js`, it's exported but undocumented.
+
+
+## [`tmpdir()`](https://github.com/socketsupply/io/blob/master/os.js#L207)
+
+This is a `FunctionDeclaration` named `tmpdir` in `os.js`, it's exported but undocumented.
+
+
+## [EOL](https://github.com/socketsupply/io/blob/master/os.js#L249)
 
 This is a `VariableDeclaration` named `EOL` in `os.js`, it's exported but undocumented.
 

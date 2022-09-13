@@ -148,6 +148,9 @@ export class Socket extends EventEmitter {
    * @param {number} port - The port to to listen for messages on
    * @param {string} address - The address to bind to (0.0.0.0)
    * @param {function} callback - With no parameters. Called when binding is complete.
+   * 
+   * @see {@link https://nodejs.org/api/dgram.html#socketbindport-address-callback}
+   * 
    */
   bind (arg1, arg2, cb) {
     let options = {}
@@ -265,6 +268,9 @@ export class Socket extends EventEmitter {
    * @param {number} port - Port the client should connect to.
    * @param {string=} host - Host the client should connect to.
    * @param {function=} connectListener - Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once.
+   * 
+   * @see {@link https://nodejs.org/api/dgram.html#socketconnectport-address-callback}
+   * 
    */
   async connect (arg1, arg2, cb) {
     if (this.connectedState === CONNECT_STATE_CONNECTED) {
@@ -345,6 +351,14 @@ export class Socket extends EventEmitter {
     return this
   }
 
+  /**
+   * A synchronous function that disassociates a connected dgram.Socket from
+   * its remote address. Trying to call disconnect() on an unbound or already
+   * disconnected socket will result in an ERR_SOCKET_DGRAM_NOT_CONNECTED exception.
+   * 
+   * @see {@link https://nodejs.org/api/dgram.html#socketdisconnect}
+   * 
+   */
   async disconnect () {
     const { err: errConnect } = await ipc.send('udp.disconnect', {
       ip: this._remoteAddress,
@@ -403,11 +417,13 @@ export class Socket extends EventEmitter {
    * or a DataView.
    *
    * @param {Buffer | TypedArray | DataView | string | Array} msg - Message to be sent.
-   * @param {integer} offset - Offset in the buffer where the message starts.
-   * @param {integer} length - Number of bytes in the message.
-   * @param {integer} port - Destination port.
-   * @param {string} address - Destination host name or IP address.
-   * @param {Function} callback - Called when the message has been sent.
+   * @param {integer=} offset - Offset in the buffer where the message starts.
+   * @param {integer=} length - Number of bytes in the message.
+   * @param {integer=} port - Destination port.
+   * @param {string=} address - Destination host name or IP address.
+   * @param {Function=} callback - Called when the message has been sent.
+   * 
+   * @see {@link https://nodejs.org/api/dgram.html#socketsendmsg-offset-length-port-address-callback}
    *
    */
   async send (buffer, ...args) {
@@ -504,8 +520,9 @@ export class Socket extends EventEmitter {
    * Close the underlying socket and stop listening for data on it. If a
    * callback is provided, it is added as a listener for the 'close' event.
    *
-   * @param {function} callback - Called when the connection is completed or on error.
+   * @param {function=} callback - Called when the connection is completed or on error.
    *
+   * @see {@link https://nodejs.org/api/dgram.html#socketclosecallback}
    */
   close (cb) {
     const state = getSocketState(this)
@@ -552,6 +569,8 @@ export class Socket extends EventEmitter {
    * @returns {string} socketInfo.address - The IP address of the socket
    * @returns {string} socketInfo.port - The port of the socket
    * @returns {string} socketInfo.family - The IP family of the socket
+   * 
+   * @see {@link https://nodejs.org/api/dgram.html#socketaddress}
    */
   address () {
     if (this.state._bindState === BIND_STATE_UNBOUND) {
@@ -577,6 +596,8 @@ export class Socket extends EventEmitter {
    * @returns {string} socketInfo.address - The IP address of the socket
    * @returns {string} socketInfo.port - The port of the socket
    * @returns {string} socketInfo.family - The IP family of the socket
+   * 
+   * @see {@link https://nodejs.org/api/dgram.html#socketremoteaddress}
    */
   remoteAddress () {
     if (this.state._connectState === CONNECT_STATE_DISCONNECTED) {
@@ -593,26 +614,44 @@ export class Socket extends EventEmitter {
     }
   }
 
-  //
-  // Sets the SO_RCVBUF socket option. Sets the maximum socket receive buffer in
-  // bytes.
-  //
+  /**
+   * Sets the SO_RCVBUF socket option. Sets the maximum socket receive buffer in
+   * bytes.
+   * 
+   * @param {number} size - The size of the new receive buffer
+   *
+   * @see {@link https://nodejs.org/api/dgram.html#socketsetrecvbuffersizesize}
+   */
   setRecvBufferSize (size) {
     this.state.recvBufferSize = size
   }
 
-  //
-  // Sets the SO_SNDBUF socket option. Sets the maximum socket send buffer in
-  // bytes.
-  //
+  /**
+   * Sets the SO_SNDBUF socket option. Sets the maximum socket send buffer in
+   * bytes.
+   *
+   * @param {number} size - The size of the new send buffer
+   * 
+   * @see {@link https://nodejs.org/api/dgram.html#socketsetsendbuffersizesize}
+   */
   setSendBufferSize (size) {
     this.state.sendBufferSize = size
   }
 
+  /**
+   * @returns {number} the SO_RCVBUF socket receive buffer size in bytes.
+   * 
+   * @see {@link https://nodejs.org/api/dgram.html#socketgetrecvbuffersize}
+   */
   getRecvBufferSize () {
     return this.state.recvBufferSize
   }
 
+  /**
+   * @returns {number} the SO_SNDBUF socket send buffer size in bytes.
+   * 
+   * @see {@link https://nodejs.org/api/dgram.html#socketgetsendbuffersize}
+   */
   getSendBufferSize () {
     return this.state.sendBufferSize
   }
