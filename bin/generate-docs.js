@@ -166,12 +166,15 @@ export function transform (filename) {
 
         if (isReturn) {
           const propType = 'returns'
-          const { 1: type, 2: rawName } = attr.match(/{([^}]+)}(?:\s*-\s*)?(.*)/)
-          const [name, description] = /\w\s*-\s*(.*)/.test(rawName) ? rawName.split(/-\s+/) : ['Not specified', rawName]
-          const param = { name: name.trim() || 'Not specified' , type, description: description?.trim() }
-          if (['undefined', 'void'].includes(type)) continue;
-          if (!item[propType]) item[propType] = []
-          item[propType].push(param)
+          const match = attr.match(/{([^}]+)}(?:\s*-\s*)?(.*)/)
+          if (match) {
+            const { 1: type, 2: rawName } = match
+            const [name, description] = /\w\s*-\s*(.*)/.test(rawName) ? rawName.split(/-\s+/) : ['Not specified', rawName]
+            const param = { name: name.trim() || 'Not specified' , type, description: description?.trim() }
+            if (['undefined', 'void'].includes(type)) continue;
+            if (!item[propType]) item[propType] = []
+            item[propType].push(param)
+          }
         }
       }
     }
@@ -267,6 +270,7 @@ export function transform (filename) {
   'os.js',
   'path/path.js',
   'process.js',
+  'network.js',
   'stream.js'
 ].forEach(transform)
 

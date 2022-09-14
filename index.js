@@ -16,6 +16,7 @@ export * as crypto from './crypto.js'
 export { default as process } from './process.js'
 export * as stream from './stream.js'
 export * as util from './util.js'
+export { Network } from './network.js'
 
 import * as exports from './index.js'
 export default exports
