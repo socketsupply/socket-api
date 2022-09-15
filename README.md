@@ -1204,11 +1204,23 @@ Factory for creating a proxy based IPC API.
 | Not specified | Proxy |  |
 
 
-# [Network](https://github.com/socketsupply/io/blob/master/network.js#L5)
+# [Network](https://github.com/socketsupply/io/blob/master/network.js#L19)
 
 
+ ```js
+ import io from '@socketsupply/io'
+ const network = new io.Network()
+ const swarm = network.createSwarm('my-swarm')
 
-## [`Network` (extends `EventEmitter`)](https://github.com/socketsupply/io/blob/master/network.js#L46)
+ swarm.on('peer', peer => {
+   peer.send('hello')
+   peer.on('message', d => {
+     document.body.textContent += d.toString()
+   })
+ })
+ ```
+
+## [`Network` (extends `EventEmitter`)](https://github.com/socketsupply/io/blob/master/network.js#L60)
 
 Creates an instance of the `Network` object. The network may contain
  one or more swarms. A swarm is a group of peers that are interested
@@ -1231,7 +1243,7 @@ Creates an instance of the `Network` object. The network may contain
 | config.introducer2.address | object |  | false | The IPv4|IPv6 port of the peer |
 
 
-### [`createSwarm(id, type)`](https://github.com/socketsupply/io/blob/master/network.js#L69)
+### [`createSwarm(id, type)`](https://github.com/socketsupply/io/blob/master/network.js#L83)
 
 Create a swarm on the network
 
