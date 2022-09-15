@@ -179,7 +179,7 @@ export function transform (filename) {
       }
     }
 
-    if (item.signature) {
+    if (item.signature && item.type !== 'ClassDeclaration') {
       item.name = `\`${item.name}(${item.signature?.join(', ') || ''})\``
     } else if (item.exports) {
       item.name = `\`${item.name}\``

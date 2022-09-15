@@ -1312,7 +1312,7 @@ Computes current working directory for a path
 
 
 
-## [``Network` (extends `EventEmitter`)(config, keepAlive, port, spinPort, introducer1, introducer2)`](https://github.com/socketsupply/io/blob/master/network.js#L46)
+## [`Network` (extends `EventEmitter`)](https://github.com/socketsupply/io/blob/master/network.js#L46)
 
 Creates an instance of the `Network` object. The network may contain
  one or more swarms. A swarm is a group of peers that are interested
@@ -1322,17 +1322,17 @@ Creates an instance of the `Network` object. The network may contain
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | config | object |  | false | A configuration object |
-| keepAlive | number |  | false | The interval of the ping in milliseconds |
-| port | number |  | false | The UDP port that will be bound |
-| spinPort | number |  | false | The UDP port that is used to detect static nat |
-| introducer1 | object |  | false | If you have no state, you may need to be introduced to other peers. |
-| introducer1.id | object |  | false | The id of the peer |
-| introducer1.port | object |  | false | The UDP port of the peer |
-| introducer1.address | object |  | false | The 'IPv4' or 'IPv6' port of the peer |
-| introducer2 | object |  | false | If you have no state, you may need to be introduced to other peers. |
-| introducer2.id | object |  | false | The id of the peer |
-| introducer2.port | object |  | false | The UDP port of the peer |
-| introducer2.address | object |  | false | The IPv4|IPv6 port of the peer |
+| config.keepAlive | number |  | false | The interval of the ping in milliseconds |
+| config.port | number |  | false | The UDP port that will be bound |
+| config.spinPort | number |  | false | The UDP port that is used to detect static nat |
+| config.introducer1 | object |  | false | If you have no state, you may need to be introduced to other peers. |
+| config.introducer1.id | object |  | false | The id of the peer |
+| config.introducer1.port | object |  | false | The UDP port of the peer |
+| config.introducer1.address | object |  | false | The 'IPv4' or 'IPv6' port of the peer |
+| config.introducer2 | object |  | false | If you have no state, you may need to be introduced to other peers. |
+| config.introducer2.id | object |  | false | The id of the peer |
+| config.introducer2.port | object |  | false | The UDP port of the peer |
+| config.introducer2.address | object |  | false | The IPv4|IPv6 port of the peer |
 
 
 ### [`createSwarm(id, type)`](https://github.com/socketsupply/io/blob/master/network.js#L69)

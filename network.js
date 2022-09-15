@@ -30,17 +30,17 @@ class Peer extends EventEmitter {
  * in a particular topic.
  *
  * @param {object} config - A configuration object
- * @param {number} keepAlive - The interval of the ping in milliseconds
- * @param {number} port - The UDP port that will be bound
- * @param {number} spinPort - The UDP port that is used to detect static nat
- * @param {object} introducer1 - If you have no state, you may need to be introduced to other peers.
- * @param {object} introducer1.id - The id of the peer
- * @param {object} introducer1.port - The UDP port of the peer
- * @param {object} introducer1.address - The 'IPv4' or 'IPv6' port of the peer
- * @param {object} introducer2 - If you have no state, you may need to be introduced to other peers.
- * @param {object} introducer2.id - The id of the peer
- * @param {object} introducer2.port - The UDP port of the peer
- * @param {object} introducer2.address - The IPv4|IPv6 port of the peer
+ * @param {number} config.keepAlive - The interval of the ping in milliseconds
+ * @param {number} config.port - The UDP port that will be bound
+ * @param {number} config.spinPort - The UDP port that is used to detect static nat
+ * @param {object} config.introducer1 - If you have no state, you may need to be introduced to other peers.
+ * @param {object} config.introducer1.id - The id of the peer
+ * @param {object} config.introducer1.port - The UDP port of the peer
+ * @param {object} config.introducer1.address - The 'IPv4' or 'IPv6' port of the peer
+ * @param {object} config.introducer2 - If you have no state, you may need to be introduced to other peers.
+ * @param {object} config.introducer2.id - The id of the peer
+ * @param {object} config.introducer2.port - The UDP port of the peer
+ * @param {object} config.introducer2.address - The IPv4|IPv6 port of the peer
  *
  */
 export class Network extends EventEmitter {
