@@ -267,10 +267,10 @@ export function transform (filename) {
   'fs/promises.js',
   'fs/stream.js',
   'ipc.js',
+  'network.js',
   'os.js',
   'path/path.js',
   'process.js',
-  'network.js',
   'stream.js'
 ].forEach(transform)
 

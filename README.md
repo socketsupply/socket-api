@@ -1204,6 +1204,44 @@ Factory for creating a proxy based IPC API.
 | Not specified | Proxy |  |
 
 
+# [Network](https://github.com/socketsupply/io/blob/master/network.js#L5)
+
+
+
+## [`Network` (extends `EventEmitter`)](https://github.com/socketsupply/io/blob/master/network.js#L46)
+
+Creates an instance of the `Network` object. The network may contain
+ one or more swarms. A swarm is a group of peers that are interested
+ in a particular topic.
+
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| config | object |  | false | A configuration object |
+| config.keepAlive | number |  | false | The interval of the ping in milliseconds |
+| config.port | number |  | false | The UDP port that will be bound |
+| config.spinPort | number |  | false | The UDP port that is used to detect static nat |
+| config.introducer1 | object |  | false | If you have no state, you may need to be introduced to other peers. |
+| config.introducer1.id | object |  | false | The id of the peer |
+| config.introducer1.port | object |  | false | The UDP port of the peer |
+| config.introducer1.address | object |  | false | The 'IPv4' or 'IPv6' port of the peer |
+| config.introducer2 | object |  | false | If you have no state, you may need to be introduced to other peers. |
+| config.introducer2.id | object |  | false | The id of the peer |
+| config.introducer2.port | object |  | false | The UDP port of the peer |
+| config.introducer2.address | object |  | false | The IPv4|IPv6 port of the peer |
+
+
+### [`createSwarm(id, type)`](https://github.com/socketsupply/io/blob/master/network.js#L69)
+
+Create a swarm on the network
+
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| id | string |  | false | a 32 byte buffer that uniquely identifies the swarm |
+| type | string |  | false | the type of the swarm ('reliable' | undefined) |
+
+
 # [OS](https://github.com/socketsupply/io/blob/master/os.js#L8)
 
 
@@ -1306,44 +1344,6 @@ Computes current working directory for a path
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | code | number | 0 | true | The exit code. Default: 0. |
-
-
-# [Network](https://github.com/socketsupply/io/blob/master/network.js#L5)
-
-
-
-## [`Network` (extends `EventEmitter`)](https://github.com/socketsupply/io/blob/master/network.js#L46)
-
-Creates an instance of the `Network` object. The network may contain
- one or more swarms. A swarm is a group of peers that are interested
- in a particular topic.
-
-
-| Argument | Type | Default | Optional | Description |
-| :---     | :--- | :---:   | :---:    | :---        |
-| config | object |  | false | A configuration object |
-| config.keepAlive | number |  | false | The interval of the ping in milliseconds |
-| config.port | number |  | false | The UDP port that will be bound |
-| config.spinPort | number |  | false | The UDP port that is used to detect static nat |
-| config.introducer1 | object |  | false | If you have no state, you may need to be introduced to other peers. |
-| config.introducer1.id | object |  | false | The id of the peer |
-| config.introducer1.port | object |  | false | The UDP port of the peer |
-| config.introducer1.address | object |  | false | The 'IPv4' or 'IPv6' port of the peer |
-| config.introducer2 | object |  | false | If you have no state, you may need to be introduced to other peers. |
-| config.introducer2.id | object |  | false | The id of the peer |
-| config.introducer2.port | object |  | false | The UDP port of the peer |
-| config.introducer2.address | object |  | false | The IPv4|IPv6 port of the peer |
-
-
-### [`createSwarm(id, type)`](https://github.com/socketsupply/io/blob/master/network.js#L69)
-
-Create a swarm on the network
-
-
-| Argument | Type | Default | Optional | Description |
-| :---     | :--- | :---:   | :---:    | :---        |
-| id | string |  | false | a 32 byte buffer that uniquely identifies the swarm |
-| type | string |  | false | the type of the swarm ('reliable' | undefined) |
 
 
 # [Stream](https://github.com/socketsupply/io/blob/master/stream.js#L5)
