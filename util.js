@@ -461,7 +461,7 @@ export function inspect (value, options) {
 
       const formatWebkitErrorStackLine = (line) => {
         const [symbol, location] = line.split('@')
-        const [context, lineno, colno] = location.split(':')
+        const [context, lineno, colno] = (location?.split(':') || [])
         const output = ['    at']
 
         if (symbol) {
@@ -481,7 +481,7 @@ export function inspect (value, options) {
 
       out += (value.stack || '')
         .split('\n')
-        .map((line) => /^\s*at\s/.test(line)
+        .map((line) => line.includes(`${value.name}: ${value.message}`) || /^\s*at\s/.test(line)
           ? line
           : formatWebkitErrorStackLine(line)
         )
