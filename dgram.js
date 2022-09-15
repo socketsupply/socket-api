@@ -538,6 +538,11 @@ export class Socket extends EventEmitter {
       if (!port) port = this._remotePort
     }
 
+    if (connected) {
+      if (!address) address = this._remoteAddress
+      if (!port) port = this._remotePort
+    }
+
     if (port && !address) address = '0.0.0.0'
 
     const opts = {
