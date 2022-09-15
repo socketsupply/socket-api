@@ -77,7 +77,7 @@ export class Network extends EventEmitter {
 
     this.swarms = new Swarms(this.opts)
     this.swarms.on('error', err => {
-      console.log('SHIT', err)
+      this.emit('error', err)
     })
 
     wrap(this.swarms, [this.opts.port, this.opts.spinPort])
