@@ -20,11 +20,15 @@
  */
 import { EventEmitter } from './events.js'
 import { Buffer } from './buffer.js'
+import dgram from './dgram.js'
+import os from './os.js'
 
 import Swarms from '@socketsupply/introducer/swarms.js'
 import ReliableSwarm from '@socketsupply/introducer/swarm/reliable.js'
 import swarmDefaultConfig from '@socketsupply/introducer/lib/default-config.js'
 import Wrap from '@socketsupply/introducer/wrap.js'
+
+const wrap = Wrap(dgram, os, Buffer)
 
 class Peer extends EventEmitter {
   id = null;
@@ -71,8 +75,12 @@ export class Network extends EventEmitter {
 
     this.opts = { ...swarmDefaultConfig, ...opts }
 
-    this.swarms = new Swarms(config)
-    wrap(this.swarms, [this.config.port, this.config.spinPort])
+    this.swarms = new Swarms(this.opts)
+    this.swarms.on('error', err => {
+      console.log('SHIT', err)
+    })
+
+    wrap(this.swarms, [this.opts.port, this.opts.spinPort])
   }
 
   /**
@@ -80,54 +88,39 @@ export class Network extends EventEmitter {
    *
    * @param {string} id - a 32 byte buffer that uniquely identifies the swarm
    * @param {string} [type] - the type of the swarm ('reliable' | undefined)
-   * @returns Swarm - a swarm that is partitioned (a member of this.swarms.handlers)
+   * @returns {EventEmitter} - an event emitter that provides events from the swarm
    */
   createSwarm (id, type = 'reliable') {
     const swarm = new EventEmitter()
-    let model
 
     if (type === 'reliable') {
-      model = this.swarms.createModel(id, new ReliableSwarm())
+      swarm.model = this.swarms.createModel(id, new ReliableSwarm())
     }
 
-    if (!model) {
+    if (!swarm.model) {
       throw new Error('the type of swarm specified is not supported')
     }
 
-    model.on('peer', p => {
+    swarm.model.on_peer = p => {
       const peer = this.peers[p.id] = new Peer()
       peer.id = p.id
       peer.swarm = this.swarm
       peer.type = type
       swarm.emit('peer', peer)
-    })
+    }
 
-    model.on_disconnect = peer => {
+    swarm.model.on_disconnect = peer => {
       if (!this.peers[peer.id]) return
 
       this.peers[peer.id].emit('disconnect', peer)
       delete this.peers[peer.id]
     }
 
-    model.on_change = (msg, data) => {
+    swarm.model.on_change = (msg, data) => {
       if (!this.peers[msg.id]) return
 
       this.peers[msg.id].emit('message', msg)
     }
-
-    model.on('ping', (...args) => swarm.emit('ping', ...args))
-    model.on('pong', (...args) => swarm.emit('pong', ...args))
-    model.on('nat', (...args) => swarm.emit('nat', ...args))
-    model.on('local', (...args) => swarm.emit('local', ...args))
-    model.on('join', (...args) => swarm.emit('join', ...args))
-    model.on('init', (...args) => swarm.emit('init', ...args))
-    model.on('bind', (...args) => swarm.emit('bind', ...args))
-    model.on('listening', (...args) => swarm.emit('listening', ...args))
-    model.on('send', (...args) => swarm.emit('-> send', ...args))
-    model.on('recv', (...args) => swarm.emit('recv', ...args))
-    model.on('dead', (...args) => swarm.emit('dead', ...args))
-    model.on('alive', (...args) => swarm.emit('alive', ...args))
-    model.on('error', (...args) => swarm.emit('error', ...args))
 
     return swarm
   }
