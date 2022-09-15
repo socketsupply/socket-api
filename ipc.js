@@ -675,12 +675,12 @@ export async function send (command, ...args) {
   const response = await window._ipc.send(command, ...args)
   const result = Result.from(response)
 
-  if (debug.enabled) {
-    debug.log('ipc.send: (resolved)', command, result)
-  }
-
   if (!result.source) {
     result.source = command
+  }
+
+  if (debug.enabled) {
+    debug.log('ipc.send: (resolved)', command, result)
   }
 
   return result
@@ -772,12 +772,12 @@ export async function write (command, params, buffer, options) {
 
         const result = Result.from(data)
 
-        if (debug.enabled) {
-          debug.log('ipc.write: (resolved)', command, result)
-        }
-
         if (!result.source) {
           result.source = command
+        }
+
+        if (debug.enabled) {
+          debug.log('ipc.write: (resolved)', command, result)
         }
 
         return resolve(data)
@@ -833,12 +833,12 @@ export async function request (command, params, options) {
       result = Result.from(result)
     }
 
-    if (debug.enabled) {
-      debug.log('ipc.request: (resolved)', command, result)
-    }
-
     if (!result.source) {
       result.source = command
+    }
+
+    if (debug.enabled) {
+      debug.log('ipc.request: (resolved)', command, result)
     }
 
     return result
