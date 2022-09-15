@@ -126,9 +126,8 @@ test('fs.readdir', async (t) => {})
 test('fs.readFile', async (t) => {
   let failed = false
   const expected = { data: 'test 123' }
-  const iterations = 64
-  // generate ~1k _concurrent_ requests
-  const promises = Array.from(Array(1024), (_, i) => new Promise((resolve) => {
+  const iterations = 1024 // generate ~1k _concurrent_ requests
+  const promises = Array.from(Array(iterations), (_, i) => new Promise((resolve) => {
     if (failed) return resolve(false)
     fs.readFile(TMPDIR + 'fixtures/file.json', (err, buf) => {
       if (failed) return resolve(false)
