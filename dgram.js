@@ -289,7 +289,7 @@ export class Socket extends EventEmitter {
             family: isIPv4(params.data.address) ? 'IPv4' : 'IPv6'
           }
 
-          this.emit('message', buffer, info)
+          this.emit('message', Buffer.from(buffer), info)
         }
 
         if (data.EOF) {

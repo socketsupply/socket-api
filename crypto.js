@@ -21,7 +21,14 @@ export const webcrypto = parent.crypto?.webcrypto ?? parent.crypto
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues}
  * @return {TypedArray}
  */
-export const getRandomValues = webcrypto.getRandomValues.bind(webcrypto)
+export function getRandomValues (...args) {
+  if (typeof webcrypto?.getRandomValues === 'function') {
+    return webcrypto?.getRandomValues(...args)
+  }
+
+  console.warn('Missing implementation for parent.crypto.getRandomValues()')
+  return null
+}
 
 /**
  * Generate `size` random bytes.
