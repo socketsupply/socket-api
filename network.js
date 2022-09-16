@@ -80,10 +80,6 @@ export class Network extends EventEmitter {
       this.emit('error', err)
     })
 
-    this.on('diag', (...args) => {
-      console.log('DIAG', ...args)
-    })
-
     this.swarms.on('ping', (...args) => this.emit('diag', 'ping', ...args))
     this.swarms.on('pong', (...args) => this.emit('diag', 'pong', ...args))
     this.swarms.on('nat', (...args) => this.emit('diag', 'nat', ...args))
