@@ -308,7 +308,9 @@ test('can send and receive packets to a remote server', async function (t) {
   const client = dgram.createSocket('udp4')
 
   const msg = new Promise((resolve, reject) => {
-    const timer = setTimeout(()=>reject(new Error('no ping back after 3 seconds'), 3_000))
+    console.log('start waiting...')
+    const timer = setTimeout(()=>reject(new Error('no ping back after 3 
+seconds')), 3_000)
     server.on('message', (data)=>{
       clearTimeout(timer)
       resolve(data)
