@@ -1,6 +1,6 @@
 {
   "name": "@socketsupply/io",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -35,7 +35,7 @@
     "tapzero": "*"
   },
   "dependencies": {
-    "@socketsupply/introducer": "6.1.9",
+    "@socketsupply/introducer": "6.1.10",
     "buffer": "6.0.3",
     "chalk": "5.0.1"
   }
