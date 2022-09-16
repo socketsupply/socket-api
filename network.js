@@ -80,6 +80,24 @@ export class Network extends EventEmitter {
       this.emit('error', err)
     })
 
+    this.on('diag', (...args) => {
+      console.log('DIAG', ...args)
+    })
+
+    this.swarms.on('ping', (...args) => this.emit('diag', 'ping', ...args))
+    this.swarms.on('pong', (...args) => this.emit('diag', 'pong', ...args))
+    this.swarms.on('nat', (...args) => this.emit('diag', 'nat', ...args))
+    this.swarms.on('local', (...args) => this.emit('diag', 'local', ...args))
+    this.swarms.on('join', (...args) => this.emit('diag', 'join', ...args))
+    this.swarms.on('init', (...args) => this.emit('diag', 'init', ...args))
+    this.swarms.on('bind', (...args) => this.emit('diag', 'bind', ...args))
+    this.swarms.on('listening', (...args) => this.emit('diag', 'listening', ...args))
+    // this.swarms.on('send', (...args) => this.emit('diag', 'send', ...args))
+    this.swarms.on('recv', (...args) => this.emit('diag', 'recv', ...args))
+    this.swarms.on('dead', (...args) => this.emit('diag', 'dead', ...args))
+    this.swarms.on('alive', (...args) => this.emit('diag', 'alive', ...args))
+    this.swarms.on('error', (...args) => this.emit('diag', 'error', ...args))
+
     wrap(this.swarms, [this.opts.port, this.opts.spinPort])
   }
 
