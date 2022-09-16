@@ -225,6 +225,7 @@ export class Socket extends EventEmitter {
       options.address = result.data.address
     }
 
+    this.state._bindState = BIND_STATE_BINDING
     const bind = ipc.send('udp.bind', {
       id: this.id,
       port: options.port || 0,
@@ -262,15 +263,17 @@ export class Socket extends EventEmitter {
         queueMicrotask(() => cb(null))
       }
 
-      this.emit('listening')
-
-      this._recvStart().catch((err) => {
-        if (typeof cb === 'function') {
-          cb(err)
-        } else {
-          this.emit('error', err)
-        }
-      })
+      this._recvStart()
+        .then(() => {
+          this.emit('listening')
+        })
+        .catch((err) => {
+          if (typeof cb === 'function') {
+            cb(err)
+          } else {
+            this.emit('error', err)
+          }
+        })
 
       this.dataListener = ({ detail }) => {
         const { data: buffer, params } = detail
@@ -514,16 +517,34 @@ export class Socket extends EventEmitter {
       throw new Error('Invalid buffer')
     }
 
-    /*
-    if (this.state._bindState === BIND_STATE_UNBOUND) {
-      const { err: errBind } = this.bind({ port: 0 }, null)
+    if (this.state._bindState === BIND_STATE_BINDING) {
+      const { err } = await new Promise((resolve, reject) => {
+        this.once('listening', () => resolve({}))
+        this.once('error', (err) => resolve({ err }))
+      })
 
-      if (errBind) {
-        if (cb) return cb(errBind)
-        return { err: errBind }
+      if (err) {
+        if (typeof cb === 'function') {
+          cb(err)
+        }
+
+        return
+      }
+    } else if (this.state._bindState === BIND_STATE_UNBOUND) {
+      const { err } = await new Promise((resolve) => {
+        this.bind({ port: 0 }, (err) => resolve({ err }))
+      })
+
+      if (err) {
+        if (typeof cb === 'function') {
+          cb(err)
+        } else {
+          this.emit('error', err)
+        }
+
+        return
       }
     }
-    */
 
     if (Array.isArray(list) && list.length === 0) {
       list.push(Buffer.alloc(0))
