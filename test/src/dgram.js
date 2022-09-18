@@ -286,7 +286,7 @@ test('client ~> server (~500 messages)', async (t) => {
       client.connect(port, addr, async () => {
         for (const buffer of buffers) {
           await new Promise((resolve) => {
-            setTimeout(() => client.send(buffer, resolve))
+            client.send(buffer, resolve)
           })
         }
       })
