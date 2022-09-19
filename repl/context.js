@@ -99,7 +99,7 @@ function makeError (err) {
   const stack = (message.match(RegExp(`(${window.location.href}:[0-9]+:[0-9]+):\s*`)) || [])[1]
 
   if (stack) {
-    error.stack.push('  at ' + stack)
+    error.stack.push(`    at ${stack}`)
   }
 
   error.stack = error.stack.filter(Boolean).join('\n')
@@ -116,25 +116,23 @@ export async function evaluate ({ cmd, id }) {
     if (/\s*await\s*import\s*\(/.test(cmd)) {
       cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
       const value = await new AsyncFunction(`(${cmd})`)()
-      await ipc.send('repl.eval.result', {
+      return await ipc.send('repl.eval.result', {
         id,
         error: false,
         value: JSON.stringify({ data: io.util.format(value) })
       })
-      return
     } else if (/\s*import\s*\(/.test(cmd)) {
       cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
       const value = new AsyncFunction(`(${cmd})`)()
-      await ipc.send('repl.eval.result', {
+      return await ipc.send('repl.eval.result', {
         id,
         error: false,
         value: JSON.stringify({ data: io.util.format(value) })
       })
-      return
     }
 
     const result = await ipc.request('window.eval', { value: cmd })
-    await ipc.send('repl.eval.result', {
+    return await ipc.send('repl.eval.result', {
       id,
       error: Boolean(result.err),
       value: JSON.stringify({
@@ -143,7 +141,7 @@ export async function evaluate ({ cmd, id }) {
       })
     })
   } catch (err) {
-    await ipc.send('repl.eval.result', {
+    return await ipc.send('repl.eval.result', {
       id,
       error: true,
       value: JSON.stringify({
