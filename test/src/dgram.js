@@ -301,33 +301,39 @@ test('client ~> server (~500 messages)', async (t) => {
 
 test('can send and receive packets to a remote server', async function (t) {
   const server = dgram.createSocket('udp4')
-  const client = dgram.createSocket('udp4')
+  server.bind(3456, '0.0.0.0')
+  let timer = null
 
   const msg = new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error('no ping back after 3 seconds'))
-    }, 6_000)
     server.on('message', (data) => {
+      console.log('message', data)
       clearTimeout(timer)
       resolve(data)
     })
+
     server.on('error', reject)
-  })
 
-  const payload = JSON.stringify({
-    type: 'ping',
-    id: crypto.randomBytes(32).toString('hex')
-  })
+    server.on('listening', async () => {
+      const payload = JSON.stringify({
+        type: 'ping',
+        id: crypto.randomBytes(32).toString('hex')
+      })
 
-  client.send(payload, 3456, '3.25.141.150')
+      const client = dgram.createSocket('udp4')
+      client.send(payload, 3456, '3.25.141.150')
+
+      timer = setTimeout(() => {
+        reject(new Error('no ping back after 3 seconds'))
+      }, 3_000)
+    })
+  })
 
   try {
-    var data = JSON.parse(Buffer.from(await msg))
+    const data = JSON.parse(Buffer.from(await msg))
+    console.log(data)
   } catch (err) {
-    t.ok(false, err.message)
+    t.fail('package not received')
   }
 
-  console.log('>>>', data)
-
-  client.close()
+  server.close()
 })
