@@ -298,3 +298,33 @@ test('client ~> server (~500 messages)', async (t) => {
     util.promisify(client.close.bind(client))()
   ])
 })
+
+test('can send and receive packets to a remote server', async function (t) {
+  const server = dgram.createSocket({
+    type: 'udp4',
+    reuseAddr: false
+  })
+
+  const client = dgram.createSocket('udp4')
+
+  const msg = new Promise((resolve, reject) => {
+    console.log('start waiting...')
+    const timer = setTimeout(()=>reject(new Error('no ping back after 3 
+seconds')), 3_000)
+    server.on('message', (data)=>{
+      clearTimeout(timer)
+      resolve(data)
+    })
+    server.on('error', reject)
+  })
+
+  client.send(JSON.stringify({
+    type: 'ping',
+    id: crypto.randomBytes(32).toString('hex')
+  }))
+
+  var data = JSON.parse(Buffer.from(await msg))
+  console.log('received', await msg)
+  client.close()
+
+})
