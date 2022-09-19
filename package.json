@@ -35,7 +35,7 @@
     "tapzero": "*"
   },
   "dependencies": {
-    "@socketsupply/introducer": "6.1.10",
+    "@socketsupply/introducer": "6.2.1",
     "buffer": "6.0.3",
     "chalk": "5.0.1"
   }
