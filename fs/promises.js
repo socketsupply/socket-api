@@ -279,5 +279,5 @@ export async function writeFile (path, data, options) {
   })
 }
 
-import * as exports from './index.js'
+import * as exports from './promises.js'
 export default exports
