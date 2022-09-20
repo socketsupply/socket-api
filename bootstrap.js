@@ -1,4 +1,4 @@
-import { readFile, writeFile, access } from './fs/promises.js'
+import { readFile, writeFile } from './fs/promises.js'
 import { createDigest } from './crypto.js'
 import { EventEmitter } from './events.js'
 import { isAsyncFunction, isPromiseLike } from './util.js'
