@@ -1,5 +1,6 @@
-import { test } from 'tapzero'
 import dns from '@socketsupply/io/dns.js'
+
+import { test } from 'tapzero'
 
 // node compat
 //import dns from 'node:dns'
@@ -18,7 +19,7 @@ test('dns exports', t => {
 
 test('dns.lookup', async t => {
   if (!isOnline) {
-    return t.fail('offline')
+    return t.comment('skipping offline')
   }
 
   await Promise.all([
@@ -77,7 +78,7 @@ const BAD_HOSTNAME = 'thisisnotahostname'
 
 test('dns.lookup bad hostname', async t => {
   if (!isOnline) {
-    return t.fail('offline')
+    return t.comment('skipping offline')
   }
 
   await new Promise (resolve => {
@@ -90,7 +91,7 @@ test('dns.lookup bad hostname', async t => {
 
 test('dns.promises.lookup', async t => {
   if (!isOnline) {
-    return t.fail('offline')
+    return t.comment('skipping offline')
   }
 
   try {
@@ -138,7 +139,7 @@ test('dns.promises.lookup', async t => {
 
 test('dns.promises.lookup bad hostname', async t => {
   if (!isOnline) {
-    return t.fail('offline')
+    return t.comment('skipping offline')
   }
 
   try {
