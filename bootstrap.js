@@ -1,4 +1,4 @@
-import { readFile as fsReadFile, writeFile } from './fs/promises.js'
+import { readFile, writeFile, access } from './fs/promises.js'
 import { createDigest } from './crypto.js'
 import { EventEmitter } from './events.js'
 import { isAsyncFunction, isPromiseLike } from './util.js'
@@ -42,19 +42,21 @@ class Bootstrap extends EventEmitter {
   }
 
   async shouldDownload (dest, hashUnpacked, hashAlgorithm) {
-    let buf
-    try {
-      buf = await fsReadFile(dest)
-    } catch (err) {
-      return true
-    }
     if (hashUnpacked) {
+      let buf
+      try {
+        buf = await readFile(dest)
+      } catch (err) {
+        // download if file is corrupted or does not exist
+        return true
+      }
       this.emit('hash-check', { status: 'started', check: 'unpacked' })
       this.#hashUnpackedActual = await this.getHash(buf, hashAlgorithm)
       const hashMatch = this.#hashUnpackedActual === hashUnpacked
       this.emit('hash-check', { status: 'finished', check: 'unpacked', result: hashMatch })
       return !hashMatch
     }
+    return false
   }
 
   async download (src, hashDownloaded, hashAlgorithm) {
