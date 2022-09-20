@@ -5,12 +5,13 @@
  * not (yet) provide any of the multicast methods or properties.
  */
 
-import { rand64, isArrayBufferView } from './util.js'
+import { isArrayBufferView, isFunction, rand64 } from './util.js'
 import { InternalError } from  './errors.js'
 import { EventEmitter } from './events.js'
 import { Buffer } from './buffer.js'
 import { isIPv4 } from './net.js'
 import * as ipc from './ipc.js'
+import dns from './dns.js'
 
 const BIND_STATE_UNBOUND = 0
 const BIND_STATE_BINDING = 1
@@ -21,39 +22,70 @@ const CONNECT_STATE_CONNECTING = 1
 const CONNECT_STATE_CONNECTED = 2
 
 /**
+ * Generic error class for an error occurring on a `Socket` instance.
  * @ignore
  */
 export class SocketError extends InternalError {
   get code () { return this.constructor.name }
 }
+
 /**
- * @ignore
+ * Thrown when a socket is already bound.
  */
-export class ERR_SOCKET_ALREADY_BOUND extends SocketError {}
+export class ERR_SOCKET_ALREADY_BOUND extends SocketError {
+  get message () { return 'Socket is already bound' }
+}
+
 /**
  * @ignore
  */
 export class ERR_SOCKET_BAD_BUFFER_SIZE extends SocketError {}
+
 /**
  * @ignore
  */
 export class ERR_SOCKET_BUFFER_SIZE extends SocketError {}
+
 /**
- * @ignore
+ * Thrown when the socket is already connected.
  */
-export class ERR_SOCKET_DGRAM_IS_CONNECTED extends SocketError {}
+export class ERR_SOCKET_DGRAM_IS_CONNECTED extends SocketError {
+  get message () { return 'Alread connected' }
+}
+
 /**
- * @ignore
+ * Thrown when the socket is not connected.
  */
-export class ERR_SOCKET_DGRAM_NOT_CONNECTED extends SocketError {}
+export class ERR_SOCKET_DGRAM_NOT_CONNECTED extends SocketError {
+  syscall = 'getpeername'
+  get message () { return 'Not connected' }
+}
+
 /**
- * @ignore
+ * Thrown when the socket is not running (not bound or connected).
  */
 export class ERR_SOCKET_DGRAM_NOT_RUNNING extends SocketError {
   get message () { return 'Not running' }
 }
 
-function fixBufferList (list) {
+/**
+ * Thrown when a bad socket type is used in an argument.
+ */
+export class ERR_SOCKET_BAD_TYPE extends TypeError {
+  code = 'ERR_SOCKET_BAD_TYPE'
+  get message () {
+    return 'Bad socket type specified. Valid types are: udp4, udp6'
+  }
+}
+
+/**
+ * Thrown when a bad port is given.
+ */
+export class ERR_SOCKET_BAD_PORT extends RangeError {
+  code = 'ERR_SOCKET_BAD_PORT'
+}
+
+function fromBufferList (list) {
   const newlist = new Array(list.length)
 
   for (let i = 0, l = list.length; i < l; i++) {
@@ -71,6 +103,22 @@ function fixBufferList (list) {
   return newlist
 }
 
+function getDefaultAddress (socket, local) {
+  if (local) {
+    if (socket.type === 'udp4') return '127.0.0.1'
+    if (socket.type === 'udp6') return '::1'
+  } else {
+    if (socket.type === 'udp4') return '0.0.0.0'
+    if (socket.type === 'udp6') return '::'
+  }
+
+  return null
+}
+
+function getAddressFamily (address) {
+  return isIPv4(address) ? 'IPv4' : 'IPv6'
+}
+
 function getSocketState (socket) {
   const result = ipc.sendSync('udp.getState', { id: socket.id })
 
@@ -85,16 +133,338 @@ function healhCheck (socket) {
   // @TODO(jwerle)
 }
 
+async function startReading (socket, callback) {
+  let result = null
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  try {
+    result = await ipc.send('udp.readStart', {
+      id: socket.id
+    })
+
+    callback(result.err, result.data)
+  } catch (err) {
+    callback(err)
+  }
+
+  return result
+}
+
+async function stopReading (socket, callback) {
+  let result = null
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  try {
+    result = await ipc.send('udp.readStop', {
+      id: socket.id
+    })
+
+    callback(result.err, result.data)
+  } catch (err) {
+    callback(err)
+  }
+
+  return result
+}
+
+async function bind (socket, options, callback) {
+  let result = null
+
+  options = { ...options }
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  if (typeof options.address !== 'string') {
+    options.address = getDefaultAddress(socket)
+  }
+
+  socket.state.bindState = BIND_STATE_BINDING
+
+  if (typeof options.address === 'string' && !isIPv4(options.address)) {
+    try {
+      options.address = await dns.lookup(options.address, 4)
+    } catch (err) {
+      socket.state.bindState = BIND_STATE_UNBOUND
+      callback(err)
+      return
+    }
+  }
+
+  try {
+    result = await ipc.send('udp.bind', {
+      id: socket.id,
+      port: options.port || 0,
+      address: options.address,
+      ipv6Only: options.ipv6Only ? true : false,
+      reuseAddr: options.reuseAddr ? true : false
+    })
+
+    socket.state.bindState = BIND_STATE_BOUND
+    callback(result.err, result.data)
+  } catch (err) {
+    socket.state.bindState = BIND_STATE_UNBOUND
+    callback(err)
+  }
+
+  return result
+}
+
+async function connect (socket, options, callback) {
+  let result = null
+
+  options = { ...options }
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  if (typeof options.address !== 'string') {
+    options.address = getDefaultAddress(socket)
+  }
+
+  socket.state.connectState = CONNECT_STATE_CONNECTING
+
+  if (typeof options.address === 'string' && !isIPv4(options.address)) {
+    try {
+      options.address = await dns.lookup(options.address, 4)
+    } catch (err) {
+      socket.state.connectState = CONNECT_STATE_DISCONNECTED
+      callback(err)
+      return
+    }
+  }
+
+  const { err } = await bind(socket, { port: 0 })
+
+  if (err) {
+    socket.state.connectState = CONNECT_STATE_DISCONNECTED
+    callback(err)
+    return { err }
+  }
+
+  try {
+    result = await ipc.send('udp.connect', {
+      id: socket.id,
+      port: options?.port ?? 0,
+      address: options?.address,
+    })
+
+    socket.state.connectState = CONNECT_STATE_CONNECTED
+    callback(result.err, result.data)
+  } catch (err) {
+    socket.state.connectState = CONNECT_STATE_DISCONNECTED
+    callback(err)
+  }
+
+  return result
+}
+
+function disconnect (socket, callback) {
+  let result = null
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  try {
+    result = ipc.sendSync('udp.disconnect', {
+      id: socket.id
+    })
+
+    socket.state.connectState = CONNECT_STATE_DISCONNECTED
+
+    callback(result.err, result.data)
+  } catch (err) {
+    callback(err)
+  }
+
+  return result
+}
+
+async function send (socket, options, callback) {
+  let result = null
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  options = { ...options }
+
+  if (socket.state.connectState === CONNECT_STATE_DISCONNECTED) {
+    // wait for bind to finish
+    if (socket.state.bindState === BIND_STATE_BINDING) {
+      const { err } = await new Promise((resolve, reject) => {
+        socket.once('listening', () => resolve({}))
+        socket.once('error', (err) => resolve({ err }))
+      })
+
+      if (err) {
+        callback(err)
+        return { err }
+      }
+    } else if (socket.state.bindState === BIND_STATE_UNBOUND) {
+      const { err } = await bind(socket, { port: 0 })
+      if (err) {
+        callback(err)
+        return { err }
+      }
+    }
+  }
+
+  // wait for connect to finish
+  if (socket.state.connectState === CONNECT_STATE_CONNECTING) {
+    const { err } = await new Promise((resolve, reject) => {
+      socket.once('connect', () => resolve({}))
+      socket.once('error', (err) => resolve({ err }))
+    })
+
+    if (err) {
+      callback(err)
+      return { err }
+    }
+  }
+
+  if (
+    !isIPv4(options.address) &&
+    typeof options.address === 'string' &&
+    socket.state.connectState !== CONNECT_STATE_CONNECTED
+  ) {
+    try {
+      options.address = await dns.lookup(options.address, 4)
+    } catch (err) {
+      callback(err)
+      return
+    }
+  }
+
+  // use local port/address if not given
+  if (socket.state.bindState === BIND_STATE_BOUND) {
+    const local = socket.address()
+    if (!options.address) {
+      options.address = local.address
+    }
+
+    if (!options.port) {
+      options.port = local.port
+    }
+  }
+
+  // use remote port/address if not given
+  if (socket.state.connectState === CONNECT_STATE_CONNECTED) {
+    const remote = socket.remoteAddress()
+    if (!options.address) {
+      options.address = remote.address
+    }
+
+    if (!options.port) {
+      options.port = remote.port
+    }
+  }
+
+  if (options.port && !options.address) {
+    options.address = getDefaultAddress(socket)
+  }
+
+  try {
+    result = await ipc.write('udp.send', {
+      id: socket.id,
+      port: options.port,
+      address: options.address
+    }, options.buffer)
+
+    callback(result.err, result.data)
+  } catch (err) {
+    callback(err)
+  }
+
+  return result
+}
+
+async function close (socket, callback) {
+  let result = null
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  socket.state.connectState = CONNECT_STATE_DISCONNECTED
+  socket.state.bindState = BIND_STATE_UNBOUND
+
+  await stopReading(socket)
+  await disconnect(socket)
+
+  try {
+    result = await ipc.send('udp.close', {
+      id: socket.id
+    })
+
+    callback(result.err, result.data)
+  } catch (err) {
+    callback(err)
+  }
+
+  return result
+}
+
+function getPeerName (socket, callback) {
+  let result = null
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  try {
+    result = ipc.sendSync('udp.getPeerName', {
+      id: socket.id
+    })
+
+    callback(result.err, result.data)
+  } catch (err) {
+    callback(err)
+  }
+
+  return result
+}
+
+function getSockName (socket, callback) {
+  let result = null
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  try {
+    result = ipc.sendSync('udp.getSockName', {
+      id: socket.id
+    })
+
+    callback(result.err, result.data)
+  } catch (err) {
+    callback(err)
+  }
+
+  return result
+}
+
 /**
  * @typedef {Object} SocketOptions
-
  */
 
 /**
+ * Creates a `Socket` instance.
  * @param {string|Object} options - either a string ('udp4' or 'udp6') or an options object
  * @param {string=} options.type - The family of socket. Must be either 'udp4' or 'udp6'. Required.
  * @param {boolean=} [options.reuseAddr=false] - When true socket.bind() will reuse the address, even if another process has already bound a socket on it. Default: false.
  * @param {boolean=} [options.ipv6Only=false] - Setting ipv6Only to true will disable dual-stack support, i.e., binding to address :: won't make 0.0.0.0 be bound. Default: false.
+    if ()
  * @param {number=} options.recvBufferSize - Sets the SO_RCVBUF socket value.
  * @param {number=} options.sendBufferSize - Sets the SO_SNDBUF socket value.
  * @param {AbortSignal=} options.signal - An AbortSignal that may be used to close a socket.
@@ -113,27 +483,24 @@ export class Socket extends EventEmitter {
 
     this.id = rand64()
 
-    const validTypeString = typeof options === 'string' && ['udp4', 'udp6'].includes(options)
-    const validTypeObject = typeof options === 'object' && options !== null && ['udp4', 'udp6'].includes(options.type)
-
-    if (!validTypeString && !validTypeObject) {
-      const err = new TypeError('Bad socket type specified. Valid types are: udp4, udp6')
-      err.code = 'ERR_SOCKET_BAD_TYPE'
-      throw err
-    }
-
     if (typeof options === 'string') {
       options = { type: options }
     }
 
+    options = { ...options }
+
+    if (!['udp4', 'udp6'].includes(options.type)) {
+      throw new ERR_SOCKET_BAD_TYPE()
+    }
+
     this.type = options.type
-    this.signal = options.signal
+    this.signal = options?.signal ?? null
 
     this.state = {
       recvBufferSize: options.recvBufferSize,
       sendBufferSize: options.sendBufferSize,
-      _bindState: BIND_STATE_UNBOUND,
-      _connectState: CONNECT_STATE_DISCONNECTED,
+      bindState: BIND_STATE_UNBOUND,
+      connectState: CONNECT_STATE_DISCONNECTED,
       reuseAddr: options.reuseAddr,
       ipv6Only: options.ipv6Only
     }
@@ -142,19 +509,16 @@ export class Socket extends EventEmitter {
       this.on('message', callback)
     }
 
-    const _onAbort = () => this.close()
-    this.signal?.addEventListener('abort', _onAbort, { once: true })
+    const onabort = () => this.close()
+    this.signal?.addEventListener('abort', onabort, { once: true })
     this.once('close', () => {
       if (this.dataListener) {
         window.removeEventListener('data', this.dataListener)
       }
-      this.removeAllListeners()
-      this.signal?.removeEventListener('abort', _onAbort)
-    })
-  }
 
-  async _recvStart () {
-    return await ipc.send('udp.readStart', { id: this.id })
+      this.removeAllListeners()
+      this.signal?.removeEventListener('abort', onabort)
+    })
   }
 
   /**
@@ -168,112 +532,57 @@ export class Socket extends EventEmitter {
    * @param {number} port - The port to to listen for messages on
    * @param {string} address - The address to bind to (0.0.0.0)
    * @param {function} callback - With no parameters. Called when binding is complete.
-   * 
    * @see {@link https://nodejs.org/api/dgram.html#socketbindport-address-callback}
-   * 
    */
   bind (arg1, arg2, cb) {
     let options = {}
 
-    if (typeof arg2 === 'function') {
+    if (isFunction(arg2)) {
       cb = arg2
       options.address = undefined
     }
 
-    if (typeof arg1 === 'number') {
-      options.port = arg1
-      options.address = arg2
+    if (typeof arg1 === 'number' || typeof arg2 === 'string') {
+      options.port = parseInt(arg1)
+      if (!isFunction(arg2)) {
+        options.address = arg2
+      }
     } else if (typeof arg1 === 'object') {
       options = { ...arg1 }
     }
 
-    function removeListeners () {
-      this.removeListener('close', removeListeners)
-      this.removeListener('error', removeListeners)
-    }
-
-    function onListening (...args) {
-      Function.prototype.call(removeListeners, this)
-      if (cb) Function.prototype.call(cb, this, ...args)
-    }
-
-    this.on('error', removeListeners)
-    this.once('listening', onListening)
-
-    if (!options.address) {
-      if (this.type === 'udp4') {
-        options.address = '0.0.0.0'
-      } else {
-        options.address = '::'
-      }
-    } else if (!isIPv4(options.address)) {
-      const result = ipc.sendSync('dns.lookup', {
-        hostname: options.address,
-        id: this.id
-      })
-
-      if (result?.err) {
-        if (typeof cb === 'function') {
-          cb(result.err)
-        } else {
-          this.emit('error', result.err)
-        }
-
-        return
-      }
-
-      options.address = result.data.address
-    }
-
-    this.state._bindState = BIND_STATE_BINDING
-    const bind = ipc.send('udp.bind', {
-      id: this.id,
-      port: options.port || 0,
-      address: options.address,
-      ipv6Only: options.ipv6Only ? true : false,
-      reuseAddr: options.reuseAddr ? true : false
-    })
-
-    bind.catch((err) => {
-      if (typeof cb === 'function') {
-        cb(err)
-      } else {
-        this.emit('error', err)
-      }
-    })
-
-    bind.then((result) => {
-      const { err, data } = result
-
+    bind(this, options, (err, info) => {
       if (err) {
-        if (typeof cb === 'function') {
+        if (isFunction(cb)) {
           cb(err)
         } else {
           this.emit('error', err)
         }
+
         return
       }
 
-      this._port = data.port
-      this._family = isIPv4(data.address) ? 'IPv4' : 'IPv6'
-      this._address = data.address
-      this.state._bindState = BIND_STATE_BOUND
+      this._port = info.port
+      this._family = getAddressFamily(info.address)
+      this._address = info.address
 
-      if (typeof cb === 'function') {
-        queueMicrotask(() => cb(null))
-      }
-
-      this._recvStart()
-        .then(() => {
-          this.emit('listening')
-        })
-        .catch((err) => {
-          if (typeof cb === 'function') {
+      startReading(this, (err) => {
+        if (err) {
+          if (isFunction(cb)) {
             cb(err)
           } else {
             this.emit('error', err)
           }
-        })
+
+          return
+        }
+
+        if (isFunction(cb)) {
+          cb(null)
+        }
+
+        this.emit('listening')
+      })
 
       this.dataListener = ({ detail }) => {
         const { data: buffer, params } = detail
@@ -287,9 +596,8 @@ export class Socket extends EventEmitter {
 
         if (source === 'udp.readStart') {
           const info = {
-            address: params.data.address,
-            port: params.data.port,
-            family: isIPv4(params.data.address) ? 'IPv4' : 'IPv6'
+            ...data,
+            family: getAddressFamily(data.address)
           }
 
           this.emit('message', Buffer.from(buffer), info)
@@ -321,113 +629,67 @@ export class Socket extends EventEmitter {
    * @param {number} port - Port the client should connect to.
    * @param {string=} host - Host the client should connect to.
    * @param {function=} connectListener - Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once.
-   * 
+   *
    * @see {@link https://nodejs.org/api/dgram.html#socketconnectport-address-callback}
-   * 
+   *
    */
-  async connect (arg1, arg2, cb) {
-    if (this.connectedState === CONNECT_STATE_CONNECTED) {
-      const err = new Error('already connected')
-      if (cb) cb(err)
-      else throw err
-      return this
-    }
+  connect (arg1, arg2, cb) {
+    const port = parseInt(arg1)
+    const address = isFunction(arg2) ? undefined : arg2
+    const options = { address, port }
 
-    const port = arg1
-    let address = arg2
-
-    if (typeof arg2 === 'function') {
+    if (isFunction(arg2)) {
       cb = arg2
-      address = undefined
     }
 
-    const {
-      err: errBind
-    } = this.bind({ port: 0 }, null)
-
-    if (errBind) {
-      if (cb) return cb(errBind)
-      return { err: errBind }
+    if (!Number.isInteger(port) || port <= 0 || port > (64*1024)) {
+      throw new ERR_SOCKET_BAD_PORT(
+        `Port should be > 0 and < 65536. Received ${arg1}.`
+      )
     }
 
-    let dataLookup
+    if (this.state.connectState !== CONNECT_STATE_DISCONNECTED) {
+      throw new ERR_SOCKET_DGRAM_IS_CONNECTED()
+    }
 
-    if (address && !isIPv4(address)) {
-      const { err, data } = await ipc.send('dns.lookup', { hostname: address })
-
+    connect(this, options, (err, info) => {
       if (err) {
-        this.emit('error', err)
-        return { err }
+        if (isFunction(cb)) {
+          cb(err)
+        } else {
+          this.emit('error', err)
+        }
+
+        return
       }
 
-      address = data.address
-    }
+      if (isFunction(cb)) {
+        cb(null, info)
+      }
 
-    if (!address) address = this.type === 'udp4'
-      ? '127.0.0.1'
-      : '::1'
-
-    const opts = {
-      id: this.id,
-      address: dataLookup?.address || address,
-      port: port || 0
-    }
-
-    const {
-      err: errConnect,
-      data: dataConnect
-    } = await ipc.send('udp.connect', opts)
-
-    if (errConnect) {
-      this.emit('error', errConnect)
-      return { err: errConnect }
-    }
-
-    this.state._connectState = CONNECT_STATE_CONNECTED
-
-    // TODO udpConnect could return the peer data instead of putting it
-    // into a different call and we could shave off a bit of time here.
-    const { err: errPeerData, data: dataPeerData } = await ipc.send('udp.getPeerName', {
-      id: this.id
+      this.emit('connect', info)
     })
-
-    if (errPeerData) {
-      this.emit('error', errPeerData)
-      return { err: errPeerData }
-    }
-
-    this._remoteAddress = dataPeerData.address
-    this._remotePort = dataPeerData.port
-    this._remoteFamily = dataPeerData.family
-
-    if (cb) cb(null)
-    return this
   }
 
   /**
    * A synchronous function that disassociates a connected dgram.Socket from
    * its remote address. Trying to call disconnect() on an unbound or already
    * disconnected socket will result in an ERR_SOCKET_DGRAM_NOT_CONNECTED exception.
-   * 
+   *
    * @see {@link https://nodejs.org/api/dgram.html#socketdisconnect}
-   * 
    */
-  async disconnect () {
-    const { err: errConnect } = await ipc.send('udp.disconnect', {
-      ip: this._remoteAddress,
-      port: this._remotePort || 0
-    })
-
-    if (errConnect) {
-      this.emit('error', errConnect)
-      return { err: errConnect }
+  disconnect () {
+    if (this.state.connectState !== CONNECT_STATE_CONNECTED) {
+      throw new ERR_SOCKET_DGRAM_NOT_CONNECTED()
     }
 
-    if (this.connectedState === 2) {
-      this.emit('close')
+    const { err } = disconnect(this)
+
+    if (err) {
+      throw err
     }
 
-    return {}
+    this.state.connectState = CONNECT_STATE_DISCONNECTED
   }
 
   /**
@@ -475,68 +737,48 @@ export class Socket extends EventEmitter {
    * @param {integer=} port - Destination port.
    * @param {string=} address - Destination host name or IP address.
    * @param {Function=} callback - Called when the message has been sent.
-   * 
    * @see {@link https://nodejs.org/api/dgram.html#socketsendmsg-offset-length-port-address-callback}
-   *
    */
-  async send (buffer, ...args) {
+  send (buffer, ...args) {
+    const id = this.id || rand64()
     let offset, length, port, address, cb
-    const connected = this.state._connectState === CONNECT_STATE_CONNECTED
 
-    if (typeof buffer === 'string') {
-      buffer = Buffer.from(buffer)
+    if (Array.isArray(buffer)) {
+      buffer = fromBufferList(buffer)
+    } else if (typeof buffer === 'string' || isArrayBufferView(buffer)) {
+      buffer  = Buffer.from(buffer)
     }
 
-    const index = args.findIndex(arg => typeof arg === 'function')
-    if (index > -1) cb = args.pop()
+    if (!Buffer.isBuffer(buffer)) {
+      throw new TypeError('Invalid buffer')
+    }
 
+    // detect callback at end of `args`
+    if (args.findIndex(isFunction) === args.length - 1) {
+      cb = args.pop()
+    }
+
+    // port given, parse arguments after
     if (typeof args[2] === 'number') {
-      [offset, length, port, address] = args.slice(0, index)
+      let err = null
+      [offset, length, port, address] = args
 
-      if (connected && (port || address)) {
-        throw new Error('Already connected')
+      if (!Number.isInteger(offset) || offset < 0) {
+        err = new RangeError(
+          `Offset should be >= 0 and < ${buffer.length} Received ${offset}.`
+        )
       }
 
-      buffer = Buffer.from(buffer.buffer, buffer.byteOffset + offset, length)
-    } else {
-      [port, address] = args
-    }
+      buffer = buffer.slice(offset)
 
-    let list
-
-    if (!Array.isArray(buffer)) {
-      if (typeof buffer === 'string') {
-        list = [Buffer.from(buffer)]
-      } else if (!isArrayBufferView(buffer)) {
-        // throw new Error('Invalid buffer')
-        list = Buffer.from(buffer)
-      } else {
-        list = [buffer]
+      if (!Number.isInteger(length) || length < 0 || length > buffer.length ) {
+        err = new RangeError(
+          `Length should be >= 0 and <= ${buffer.length} Received ${length}.`
+        )
       }
-    } else if (!(list = fixBufferList(buffer))) {
-      throw new Error('Invalid buffer')
-    }
-
-    if (this.state._bindState === BIND_STATE_BINDING) {
-      const { err } = await new Promise((resolve, reject) => {
-        this.once('listening', () => resolve({}))
-        this.once('error', (err) => resolve({ err }))
-      })
 
       if (err) {
-        if (typeof cb === 'function') {
-          cb(err)
-        }
-
-        return
-      }
-    } else if (this.state._bindState === BIND_STATE_UNBOUND) {
-      const { err } = await new Promise((resolve) => {
-        this.bind({ port: 0 }, (err) => resolve({ err }))
-      })
-
-      if (err) {
-        if (typeof cb === 'function') {
+        if (isFunction(cb)) {
           cb(err)
         } else {
           this.emit('error', err)
@@ -544,52 +786,39 @@ export class Socket extends EventEmitter {
 
         return
       }
+
+      buffer = buffer.slice(0, length)
+    } else {
+      [port, address] = args
     }
 
-    if (Array.isArray(list) && list.length === 0) {
-      list.push(Buffer.alloc(0))
+    if (port !== undefined || this.state.connectState !== CONNECT_STATE_CONNECTED) {
+      // parse possible port as string
+      port = parseInt(port)
+
+      if (!Number.isInteger(port) || port <= 0 || port > (64*1024)) {
+        throw new ERR_SOCKET_BAD_PORT(
+          `Port should be > 0 and < 65536. Received ${port}.`
+        )
+      }
     }
 
-    if (!connected && address && !isIPv4(address)) {
-      throw new Error(`Currently dns lookup on send is not supported (received <${address}>)`)
-    }
+    const options = { id, port, address, buffer }
+    send(this, options, (err) => {
+      if (err) {
+        if (isFunction(cb)) {
+          cb(err)
+        } else {
+          this.emit('error', err)
+        }
 
-    if (this.state._bindState === BIND_STATE_BOUND) {
-      if (!address) address = this._remoteAddress
-      if (!port) port = this._remotePort
-    }
-
-    if (connected) {
-      if (!address) address = this._remoteAddress
-      if (!port) port = this._remotePort
-    }
-
-    if (port && !address) address = '0.0.0.0'
-
-    const opts = {
-      id: this.id || rand64(),
-      address,
-      port
-    }
-
-    const result = await ipc.write(
-      'udp.send',
-      opts,
-      Array.isArray(list) ? Buffer.concat(list) : list
-    )
-
-    if (result.err) {
-      if (typeof cb === 'function') {
-        cb(result.err)
         return
       }
 
-      this.emit('error', result.err)
-    }
-
-    if (typeof cb === 'function') {
-      cb(null)
-    }
+      if (isFunction(cb)) {
+        cb(null)
+      }
+    })
   }
 
   /**
@@ -603,35 +832,45 @@ export class Socket extends EventEmitter {
   close (cb) {
     const state = getSocketState(this)
 
-    if (!state) {
-      throw new ERR_SOCKET_DGRAM_NOT_RUNNING()
+    if (
+      !state ||
+      (
+        this.state.bindState === BIND_STATE_UNBOUND &&
+        this.state.connectState === CONNECT_STATE_DISCONNECTED
+      )
+    ) {
+      if (isFunction(cb)) {
+        cb(new ERR_SOCKET_DGRAM_NOT_RUNNING())
+        return
+      } else {
+        throw new ERR_SOCKET_DGRAM_NOT_RUNNING()
+      }
     }
 
-    let { err } = ipc.sendSync('udp.close', {
-      id: this.id
+    close(this, (err) => {
+      if (err) {
+        if (err.code === 'ERR_SOCKET_DGRAM_NOT_RUNNING') {
+          err = Object.assign(new ERR_SOCKET_DGRAM_NOT_RUNNING(), {
+            cause: err
+          })
+        }
+
+        if (isFunction(cb)) {
+          cb(err)
+        } else {
+          this.emit('error', err)
+        }
+
+        return
+      }
+
+      if (isFunction(cb)) {
+        cb(null)
+      }
+
+      this.emit('close')
     })
 
-    if (err) {
-      if (err?.code === 'ERR_SOCKET_DGRAM_NOT_RUNNING') {
-        const cause = err
-        err = new ERR_SOCKET_DGRAM_NOT_RUNNING()
-        err.cause = cause
-      }
-
-      if (typeof cb === 'function') {
-        cb(err)
-      } else {
-        throw err
-      }
-
-      return this
-    }
-
-    if (typeof cb === 'function') {
-      cb(null)
-    }
-
-    this.emit('close')
     return this
   }
 
@@ -645,21 +884,26 @@ export class Socket extends EventEmitter {
    * @returns {string} socketInfo.address - The IP address of the socket
    * @returns {string} socketInfo.port - The port of the socket
    * @returns {string} socketInfo.family - The IP family of the socket
-   * 
+   *
    * @see {@link https://nodejs.org/api/dgram.html#socketaddress}
    */
   address () {
-    if (this.state._bindState === BIND_STATE_UNBOUND) {
-      const err = new Error('getsockname EBADF')
-      err.code = 'EBADF'
-      // err.errno: UV_EBADF, // TODO: import the uv constants
-      err.syscall = 'getsockname'
-      throw err
+    if (this.state.bindState !== BIND_STATE_BOUND) {
+      throw new ERR_SOCKET_DGRAM_NOT_RUNNING()
     }
+
+    const result = getSockName(this)
+
+    if (result.err) {
+      throw Object.assign(result.err, {
+        syscall: 'getsockname'
+      })
+    }
+
     return {
-      address: this._address,
-      port: this._port,
-      family: this._family
+      port: result.data?.port ?? null,
+      family: result.data?.family ?? null,
+      address: result.data?.address ?? null
     }
   }
 
@@ -672,30 +916,33 @@ export class Socket extends EventEmitter {
    * @returns {string} socketInfo.address - The IP address of the socket
    * @returns {string} socketInfo.port - The port of the socket
    * @returns {string} socketInfo.family - The IP family of the socket
-   * 
    * @see {@link https://nodejs.org/api/dgram.html#socketremoteaddress}
    */
   remoteAddress () {
-    if (this.state._connectState === CONNECT_STATE_DISCONNECTED) {
-      const err = new Error('Not connected')
-      err.code = 'ERR_SOCKET_DGRAM_NOT_CONNECTED'
-      // err.errno: UV_ENOTCONN, // TODO: import the uv constants
-      err.syscall = 'getpeername'
-      throw err
+    if (this.state.connectState !== CONNECT_STATE_CONNECTED) {
+      throw new ERR_SOCKET_DGRAM_NOT_CONNECTED()
     }
+
+    const result = getPeerName(this)
+
+    if (result.err) {
+      throw Object.assign(result.err, {
+        syscall: 'getpeername'
+      })
+    }
+
     return {
-      address: this._remoteAddress,
-      port: this._remotePort,
-      family: this._remoteFamily
+      port: result.data?.port ?? null,
+      family: result.data?.family ?? null,
+      address: result.data?.address ?? null
     }
   }
 
   /**
    * Sets the SO_RCVBUF socket option. Sets the maximum socket receive buffer in
    * bytes.
-   * 
-   * @param {number} size - The size of the new receive buffer
    *
+   * @param {number} size - The size of the new receive buffer
    * @see {@link https://nodejs.org/api/dgram.html#socketsetrecvbuffersizesize}
    */
   setRecvBufferSize (size) {
@@ -707,7 +954,6 @@ export class Socket extends EventEmitter {
    * bytes.
    *
    * @param {number} size - The size of the new send buffer
-   * 
    * @see {@link https://nodejs.org/api/dgram.html#socketsetsendbuffersizesize}
    */
   setSendBufferSize (size) {
@@ -715,8 +961,6 @@ export class Socket extends EventEmitter {
   }
 
   /**
-   * @returns {number} the SO_RCVBUF socket receive buffer size in bytes.
-   * 
    * @see {@link https://nodejs.org/api/dgram.html#socketgetrecvbuffersize}
    */
   getRecvBufferSize () {
@@ -725,7 +969,6 @@ export class Socket extends EventEmitter {
 
   /**
    * @returns {number} the SO_SNDBUF socket send buffer size in bytes.
-   * 
    * @see {@link https://nodejs.org/api/dgram.html#socketgetsendbuffersize}
    */
   getSendBufferSize () {
