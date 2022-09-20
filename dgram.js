@@ -194,7 +194,7 @@ async function bind (socket, options, callback) {
     } catch (err) {
       socket.state.bindState = BIND_STATE_UNBOUND
       callback(err)
-      return
+      return { err }
     }
   }
 
@@ -212,6 +212,7 @@ async function bind (socket, options, callback) {
   } catch (err) {
     socket.state.bindState = BIND_STATE_UNBOUND
     callback(err)
+    return { err }
   }
 
   return result
@@ -238,7 +239,7 @@ async function connect (socket, options, callback) {
     } catch (err) {
       socket.state.connectState = CONNECT_STATE_DISCONNECTED
       callback(err)
-      return
+      return { err }
     }
   }
 
@@ -262,6 +263,7 @@ async function connect (socket, options, callback) {
   } catch (err) {
     socket.state.connectState = CONNECT_STATE_DISCONNECTED
     callback(err)
+    return { err }
   }
 
   return result
@@ -284,6 +286,7 @@ function disconnect (socket, callback) {
     callback(result.err, result.data)
   } catch (err) {
     callback(err)
+    return { err }
   }
 
   return result
@@ -341,7 +344,7 @@ async function send (socket, options, callback) {
       options.address = await dns.lookup(options.address, 4)
     } catch (err) {
       callback(err)
-      return
+      return { err }
     }
   }
 
@@ -383,6 +386,7 @@ async function send (socket, options, callback) {
     callback(result.err, result.data)
   } catch (err) {
     callback(err)
+    return { err }
   }
 
   return result
@@ -409,6 +413,7 @@ async function close (socket, callback) {
     callback(result.err, result.data)
   } catch (err) {
     callback(err)
+    return { err }
   }
 
   return result
@@ -429,6 +434,7 @@ function getPeerName (socket, callback) {
     callback(result.err, result.data)
   } catch (err) {
     callback(err)
+    return { err }
   }
 
   return result
@@ -449,6 +455,7 @@ function getSockName (socket, callback) {
     callback(result.err, result.data)
   } catch (err) {
     callback(err)
+    return { err }
   }
 
   return result
