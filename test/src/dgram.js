@@ -345,7 +345,7 @@ test('connect + disconnect', async (t) => {
   })
 })
 
-if (isOnline) {
+if (false) {
   test('can send and receive packets to a remote server', async (t) => {
     const remoteAddress = '3.25.141.150'
     const remotePort = 3456
