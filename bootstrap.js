@@ -1,32 +1,50 @@
 import { readFile, writeFile } from './fs/promises.js'
+import { createWriteStream } from './fs/index.js'
 import { createDigest } from './crypto.js'
 import { EventEmitter } from './events.js'
-import { isAsyncFunction, isPromiseLike } from './util.js'
 
 class Bootstrap extends EventEmitter {
-  #hashUnpackedActual = null
+  #hashActual = null
 
   constructor (options) {
     super()
-    if (!options.src || !options.dest) {
-      throw new Error('src and dest are required')
+    if (!options.url || !options.dest) {
+      throw new Error('url and dest are required')
     }
     this.options = options
   }
 
   async run () {
     try {
-      const shouldDownlod = await this.shouldDownload(this.options.dest, this.options.hashUnpacked, this.options.hashAlgorithm)
-      if (shouldDownlod) {
-        const downloaded = await this.download(this.options.src, this.options.hashDownloaded, this.options.hashAlgorithm)
-        const unpacked = await this.unpack(downloaded, this.options.unpack, this.options.hashUnpacked, this.options.hashAlgorithm)
-        this.emit('write-file', { status: 'started' })
-        // TODO: add writeFile progress
-        await writeFile(this.options.dest, unpacked, { mode: 0o755 })
-        this.emit('write-file', { status: 'finished' })
+      const hashMatch = await this.checkHash(this.options.dest, this.options.hash, this.options.hashAlgorithm)
+      if (hashMatch) {
+        this.emit('success', { updated: false })
+        return
+      }
+      const fileBuffer = await this.download(this.options.url)
+      this.emit('write-file', { status: 'started' })
+      // const writeStream = createWriteStream(this.options.dest)
+      // writeStream.write(fileBuffer)
+      // let written = 0
+      // writeStream.on('data', data => {
+      //   written += data.length
+      //   const progress = (written / unpacked.length * 100) | 0
+      //   if (progress !== prevProgress) {
+      //     this.emit('write-file-progress', progress)
+      //     prevProgress = progress
+      //   }
+      // })
+      // writeStream.on('finish', () => {
+      //   this.emit('write-file', { status: 'finished' })
+      //   this.emit('success', { updated: true })
+      // })
+      await writeFile(this.options.dest, fileBuffer, { mode: 0o755 })
+      this.emit('write-file', { status: 'finished' })
+      const finalHashMatch = await this.checkHash(this.options.dest, this.options.hash, this.options.hashAlgorithm)
+      if (finalHashMatch) {
         this.emit('success', { updated: true })
       } else {
-        this.emit('success', { updated: false })
+        this.emit('error', new Error('Hash mismatch'))
       }
     } catch (err) {
       this.emit('error', err)
@@ -41,46 +59,46 @@ class Bootstrap extends EventEmitter {
     return digest.toString('hex')
   }
 
-  async shouldDownload (dest, hashUnpacked, hashAlgorithm) {
-    if (hashUnpacked) {
-      let buf
-      try {
-        buf = await readFile(dest)
-      } catch (err) {
-        // download if file is corrupted or does not exist
-        return true
-      }
-      this.emit('hash-check', { status: 'started', check: 'unpacked' })
-      this.#hashUnpackedActual = await this.getHash(buf, hashAlgorithm)
-      const hashMatch = this.#hashUnpackedActual === hashUnpacked
-      this.emit('hash-check', { status: 'finished', check: 'unpacked', result: hashMatch })
-      return !hashMatch
+  async checkHash (dest, hash, hashAlgorithm) {
+    let buf
+    try {
+      buf = await readFile(dest)
+    } catch (err) {
+      // download if file is corrupted or does not exist
+      return false
     }
-    return false
+    this.#hashActual = await this.getHash(buf, hashAlgorithm)
+    const hashMatch = this.#hashActual === hash
+    return hashMatch
   }
 
-  async download (src, hashDownloaded, hashAlgorithm) {
-    const response = await fetch(src, {
+  async download (url) {
+    const response = await fetch(url, {
       mode: 'cors'
     })
     if (!response.ok) {
       this.cleanup()
-      throw new Error(`Bootstrap request faild: ${response.status} ${response.statusText}`)
+      throw new Error(`Bootstrap request failed: ${response.status} ${response.statusText}`)
     }
     const reader = response.body.getReader()
     const contentLength = +response.headers.get('Content-Length')
     let receivedLength = 0
     let chunks = []
+    let prevProgress = 0
 
     const read = async () => {
       const {done, value} = await reader.read();
       if (done) return
       chunks.push(value);
       receivedLength += value.length;
-      this.emit('download-progress', (receivedLength / contentLength * 100) | 0)
+      const progress = (receivedLength / contentLength * 100) | 0
+      if (progress !== prevProgress) {
+        this.emit('download-progress', progress)
+        prevProgress = progress
+      }
       await read()
     }
-    await read ()
+    await read()
 
     const uint8data = new Uint8Array(receivedLength);
     let position = 0;
@@ -88,42 +106,7 @@ class Bootstrap extends EventEmitter {
       uint8data.set(chunk, position);
       position += chunk.length;
     }
-
-    if (hashDownloaded) {
-      this.emit('hash-check', { status: 'started', check: 'downloaded' })
-      const hashDownloadedActual = await this.getHash(uint8data, hashAlgorithm)
-      const hashMatch = hashDownloadedActual === hashDownloaded
-      this.emit('hash-check', { status: 'finished', check: 'downloaded', result: hashMatch })
-      if (!hashMatch) {
-        this.cleanup()
-        throw new Error(`Hash mismatch (downloaded): ${hashDownloadedActual} !== ${hashDownloaded}`)  
-      }
-    }
-
     return uint8data
-  }
-
-  async unpack (buf, unpack, hashUnpacked, hashAlgorithm) {
-    if (typeof unpack !== 'function') {
-      return buf
-    }
-    this.emit('unpack', { status: 'started' })
-    let unpacked = unpack(buf)
-    if (isAsyncFunction(unpack) || isPromiseLike(unpacked)) {
-      unpacked = await unpacked
-    }
-    this.emit('unpack', { status: 'finished' })
-    if (hashUnpacked) {
-      this.emit('hash-check', { status: 'started', check: 'unpacked' })
-      this.#hashUnpackedActual ??= await this.getHash(unpacked, hashAlgorithm)
-      const hashMatch = this.#hashUnpackedActual === hashUnpacked
-      this.emit('hash-check', { status: 'finished', check: 'unpacked', result: hashMatch })
-      if (!hashMatch) {
-        this.cleanup()
-        throw new Error(`Hash mismatch (unpacked): ${this.#hashUnpackedActual} !== ${hashUnpacked}`)
-      }
-    }
-    return unpacked
   }
 
   cleanup () {
