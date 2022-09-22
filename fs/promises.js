@@ -265,10 +265,16 @@ export async function watch (path, options) {
 
 /**
  * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromiseswritefilefile-data-options}
- * @param {string} path
- * @param {string|Buffer|Array|TypedArray} data
+ * @param {string | Buffer | URL | FileHandle} path - filename or FileHandle
+ * @param {string|Buffer|Array|DataView|TypedArray|Stream} data
  * @param {object=} [options]
+ * @param {string|null} [options.encoding = 'utf8']
+ * @param {number} [options.mode = 0o666]
+ * @param {string} [options.flag = 'w']
+ * @param {AbortSignal=} [options.signal]
+ * @return {Promise<void>}
  */
+// FIXME: truncate file by default (support flags). Currently it fails if file exists
 export async function writeFile (path, data, options) {
   if (typeof options === 'string') {
     options = { encoding: options }
