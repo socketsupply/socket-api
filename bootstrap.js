@@ -42,33 +42,6 @@ export async function checkHash (dest, hash, hashAlgorithm) {
   return hash === await getHash(buf, hashAlgorithm)
 }
 
-/**
- * @param {string} url - url to download
- * @returns {Promise<Buffer>}
- * @throws {Error} - if status code is not 200
- */
-export async function download (url) {
-  const response = await fetch(url, { mode: 'cors' })
-  if (!response.ok) {
-    throw new Error(`Bootstrap request failed: ${response.status} ${response.statusText}`)
-  }
-  const contentLength = +response.headers.get('Content-Length')
-  let receivedLength = 0
-  let prevProgress = 0
-  const fileData = new Uint8Array(contentLength)
-
-  for await (const chunk of streamAsyncIterable(response.body)) {
-    fileData.set(chunk, receivedLength)
-    receivedLength += chunk.length
-    const progress = (receivedLength / contentLength * 100) | 0
-    if (progress !== prevProgress) {
-      this.emit('download-progress', progress)
-      prevProgress = progress
-    }
-  }
-  return fileData
-}
-
 class Bootstrap extends EventEmitter {
   constructor (options) {
     super()
@@ -80,36 +53,8 @@ class Bootstrap extends EventEmitter {
 
   async run () {
     try {
-      const hashMatch = await checkHash(this.options.dest, this.options.hash, this.options.hashAlgorithm)
-      if (hashMatch) {
-        this.emit('success', { updated: false })
-        return
-      }
-      const fileBuffer = await download(this.options.url)
-      this.emit('write-file', { status: 'started' })
-      // const writeStream = createWriteStream(this.options.dest)
-      // writeStream.write(fileBuffer)
-      // let written = 0
-      // writeStream.on('data', data => {
-      //   written += data.length
-      //   const progress = (written / unpacked.length * 100) | 0
-      //   if (progress !== prevProgress) {
-      //     this.emit('write-file-progress', progress)
-      //     prevProgress = progress
-      //   }
-      // })
-      // writeStream.on('finish', () => {
-      //   this.emit('write-file', { status: 'finished' })
-      //   this.emit('success', { updated: true })
-      // })
-      await writeFile(this.options.dest, fileBuffer, { mode: 0o755 })
-      this.emit('write-file', { status: 'finished' })
-      const finalHashMatch = await checkHash(this.options.dest, this.options.hash, this.options.hashAlgorithm)
-      if (finalHashMatch) {
-        this.emit('success', { updated: true })
-      } else {
-        this.emit('error', new Error('Hash mismatch'))
-      }
+      const fileBuffer = await this.download(this.options.url)
+      await this.write({ fileBuffer, dest: this.options.dest })
     } catch (err) {
       this.emit('error', err)
       throw err
@@ -118,21 +63,70 @@ class Bootstrap extends EventEmitter {
     }
   }
 
+  /**
+   * @param {object} options
+   * @param {Buffer} options.fileBuffer
+   * @param {string} options.dest
+   * @returns {Promise<void>}
+   */
+  async write ({ fileBuffer, dest }) {
+    this.emit('write-file', { status: 'started' })
+    // const writeStream = createWriteStream(this.options.dest)
+    // writeStream.write(fileBuffer)
+    // let written = 0
+    // writeStream.on('data', data => {
+    //   written += data.length
+    //   const progress = (written / unpacked.length * 100) | 0
+    //   if (progress !== prevProgress) {
+    //     this.emit('write-file-progress', progress)
+    //     prevProgress = progress
+    //   }
+    // })
+    // writeStream.on('finish', () => {
+    //   this.emit('write-file', { status: 'finished' })
+    //   this.emit('success', { updated: true })
+    // })
+    await writeFile(dest, fileBuffer, { mode: 0o755 })
+    this.emit('write-file', { status: 'finished' })
+  }
+
+  /**
+   * @param {string} url - url to download
+   * @returns {Promise<Buffer>}
+   * @throws {Error} - if status code is not 200
+   */
+  async download (url) {
+    const response = await fetch(url, { mode: 'cors' })
+    if (!response.ok) {
+      throw new Error(`Bootstrap request failed: ${response.status} ${response.statusText}`)
+    }
+    const contentLength = +response.headers.get('Content-Length')
+    let receivedLength = 0
+    let prevProgress = 0
+    const fileData = new Uint8Array(contentLength)
+
+    for await (const chunk of streamAsyncIterable(response.body)) {
+      fileData.set(chunk, receivedLength)
+      receivedLength += chunk.length
+      const progress = (receivedLength / contentLength * 100) | 0
+      if (progress !== prevProgress) {
+        this.emit('download-progress', progress)
+        prevProgress = progress
+      }
+    }
+    return fileData
+  }
+
   cleanup () {
     this.removeAllListeners()
   }
 }
 
-// TODO: move to WebWorker?
 export function bootstrap (options) {
-  const bootstrap = new Bootstrap(options)
-  bootstrap.run()
-  return bootstrap
+  return new Bootstrap(options)
 }
 
-// TODO: move to WebWorker?
 export default {
-  checkHash,
-  download,
-  bootstrap
+  bootstrap,
+  checkHash
 }
