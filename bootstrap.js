@@ -25,53 +25,51 @@ async function getHash (buf, hashAlgorithm) {
   return digest.toString('hex')
 }
 
-// /**
-//  * @param {string} dest - file path
-//  * @param {string} hash - hash string
-//  * @param {string} hashAlgorithm - hash algorithm 
-//  * @returns {Promise<boolean>}
-//  */
-// export async function checkHash (dest, hash, hashAlgorithm) {
-//   let buf
-//   try {
-//     buf = await readFile(dest)
-//   } catch (err) {
-//     // download if file is corrupted or does not exist
-//     return false
-//   }
-//   return hash === await getHash(buf, hashAlgorithm)
-// }
+/**
+ * @param {string} dest - file path
+ * @param {string} hash - hash string
+ * @param {string} hashAlgorithm - hash algorithm 
+ * @returns {Promise<boolean>}
+ */
+export async function checkHash (dest, hash, hashAlgorithm) {
+  let buf
+  try {
+    buf = await readFile(dest)
+  } catch (err) {
+    // download if file is corrupted or does not exist
+    return false
+  }
+  return hash === await getHash(buf, hashAlgorithm)
+}
 
-// /**
-//  * @param {string} url - url to download
-//  * @returns {Promise<Buffer>}
-//  * @throws {Error} - if status code is not 200
-//  */
-// export async function download (url) {
-//   const response = await fetch(url, { mode: 'cors' })
-//   if (!response.ok) {
-//     throw new Error(`Bootstrap request failed: ${response.status} ${response.statusText}`)
-//   }
-//   const contentLength = +response.headers.get('Content-Length')
-//   let receivedLength = 0
-//   let prevProgress = 0
-//   const fileData = new Uint8Array(contentLength)
+/**
+ * @param {string} url - url to download
+ * @returns {Promise<Buffer>}
+ * @throws {Error} - if status code is not 200
+ */
+export async function download (url) {
+  const response = await fetch(url, { mode: 'cors' })
+  if (!response.ok) {
+    throw new Error(`Bootstrap request failed: ${response.status} ${response.statusText}`)
+  }
+  const contentLength = +response.headers.get('Content-Length')
+  let receivedLength = 0
+  let prevProgress = 0
+  const fileData = new Uint8Array(contentLength)
 
-//   for await (const chunk of streamAsyncIterable(response.body)) {
-//     fileData.set(chunk, receivedLength)
-//     receivedLength += chunk.length
-//     const progress = (receivedLength / contentLength * 100) | 0
-//     if (progress !== prevProgress) {
-//       this.emit('download-progress', progress)
-//       prevProgress = progress
-//     }
-//   }
-//   return fileData
-// }
+  for await (const chunk of streamAsyncIterable(response.body)) {
+    fileData.set(chunk, receivedLength)
+    receivedLength += chunk.length
+    const progress = (receivedLength / contentLength * 100) | 0
+    if (progress !== prevProgress) {
+      this.emit('download-progress', progress)
+      prevProgress = progress
+    }
+  }
+  return fileData
+}
 
 class Bootstrap extends EventEmitter {
-  #hashActual = null
-
   constructor (options) {
     super()
     if (!options.url || !options.dest) {
@@ -82,12 +80,12 @@ class Bootstrap extends EventEmitter {
 
   async run () {
     try {
-      const hashMatch = await this.checkHash(this.options.dest, this.options.hash, this.options.hashAlgorithm)
+      const hashMatch = await checkHash(this.options.dest, this.options.hash, this.options.hashAlgorithm)
       if (hashMatch) {
         this.emit('success', { updated: false })
         return
       }
-      const fileBuffer = await this.download(this.options.url)
+      const fileBuffer = await download(this.options.url)
       this.emit('write-file', { status: 'started' })
       // const writeStream = createWriteStream(this.options.dest)
       // writeStream.write(fileBuffer)
@@ -106,7 +104,7 @@ class Bootstrap extends EventEmitter {
       // })
       await writeFile(this.options.dest, fileBuffer, { mode: 0o755 })
       this.emit('write-file', { status: 'finished' })
-      const finalHashMatch = await this.checkHash(this.options.dest, this.options.hash, this.options.hashAlgorithm)
+      const finalHashMatch = await checkHash(this.options.dest, this.options.hash, this.options.hashAlgorithm)
       if (finalHashMatch) {
         this.emit('success', { updated: true })
       } else {
@@ -118,42 +116,6 @@ class Bootstrap extends EventEmitter {
     } finally {
       this.cleanup()
     }
-  }
-
-  async checkHash (dest, hash, hashAlgorithm) {
-    let buf
-    try {
-      buf = await readFile(dest)
-    } catch (err) {
-      // download if file is corrupted or does not exist
-      return false
-    }
-    this.#hashActual = await this.getHash(buf, hashAlgorithm)
-    const hashMatch = this.#hashActual === hash
-    return hashMatch
-  }
-
-  async download (url) {
-    const response = await fetch(url, { mode: 'cors' })
-    if (!response.ok) {
-      this.cleanup()
-      throw new Error(`Bootstrap request failed: ${response.status} ${response.statusText}`)
-    }
-    const contentLength = +response.headers.get('Content-Length')
-    let receivedLength = 0
-    let prevProgress = 0
-    const fileData = new Uint8Array(contentLength)
-
-    for await (const chunk of streamAsyncIterable(response.body)) {
-      fileData.set(chunk, receivedLength)
-      receivedLength += chunk.length
-      const progress = (receivedLength / contentLength * 100) | 0
-      if (progress !== prevProgress) {
-        this.emit('download-progress', progress)
-        prevProgress = progress
-      }
-    }
-    return fileData
   }
 
   cleanup () {
@@ -170,7 +132,7 @@ export function bootstrap (options) {
 
 // TODO: move to WebWorker?
 export default {
-  // checkHash,
-  // download,
+  checkHash,
+  download,
   bootstrap
 }
