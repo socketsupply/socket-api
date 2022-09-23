@@ -29,13 +29,17 @@
   "homepage": "https://github.com/socketsupply/io#readme",
   "description": "javascript sugar on top of socket-sdk ipc",
   "devDependencies": {
+    "@socketsupply/introducer": "6.4.1",
     "acorn": "8.8.0",
     "acorn-walk": "8.2.0",
     "esbuild": "0.15.8",
     "tapzero": "*"
   },
   "dependencies": {
+<<<<<<< Updated upstream
     "@socketsupply/introducer": "6.3.0",
+=======
+>>>>>>> Stashed changes
     "buffer": "6.0.3",
     "chalk": "5.0.1"
   }
