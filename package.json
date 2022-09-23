@@ -36,10 +36,7 @@
     "tapzero": "*"
   },
   "dependencies": {
-<<<<<<< Updated upstream
     "@socketsupply/introducer": "6.3.0",
-=======
->>>>>>> Stashed changes
     "buffer": "6.0.3",
     "chalk": "5.0.1"
   }
