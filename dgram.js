@@ -22,6 +22,10 @@ const CONNECT_STATE_DISCONNECTED = 0
 const CONNECT_STATE_CONNECTING = 1
 const CONNECT_STATE_CONNECTED = 2
 
+const MAX_PORT = 64 * 1024
+const RECV_BUFFER = 1
+const SEND_BUFFER = 0
+
 /**
  * Generic error class for an error occurring on a `Socket` instance.
  * @ignore
@@ -84,6 +88,49 @@ export class ERR_SOCKET_BAD_TYPE extends TypeError {
  */
 export class ERR_SOCKET_BAD_PORT extends RangeError {
   code = 'ERR_SOCKET_BAD_PORT'
+}
+
+function defaultCallback (socket) {
+  return (err) => {
+    if (err) socket.emit('error', err)
+  }
+}
+
+function createDataListener (socket) {
+  // subscribe this socket to the firehose
+  window.addEventListener('data', ondata)
+  return ondata
+
+  function ondata ({ detail }) {
+    const { err, data, source } = detail.params
+    const buffer = detail.data
+
+    if (err && err.id === socket.id) {
+      return socket.emit('error', err)
+    }
+
+    if (!data || BigInt(data.id) !== socket.id) return
+
+    if (source === 'udp.readStart') {
+      const info = {
+        ...data,
+        family: getAddressFamily(data.address)
+      }
+
+      socket.emit('message', Buffer.from(buffer), info)
+    }
+
+    if (data.EOF) {
+      window.removeEventListener('data', ondata)
+    }
+  }
+}
+
+function destroyDataListener (socket) {
+  if (typeof socket?.dataListener === 'function') {
+    window.removeEventListener('data', socket.dataListener)
+    delete socket.dataListener
+  }
 }
 
 function fromBufferList (list) {
@@ -174,6 +221,50 @@ async function stopReading (socket, callback) {
   return result
 }
 
+async function getRecvBufferSize (socket, callback) {
+  let result = null
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  try {
+    result = await ipc.send('bufferSize', {
+      id: socket.id,
+      buffer: RECV_BUFFER
+    })
+
+    callback(result.err, result.data)
+  } catch (err) {
+    callback(err)
+    return { err }
+  }
+
+  return result
+}
+
+async function getSendBufferSize (socket, callback) {
+  let result = null
+
+  if (!isFunction(callback)) {
+    callback = () => void 0
+  }
+
+  try {
+    result = await ipc.send('bufferSize', {
+      id: socket.id,
+      buffer: SEND_BUFFER
+    })
+
+    callback(result.err, result.data)
+  } catch (err) {
+    callback(err)
+    return { err }
+  }
+
+  return result
+}
+
 async function bind (socket, options, callback) {
   let result = null
 
@@ -209,6 +300,31 @@ async function bind (socket, options, callback) {
     })
 
     socket.state.bindState = BIND_STATE_BOUND
+
+    if (socket.state.sendBufferSize) {
+      await socket.setSendBufferSize(socket.state.sendBufferSize)
+    } else {
+      const result = await getSendBufferSize(socket)
+      if (result.err) {
+        return callback(result.err)
+        return { err }
+      }
+
+      socket.state.sendBufferSize = result.data.size
+    }
+
+    if (socket.state.recvBufferSize) {
+      await socket.setRecvBufferSize(socket.state.recvBufferSize)
+    } else {
+      const result = await getRecvBufferSize(socket)
+      if (result.err) {
+        return callback(result.err)
+        return { err }
+      }
+
+      socket.state.recvBufferSize = result.data.size
+    }
+
     callback(result.err, result.data)
   } catch (err) {
     socket.state.bindState = BIND_STATE_UNBOUND
@@ -260,6 +376,31 @@ async function connect (socket, options, callback) {
     })
 
     socket.state.connectState = CONNECT_STATE_CONNECTED
+
+    if (socket.state.sendBufferSize) {
+      await socket.setSendBufferSize(socket.state.sendBufferSize)
+    } else {
+      const result = await getSendBufferSize(socket)
+      if (result.err) {
+        return callback(result.err)
+        return { err }
+      }
+
+      socket.state.sendBufferSize = result.data.size
+    }
+
+    if (socket.state.recvBufferSize) {
+      await socket.setRecvBufferSize(socket.state.recvBufferSize)
+    } else {
+      const result = await getRecvBufferSize(socket)
+      if (result.err) {
+        return callback(result.err)
+        return { err }
+      }
+
+      socket.state.recvBufferSize = result.data.size
+    }
+
     callback(result.err, result.data)
   } catch (err) {
     socket.state.connectState = CONNECT_STATE_DISCONNECTED
@@ -411,6 +552,8 @@ async function close (socket, callback) {
       id: socket.id
     })
 
+    gc.unref(socket)
+
     callback(result.err, result.data)
   } catch (err) {
     callback(err)
@@ -509,21 +652,18 @@ export class Socket extends EventEmitter {
       sendBufferSize: options.sendBufferSize,
       bindState: BIND_STATE_UNBOUND,
       connectState: CONNECT_STATE_DISCONNECTED,
-      reuseAddr: options.reuseAddr,
-      ipv6Only: options.ipv6Only
+      reuseAddr: options.reuseAddr === true ? true : false,
+      ipv6Only: options.ipv6Only === true ? true : false
     }
 
-    if (callback) {
+    if (isFunction(callback)) {
       this.on('message', callback)
     }
 
     const onabort = () => this.close()
     this.signal?.addEventListener('abort', onabort, { once: true })
     this.once('close', () => {
-      if (this.dataListener) {
-        window.removeEventListener('data', this.dataListener)
-      }
-
+      destroyDataListener(this)
       this.removeAllListeners()
       this.signal?.removeEventListener('abort', onabort)
     })
@@ -558,82 +698,37 @@ export class Socket extends EventEmitter {
    * @param {function} callback - With no parameters. Called when binding is complete.
    * @see {@link https://nodejs.org/api/dgram.html#socketbindport-address-callback}
    */
-  bind (arg1, arg2, cb) {
-    let options = {}
-
-    if (isFunction(arg2)) {
-      cb = arg2
-      options.address = undefined
-    }
+  bind (arg1, arg2, arg3) {
+    const options = {}
+    const cb = isFunction(arg2)
+      ? arg2 : isFunction(arg3)
+      ? arg3 : defaultCallback(this)
 
     if (typeof arg1 === 'number' || typeof arg2 === 'string') {
       options.port = parseInt(arg1)
-      if (!isFunction(arg2)) {
-        options.address = arg2
-      }
     } else if (typeof arg1 === 'object') {
-      options = { ...arg1 }
+      Object.assign(options, arg1)
+    }
+
+    if (typeof arg2 === 'string') {
+      options.address = arg2
     }
 
     bind(this, options, (err, info) => {
       if (err) {
-        if (isFunction(cb)) {
-          cb(err)
-        } else {
-          this.emit('error', err)
-        }
-
-        return
+        return cb(err)
       }
-
-      this._port = info.port
-      this._family = getAddressFamily(info.address)
-      this._address = info.address
 
       startReading(this, (err) => {
         if (err) {
-          if (isFunction(cb)) {
-            cb(err)
-          } else {
-            this.emit('error', err)
-          }
-
-          return
-        }
-
-        if (isFunction(cb)) {
+          cb(err)
+        } else {
+          this.dataListener = createDataListener(this)
           cb(null)
+          this.emit('listening')
         }
-
-        this.emit('listening')
       })
 
-      this.dataListener = ({ detail }) => {
-        const { data: buffer, params } = detail
-        const { err, data, source } = params
-
-        if (err && err.id === this.id) {
-          return this.emit('error', err)
-        }
-
-        if (!data || BigInt(data.id) !== this.id) return
-
-        if (source === 'udp.readStart') {
-          const info = {
-            ...data,
-            family: getAddressFamily(data.address)
-          }
-
-          this.emit('message', Buffer.from(buffer), info)
-        }
-
-        if (data.EOF) {
-          window.removeEventListener('data', this.dataListener)
-        }
-      }
-
-      // subscribe this socket to the firehose
-      window.addEventListener('data', this.dataListener)
     })
 
     return this
@@ -653,20 +748,16 @@ export class Socket extends EventEmitter {
    * @param {number} port - Port the client should connect to.
    * @param {string=} host - Host the client should connect to.
    * @param {function=} connectListener - Common parameter of socket.connect() methods. Will be added as a listener for the 'connect' event once.
-   *
    * @see {@link https://nodejs.org/api/dgram.html#socketconnectport-address-callback}
-   *
    */
-  connect (arg1, arg2, cb) {
-    const port = parseInt(arg1)
+  connect (arg1, arg2, arg3) {
     const address = isFunction(arg2) ? undefined : arg2
-    const options = { address, port }
+    const port = parseInt(arg1)
+    const cb = isFunction(arg2)
+      ? arg2 : isFunction(arg3)
+      ? arg3 : defaultCallback(this)
 
-    if (isFunction(arg2)) {
-      cb = arg2
-    }
-
-    if (!Number.isInteger(port) || port <= 0 || port > (64*1024)) {
+    if (!Number.isInteger(port) || port <= 0 || port > MAX_PORT) {
       throw new ERR_SOCKET_BAD_PORT(
         `Port should be > 0 and < 65536. Received ${arg1}.`
       )
@@ -676,22 +767,12 @@ export class Socket extends EventEmitter {
       throw new ERR_SOCKET_DGRAM_IS_CONNECTED()
     }
 
-    connect(this, options, (err, info) => {
-      if (err) {
-        if (isFunction(cb)) {
-          cb(err)
-        } else {
-          this.emit('error', err)
-        }
+    connect(this, { address, port }, (err, info) => {
+      cb(err, info)
 
-        return
+      if (!err && info) {
+        this.emit('connect', info)
       }
-
-      if (isFunction(cb)) {
-        cb(null, info)
-      }
-
-      this.emit('connect', info)
     })
   }
 
@@ -765,7 +846,7 @@ export class Socket extends EventEmitter {
    */
   send (buffer, ...args) {
     const id = this.id || rand64()
-    let offset, length, port, address, cb
+    let offset = 0, length, port, address, cb = defaultCallback(this)
 
     if (Array.isArray(buffer)) {
       buffer = fromBufferList(buffer)
@@ -782,38 +863,15 @@ export class Socket extends EventEmitter {
       cb = args.pop()
     }
 
-    // port given, parse arguments after
+    // parse argument variants
     if (typeof args[2] === 'number') {
-      let err = null
       [offset, length, port, address] = args
-
-      if (!Number.isInteger(offset) || offset < 0) {
-        err = new RangeError(
-          `Offset should be >= 0 and < ${buffer.length} Received ${offset}.`
-        )
-      }
-
-      buffer = buffer.slice(offset)
-
-      if (!Number.isInteger(length) || length < 0 || length > buffer.length ) {
-        err = new RangeError(
-          `Length should be >= 0 and <= ${buffer.length} Received ${length}.`
-        )
-      }
-
-      if (err) {
-        if (isFunction(cb)) {
-          cb(err)
-        } else {
-          this.emit('error', err)
-        }
-
-        return
-      }
-
-      buffer = buffer.slice(0, length)
-    } else {
+    } else if (typeof args[1] === 'number') {
+      [offset, length] = args
+    } else if (typeof args[0] === 'number' && typeof args[1] === 'string') {
       [port, address] = args
+    } else if (typeof args[0] === 'number') {
+      [port] = args
     }
 
     if (port !== undefined || this.state.connectState !== CONNECT_STATE_CONNECTED) {
@@ -827,22 +885,31 @@ export class Socket extends EventEmitter {
       }
     }
 
-    const options = { id, port, address, buffer }
-    send(this, options, (err) => {
-      if (err) {
-        if (isFunction(cb)) {
-          cb(err)
-        } else {
-          this.emit('error', err)
-        }
+    if (offset === undefined) {
+      offset = 0
+    }
 
-        return
-      }
+    if (length === undefined) {
+      length = buffer.length
+    }
 
-      if (isFunction(cb)) {
-        cb(null)
-      }
-    })
+    if (!Number.isInteger(offset) || offset < 0) {
+      throw new RangeError(
+        `Offset should be >= 0 and < ${buffer.length} Received ${offset}.`
+      )
+    }
+
+    buffer = buffer.slice(offset)
+
+    if (!Number.isInteger(length) || length < 0 || length > buffer.length ) {
+      throw new RangeError(
+        `Length should be >= 0 and <= ${buffer.length} Received ${length}.`
+      )
+    }
+
+    buffer = buffer.slice(0, length)
+
+    send(this, { id, port, address, buffer }, cb)
   }
 
   /**
@@ -969,8 +1036,14 @@ export class Socket extends EventEmitter {
    * @param {number} size - The size of the new receive buffer
    * @see {@link https://nodejs.org/api/dgram.html#socketsetrecvbuffersizesize}
    */
-  setRecvBufferSize (size) {
-    this.state.recvBufferSize = size
+  async setRecvBufferSize (size) {
+    if (size > 0) {
+      this.state.recvBufferSize = size
+      const result = await ipc.send('bufferSize', { id: this.id, size })
+      if (result.err) {
+        throw result.err
+      }
+    }
   }
 
   /**
@@ -980,8 +1053,14 @@ export class Socket extends EventEmitter {
    * @param {number} size - The size of the new send buffer
    * @see {@link https://nodejs.org/api/dgram.html#socketsetsendbuffersizesize}
    */
-  setSendBufferSize (size) {
-    this.state.sendBufferSize = size
+  async setSendBufferSize (size) {
+    if (size > 0) {
+      this.state.sendBufferSize = size
+      const result = await ipc.send('bufferSize', { id: this.id, size })
+      if (result.err) {
+        throw result.err
+      }
+    }
   }
 
   /**
