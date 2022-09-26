@@ -12,6 +12,7 @@ import { Buffer } from './buffer.js'
 import { isIPv4 } from './net.js'
 import * as ipc from './ipc.js'
 import dns from './dns.js'
+import gc from './gc.js'
 
 const BIND_STATE_UNBOUND = 0
 const BIND_STATE_BINDING = 1
@@ -526,6 +527,22 @@ export class Socket extends EventEmitter {
       this.removeAllListeners()
       this.signal?.removeEventListener('abort', onabort)
     })
+
+    gc.ref(this, options)
+  }
+
+  /**
+   * Implements `gc.finalizer` for gc'd resource cleanup.
+   * @return {gc.Finalizer}
+   */
+  [gc.finalizer] (options) {
+    return {
+      args: [this.id, options],
+      async handle (id) {
+        console.warn('Closing Socket on garbage collection')
+        await ipc.request('udp.close', { id }, options)
+      }
+    }
   }
 
   /**
