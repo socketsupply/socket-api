@@ -31,14 +31,45 @@ export function getRandomValues (...args) {
 }
 
 /**
+ * Maximum total size of random bytes per page
+ */
+export const RANDOM_BYTES_QUOTA = 64 * 1024
+
+/**
+ * Maximum total size for random bytes.
+ */
+export const MAX_RANDOM_BYTES = 0xFFFF_FFFF_FFFF
+
+/**
+ * Maximum total amount of allocated per page of bytes (max/quota)
+ */
+export const MAX_RANDOM_BYTES_PAGES = MAX_RANDOM_BYTES / RANDOM_BYTES_QUOTA
+
+/**
  * Generate `size` random bytes.
  * @param {number} size - The number of bytes to generate. The size must not be larger than 2**31 - 1.
  * @returns {Buffer} - A promise that resolves with an instance of io.Buffer with random bytes.
  */
 export function randomBytes (size) {
-  const tmp = new Int8Array(size)
-  const bytes = getRandomValues(tmp)
-  return Buffer.from(bytes)
+  const buffers = []
+
+  if (size < 0 || size >= MAX_RANDOM_BYTES || !Number.isInteger(size)) {
+    throw Object.assign(new RangeError(
+      `The value of "size" is out of range. It must be >= 0 && <= ${max}. ` +
+      `Received ${size}`
+    ), {
+      code: 'ERR_OUT_OF_RANGE'
+    })
+  }
+
+  do {
+    const length = size > RANDOM_BYTES_QUOTA ? RANDOM_BYTES_QUOTA : size
+    const bytes = getRandomValues(new Int8Array(length))
+    buffers.push(Buffer.from(bytes))
+    size = Math.max(0, size - RANDOM_BYTES_QUOTA)
+  } while (size > 0);
+
+  return Buffer.concat(buffers)
 }
 
 /**
