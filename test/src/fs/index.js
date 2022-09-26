@@ -1,5 +1,6 @@
 import { Buffer } from '@socketsupply/io'
 import process from '@socketsupply/io/process.js'
+import crypto from '@socketsupply/io/crypto.js'
 import fs from '@socketsupply/io/fs.js'
 import os from '@socketsupply/io/os.js'
 
@@ -11,8 +12,11 @@ const TMPDIR = /android/i.test(os.platform())
   : `${os.tmpdir()}/`
 
 // node compat
-//import fs from 'node:fs'
-//import os from 'node:os'
+/*
+import crypto from 'node:crypto'
+import fs from 'node:fs'
+import os from 'node:os'
+*/
 
 test('fs.access', async (t) => {
   await new Promise((resolve, reject) => {
@@ -111,7 +115,25 @@ test('fs.createReadStream', async (t) => {
   })
 })
 
-test('fs.createWriteStream', async (t) => {})
+test('fs.createWriteStream', async (t) => {
+  const writer = fs.createWriteStream(TMPDIR + 'fixtures/new-file.txt')
+  const bytes = crypto.randomBytes(32 * 1024 * 1024)
+  writer.write(bytes.slice(0 , 512 * 1024))
+  writer.write(bytes.slice(512 * 1024))
+  writer.end()
+  await new Promise((resolve) => {
+    writer.once('close', () => {
+      const reader = fs.createReadStream(TMPDIR + 'fixtures/new-file.txt')
+      const buffers = []
+      reader.on('data', (buffer) => buffers.push(buffer))
+      reader.on('end', () => {
+        t.ok(Buffer.compare(bytes, Buffer.concat(buffers)) === 0, 'bytes match')
+        resolve()
+      })
+    })
+  })
+})
+
 test('fs.fstat', async (t) => {})
 test('fs.lchmod', async (t) => {})
 test('fs.lchown', async (t) => {})
