@@ -96,6 +96,8 @@ export function rand64 () {
 export function splitBuffer (buffer, highWaterMark) {
   const buffers = []
 
+  buffer = Buffer.from(buffer)
+
   do {
     buffers.push(buffer.slice(0, highWaterMark))
     buffer = buffer.slice(highWaterMark)
