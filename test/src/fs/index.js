@@ -188,5 +188,48 @@ test('fs.unlink', async (t) => {})
 test('fs.utimes', async (t) => {})
 test('fs.watch', async (t) => {})
 test('fs.write', async (t) => {})
-test('fs.writeFile', async (t) => {})
+test('fs.writeFile', async (t) => {
+  const small = Array.from({ length: 32 }, (_, i) => i * 2 * 1024).map((size) => crypto.randomBytes(size))
+  const large = Array.from({ length: 16 }, (_, i) => i * 2 * 1024 * 1024).map((size) => crypto.randomBytes(size))
+  const buffers = [ ...small, ...large ]
+
+  let failed = false
+  const writes = []
+
+  while (!failed && buffers.length) {
+    writes.push(testWrite(buffers.length - 1, buffers.pop()))
+  }
+
+  await Promise.all(writes)
+
+  if (!failed) {
+    t.ok('bytes match')
+  }
+
+  async function testWrite (i, buffer) {
+    await new Promise((resolve) => {
+      const filename = TMPDIR + `fixtures/new-file-${i}.txt`
+      fs.writeFile(filename, buffer, async (err) => {
+        if (err) {
+          failed = true
+          t.fail(err)
+          return resolve()
+        }
+
+        fs.readFile(filename, (err, result) => {
+          if (err) {
+            failed = true
+            t.fail(err)
+          } else if (Buffer.compare(result, buffer) != 0) {
+            failed = true
+            t.fail('bytes do not match')
+          }
+
+          resolve()
+        })
+      })
+    })
+  }
+})
+
 test('fs.writev', async (t) => {})
