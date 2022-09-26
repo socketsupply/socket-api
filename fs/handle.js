@@ -133,7 +133,7 @@ export class FileHandle extends EventEmitter {
 
     this.flags = normalizeFlags(options?.flags)
     this.path = options?.path || null
-    this.mode = options?.mode || FileHandle.DEFAULT_ACCESS_MODE
+    this.mode = options?.mode || FileHandle.DEFAULT_OPEN_MODE
 
     // this id will be used to identify the file handle that is a
     // reference stored in the native side
@@ -187,7 +187,7 @@ export class FileHandle extends EventEmitter {
         if (fds.has(id)) {
           console.warn('Closing FileHandle on garbage collection')
           await ipc.request('fs.close', { id }, options)
-          fds.release(id)
+          fds.release(id, false)
         }
       }
     }
@@ -258,7 +258,7 @@ export class FileHandle extends EventEmitter {
       return this[kClosing].reject(result.err)
     }
 
-    fds.release(this.id)
+    fds.release(this.id, false)
     gc.unref(this)
 
     this.fd = null
@@ -875,7 +875,7 @@ export class DirectoryHandle extends EventEmitter {
         if (fds.has(id)) {
           console.warn('Closing DirectoryHandle on garbage collection')
           await ipc.request('fs.closedir', { id }, options)
-          fds.release(id)
+          fds.release(id, false)
         }
       }
     }
@@ -951,7 +951,7 @@ export class DirectoryHandle extends EventEmitter {
       return this[kClosing].reject(result.err)
     }
 
-    fds.release(this.id)
+    fds.release(this.id, false)
     gc.unref(this)
 
     this[kClosing].resolve(true)
