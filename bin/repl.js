@@ -251,10 +251,13 @@ async function evaluate (cmd, ctx, file, callback) {
     } else if (lastName) {
       cmd = `${cmd}; io.util.format(${lastName});`
     } else if (!/^\s*((throw\s)|(with\s*\()|(try\s*{)|(const\s)|(let\s)|(var\s)|(if\s*\()|(for\s*\()|(while\s*\()|(do\s*{)|(return\s)|(import\s*\())/.test(cmd)) {
-      cmd = cmd.split(';').map((c) => {
-        if (/^\s*\{/.test(c)) { return c }
-        return `io.util.format(${c});`
-      }).join('\n')
+      cmd = cmd.replace(/\s*;$/g, '')
+      if (Array.isArray(root)) {
+        const last = root.slice(-1)[0]
+        cmd = cmd.slice(0, last.start) + `;io.util.format((${cmd.slice(last.start, last.end)}))`
+      } else {
+        cmd = `io.util.format((${cmd}))`
+      }
     }
   }
 
