@@ -1,4 +1,6 @@
-import { readFile, writeFile } from './fs/promises.js'
+import { readFile } from './fs/promises.js'
+import { createWriteStream } from './fs/index.js'
+import { PassThrough } from './stream.js'
 import { createDigest } from './crypto.js'
 import { EventEmitter } from './events.js'
 
@@ -71,23 +73,31 @@ class Bootstrap extends EventEmitter {
    */
   async write ({ fileBuffer, dest }) {
     this.emit('write-file', { status: 'started' })
-    // const writeStream = createWriteStream(this.options.dest)
-    // writeStream.write(fileBuffer)
-    // let written = 0
-    // writeStream.on('data', data => {
-    //   written += data.length
-    //   const progress = (written / unpacked.length * 100) | 0
-    //   if (progress !== prevProgress) {
-    //     this.emit('write-file-progress', progress)
-    //     prevProgress = progress
-    //   }
-    // })
-    // writeStream.on('finish', () => {
-    //   this.emit('write-file', { status: 'finished' })
-    //   this.emit('success', { updated: true })
-    // })
-    await writeFile(dest, fileBuffer, { mode: 0o755 })
-    this.emit('write-file', { status: 'finished' })
+    const passThroughStream = new PassThrough()
+    const writeStream = createWriteStream(dest, { mode: 0o755 })
+    passThroughStream.pipe(writeStream)
+    let written = 0
+    let prevProgress = 0
+    passThroughStream.on('data', data => {
+      written += data.length
+      const progress = (written / fileBuffer.byteLength * 100) | 0
+      if (progress !== prevProgress) {
+        this.emit('write-file-progress', progress)
+        prevProgress = progress
+      }
+    })
+    passThroughStream.write(fileBuffer)
+    passThroughStream.end()
+    return new Promise((resolve, reject) => {
+      writeStream.on('finish', () => {
+        this.emit('write-file', { status: 'finished' })
+        resolve()
+      })
+      writeStream.on('error', err => {
+        this.emit('error', err)
+        reject(err)
+      })
+    })
   }
 
   /**
