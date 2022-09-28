@@ -680,7 +680,7 @@ export class Socket extends EventEmitter {
       args: [this.id, options],
       async handle (id) {
         console.warn('Closing Socket on garbage collection')
-        await ipc.request('udp.close', { id }, options)
+        await ipc.send('udp.close', { id }, options)
       }
     }
   }

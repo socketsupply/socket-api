@@ -186,7 +186,7 @@ export class FileHandle extends EventEmitter {
       async handle (id) {
         if (fds.has(id)) {
           console.warn('Closing FileHandle on garbage collection')
-          await ipc.request('fs.close', { id }, options)
+          await ipc.send('fs.close', { id }, options)
           fds.release(id, false)
         }
       }
@@ -252,7 +252,7 @@ export class FileHandle extends EventEmitter {
 
     this[kClosing] = new InvertedPromise()
 
-    const result = await ipc.request('fs.close', { id: this.id }, options)
+    const result = await ipc.send('fs.close', { id: this.id }, options)
 
     if (result.err) {
       return this[kClosing].reject(result.err)
@@ -665,7 +665,7 @@ export class FileHandle extends EventEmitter {
       throw new RangeError('Offset + length cannot be larger than buffer length.')
     }
 
-    const data = Buffer.from(buffer).slice(offset, offset + length)
+    const data = Buffer.from(buffer).subarray(offset, offset + length)
     const params = { id: this.id, offset: position }
 
     const result = await ipc.write('fs.write', params, data, {
@@ -874,7 +874,7 @@ export class DirectoryHandle extends EventEmitter {
       async handle (id) {
         if (fds.has(id)) {
           console.warn('Closing DirectoryHandle on garbage collection')
-          await ipc.request('fs.closedir', { id }, options)
+          await ipc.send('fs.closedir', { id }, options)
           fds.release(id, false)
         }
       }
@@ -945,7 +945,7 @@ export class DirectoryHandle extends EventEmitter {
 
     this[kClosing] = new InvertedPromise()
 
-    const result = await ipc.request('fs.closedir', { id, }, options)
+    const result = await ipc.send('fs.closedir', { id, }, options)
 
     if (result.err) {
       return this[kClosing].reject(result.err)
