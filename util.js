@@ -45,7 +45,11 @@ export function isEmptyObject (object) {
 }
 
 export function isPlainObject (object) {
-  return Object.getPrototypeOf(object) === Object.prototype
+  return (
+    object !== null &&
+    typeof object === 'object' &&
+    Object.getPrototypeOf(object) === Object.prototype
+  )
 }
 
 export function isBufferLike (object) {
