@@ -534,7 +534,7 @@ export class Result {
  * global window object.
  */
 export async function ready () {
-  await new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     if (typeof window === 'undefined') {
       return reject(new TypeError('Global window object is not defined.'))
     }
@@ -543,10 +543,10 @@ export async function ready () {
 
     function loop () {
       if (window._ipc) {
-        return resolve()
+        queueMicrotask(resolve)
+      } else {
+        queueMicrotask(loop)
       }
-
-      queueMicrotask(loop)
     }
   })
 }
@@ -699,6 +699,8 @@ export async function write (command, params, buffer, options) {
     return {}
   }
 
+  await ready()
+
   const signal = options?.signal
   const request = new window.XMLHttpRequest()
   const index = window.process ? window.process.index : 0
@@ -728,7 +730,7 @@ export async function write (command, params, buffer, options) {
 
   const query = `?${params}`
 
-  request.open('PUT', uri + query, true)
+  request.open('POST', uri + query, true)
   await request.send(buffer || null)
 
   if (debug.enabled) {
@@ -760,7 +762,7 @@ export async function write (command, params, buffer, options) {
         resolved = true
         clearTimeout(timeout)
 
-        const response = request.response ?? request.responseText ?? 'null'
+        const response = request.response ?? request.responseText ?? null
         let data = response
         try {
           data = JSON.parse(response)
@@ -780,7 +782,7 @@ export async function write (command, params, buffer, options) {
           debug.log('ipc.write: (resolved)', command, result)
         }
 
-        return resolve(data)
+        return resolve(result)
       }
     }
 
@@ -802,102 +804,106 @@ export async function write (command, params, buffer, options) {
 export async function request (command, params, options) {
   await ready()
 
+  const request = new window.XMLHttpRequest()
   const signal = options?.signal
-  params = { ...params }
+  const index = window.process ? window.process.index : 0
+  const seq = window._ipc ? window._ipc.nextSeq++ : 0
+  const uri = `ipc://${command}`
 
-  for (const key in params) {
-    if (params[key] === undefined) {
-      delete params[key]
-    }
-  }
-
-  if (debug.enabled) {
-    debug.log('ipc.request:', command, params)
-  }
-
+  let resolved = false
   let aborted = false
   let timeout = null
-
-  const parent = typeof window === 'object' ? window : globalThis
-  const promise = parent._ipc.send(command, params)
-
-  const { seq, index } = promise
-  const resolved = promise.then((response) => {
-    cleanup()
-
-    let result = response
-
-    if (result?.data instanceof ArrayBuffer) {
-      result = Result.from(new Uint8Array(result.data))
-    } else {
-      result = Result.from(result)
-    }
-
-    if (!result.source) {
-      result.source = command
-    }
-
-    if (debug.enabled) {
-      debug.log('ipc.request: (resolved)', command, result)
-    }
-
-    return result
-  })
-
-  const onabort = () => {
-    aborted = true
-    cleanup()
-    resolve(seq, ERROR, {
-      source: command,
-      err: new TimeoutError('ipc.request  timedout')
-    })
-  }
 
   if (signal) {
     if (signal.aborted) {
       return Result.from(null, new AbortError(signal), command)
     }
 
-    signal.addEventListener('abort', onabort)
+    signal.addEventListener('abort', () => {
+      if (!aborted && !resolved) {
+        aborted = true
+        request.abort()
+      }
+    })
   }
 
-  if (options?.timeout !== false) {
-    timeout = setTimeout(
-      onabort,
-      typeof options?.timeout === 'number' ? options.timeout : TIMEOUT
-    )
+  params = new URLSearchParams(params)
+  params.set('index', index)
+  params.set('seq', 'R' + seq)
+
+  const query = `?${params}`
+
+  request.responseType = options?.responseType ?? 'arraybuffer'
+  request.open('GET', uri + query)
+  request.send(null)
+
+  if (debug.enabled) {
+    debug.log('ipc.request:', uri + query)
   }
 
-  // handle async resolution from IPC over XHR
-  parent.addEventListener('data', ondata)
-
-  return Object.assign(resolved, { seq, index })
-
-  function cleanup () {
-    window.removeEventListener('data', ondata)
-
-    if (timeout) {
-      clearTimeout(timeout)
-    }
-  }
-
-  function ondata (event) {
-    if (aborted) {
-      cleanup()
-
-      return resolve(seq, ERROR, {
-        err: new AbortError(signal)
-      })
+  return await new Promise((resolve) => {
+    if (options?.timeout) {
+      timeout = setTimeout(() => {
+        resolve(Result.from(null, new TimeoutError('ipc.request timedout'), command))
+        request.abort()
+      }, typeof options.timeout === 'number' ? options.timeout : TIMEOUT)
     }
 
-    if (event.detail?.data) {
-      const { data, params } = event.detail
-      if (parseSeq(params.seq) === parseSeq(seq)) {
-        cleanup()
-        resolve(seq, OK, { data })
+    request.onabort = () => {
+      aborted = true
+      if (options?.timeout) {
+        clearTimeout(timeout)
+      }
+      resolve(Result.from(null, new AbortError(signal), command))
+    }
+
+    request.onreadystatechange = () => {
+      if (aborted) {
+        return
+      }
+
+      if (request.readyState === window.XMLHttpRequest.DONE) {
+        resolved = true
+        clearTimeout(timeout)
+
+        const response = request.response ?? request.responseText ?? ''
+        let data = Buffer.from(response)
+        try {
+          const parsed = JSON.parse(String(data))
+          if (isPlainObject(parsed)) {
+           if (
+             ((parsed.data || parsed.err) && parsed.source) ||
+             request.responseType === 'json'
+           ) {
+             data = parsed
+           }
+          }
+        } catch (err) {
+          if (debug.enabled) {
+            debug.log('ipc.request (error):', err.message || err)
+          }
+        }
+
+        const result = Result.from(data)
+
+        if (!result.source) {
+          result.source = command
+        }
+
+        if (debug.enabled) {
+          debug.log('ipc.request: (resolved)', command, result)
+        }
+
+        return resolve(result)
       }
     }
-  }
+
+    request.onerror = () => {
+      resolved = true
+      clearTimeout(timeout)
+      resolve(Result.from(null, new Error(request.responseText), command))
+    }
+  })
 }
 
 /**
