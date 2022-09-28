@@ -122,6 +122,11 @@ test('fs.createWriteStream', async (t) => {
   writer.write(bytes.slice(512 * 1024))
   writer.end()
   await new Promise((resolve) => {
+    writer.once('error', (err) => {
+      t.fail(err)
+      writer.removeAllListeners()
+      resolve()
+    })
     writer.once('close', () => {
       const reader = fs.createReadStream(TMPDIR + 'fixtures/new-file.txt')
       const buffers = []
@@ -189,22 +194,30 @@ test('fs.utimes', async (t) => {})
 test('fs.watch', async (t) => {})
 test('fs.write', async (t) => {})
 test('fs.writeFile', async (t) => {
-  const small = Array.from({ length: 32 }, (_, i) => i * 2 * 1024).map((size) => crypto.randomBytes(size))
-  const large = Array.from({ length: 16 }, (_, i) => i * 2 * 1024 * 1024).map((size) => crypto.randomBytes(size))
+  const alloc = (size) => crypto.randomBytes(size)
+  const small = Array.from({ length: 32 }, (_, i) => i*2*1024).map(alloc)
+  const large = Array.from({ length: 16 }, (_, i) => i*2*1024*1024).map(alloc)
   const buffers = [ ...small, ...large ]
 
+  let pending = buffers.length
   let failed = false
   const writes = []
 
+  const now = Date.now()
   while (!failed && buffers.length) {
     writes.push(testWrite(buffers.length - 1, buffers.pop()))
   }
 
   await Promise.all(writes)
+  /*
+  console.log(
+    '%d writes to %sms to write %s bytes',
+    small.length + large.length,
+    Date.now() - now,
+    [...small, ...large].reduce((n, a) => n + a.length, 0)
+  )*/
 
-  if (!failed) {
-    t.ok('bytes match')
-  }
+  t.ok(!failed, 'all bytes match')
 
   async function testWrite (i, buffer) {
     await new Promise((resolve) => {
