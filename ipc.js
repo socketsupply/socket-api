@@ -30,7 +30,13 @@ import {
   TimeoutError
 } from './errors.js'
 
-import { isBufferLike, isPlainObject, format } from './util.js'
+import {
+  isBufferLike,
+  isPlainObject,
+  format,
+  parseJSON
+} from './util.js'
+
 import * as errors from './errors.js'
 import { Buffer } from './buffer.js'
 
@@ -44,6 +50,98 @@ function getErrorClass (type, fallback) {
   }
 
   return fallback || Error
+}
+
+function getRequestResponseText (request) {
+  try {
+    // can throw `InvalidStateError` error
+    return request?.responseText
+  } catch (err) {
+    void err
+  }
+
+  return null
+}
+
+function getRequestResponse (request) {
+  if (!request) return null
+  const { responseType } = request
+  let response = null
+
+  if (!responseType || responseType === 'text') {
+    // `responseText` could be an accessor which could throw an
+    // `InvalidStateError` error when accessed when `responseType` is anything
+    // but empty or `'text'`
+    // @see {@link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseText#exceptions}
+    const responseText = getRequestResponseText(request)
+    if (responseText) {
+      response = responseText
+      // maybe json for unspecified response types
+      if (!responseType) {
+        const json = parseJSON(response)
+        if (json) {
+          response = json
+        }
+      }
+    }
+  }
+
+  if (responseType === 'json') {
+    response = parseJSON(request.response)
+  }
+
+  if (responseType === 'arraybuffer') {
+    if (
+      request.response instanceof ArrayBuffer ||
+      typeof request.response === 'string' ||
+      isBufferLike(request.response)
+    ) {
+      response = Buffer.from(request.response)
+    }
+
+    // maybe json in buffered response
+    const json = parseJSON(response)
+    if ((isPlainObject(json?.data) && json?.source) || isPlainObject(json?.err)) {
+      response = json
+    }
+  }
+
+  // try using `statusText` for stubbed response
+  if (!response) {
+    // defaults:
+    // `400...499: errors.NotAllowedError`
+    // `500...599: errors.InternalError`
+    const statusCodeToErrorCode = {
+      400: errors.BadRequestError,
+      403: errors.InvalidAccessError,
+      404: errors.NotFoundError,
+      408: errors.TimeoutError,
+      501: errors.NotSupportedError,
+      502: errors.NetworkError,
+      504: errors.TimeoutError
+    }
+
+    const { status, responseURL, statusText } = request
+    const message = Message.from(responseURL)
+    const source = message.command
+
+    if (status >= 100 && status < 400) {
+      const data = { status: statusText }
+      return { source, data }
+    } else if (status >= 400 && status < 499) {
+      const ErrorType = statusCodeToErrorCode[status] || errors.NotAllowedError
+      const err = new ErrorType(statusText || status)
+      err.url = responseURL
+      return { source, err }
+    } else if (status >= 500 && status < 599) {
+      const ErrorType = statusCodeToErrorCode[status] || errors.InternalError
+      const err = new ErrorType(statusText || status)
+      err.url = responseURL
+      return { source, err }
+    }
+  }
+
+  return response
 }
 
 function maybeMakeError (error, caller) {
@@ -319,12 +417,7 @@ export class Message extends URL {
    * or it is invalid JSON.
    */
   get json () {
-    try {
-      return JSON.parse(this.value)
-    } catch (err) {
-      void err
-      return null
-    }
+    return parseJSON(this.value)
   }
 
   /**
@@ -340,12 +433,7 @@ export class Message extends URL {
    */
   entries () {
     return Array.from(this.searchParams.entries()).map(([ key, value ]) => {
-      try {
-        return [key, JSON.parse(value)]
-      } catch (err) {
-        void err
-        return [key, value]
-      }
+      return [key, parseJSON(value) || value]
     })
   }
 
@@ -373,14 +461,7 @@ export class Message extends URL {
       return defaultValue
     }
 
-    const value = this.searchParams.get(key)
-
-    try {
-      return JSON.parse(value)
-    } catch (err) {
-      void err
-      return value
-    }
+    return parseJSON(this.searchParams.get(key)) || null
   }
 
   /**
@@ -409,14 +490,7 @@ export class Message extends URL {
    * @return {Array<mixed>}
    */
   values () {
-    return Array.from(this.searchParams.values()).map((value) => {
-      try {
-        return JSON.parse(value)
-      } catch (err) {
-        void err
-        return value
-      }
-    })
+    return Array.from(this.searchParams.values()).map(parseJSON)
   }
 
   /**
@@ -468,6 +542,11 @@ export class Result {
 
     if (result instanceof Error) {
       result = { err: result }
+    }
+
+    if (!maybeSource && typeof maybeError === 'string') {
+      maybeSource = maybeError
+      maybeError = null
     }
 
     const err = maybeMakeError(result?.err || maybeError || null, Result.from)
@@ -585,48 +664,12 @@ export function sendSync (command, params) {
   request.open('GET', uri + query, false)
   request.send()
 
-  let response = request.response || request.responseText
-  let result = null
+  const result = Result.from(getRequestResponse(request), null, command)
 
-  if (!response) {
-    if (
-      request.status === 404 ||
-      (request.readyState === XMLHttpRequest.DONE && request.status === 0)
-    ) {
-      result = Result.from({
-        err: {
-          url: uri + query,
-          code: 'NOT_FOUND_ERR',
-          type: 'NotFoundError',
-          message: request.statusText || 'Not found'
-        }
-      })
-    }
+  if (debug.enabled) {
+    debug.log('ipc.sendSync: (resolved)', command, result)
   }
 
-  if (!response && request.statusText) {
-    response = JSON.stringify({ data: { status: request.statusText } })
-  }
-
-  if (!result && typeof response === 'string') {
-    try {
-      result = Result.from(JSON.parse(response))
-    } catch (err) {
-      if (debug.enabled) {
-        debug.log('ipc.sendSync (error):', err.message || err)
-      }
-    }
-  }
-
-  if (!result) {
-    result = Result.from(response)
-  }
-
-  if (!result.source) {
-    result.source = command
-  }
-
-  debug.log('ipc.sendSync: (resolved)', command, result)
   return result
 }
 
@@ -673,11 +716,7 @@ export async function send (command, ...args) {
   }
 
   const response = await window._ipc.send(command, ...args)
-  const result = Result.from(response)
-
-  if (!result.source) {
-    result.source = command
-  }
+  const result = Result.from(response, null, command)
 
   if (debug.enabled) {
     debug.log('ipc.send: (resolved)', command, result)
@@ -762,21 +801,7 @@ export async function write (command, params, buffer, options) {
         resolved = true
         clearTimeout(timeout)
 
-        const response = request.response ?? request.responseText ?? null
-        let data = response
-        try {
-          data = JSON.parse(response)
-        } catch (err) {
-          if (debug.enabled) {
-            debug.log('ipc.write (error):', err.message || err)
-          }
-        }
-
-        const result = Result.from(data)
-
-        if (!result.source) {
-          result.source = command
-        }
+        const result = Result.from(getRequestResponse(request), null, command)
 
         if (debug.enabled) {
           debug.log('ipc.write: (resolved)', command, result)
@@ -787,9 +812,10 @@ export async function write (command, params, buffer, options) {
     }
 
     request.onerror = () => {
+      const err = new Error(getRequestResponseText(request) || '')
       resolved = true
       clearTimeout(timeout)
-      resolve(Result.from(null, new Error(request.responseText), command))
+      resolve(Result.from(null, err, command))
     }
   })
 }
@@ -833,7 +859,7 @@ export async function request (command, params, options) {
 
   const query = `?${params}`
 
-  request.responseType = options?.responseType ?? 'arraybuffer'
+  request.responseType = options?.responseType ?? ''
   request.open('GET', uri + query)
   request.send(null)
 
@@ -866,29 +892,7 @@ export async function request (command, params, options) {
         resolved = true
         clearTimeout(timeout)
 
-        const response = request.response ?? request.responseText ?? ''
-        let data = Buffer.from(response)
-        try {
-          const parsed = JSON.parse(String(data))
-          if (isPlainObject(parsed)) {
-           if (
-             ((parsed.data || parsed.err) && parsed.source) ||
-             request.responseType === 'json'
-           ) {
-             data = parsed
-           }
-          }
-        } catch (err) {
-          if (debug.enabled) {
-            debug.log('ipc.request (error):', err.message || err)
-          }
-        }
-
-        const result = Result.from(data)
-
-        if (!result.source) {
-          result.source = command
-        }
+        const result = Result.from(getRequestResponse(request), null, command)
 
         if (debug.enabled) {
           debug.log('ipc.request: (resolved)', command, result)
@@ -899,9 +903,10 @@ export async function request (command, params, options) {
     }
 
     request.onerror = () => {
+      const err = new Error(getRequestResponseText(request))
       resolved = true
       clearTimeout(timeout)
-      resolve(Result.from(null, new Error(request.responseText), command))
+      resolve(Result.from(null, err, command))
     }
   })
 }
