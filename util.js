@@ -36,11 +36,22 @@ export function isAsyncFunction (object) {
   return object instanceof AsyncFunction
 }
 
+export function isArgumentsObject (object) {
+  return isPlainObject(object)
+}
+
 export function isEmptyObject (object) {
   return (
     object !== null &&
     typeof object === 'object' &&
     Object.keys(object).length === 0
+  )
+}
+
+export function isObject (object) {
+  return (
+    object !== null &&
+    typeof object === 'object'
   )
 }
 
@@ -58,6 +69,11 @@ export function isBufferLike (object) {
 
 export function isFunction (value) {
   return typeof value === 'function' && !/^class/.test(value.toString())
+}
+
+export function isErrorLike (error) {
+  if (error instanceof Error) return true
+  return isObject(error) && 'name' in error && 'message' in error
 }
 
 export function isClass (value) {
@@ -372,7 +388,6 @@ export function inspect (value, options) {
       typename = `${Error.prototype.toString.call(value)}`
       braces[0] =  ''
       braces[1] =  ''
-      enumerableKeys.name = true
 
       if (value.cause) {
         keys.add('cause')
@@ -673,6 +688,18 @@ export function format (format, ...args) {
   }
 
   return str
+}
+
+export function parseJSON (string) {
+  if (string !== null) {
+    try {
+      return JSON.parse(String(string))
+    } catch (err) {
+      void err
+    }
+  }
+
+  return null
 }
 
 import * as exports from './util.js'
