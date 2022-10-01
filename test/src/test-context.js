@@ -16,10 +16,7 @@ if (typeof parent?.addEventListener === 'function') {
   parent.addEventListener('unhandledrejection', onerror)
 }
 
-function onerror (err) {
-  console.error(err.stack || err.reason || err.message || err)
-  process.exit(1)
-}
+void ['log', 'info', 'warn', 'error', 'debug'].forEach(patchConsole)
 
 const pollTimeout = setTimeout(function poll () {
   if (GLOBAL_TEST_RUNNER.completed) {
@@ -30,11 +27,10 @@ const pollTimeout = setTimeout(function poll () {
  setTimeout(poll, 500)
 }, 500)
 
-patchConsole('log')
-patchConsole('info')
-patchConsole('warn')
-patchConsole('error')
-patchConsole('debug')
+function onerror (err) {
+  console.error(err.stack || err.reason || err.message || err)
+  process.exit(1)
+}
 
 function patchConsole (method) {
   const original = parent.console[method].bind(console)

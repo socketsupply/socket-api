@@ -252,7 +252,7 @@ test('udp createSocket AbortSignal', async (t) => {
   t.ok(isSocketClosed, 'socket is closed after abort, close event is emitted')
 })
 
-test('client ~> server (~500 messages)', async (t) => {
+test('client ~> server (~512 messages)', async (t) => {
   const TIMEOUT = 1024
   const buffers = Array.from(Array(512), () => crypto.randomBytes(1024))
   const server = dgram.createSocket('udp4')

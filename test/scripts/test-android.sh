@@ -8,9 +8,9 @@ root="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
 
 adb uninstall "$id"
 
-ssc compile --headless --quiet --platform=android -r -o .
+ssc compile --headless --platform=android -r -o .
 
-adb shell rm -rf "/data/local/tmp/fixtures"
-adb push "$root/fixtures/" "/data/local/tmp/fixtures"
+adb shell rm -rf "/data/local/tmp/ssc-io-test-fixtures"
+adb push "$root/fixtures/" "/data/local/tmp/ssc-io-test-fixtures"
 
 "$root/scripts/poll-adb-logcat.sh"

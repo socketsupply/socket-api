@@ -22,6 +22,7 @@ async function main () {
     bundle: true,
     keepNames: true,
     platform: 'browser',
+    sourcemap: 'inline',
     outdir: path.resolve(process.argv[2])
   }
 

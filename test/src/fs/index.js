@@ -7,9 +7,10 @@ import os from '@socketsupply/io/os.js'
 import deepEqual from 'tapzero/fast-deep-equal.js'
 import { test } from 'tapzero'
 
-const TMPDIR = /android/i.test(os.platform())
-  ? '/data/local/tmp/'
-  : `${os.tmpdir()}/`
+const TMPDIR = `${process.env.TMPDIR}/`
+const FIXTURES = /android/i.test(os.platform())
+  ? '/data/local/tmp/ssc-io-test-fixtures/'
+  : `${os.tmpdir()}/ssc-io-test-fixtures/`
 
 // node compat
 /*
@@ -18,9 +19,11 @@ import fs from 'node:fs'
 import os from 'node:os'
 */
 
+console.log(process.env)
+console.log(os.tmpdir())
 test('fs.access', async (t) => {
   await new Promise((resolve, reject) => {
-    fs.access(TMPDIR + 'fixtures', fs.constants.F_OK, (err) => {
+    fs.access(FIXTURES, fs.constants.F_OK, (err) => {
       if (err) t.fail(err, '(F_OK) fixtures/ is not accessible')
       else t.ok(true, '(F_OK) fixtures/ directory is accessible')
       resolve()
@@ -28,7 +31,7 @@ test('fs.access', async (t) => {
   })
 
   await new Promise((resolve, reject) => {
-    fs.access(TMPDIR + 'fixtures', fs.constants.F_OK | fs.constants.R_OK, (err) => {
+    fs.access(FIXTURES, fs.constants.F_OK | fs.constants.R_OK, (err) => {
       if (err) t.fail(err, '(F_OK | R_OK) fixtures/ directory is not readable')
       else t.ok(true, '(F_OK | R_OK) fixtures/ directory is readable')
       resolve()
@@ -44,7 +47,7 @@ test('fs.access', async (t) => {
   })
 
   await new Promise((resolve, reject) => {
-    fs.access(TMPDIR + 'fixtures', fs.constants.X_OK, (err) => {
+    fs.access(FIXTURES, fs.constants.X_OK, (err) => {
       if (err) t.fail(err, '(X_OK) fixtures/ directory is not "executable" - cannot list items')
       else t.ok(true, '(X_OK) fixtures/ directory is "executable" - can list items')
       resolve()
@@ -62,7 +65,7 @@ test('fs.close', async (t) => {
   }
 
   await new Promise((resolve, reject) => {
-    fs.open(TMPDIR + 'fixtures/file.txt', (err, fd) => {
+    fs.open(FIXTURES + 'file.txt', (err, fd) => {
       if (err) {
         t.fail(err)
         return resolve()
@@ -88,7 +91,7 @@ test('fs.createReadStream', async (t) => {
 
   const buffers = []
   await new Promise((resolve, reject) => {
-    const stream = fs.createReadStream(TMPDIR + 'fixtures/file.txt')
+    const stream = fs.createReadStream(FIXTURES + 'file.txt')
     const expected = Buffer.from('test 123')
 
     stream.on('close', resolve)
@@ -116,7 +119,7 @@ test('fs.createReadStream', async (t) => {
 })
 
 test('fs.createWriteStream', async (t) => {
-  const writer = fs.createWriteStream(TMPDIR + 'fixtures/new-file.txt')
+  const writer = fs.createWriteStream(TMPDIR+ 'new-file.txt')
   const bytes = crypto.randomBytes(32 * 1024 * 1024)
   writer.write(bytes.slice(0 , 512 * 1024))
   writer.write(bytes.slice(512 * 1024))
@@ -128,7 +131,7 @@ test('fs.createWriteStream', async (t) => {
       resolve()
     })
     writer.once('close', () => {
-      const reader = fs.createReadStream(TMPDIR + 'fixtures/new-file.txt')
+      const reader = fs.createReadStream(TMPDIR+ 'new-file.txt')
       const buffers = []
       reader.on('data', (buffer) => buffers.push(buffer))
       reader.on('end', () => {
@@ -152,11 +155,11 @@ test('fs.read', async (t) => {})
 test('fs.readdir', async (t) => {})
 test('fs.readFile', async (t) => {
   let failed = false
+  const iterations = 16 // generate ~1k _concurrent_ requests
   const expected = { data: 'test 123' }
-  const iterations = 1024 // generate ~1k _concurrent_ requests
   const promises = Array.from(Array(iterations), (_, i) => new Promise((resolve) => {
     if (failed) return resolve(false)
-    fs.readFile(TMPDIR + 'fixtures/file.json', (err, buf) => {
+    fs.readFile(FIXTURES + 'file.json', (err, buf) => {
       if (failed) return resolve(false)
 
       const message = `fs.readFile('fixtures/file.json') [iteration=${i+1}]`
@@ -221,7 +224,7 @@ test('fs.writeFile', async (t) => {
 
   async function testWrite (i, buffer) {
     await new Promise((resolve) => {
-      const filename = TMPDIR + `fixtures/new-file-${i}.txt`
+      const filename = TMPDIR+ `new-file-${i}.txt`
       fs.writeFile(filename, buffer, async (err) => {
         if (err) {
           failed = true
