@@ -306,7 +306,7 @@ async function bind (socket, options, callback) {
     } else {
       const result = await getSendBufferSize(socket)
       if (result.err) {
-        return callback(result.err)
+        callback(result.err)
         return { err }
       }
 
@@ -318,7 +318,7 @@ async function bind (socket, options, callback) {
     } else {
       const result = await getRecvBufferSize(socket)
       if (result.err) {
-        return callback(result.err)
+        callback(result.err)
         return { err }
       }
 
@@ -382,7 +382,7 @@ async function connect (socket, options, callback) {
     } else {
       const result = await getSendBufferSize(socket)
       if (result.err) {
-        return callback(result.err)
+        callback(result.err)
         return { err }
       }
 
@@ -394,7 +394,7 @@ async function connect (socket, options, callback) {
     } else {
       const result = await getRecvBufferSize(socket)
       if (result.err) {
-        return callback(result.err)
+        callback(result.err)
         return { err }
       }
 
@@ -423,6 +423,7 @@ function disconnect (socket, callback) {
       id: socket.id
     })
 
+    delete socket.state.remoteAddress
     socket.state.connectState = CONNECT_STATE_DISCONNECTED
 
     callback(result.err, result.data)
@@ -554,6 +555,8 @@ async function close (socket, callback) {
 
     gc.unref(socket)
 
+    delete socket.state.address
+    delete socket.state.remoteAddress
     callback(result.err, result.data)
   } catch (err) {
     callback(err)
@@ -793,8 +796,6 @@ export class Socket extends EventEmitter {
     if (err) {
       throw err
     }
-
-    this.state.connectState = CONNECT_STATE_DISCONNECTED
   }
 
   /**
@@ -924,7 +925,7 @@ export class Socket extends EventEmitter {
     const state = getSocketState(this)
 
     if (
-      !state ||
+      !state || !(state.connected || state.bound) ||
       (
         this.state.bindState === BIND_STATE_UNBOUND &&
         this.state.connectState === CONNECT_STATE_DISCONNECTED
@@ -983,18 +984,22 @@ export class Socket extends EventEmitter {
       throw new ERR_SOCKET_DGRAM_NOT_RUNNING()
     }
 
-    const result = getSockName(this)
+    if (!this.state.address) {
+      const result = getSockName(this)
 
-    if (result.err) {
-      throw Object.assign(result.err, {
-        syscall: 'getsockname'
-      })
+      if (result.err) {
+        throw Object.assign(result.err, {
+          syscall: 'getsockname'
+        })
+      }
+
+      this.state.address = result.data
     }
 
     return {
-      port: result.data?.port ?? null,
-      family: result.data?.family ?? null,
-      address: result.data?.address ?? null
+      port: this.state.address?.port ?? null,
+      family: this.state.address?.family ?? null,
+      address: this.state.address?.address ?? null
     }
   }
 
@@ -1014,18 +1019,22 @@ export class Socket extends EventEmitter {
       throw new ERR_SOCKET_DGRAM_NOT_CONNECTED()
     }
 
-    const result = getPeerName(this)
+    if (!this.state.remoteAddress) {
+      const result = getPeerName(this)
 
-    if (result.err) {
-      throw Object.assign(result.err, {
-        syscall: 'getpeername'
-      })
+      if (result.err) {
+        throw Object.assign(result.err, {
+          syscall: 'getpeername'
+        })
+      }
+
+      this.state.remoteAddress = result.data
     }
 
     return {
-      port: result.data?.port ?? null,
-      family: result.data?.family ?? null,
-      address: result.data?.address ?? null
+      port: this.state.remoteAddress?.port ?? null,
+      family: this.state.remoteAddress?.family ?? null,
+      address: this.state.remoteAddress?.address ?? null
     }
   }
 
