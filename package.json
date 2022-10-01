@@ -31,7 +31,7 @@
   "devDependencies": {
     "acorn": "8.8.0",
     "acorn-walk": "8.2.0",
-    "esbuild": "0.15.8",
+    "esbuild": "0.15.9",
     "tapzero": "*"
   },
   "dependencies": {
