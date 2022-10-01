@@ -20,9 +20,8 @@ export function exit (code) {
   if (!didEmitExitEvent) {
     didEmitExitEvent = true
     queueMicrotask(() => process.emit('exit', code))
+    send('exit', { value: code || 0 })
   }
-
-  send('exit', { value: code || 0 })
 }
 
 const parent = typeof window === 'object' ? window : globalThis
@@ -32,8 +31,9 @@ const process = isNode
   : Object.create(null, Object.getOwnPropertyDescriptors({
       ...EventEmitter.prototype,
       homedir,
-      argv0: parent?.process?.argv?.[0],
+      argv0: parent?.process?.argv?.[0] ?? null,
       exit,
+      env: {},
       ...parent?.process,
     }))
 
