@@ -79,7 +79,7 @@ function ondata (data) {
     if (message instanceof Message) {
       onmessage(message)
     } else {
-      console.log(String(message).trim())
+      console.log(String(message))
     }
   }
 }
@@ -140,7 +140,7 @@ async function onmessage (message) {
           }
 
           if (value.err.stack) {
-            error.stack = value.err.stack.split('\n').slice(1).join('\n')
+            error.stack = decodeURIComponent(value.err.stack.split('\n').slice(0).join('\n'))
           }
 
           callback(error)
@@ -204,7 +204,7 @@ async function evaluate (cmd, ctx, file, callback) {
   let ast = null
   let id = nextId++
 
-  cmd = cmd.trim()
+  cmd = cmd.trimEnd()
 
   if (!cmd) {
     return callback()

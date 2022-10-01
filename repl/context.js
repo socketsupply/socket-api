@@ -16,8 +16,16 @@ window.addEventListener('repl.context.init', (event) => {
 window.addEventListener('error', onerror)
 window.addEventListener('unhandledrejection', onerror)
 
+// uncomment below to get IPC debug output in stdout
+if (io.process.env.DEBUG) {
+  ipc.debug.enabled = true
+  ipc.debug.log = (...args) => console.log(...args)
+}
+
 function onerror (err) {
-  console.error(err.stack || err.message || err.reason || err)
+  if (io.process.env.DEBUG) {
+    console.error(makeError(err))
+  }
 }
 
 export function init (opts) {
@@ -136,7 +144,7 @@ export async function evaluate ({ cmd, id }) {
       id,
       error: Boolean(result.err),
       value: JSON.stringify({
-        data: result.data,
+        data: io.util.format(result.data),
         err: makeError(result.err)
       })
     })

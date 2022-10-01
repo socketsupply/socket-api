@@ -44,7 +44,7 @@ function ondata (data) {
       }, 512)
     }
 
-    ipc.log(buffer.trim())
+    ipc.log(buffer)
   }
 }
 
@@ -58,6 +58,6 @@ function onconnection (socket) {
   })
 
   socket.on('data', (buffer) => {
-    console.log('%s', String(buffer).trim())
+    console.log('%s', String(buffer))
   })
 }
