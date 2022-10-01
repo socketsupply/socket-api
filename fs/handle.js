@@ -482,7 +482,7 @@ export class FileHandle extends EventEmitter {
       id,
       size: length,
       offset: position
-    }, { signal, timeout })
+    }, { signal, timeout, responseType: 'arraybuffer' })
 
     if (result.err) {
       throw result.err
