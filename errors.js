@@ -50,6 +50,38 @@ export class AbortError extends Error {
 }
 
 /**
+ * An `BadRequestError` is an error type thrown in an `onabort()` level 0
+ * event handler on an `BadRequestSignal` instance.
+ */
+export class BadRequestError extends Error {
+  /**
+   * The default code given to a `BadRequestError`
+   */
+  static get code () { return 0 }
+
+  /**
+   * `BadRequestError` class constructor.
+   * @param {string} message
+   * @param {number} [code]
+   */
+  constructor (message, ...args) {
+    super(message, ...args)
+
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, BadRequestError)
+    }
+  }
+
+  get name () {
+    return 'BadRequestError'
+  }
+
+  get code () {
+    return 'BAD_REQUEST_ERR'
+  }
+}
+
+/**
  * An `EncodingError` is an error type thrown when an internal exception
  * has occurred, such as in the native IPC layer.
  */
