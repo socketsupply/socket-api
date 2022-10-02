@@ -198,9 +198,9 @@ test('fs.watch', async (t) => {})
 test('fs.write', async (t) => {})
 test('fs.writeFile', async (t) => {
   const alloc = (size) => crypto.randomBytes(size)
-  const small = Array.from({ length: 32 }, (_, i) => i*2*1024).map(alloc)
-  const large = Array.from({ length: 16 }, (_, i) => i*2*1024*1024).map(alloc)
-  const buffers = [ ...small, ...large ]
+  const small = Array.from({ length: 32 }, (_, i) => i * 2 * 1024).map(alloc)
+  const large = Array.from({ length: 16 }, (_, i) => i * 2 * 1024 * 1024).map(alloc)
+  const buffers = [...small, ...large]
 
   let pending = buffers.length
   let failed = false
