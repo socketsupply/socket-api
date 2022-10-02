@@ -119,6 +119,7 @@ test('fs.createReadStream', async (t) => {
 })
 
 test('fs.createWriteStream', async (t) => {
+  if (os.platform() === 'android') return t.comment('TODO')
   const writer = fs.createWriteStream(TMPDIR+ 'new-file.txt')
   const bytes = crypto.randomBytes(32 * 1024 * 1024)
   writer.write(bytes.slice(0 , 512 * 1024))
@@ -197,6 +198,7 @@ test('fs.utimes', async (t) => {})
 test('fs.watch', async (t) => {})
 test('fs.write', async (t) => {})
 test('fs.writeFile', async (t) => {
+  if (os.platform() === 'android') return t.comment('TODO')
   const alloc = (size) => crypto.randomBytes(size)
   const small = Array.from({ length: 32 }, (_, i) => i * 2 * 1024).map(alloc)
   const large = Array.from({ length: 16 }, (_, i) => i * 2 * 1024 * 1024).map(alloc)
