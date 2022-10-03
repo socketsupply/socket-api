@@ -57,17 +57,22 @@ export function networkInterfaces () {
     return cache.networkInterfaces
   }
 
-  const { ipv4, ipv6 } = ipc.sendSync('getNetworkInterfaces')?.data || {}
+  const result = ipc.sendSync('getNetworkInterfaces')
+  const { ipv4, ipv6 } = result.data
   const interfaces = {}
 
   for (const type in ipv4) {
-    const address = ipv4[type]
+    const info = typeof ipv4[type] === 'string'
+      ? { address: ipv4[type] }
+      : ipv4[type]
+
+    const { address } = info
     const family = 'IPv4'
 
-    let internal = false
-    let netmask = '255.255.255.0'
+    let internal = info.internal || false
+    let netmask = info.netmask || '255.255.255.0'
     let cidr = `${address}/24`
-    let mac = null
+    let mac = info.mac || null
 
     if (address === '127.0.0.1' || address === '0.0.0.0') {
       internal = true
@@ -94,13 +99,17 @@ export function networkInterfaces () {
   }
 
   for (const type in ipv6) {
-    const address = ipv6[type]
+    const info = typeof ipv6[type] === 'string'
+      ? { address: ipv6[type] }
+      : ipv6[type]
+
+    const { address } = info
     const family = 'IPv6'
 
-    let internal = false
-    let netmask = 'ffff:ffff:ffff:ffff::'
+    let internal = info.internal || false
+    let netmask = internal.netmask || 'ffff:ffff:ffff:ffff::'
     let cidr = `${address}/64`
-    let mac = null
+    let mac = info.mac || null
 
     if (address === '::1') {
       internal = true
