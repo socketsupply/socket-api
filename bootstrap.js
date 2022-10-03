@@ -77,14 +77,10 @@ class Bootstrap extends EventEmitter {
     const writeStream = createWriteStream(dest, { mode: 0o755 })
     passThroughStream.pipe(writeStream)
     let written = 0
-    let prevProgress = 0
     passThroughStream.on('data', data => {
       written += data.length
-      const progress = (written / fileBuffer.byteLength * 100) | 0
-      if (progress !== prevProgress) {
-        this.emit('write-file-progress', progress)
-        prevProgress = progress
-      }
+      const progress = written / fileBuffer.byteLength
+      this.emit('write-file-progress', progress)
     })
     passThroughStream.write(fileBuffer)
     passThroughStream.end()
