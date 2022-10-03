@@ -779,7 +779,7 @@ External docs: https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesr
 | Not specified | Promise<Buffer | string> |  |
 
 
-## [`writeFile(path, data, options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L272)
+## [`writeFile(path, data, options)`](https://github.com/socketsupply/io/blob/master/fs/promises.js#L278)
 
 External docs: https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromiseswritefilefile-data-options
 
@@ -787,9 +787,18 @@ External docs: https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fspromisesw
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| path | string |  | false |  |
-| data | string \| Buffer \| Array \| TypedArray |  | false |  |
+| path | string \| Buffer \| URL \| FileHandle |  | false | filename or FileHandle |
+| data | string \| Buffer \| Array \| DataView \| TypedArray \| Stream |  | false |  |
 | options | object |  | true |  |
+| options.encoding | string \| null | utf8 | false |  |
+| options.mode | number | 0o666 | false |  |
+| options.flag | string | w | false |  |
+| options.signal | AbortSignal |  | true |  |
+
+
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<void> |  |
 
 
 # [FS.Stream](https://github.com/socketsupply/io/blob/master/fs/stream.js#L4)
