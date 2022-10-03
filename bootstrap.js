@@ -5,20 +5,20 @@ import { createDigest } from './crypto.js'
 import { EventEmitter } from './events.js'
 
 async function* streamAsyncIterable(stream) {
-  const reader = stream.getReader();
+  const reader = stream.getReader()
   try {
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) return;
-      yield value;
+      const { done, value } = await reader.read()
+      if (done) return
+      yield value
     }
   } finally {
-    reader.releaseLock();
+    reader.releaseLock()
   }
 }
 
 /**
- * @param {Buffer} buf
+ * @param {Buffer|String} buf
  * @param {string} hashAlgorithm 
  * @returns {Promise<string>}
  */
@@ -48,7 +48,7 @@ class Bootstrap extends EventEmitter {
   constructor (options) {
     super()
     if (!options.url || !options.dest) {
-      throw new Error('url and dest are required')
+      throw new Error('.url and .dest are required string properties on the object provided to the constructor at the first argument position')
     }
     this.options = options
   }
@@ -67,7 +67,7 @@ class Bootstrap extends EventEmitter {
 
   /**
    * @param {object} options
-   * @param {Buffer} options.fileBuffer
+   * @param {Uint8Array} options.fileBuffer
    * @param {string} options.dest
    * @returns {Promise<void>}
    */
@@ -102,7 +102,7 @@ class Bootstrap extends EventEmitter {
 
   /**
    * @param {string} url - url to download
-   * @returns {Promise<Buffer>}
+   * @returns {Promise<Uint8Array>}
    * @throws {Error} - if status code is not 200
    */
   async download (url) {
