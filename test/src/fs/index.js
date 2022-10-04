@@ -18,9 +18,6 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import os from 'node:os'
 */
-
-console.log(process.env)
-console.log(os.tmpdir())
 test('fs.access', async (t) => {
   await new Promise((resolve, reject) => {
     fs.access(FIXTURES, fs.constants.F_OK, (err) => {
