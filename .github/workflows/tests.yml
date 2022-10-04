@@ -30,7 +30,7 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        git clone --branch dev --depth 1 git@github.com:socketsupply/socket.git
+        git clone --branch master --depth 1 git@github.com:socketsupply/socket.git
         cd socket
         ./bin/install.sh
         cd ..
@@ -71,7 +71,7 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        git clone --branch dev --depth 1 git@github.com:socketsupply/socket.git
+        git clone --branch master --depth 1 git@github.com:socketsupply/socket.git
         cd socket
         ./bin/install.sh
         cd ..
@@ -111,7 +111,7 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        git clone --branch dev --depth 1 git@github.com:socketsupply/socket.git
+        git clone --branch master --depth 1 git@github.com:socketsupply/socket.git
         cd socket
         ./bin/install.sh ios
         cd ..
@@ -155,8 +155,8 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        git clone --branch dev --depth 1 git@github.com:socketsupply/socket-sdk.git
-        cd socket-sdk
+        git clone --branch master --depth 1 git@github.com:socketsupply/socket.git
+        cd socket
         ./bin/install.sh
         cd ..
 
