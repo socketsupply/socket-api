@@ -218,6 +218,8 @@ export function tmpdir () {
 
   if (isWindows()) {
     path = (
+      process.env.TEMPDIR ||
+      process.env.TMPDIR ||
       process.env.TEMP ||
       process.env.TMP ||
       (process.env.SystemRoot || process.env.windir || '') + '\\temp'
@@ -239,7 +241,8 @@ export function tmpdir () {
     // derive default
     if (!path) {
       if (platform() === 'ios') {
-        path = [process.cwd(), 'tmp'].join('/') // @TODO(jwerle): path
+        // @TODO(jwerle): use a path module
+        path = [process.cwd(), 'tmp'].join('/')
       } else if (platform() === 'android') {
         path = '/data/local/tmp'
       } else {
