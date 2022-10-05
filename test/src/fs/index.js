@@ -7,7 +7,7 @@ import os from '@socketsupply/io/os.js'
 import deepEqual from 'tapzero/fast-deep-equal.js'
 import { test } from 'tapzero'
 
-const TMPDIR = `${process.env.TMPDIR}/`
+const TMPDIR = `${os.tmpdir()}/`
 const FIXTURES = /android/i.test(os.platform())
   ? '/data/local/tmp/ssc-io-test-fixtures/'
   : `${os.tmpdir()}/ssc-io-test-fixtures/`
