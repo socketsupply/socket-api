@@ -1,3 +1,6 @@
+# IO
+
+IO API for ssc.
 
 * [Bluetooth](#bluetooth)
    * [Bluetooth (extends EventEmitter)](#bluetooth-extends-eventemitter)
