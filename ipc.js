@@ -295,18 +295,25 @@ export class Message extends URL {
    * @param {(object|string|URLSearchParams)=} [params]
    * @return {Message}
    */
-  static from (input, params) {
+  static from (input, params, bytes) {
     const protocol = this.PROTOCOL
 
     if (isBufferLike(input)) {
       input = Buffer.from(input).toString()
     }
 
+    if (isBufferLike(params)) {
+      bytes = Buffer.from(params)
+      params = null
+    } else if (bytes) {
+      bytes = Buffer.from(bytes)
+    }
+
     if (input instanceof Message) {
       const message = new this(String(input))
 
       if (typeof params === 'object') {
-        const entries = params.entris ? params.entries() : Object.entries(params)
+        const entries = params.entries ? params.entries() : Object.entries(params)
 
         for (const [key, value] of entries) {
           message.set(key, value)
@@ -316,22 +323,23 @@ export class Message extends URL {
       return message
     } else if (isPlainObject(input)) {
       return new this(
-        `${input.protocol || protocol}//${input.command}?${new URLSearchParams({ ...input.params, ...params })}`
+        `${input.protocol || protocol}//${input.command}?${new URLSearchParams({ ...input.params, ...params })}`,
+        bytes
       )
     }
 
     if (typeof input === 'string' && params) {
-      return new this(`${protocol}//${input}?${new URLSearchParams(params)}`)
+      return new this(`${protocol}//${input}?${new URLSearchParams(params)}`, bytes)
     }
 
     // coerce input into a string
     const string = String(input)
 
     if (string.startsWith(`${protocol}//`)) {
-      return new this(string)
+      return new this(string, bytes)
     }
 
-    return new this(`${protocol}//${input}`)
+    return new this(`${protocol}//${input}`, bytes)
   }
 
   /**
@@ -355,7 +363,7 @@ export class Message extends URL {
    * @protected
    * @param {string|URL} input
    */
-  constructor (input) {
+  constructor (input, bytes) {
     super(input)
     if (this.protocol !== this.constructor.PROTOCOL) {
       throw new TypeError(format(
@@ -363,6 +371,19 @@ export class Message extends URL {
         this.constructor.PROTOCOL, this.protocol
       ))
     }
+
+    this.bytes = bytes || null
+
+    const properties = Object.getOwnPropertyDescriptors(Message.prototype)
+
+    Object.defineProperties(this, {
+      command: { ...properties.command, enumerable: true },
+      seq: { ...properties.seq, enumerable: true },
+      index: { ...properties.index, enumerable: true },
+      id: { ...properties.id, enumerable: true },
+      value: { ...properties.value, enumerable: true },
+      params: { ...properties.params, enumerable: true }
+    })
   }
 
   /**
