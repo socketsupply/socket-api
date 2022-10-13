@@ -56,7 +56,7 @@ export class Bluetooth extends EventEmitter {
    *
    */
   start () {
-    return ipc.send('bluetooth-start', { serviceId: this.serviceId })
+    return ipc.send('bluetooth.start', { serviceId: this.serviceId })
   }
 
   /**
@@ -76,7 +76,7 @@ export class Bluetooth extends EventEmitter {
    * @return {Promise<ipc.Result>}
    */
   subscribe (id = '') {
-    return ipc.send('bluetooth-subscribe', {
+    return ipc.send('bluetooth.subscribe', {
       characteristicId: id,
       serviceId: this.serviceId
     })
@@ -108,7 +108,7 @@ export class Bluetooth extends EventEmitter {
       params.length = enc.length
     }
 
-    const res = await ipc.write('bluetooth-publish', params, value)
+    const res = await ipc.write('bluetooth.publish', params, value)
 
     if (res.err) {
       throw new Error(res.err.message)
