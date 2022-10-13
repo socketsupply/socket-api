@@ -67,7 +67,7 @@ export function lookup (hostname, opts, cb) {
     opts = {}
   }
 
-  const { err, data } = ipc.sendSync('dnsLookup', { ...opts, id: rand64(), hostname })
+  const { err, data } = ipc.sendSync('dns.lookup', { ...opts, id: rand64(), hostname })
 
   if (err) {
     const e = new Error(`getaddrinfo EAI_AGAIN ${hostname}`)
