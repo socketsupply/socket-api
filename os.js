@@ -33,7 +33,7 @@ export function arch () {
   if (typeof window === 'object') {
     value = (
       window.process?.arch ||
-      ipc.sendSync('getPlatformArch')?.data ||
+      ipc.sendSync('os.arch')?.data ||
       UNKNOWN
     )
   }
@@ -151,7 +151,7 @@ export function platform () {
   if (typeof window === 'object') {
     value = (
       window.process?.os ||
-      ipc.sendSync('getPlatformOS')?.data ||
+      ipc.sendSync('op.platform')?.data ||
       window.process?.platform ||
       UNKNOWN
     )
@@ -187,7 +187,7 @@ export function type () {
   if (typeof window == 'object') {
     value = (
       window.process?.platform ||
-      ipc.sendSync('getPlatformType')?.data ||
+      ipc.sendSync('os.type')?.data ||
       UNKNOWN
     )
   }

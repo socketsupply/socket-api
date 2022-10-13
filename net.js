@@ -425,7 +425,7 @@ export const createServer = (...args) => {
   return new Server(...args)
 }
 
-export const getNetworkInterfaces = o => window._ipc.send('getNetworkInterfaces', o)
+export const getNetworkInterfaces = o => window._ipc.send('os.networkInterfaces', o)
 
 const v4Seg = '(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
 const v4Str = `(${v4Seg}[.]){3}${v4Seg}`
