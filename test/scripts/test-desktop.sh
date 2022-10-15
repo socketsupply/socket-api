@@ -12,3 +12,5 @@ if [ -z "$DEBUG" ]; then
 else
   ssc build -r -o .
 fi
+
+# rm -rf "$TMPDIR/ssc-io-test-fixtures"

@@ -88,7 +88,7 @@ test('ipc.sendSync not found', (t) => {
 })
 
 test('ipc.sendSync success', (t) => {
-  const response = ipc.sendSync('getPlatformArch')
+  const response = ipc.sendSync('os.arch')
   t.ok(response instanceof ipc.Result)
   const {data} = response
   t.ok(['x86_64', 'arm64'].includes(data))
@@ -106,7 +106,7 @@ test('ipc.send not found', async (t) => {
 })
 
 test('ipc.send success', async (t) => {
-  const response = await ipc.sendSync('getPlatformArch')
+  const response = await ipc.sendSync('os.arch')
   t.ok(response instanceof ipc.Result)
   const { data } = response
   t.ok(['x86_64', 'arm64'].includes(data))

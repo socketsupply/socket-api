@@ -6,6 +6,25 @@ import { send } from './ipc.js'
 
 let didEmitExitEvent = false
 
+const global = typeof window === 'object' ? window : globalThis
+const isNode = global?.process?.versions?.node
+const process = isNode
+  ? globalThis.process
+  : Object.create(global?.parent, Object.getOwnPropertyDescriptors({
+      ...EventEmitter.prototype,
+      homedir,
+      argv0: global?.parent?.argv?.[0] ?? null,
+      exit,
+      env: {},
+    ...global?.parent
+    }))
+
+if (!isNode) {
+  EventEmitter.call(process)
+}
+
+export default process
+
 /**
  * @returns {string} The home directory of the current user.
  */
@@ -23,22 +42,3 @@ export function exit (code) {
     send('exit', { value: code || 0 })
   }
 }
-
-const parent = typeof window === 'object' ? window : globalThis
-const isNode = parent?.process?.versions?.node
-const process = isNode
-  ? globalThis.process
-  : Object.create(null, Object.getOwnPropertyDescriptors({
-      ...EventEmitter.prototype,
-      homedir,
-      argv0: parent?.process?.argv?.[0] ?? null,
-      exit,
-      env: {},
-      ...parent?.process,
-    }))
-
-if (!isNode) {
-  EventEmitter.call(process)
-}
-
-export default process

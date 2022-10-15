@@ -111,7 +111,7 @@ function createDataListener (socket) {
 
     if (!data || BigInt(data.id) !== socket.id) return
 
-    if (source === 'udp.readStart') {
+    if (source === 'udp.receive') {
       const info = {
         ...data,
         family: getAddressFamily(data.address)
@@ -229,7 +229,7 @@ async function getRecvBufferSize (socket, callback) {
   }
 
   try {
-    result = await ipc.send('bufferSize', {
+    result = await ipc.send('os.bufferSize', {
       id: socket.id,
       buffer: RECV_BUFFER
     })
@@ -251,7 +251,7 @@ async function getSendBufferSize (socket, callback) {
   }
 
   try {
-    result = await ipc.send('bufferSize', {
+    result = await ipc.send('os.bufferSize', {
       id: socket.id,
       buffer: SEND_BUFFER
     })
@@ -1048,7 +1048,7 @@ export class Socket extends EventEmitter {
   async setRecvBufferSize (size) {
     if (size > 0) {
       this.state.recvBufferSize = size
-      const result = await ipc.send('bufferSize', { id: this.id, size })
+      const result = await ipc.send('os.bufferSize', { id: this.id, size })
       if (result.err) {
         throw result.err
       }
@@ -1065,7 +1065,7 @@ export class Socket extends EventEmitter {
   async setSendBufferSize (size) {
     if (size > 0) {
       this.state.sendBufferSize = size
-      const result = await ipc.send('bufferSize', { id: this.id, size })
+      const result = await ipc.send('os.bufferSize', { id: this.id, size })
       if (result.err) {
         throw result.err
       }

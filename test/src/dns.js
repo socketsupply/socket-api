@@ -1,4 +1,5 @@
 import dns from '@socketsupply/io/dns.js'
+import fs from '@socketsupply/io/fs.js'
 
 import { test } from 'tapzero'
 
