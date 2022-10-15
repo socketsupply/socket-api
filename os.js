@@ -57,7 +57,7 @@ export function networkInterfaces () {
     return cache.networkInterfaces
   }
 
-  const result = ipc.sendSync('getNetworkInterfaces')
+  const result = ipc.sendSync('os.networkInterfaces')
   const { ipv4, ipv6 } = result.data
   const interfaces = {}
 
@@ -151,7 +151,7 @@ export function platform () {
   if (typeof window === 'object') {
     value = (
       window.process?.os ||
-      ipc.sendSync('op.platform')?.data ||
+      ipc.sendSync('os.platform')?.data ||
       window.process?.platform ||
       UNKNOWN
     )

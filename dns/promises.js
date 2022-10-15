@@ -39,7 +39,7 @@ export async function lookup (hostname, opts) {
     opts.family = 4
   }
 
-  const { err, data } = await ipc.send('dnsLookup', { ...opts, id: rand64(), hostname })
+  const { err, data } = await ipc.send('dns.lookup', { ...opts, id: rand64(), hostname })
 
   if (err) {
     const e = new Error(`getaddrinfo EAI_AGAIN ${hostname}`)

@@ -1,5 +1,5 @@
 import { test } from 'tapzero'
-import process from '@socketsupply/io/process.js' 
+import process from '@socketsupply/io/process.js'
 import path from `path-browserify`
 
 test('process', (t) => {
@@ -14,7 +14,7 @@ test('process.exit()', (t) => {
   t.ok(typeof process.exit === 'function', 'process.exit() is a function')
 })
 
-test('process.cwd', (t) => {
+test('process.cwd', async (t) => {
   t.ok(typeof process.cwd() === 'string', 'process.cwd() returns a string')
   if (process.platform  === 'mac') {
     t.equal(process.cwd(), path.resolve(process.argv0, '../../Resources'), 'process.cwd() returns a correct value')
