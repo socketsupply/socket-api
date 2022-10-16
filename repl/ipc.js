@@ -21,8 +21,6 @@ const ipc = {
 
 process.stdin.on('data', ondata)
 
-ipc.write('show')
-ipc.write('navigate', { value: `file:///${process.cwd()}/index.html` })
 ipc.server.listen(0, () => {
   const { port } = ipc.server.address()
   setTimeout(() => ipc.log(`ipc://repl.server.listening?port=${port}`), 32)

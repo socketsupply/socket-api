@@ -15,7 +15,7 @@ const callbacks = {}
 const dirname = path.dirname(import.meta.url.replace('file://', ''))
 const cwd = path.resolve(dirname, '..', 'repl')
 
-const args = ['compile', '-r', '-o']
+const args = ['build', '-r', '-o']
 
 if (!process.env.DEBUG) {
   args.push('--prod', '--headless')
@@ -166,9 +166,7 @@ async function onmessage (message) {
       console.error('Port received is not valid: Got %s', message.params.port)
       process.exit(1)
     }
-  }
 
-  if (message.command === 'repl.context.ready') {
     if (!process.argv.includes('--quiet')) {
       console.log('• repl context initialized')
       console.log('')
