@@ -1,11 +1,10 @@
 import * as ipc from '@socketsupply/io/ipc.js'
 import { test } from 'tapzero'
 import { Buffer } from '@socketsupply/io/buffer.js'
-import { isBufferLike } from '@socketsupply/io/util.js'
 
 // node compat
-//import { Buffer } from 'node:buffer'
-//import './test-context.js'
+// import { Buffer } from 'node:buffer'
+// import './test-context.js'
 
 test('ipc exports', async (t) => {
   t.deepEqual(Object.keys(ipc), [
@@ -55,25 +54,25 @@ test('ipc.Message', (t) => {
   let msg = ipc.Message.from(Buffer.from('test'), { foo: 'bar' })
   t.equal(msg.protocol, 'ipc:')
   t.equal(msg.command, 'test')
-  t.deepEqual(msg.params, { foo: "bar" })
+  t.deepEqual(msg.params, { foo: 'bar' })
   // pass an ipc.Message
   msg = ipc.Message.from(msg)
   t.equal(msg.protocol, 'ipc:')
   t.equal(msg.command, 'test')
-  t.deepEqual(msg.params, { foo: "bar" })
+  t.deepEqual(msg.params, { foo: 'bar' })
   // pass an object
-  msg = ipc.Message.from({ protocol: 'ipc:', command: 'test'}, { foo: 'bar' })
+  msg = ipc.Message.from({ protocol: 'ipc:', command: 'test' }, { foo: 'bar' })
   t.equal(msg.protocol, 'ipc:')
   t.equal(msg.command, 'test')
-  t.deepEqual(msg.params, { foo: "bar" })
+  t.deepEqual(msg.params, { foo: 'bar' })
   // pass a string
   msg = ipc.Message.from('test', { foo: 'bar' })
   t.equal(msg.protocol, 'ipc:')
   t.equal(msg.command, 'test')
-  t.deepEqual(msg.params, { foo: "bar" })
-  t.ok(ipc.Message.isValidInput("ipc://test"), 'is valid input')
-  t.ok(!ipc.Message.isValidInput("test"), 'is valid input')
-  t.ok(!ipc.Message.isValidInput("foo://test"), 'is valid input')
+  t.deepEqual(msg.params, { foo: 'bar' })
+  t.ok(ipc.Message.isValidInput('ipc://test'), 'is valid input')
+  t.ok(!ipc.Message.isValidInput('test'), 'is valid input')
+  t.ok(!ipc.Message.isValidInput('foo://test'), 'is valid input')
 })
 
 test('ipc.sendSync not found', (t) => {
@@ -90,7 +89,7 @@ test('ipc.sendSync not found', (t) => {
 test('ipc.sendSync success', (t) => {
   const response = ipc.sendSync('os.arch')
   t.ok(response instanceof ipc.Result)
-  const {data} = response
+  const { data } = response
   t.ok(['x86_64', 'arm64'].includes(data))
 })
 
