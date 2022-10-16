@@ -111,7 +111,7 @@ function createDataListener (socket) {
 
     if (!data || BigInt(data.id) !== socket.id) return
 
-    if (source === 'udp.receive') {
+    if (source === 'udp.readStart') {
       const info = {
         ...data,
         family: getAddressFamily(data.address)
