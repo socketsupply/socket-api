@@ -124,7 +124,7 @@ test('fs.createWriteStream', async (t) => {
   writer.end()
   await new Promise((resolve) => {
     writer.once('error', (err) => {
-      t.fail(err)
+      t.fail(err.message)
       writer.removeAllListeners()
       resolve()
     })
@@ -227,14 +227,14 @@ test('fs.writeFile', async (t) => {
       fs.writeFile(filename, buffer, async (err) => {
         if (err) {
           failed = true
-          t.fail(err)
+          t.fail(err.message)
           return resolve()
         }
 
         fs.readFile(filename, (err, result) => {
           if (err) {
             failed = true
-            t.fail(err)
+            t.fail(err.message)
           } else if (Buffer.compare(result, buffer) != 0) {
             failed = true
             t.fail('bytes do not match')

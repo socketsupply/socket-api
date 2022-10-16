@@ -4,7 +4,7 @@
 import { Readable, Writable } from '../stream.js'
 import { Buffer } from 'buffer'
 
-export const DEFAULT_STREAM_HIGH_WATER_MARK = 16 * 1024
+export const DEFAULT_STREAM_HIGH_WATER_MARK = 64 * 1024
 
 /**
  * A `Readable` stream for a `FileHandle`.
