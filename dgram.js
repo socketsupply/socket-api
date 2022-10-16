@@ -6,7 +6,7 @@
  */
 
 import { isArrayBufferView, isFunction, rand64 } from './util.js'
-import { InternalError } from  './errors.js'
+import { InternalError } from './errors.js'
 import { EventEmitter } from './events.js'
 import { Buffer } from './buffer.js'
 import { isIPv4 } from './net.js'
