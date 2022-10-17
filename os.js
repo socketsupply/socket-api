@@ -57,9 +57,12 @@ export function networkInterfaces () {
     return cache.networkInterfaces
   }
 
-  const result = ipc.sendSync('os.networkInterfaces')
-  const { ipv4, ipv6 } = result.data
   const interfaces = {}
+
+  const result = ipc.sendSync('os.networkInterfaces')
+  if (!result.data) return interfaces
+
+  const { ipv4, ipv6 } = result.data
 
   for (const type in ipv4) {
     const info = typeof ipv4[type] === 'string'
