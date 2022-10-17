@@ -8,7 +8,7 @@ root="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
 
 adb uninstall "$id"
 
-ssc compile --headless --platform=android -r -o .
+ssc build --headless --platform=android -r -o .
 
 adb shell rm -rf "/data/local/tmp/ssc-io-test-fixtures"
 adb push "$root/fixtures/" "/data/local/tmp/ssc-io-test-fixtures"
