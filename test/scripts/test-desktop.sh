@@ -8,7 +8,7 @@ rm -rf "$TMPDIR/ssc-io-test-fixtures"
 cp -rf "$root/fixtures/" "$TMPDIR/ssc-io-test-fixtures"
 
 if [ -z "$DEBUG" ]; then
-  ssc compile --headless --prod -r -o .
+  ssc build --headless --prod -r -o .
 else
-  ssc compile -r -o .
+  ssc build -r -o .
 fi
