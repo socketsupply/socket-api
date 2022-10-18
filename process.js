@@ -11,13 +11,13 @@ const isNode = global?.process?.versions?.node
 const process = isNode
   ? globalThis.process
   : Object.create(global?.parent, Object.getOwnPropertyDescriptors({
-      ...EventEmitter.prototype,
-      homedir,
-      argv0: global?.parent?.argv?.[0] ?? null,
-      exit,
-      env: {},
+    ...EventEmitter.prototype,
+    homedir,
+    argv0: global?.parent?.argv?.[0] ?? null,
+    exit,
+    env: {},
     ...global?.parent
-    }))
+  }))
 
 if (!isNode) {
   EventEmitter.call(process)

@@ -25,14 +25,14 @@ export function arch () {
   }
 
   if (typeof window !== 'object') {
-    if (typeof process === 'object' && typeof process.arch === 'string') {
+    if (typeof process?.arch === 'string') {
       return process.arch
     }
   }
 
   if (typeof window === 'object') {
     value = (
-      window.process?.arch ||
+      window.parent?.arch ||
       ipc.sendSync('os.arch')?.data ||
       UNKNOWN
     )
@@ -146,16 +146,16 @@ export function platform () {
   }
 
   if (typeof window !== 'object') {
-    if (typeof process === 'object' && typeof process.platform === 'string') {
+    if (typeof process?.platform === 'string') {
       return process.platform.toLowerCase()
     }
   }
 
   if (typeof window === 'object') {
     value = (
-      window.process?.os ||
+      window.parent?.os ||
       ipc.sendSync('os.platform')?.data ||
-      window.process?.platform ||
+      window.parent?.platform ||
       UNKNOWN
     )
   }
@@ -187,9 +187,9 @@ export function type () {
     }
   }
 
-  if (typeof window == 'object') {
+  if (typeof window === 'object') {
     value = (
-      window.process?.platform ||
+      window?.parent?.platform ||
       ipc.sendSync('os.type')?.data ||
       UNKNOWN
     )
@@ -221,23 +221,22 @@ export function tmpdir () {
 
   if (isWindows()) {
     path = (
-      process.env.TEMPDIR ||
-      process.env.TMPDIR ||
-      process.env.TEMP ||
-      process.env.TMP ||
-      (process.env.SystemRoot || process.env.windir || '') + '\\temp'
+      process?.env?.TEMPDIR ||
+      process?.env?.TMPDIR ||
+      process?.env?.TEMP ||
+      process?.env?.TMP ||
+      (process?.env?.SystemRoot || process?.env?.windir || '') + '\\temp'
     )
 
     if (path.length > 1 && path.endsWith('\\') && !path.endsWith(':\\')) {
       path = path.slice(0, -1)
     }
-
   } else {
     path = (
-      process.env.TEMPDIR ||
-      process.env.TMPDIR ||
-      process.env.TEMP ||
-      process.env.TMP ||
+      process?.env?.TEMPDIR ||
+      process?.env?.TMPDIR ||
+      process?.env?.TEMP ||
+      process?.env?.TMP ||
       ''
     )
 
@@ -269,5 +268,6 @@ export const EOL = (() => {
   return '\n'
 })()
 
+// eslint-disable-next-line
 import * as exports from './os.js'
 export default exports
