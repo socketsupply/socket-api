@@ -2,16 +2,16 @@ import { GLOBAL_TEST_RUNNER } from 'tapzero'
 import { format } from '@socketsupply/io/util.js'
 import process from '@socketsupply/io/process.js'
 
-const parent = typeof window === 'object' ? window : globalThis
+const global = typeof window === 'object' ? window : globalThis
 
 // uncomment below to get IPC debug output in stdout
 // import ipc from '@socketsupply/io/ipc.js'
 // ipc.debug.enabled = true
 // ipc.debug.log = (...args) => console.log(...args)
 
-if (typeof parent?.addEventListener === 'function') {
-  parent.addEventListener('error', onerror)
-  parent.addEventListener('unhandledrejection', onerror)
+if (typeof global?.addEventListener === 'function') {
+  global.addEventListener('error', onerror)
+  global.addEventListener('unhandledrejection', onerror)
 }
 
 ['log', 'info', 'warn', 'error', 'debug'].forEach(patchConsole)
@@ -31,6 +31,6 @@ function onerror (err) {
 }
 
 function patchConsole (method) {
-  const original = parent.console[method].bind(console)
-  parent.console[method] = (...args) => original(format(...args))
+  const original = global.console[method].bind(console)
+  global.console[method] = (...args) => original(format(...args))
 }

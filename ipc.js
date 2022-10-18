@@ -56,10 +56,7 @@ function getRequestResponseText (request) {
   try {
     // can throw `InvalidStateError` error
     return request?.responseText
-  } catch (err) {
-    void err
-  }
-
+  } catch (_) {}
   return null
 }
 
@@ -150,7 +147,7 @@ function maybeMakeError (error, caller) {
     AggregateError: getErrorClass('AggregateError'),
     EncodingError: getErrorClass('EncodingError'),
     IndexSizeError: getErrorClass('IndexSizeError'),
-    InternalError: InternalError,
+    InternalError,
     InvalidAccessError: getErrorClass('InvalidAccessError'),
     NetworkError: getErrorClass('NetworkError'),
     NotAllowedError: getErrorClass('NotAllowedError'),
@@ -158,7 +155,7 @@ function maybeMakeError (error, caller) {
     NotSupportedError: getErrorClass('NotSupportedError'),
     OperationError: getErrorClass('OperationError'),
     RangeError: getErrorClass('RangeError'),
-    TimeoutError: TimeoutError,
+    TimeoutError,
     TypeError: getErrorClass('TypeError'),
     URIError: getErrorClass('URIError')
   }
@@ -197,9 +194,7 @@ function maybeMakeError (error, caller) {
   for (const key in error) {
     try {
       err[key] = error[key]
-    } catch (_) {
-      void _
-    }
+    } catch (_) {}
   }
 
   if (
@@ -258,7 +253,7 @@ export function debug (enable) {
   return debug.enabled
 }
 
-debug.log = () => void 0
+debug.log = () => undefined
 
 Object.defineProperty(debug, 'enabled', {
   enumerable: false,
@@ -270,7 +265,7 @@ Object.defineProperty(debug, 'enabled', {
     if (debug[kDebugEnabled] === undefined) {
       return typeof window === 'undefined'
         ? false
-        : Boolean(window.process?.debug)
+        : Boolean(window?.parent?.debug)
     }
 
     return debug[kDebugEnabled]
@@ -281,7 +276,6 @@ Object.defineProperty(debug, 'enabled', {
  * A container for a IPC message based on a `ipc://` URI scheme.
  */
 export class Message extends URL {
-
   /**
    * The expected protocol for an IPC message.
    */
@@ -453,7 +447,7 @@ export class Message extends URL {
    * @return {Array<Array<string,mixed>>}
    */
   entries () {
-    return Array.from(this.searchParams.entries()).map(([ key, value ]) => {
+    return Array.from(this.searchParams.entries()).map(([key, value]) => {
       return [key, parseJSON(value) || value]
     })
   }
@@ -539,7 +533,6 @@ export class Message extends URL {
  * type of object are in tuple form and be accessed at `[data?,err?]`
  */
 export class Result {
-
   /**
    * Creates a `Result` instance from input that may be an object
    * like `{ err?, data? }`, an `Error` instance, or just `data`.
@@ -574,7 +567,7 @@ export class Result {
     const data = !err && result?.data !== null && result?.data !== undefined
       ? result.data
       : (!err ? result : null)
-     const source = result?.source || maybeSource || null
+    const source = result?.source || maybeSource || null
 
     return new this(err, data, source, ...args)
   }
@@ -622,7 +615,7 @@ export class Result {
   /**
    * Generator for an `Iterable` interface over this instance.
    */
-  *[Symbol.iterator]() {
+  * [Symbol.iterator] () {
     yield this.err
     yield this.data
     yield this.source
@@ -668,7 +661,7 @@ export function sendSync (command, params) {
   }
 
   const request = new window.XMLHttpRequest()
-  const index = window.process ? window.process.index : 0
+  const index = window?.parent?.index ?? 0
   const seq = window._ipc ? window._ipc.nextSeq++ : 0
   const uri = `ipc://${command}`
 
@@ -764,7 +757,7 @@ export async function write (command, params, buffer, options) {
 
   const signal = options?.signal
   const request = new window.XMLHttpRequest()
-  const index = window.process ? window.process.index : 0
+  const index = window?.parent?.index ?? 0
   const seq = window._ipc ? window._ipc.nextSeq++ : 0
   const uri = `ipc://${command}`
 
@@ -854,7 +847,7 @@ export async function request (command, params, options) {
 
   const request = new window.XMLHttpRequest()
   const signal = options?.signal
-  const index = window.process ? window.process.index : 0
+  const index = window?.parent?.index ?? 0
   const seq = window._ipc ? window._ipc.nextSeq++ : 0
   const uri = `ipc://${command}`
 
@@ -962,18 +955,15 @@ export function createBinding (domain, ctx) {
 
   const proxy = new Proxy(ctx, {
     apply (target, bound, args) {
-      const chain = [...target.chain]
-      const domain = chain.shift()
+      const chain = [...target.chain].slice(0, -1)
       const path = chain.join('.')
-
       target.chain = new Set()
-
       const method = (ctx[path]?.method || ctx[path]) || ctx.default || 'send'
       return dispatchable[method](path, ...args)
     },
 
     get (target, key, receiver) {
-      if (key === '__proto__') return null
+      if (key === '__proto__') { return null }
       (ctx.chain ||= new Set()).add(key)
       return new Proxy(ctx, this)
     }

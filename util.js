@@ -2,11 +2,10 @@ import { getRandomValues } from './crypto.js'
 import { Buffer } from './buffer.js'
 
 const ObjectPrototype = Object.prototype
-const BufferPrototype = Buffer.prototype
 const Uint8ArrayPrototype = Uint8Array.prototype
 const TypedArrayPrototype = Object.getPrototypeOf(Uint8ArrayPrototype)
 
-const AsyncFunction = (async () => void 0).constructor
+const AsyncFunction = (async () => {}).constructor
 const TypedArray = TypedArrayPrototype.constructor
 
 const kCustomInspect = inspect.custom = Symbol.for('nodejs.util.inspect.custom')
@@ -122,9 +121,9 @@ export function splitBuffer (buffer, highWaterMark) {
     buffer = buffer.slice(highWaterMark)
   } while (buffer.length > highWaterMark)
 
-    if (buffer.length) {
-      buffers.push(buffer)
-    }
+  if (buffer.length) {
+    buffers.push(buffer)
+  }
 
   return buffers
 }
