@@ -18,6 +18,7 @@ export * as stream from './stream.js'
 export * as util from './util.js'
 export { Network } from './network.js'
 export { bootstrap } from './bootstrap.js'
+export * as platform from './platform.js'
 
 import * as exports from './index.js'
 export default exports

@@ -1,4 +1,41 @@
 import * as ipc from './ipc.js'
+import { applyPolyFills } from './polyfills.js'
+
+export const args = new class Args {
+  arch = window.__args.arch
+  argv = window.__args.argv || []
+  debug = window.__args.debug || false
+  env = window.__args.env || {}
+  executable = window.__args.executable || null
+  index = window.__args.index || 0
+  port = window.__args.port || 0
+  title = window.__args.title || null
+  version = window.__args.version || null
+
+  config = new class Config {
+    get size () {
+      return Object.keys(this).length
+    }
+
+    get (key) {
+      if (typeof key !== 'string') {
+        throw new TypeError('Expecting key to be a string.')
+      }
+
+      key = key.toLowerCase()
+      return key in this ? this[key] : null
+    }
+  }
+
+  // overloaded in process
+  cwd () {
+    return null
+  }
+}
+
+if (globalThis.window) {
+  applyPolyFills(globalThis.window)
+}
 
 function send () {
   let value = ''
@@ -27,7 +64,7 @@ function redirectOutput () {
   }
 }
 
-if (runtimeArgs.platform !== 'linux') {
+if (args.platform !== 'linux') {
   redirectOutput()
 }
 

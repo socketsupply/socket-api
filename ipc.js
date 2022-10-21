@@ -39,42 +39,11 @@ import {
 
 import * as errors from './errors.js'
 import { Buffer } from './buffer.js'
+import { runtimeArgs } from './platform'
 
 const postMessage =
   ? window.webkit.messageHandlers.external.postMessage
   : window.chrome.webview.postMessage
-
-const runtimeArgs = new class Args {
-  arch = null
-  argv = []
-  debug = false
-  env = {}
-  executable = null
-  index = 0
-  port = 0
-  title = null
-  version = null
-
-  config = new class Config {
-    get size () {
-      return Object.keys(this).length
-    }
-
-    get (key) {
-      if (typeof key !== 'string') {
-        throw new TypeError('Expecting key to be a string.')
-      }
-
-      key = key.toLowerCase()
-      return key in this ? this[key] : null
-    }
-  }
-
-  // overloaded in process
-  cwd () {
-    return null
-  }
-}
 
 const ipc = new class IPC {
   nextSeq = 1
