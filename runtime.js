@@ -131,7 +131,7 @@ export async function setSystemMenuItemEnabled (value) {
   return await ipc.send('systemMenuItemEnabled', value)
 }
 
-/*
+/**
  * Set the native menu for the app.
  *
  * Socket Runtime provides a minimalist DSL that makes it easy to create
