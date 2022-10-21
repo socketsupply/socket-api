@@ -1418,7 +1418,7 @@ This is a `FunctionDeclaration` named `setContextMenu` in `runtime.js`, it's exp
 This is a `FunctionDeclaration` named `setSystemMenuItemEnabled` in `runtime.js`, it's exported but undocumented.
 
 
-## [`setSystemMenu(menu)`](https://github.com/socketsupply/io/blob/master/runtime.js#L216)
+## [`setSystemMenu(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L218)
 
 Set the native menu for the app.
 
@@ -1426,16 +1426,16 @@ Set the native menu for the app.
  cross platform native system and context menus.
 
  Menus are created at run time. They can be created from either the Main or
- Render process. The can be recreated instantly by calling the `setMenu` method.
+ Render process. The can be recreated instantly by calling the `setSystemMenu` method.
 
  The method takes a string. Here's an example of a menu. The semi colon is
  significant indicates the end of the menu. Use an underscore when there is no
- accelerator key. Modifiers are optional. For the edit menu, `op` will figure
- out which accelerators to use for you.
+ accelerator key. Modifiers are optional. And well known OS menu options like
+ the edit menu will automatically get accelerators you dont need to specify them.
 
 
  ```js
- system.setMenu({ index: 0, value: `
+ io.runtime.setSystemMenu({ index: 0, value: `
    App:
      Foo: f;
 
@@ -1493,15 +1493,17 @@ Set the native menu for the app.
 
  ```js
  window.addEventListener('menuItemSelected', event => {
- assert(event.detail.parent === 'Other')
- assert(event.detail.title === 'Apple')
+   assert(event.detail.parent === 'Other')
+   assert(event.detail.title === 'Apple')
  })
  ```
 
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| menu | string |  | false |  |
+| options | object |  | false | an options object |
+| options.value | string |  | false | the menu layout |
+| options.index | number |  | false | the window to target (if applicable) |
 
 
 | Return Value | Type | Description |
