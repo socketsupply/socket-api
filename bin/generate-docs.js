@@ -271,6 +271,7 @@ export function transform (filename) {
   'os.js',
   'path/path.js',
   'process.js',
+  'runtime.js',
   'stream.js'
 ].forEach(transform)
 
