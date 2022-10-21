@@ -7,9 +7,7 @@ import { Buffer } from '@socketsupply/io/buffer.js'
 // import './test-context.js'
 
 test('ipc exports', async (t) => {
-  t.deepEqual(Object.keys(ipc), [
-    'ERROR',
-    'Message',
+  t.deepEqual(Object.keys(ipc).sort(), [
     'OK',
     'Result',
     'TIMEOUT',
@@ -17,15 +15,19 @@ test('ipc exports', async (t) => {
     'debug',
     'default',
     'emit',
+    'ERROR',
     'kDebugEnabled',
+    'Message',
     'parseSeq',
+    'postMessage',
     'ready',
     'request',
     'resolve',
     'send',
     'sendSync',
     'write'
-  ])
+  ].sort())
+
   try {
     await ipc.ready()
   } catch (err) {
