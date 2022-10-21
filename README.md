@@ -1418,7 +1418,7 @@ This is a `FunctionDeclaration` named `setContextMenu` in `runtime.js`, it's exp
 This is a `FunctionDeclaration` named `setSystemMenuItemEnabled` in `runtime.js`, it's exported but undocumented.
 
 
-## [`setSystemMenu()`](https://github.com/socketsupply/io/blob/master/runtime.js#L134)
+## [`setSystemMenu()`](https://github.com/socketsupply/io/blob/master/runtime.js#L216)
 
 This is a `FunctionDeclaration` named `setSystemMenu` in `runtime.js`, it's exported but undocumented.
 
