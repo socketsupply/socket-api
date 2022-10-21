@@ -16,7 +16,8 @@
  * Data written to the write-end of the pipe is buffered by the OS until it is
  * read from the read-end of the pipe.
  *
- * The IPC protocol uses a simple URI-like scheme. Data is passed as ArrayBuffers.
+ * The IPC protocol uses a simple URI-like scheme. Data is passed as
+ * ArrayBuffers.
  *
  * ```uri
  * ipc://command?key1=value1&key2=value2...
@@ -31,6 +32,7 @@ import {
 } from './errors.js'
 
 import {
+  isFunction,
   isBufferLike,
   isPlainObject,
   format,
@@ -39,12 +41,23 @@ import {
 
 import * as errors from './errors.js'
 import { Buffer } from './buffer.js'
-import { runtimeArgs } from './platform'
+import platform from './platform.js'
 
-const postMessage =
-  ? window.webkit.messageHandlers.external.postMessage
-  : window.chrome.webview.postMessage
+export async function postMessage (...args) {
+  if (isFunction(window?.webkit?.messageHandlers?.external?.postMessage)) {
+    return await window.webkit.messageHandlers.external.postMessage(...args)
+  }
 
+  if (isFunction(window?.chrome?.webview?.postMessage)) {
+    return await window.chrome.webview.postMessage(...args)
+  }
+
+  throw new TypeError(
+    'Could not determine UserMessageHandler.postMessage in Window'
+  )
+}
+
+// eslint-disable-next-line
 const ipc = new class IPC {
   nextSeq = 1
   streams = {}
@@ -81,25 +94,22 @@ const ipc = new class IPC {
       const err = value instanceof Error
         ? value
         : value?.err instanceof Error
-        ? value.err
-        : new Error(typeof value === 'string' ? value : JSON.stringify(value))
+          ? value.err
+          : new Error(typeof value === 'string' ? value : JSON.stringify(value))
 
-      await this[seq].reject(err);
+      await this[seq].reject(err)
     }
 
-    delete this[seq];
+    delete this[seq]
   }
 
   send (name, value) {
     const seq = 'R' + this.nextSeq++
-    const index = runtimeArgs.index
+    const index = platform.args.index
     let serialized = ''
 
     const promise = new Promise((resolve, reject) => {
-      this[seq] = {
-        resolve: resolve,
-        reject: reject
-      }
+      this[seq] = { resolve, reject }
     })
 
     try {
@@ -115,7 +125,6 @@ const ipc = new class IPC {
 
       serialized = new URLSearchParams(params).toString()
       serialized = serialized.replace(/\+/g, '%20')
-
     } catch (err) {
       console.error(`${err.message} (${serialized})`)
       return Promise.reject(err.message)
@@ -154,13 +163,15 @@ const ipc = new class IPC {
 }
 
 function initializeXHRIntercept () {
-  const { send, open } = XMLHttpRequest.prototype
+  const { send, open } = window.XMLHttpRequest.prototype
 
   const B5_PREFIX_BUFFER = new Uint8Array([0x62, 0x35]) // literally, 'b5'
   const encoder = new TextEncoder()
-  Object.assign(XMLHttpRequest.prototype, {
+  Object.assign(window.XMLHttpRequest.prototype, {
     open (method, url, ...args) {
-      this.readyState = XMLHttpRequest.OPENED
+      try {
+        this.readyState = window.XMLHttpRequest.OPENED
+      } catch (_) {}
       this.method = method
       this.url = new URL(url)
       this.seq = this.url.searchParams.get('seq')
@@ -170,7 +181,7 @@ function initializeXHRIntercept () {
 
     async send (body) {
       const { method, seq, url } = this
-      const index = runtimeArgs.index
+      const index = platform.args.index
 
       if (url?.protocol === 'ipc:') {
         if (
@@ -178,12 +189,12 @@ function initializeXHRIntercept () {
           typeof body !== 'undefined' &&
           typeof seq !== 'undefined'
         ) {
-          if (/android/i.test(runtimeArgs?.platform)) {
+          if (/android/i.test(platform.args?.platform)) {
             await postMessage(`ipc://buffer.map?seq=${seq}`, body)
             body = null
           }
 
-          if (/linux/i.test(runtimeArgs?.platform)) {
+          if (/linux/i.test(platform.args?.platform)) {
             if (body?.buffer instanceof ArrayBuffer) {
               const header = new Uint8Array(24)
               const buffer = new Uint8Array(
@@ -209,9 +220,9 @@ function initializeXHRIntercept () {
 
               data = data.join('')
 
-              try { data = decodeURIComponent(escape(data)) }
-              catch (err) { void err }
-
+              try {
+                data = decodeURIComponent(escape(data))
+              } catch (_) {}
               await postMessage(data)
             }
 
@@ -230,8 +241,7 @@ initializeXHRIntercept()
 document.addEventListener('DOMContentLoaded', () => {
   queueMicrotask(async () => {
     try {
-      const index = runtimeArgs?.index || 0
-      const result = await ipc.send('platform.event', 'domcontentloaded')
+      await ipc.send('platform.event', 'domcontentloaded')
     } catch (err) {
       console.error('ERR:', err)
     }

@@ -6,8 +6,8 @@
  */
 
 import { toProperCase } from './util.js'
+import { args } from './platform.js'
 import process from './process.js'
-import * as platform from './platform.js'
 import ipc from './ipc.js'
 
 const UNKNOWN = 'unknown'
@@ -154,7 +154,7 @@ export function platform () {
 
   if (typeof window === 'object') {
     value = (
-      platform.args?.os ||
+      args?.os ||
       ipc.sendSync('os.platform')?.data ||
       platform?.platform ||
       UNKNOWN
