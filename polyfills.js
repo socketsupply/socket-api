@@ -1,6 +1,6 @@
 import * as ipc from './ipc.js'
 
-function applyPolyFills (window) {
+export function applyPolyFills (window) {
   window.resizeTo = (width, height) => {
     const index = window.__args.index
     const o = new URLSearchParams({ width, height, index }).toString()
@@ -36,8 +36,4 @@ function applyPolyFills (window) {
       ipc.postMessage(`ipc://title?${o}`)
     }
   })
-}
-
-if (globalThis.window) {
-  applyPolyFills(globalThis.window)
 }
