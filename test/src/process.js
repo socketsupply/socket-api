@@ -31,7 +31,3 @@ test('process.cwd', async (t) => {
 test('process.platform', (t) => {
   t.ok(typeof process.platform === 'string', 'process.platform() returns an string')
 })
-
-test('process.config', (t) => {
-  t.ok(typeof process.config === 'object', 'process.config() returns an object')
-})

@@ -1,6 +1,6 @@
 import { GLOBAL_TEST_RUNNER } from 'tapzero'
-import { format } from '@socketsupply/io/util.js'
 import process from '@socketsupply/io/process.js'
+import '@socketsupply/io/runtime.js'
 
 const global = typeof window === 'object' ? window : globalThis
 
@@ -14,8 +14,6 @@ if (typeof global?.addEventListener === 'function') {
   global.addEventListener('unhandledrejection', onerror)
 }
 
-['log', 'info', 'warn', 'error', 'debug'].forEach(patchConsole)
-
 const pollTimeout = setTimeout(function poll () {
   if (GLOBAL_TEST_RUNNER.completed) {
     clearTimeout(pollTimeout)
@@ -28,9 +26,4 @@ const pollTimeout = setTimeout(function poll () {
 function onerror (err) {
   console.error(err.stack || err.reason || err.message || err)
   process.exit(1)
-}
-
-function patchConsole (method) {
-  const original = global.console[method].bind(console)
-  global.console[method] = (...args) => original(format(...args))
 }
