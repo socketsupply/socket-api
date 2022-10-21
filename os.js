@@ -6,8 +6,8 @@
  */
 
 import { toProperCase } from './util.js'
-import { args } from './runtime.js'
 import process from './process.js'
+import runtime from './runtime.js'
 import ipc from './ipc.js'
 
 const UNKNOWN = 'unknown'
@@ -33,7 +33,7 @@ export function arch () {
 
   if (typeof window === 'object') {
     value = (
-      window.__args?.arch ||
+      runtime.args.arch ||
       ipc.sendSync('os.arch')?.data ||
       UNKNOWN
     )
@@ -154,7 +154,7 @@ export function platform () {
 
   if (typeof window === 'object') {
     value = (
-      args?.os ||
+      runtime.args.os ||
       ipc.sendSync('os.platform')?.data ||
       platform?.platform ||
       UNKNOWN
