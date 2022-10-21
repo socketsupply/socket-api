@@ -10,13 +10,13 @@ const global = typeof window === 'object' ? window : globalThis
 const isNode = global?.process?.versions?.node
 const process = isNode
   ? globalThis.process
-  : Object.create(global?.parent, Object.getOwnPropertyDescriptors({
+  : Object.create(global?.__args, Object.getOwnPropertyDescriptors({
     ...EventEmitter.prototype,
     homedir,
-    argv0: global?.parent?.argv?.[0] ?? null,
+    argv0: global?.__args?.argv?.[0] ?? null,
     exit,
     env: {},
-    ...global?.parent
+    ...global?.__args
   }))
 
 if (!isNode) {

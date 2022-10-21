@@ -275,7 +275,7 @@ export function inspect (value, options) {
         value?.inspect !== inspect &&
         value !== globalThis &&
         value !== globalThis?.system &&
-        value !== globalThis?.parent
+        value !== globalThis?.__args
       ) {
         const formatted = value.inspect(depth, ctx)
 
