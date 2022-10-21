@@ -6,7 +6,7 @@
  */
 
 import { toProperCase } from './util.js'
-import { args } from './platform.js'
+import { args } from './runtime.js'
 import process from './process.js'
 import ipc from './ipc.js'
 
