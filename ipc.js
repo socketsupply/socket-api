@@ -41,7 +41,7 @@ import {
 
 import * as errors from './errors.js'
 import { Buffer } from './buffer.js'
-import platform from './platform.js'
+import runtime from './runtime.js'
 
 export async function postMessage (...args) {
   if (isFunction(window?.webkit?.messageHandlers?.external?.postMessage)) {
@@ -105,7 +105,7 @@ const ipc = new class IPC {
 
   send (name, value) {
     const seq = 'R' + this.nextSeq++
-    const index = platform.args.index
+    const index = runtime.args.index
     let serialized = ''
 
     const promise = new Promise((resolve, reject) => {
@@ -181,7 +181,7 @@ function initializeXHRIntercept () {
 
     async send (body) {
       const { method, seq, url } = this
-      const index = platform.args.index
+      const index = runtime.args.index
 
       if (url?.protocol === 'ipc:') {
         if (
@@ -189,12 +189,12 @@ function initializeXHRIntercept () {
           typeof body !== 'undefined' &&
           typeof seq !== 'undefined'
         ) {
-          if (/android/i.test(platform.args?.platform)) {
+          if (/android/i.test(runtime.args?.platform)) {
             await postMessage(`ipc://buffer.map?seq=${seq}`, body)
             body = null
           }
 
-          if (/linux/i.test(platform.args?.platform)) {
+          if (/linux/i.test(runtime.args?.platform)) {
             if (body?.buffer instanceof ArrayBuffer) {
               const header = new Uint8Array(24)
               const buffer = new Uint8Array(
