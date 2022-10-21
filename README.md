@@ -1378,49 +1378,77 @@ This is a `FunctionDeclaration` named `send` in `runtime.js`, it's exported but 
 This is a `FunctionDeclaration` named `openExternal` in `runtime.js`, it's exported but undocumented.
 
 
-## [`exit()`](https://github.com/socketsupply/io/blob/master/runtime.js#L96)
+## [`exit(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L101)
 
-This is a `FunctionDeclaration` named `exit` in `runtime.js`, it's exported but undocumented.
+Quits the backend process and then quits the render process, the exit code used is the final exit code to the OS.
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| options | object |  | false | an options object |
 
 
-## [`setTitle()`](https://github.com/socketsupply/io/blob/master/runtime.js#L100)
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<Any> |  |
 
-This is a `FunctionDeclaration` named `setTitle` in `runtime.js`, it's exported but undocumented.
+
+## [`setTitle(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L110)
+
+Sets the title of the window (if applicable).
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| options | obnject |  | false | an options object |
 
 
-## [`inspect()`](https://github.com/socketsupply/io/blob/master/runtime.js#L104)
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<Any> |  |
+
+
+## [`inspect()`](https://github.com/socketsupply/io/blob/master/runtime.js#L114)
 
 This is a `FunctionDeclaration` named `inspect` in `runtime.js`, it's exported but undocumented.
 
 
-## [`show()`](https://github.com/socketsupply/io/blob/master/runtime.js#L108)
+## [`show()`](https://github.com/socketsupply/io/blob/master/runtime.js#L118)
 
 This is a `FunctionDeclaration` named `show` in `runtime.js`, it's exported but undocumented.
 
 
-## [`hide()`](https://github.com/socketsupply/io/blob/master/runtime.js#L112)
+## [`hide()`](https://github.com/socketsupply/io/blob/master/runtime.js#L122)
 
 This is a `FunctionDeclaration` named `hide` in `runtime.js`, it's exported but undocumented.
 
 
-## [`setWindowBackgroundColor()`](https://github.com/socketsupply/io/blob/master/runtime.js#L116)
+## [`setWindowBackgroundColor()`](https://github.com/socketsupply/io/blob/master/runtime.js#L126)
 
 This is a `FunctionDeclaration` named `setWindowBackgroundColor` in `runtime.js`, it's exported but undocumented.
 
 
-## [`setContextMenu()`](https://github.com/socketsupply/io/blob/master/runtime.js#L122)
+## [`setContextMenu(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L137)
 
-This is a `FunctionDeclaration` named `setContextMenu` in `runtime.js`, it's exported but undocumented.
+Opens a native context menu.
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| options | object |  | false | an options object |
 
 
-## [`setSystemMenuItemEnabled()`](https://github.com/socketsupply/io/blob/master/runtime.js#L130)
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<Any> |  |
+
+
+## [`setSystemMenuItemEnabled()`](https://github.com/socketsupply/io/blob/master/runtime.js#L145)
 
 This is a `FunctionDeclaration` named `setSystemMenuItemEnabled` in `runtime.js`, it's exported but undocumented.
 
 
-## [`setSystemMenu(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L218)
+## [`setSystemMenu(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L234)
 
 Set the native menu for the app.
+
 
  Socket Runtime provides a minimalist DSL that makes it easy to create
  cross platform native system and context menus.
@@ -1497,7 +1525,6 @@ Set the native menu for the app.
    assert(event.detail.title === 'Apple')
  })
  ```
-
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |

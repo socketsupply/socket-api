@@ -93,10 +93,20 @@ export async function openExternal (options) {
   return await ipc.postMessage(`ipc://external?value=${encodeURIComponent(options)}`)
 }
 
+/**
+ * Quits the backend process and then quits the render process, the exit code used is the final exit code to the OS.
+ * @param {object} options - an options object
+ * @return {Promise<Any>}
+ */
 export async function exit (o) {
   return await ipc.send('exit', o)
 }
 
+/**
+ * Sets the title of the window (if applicable).
+ * @param {obnject} options - an options object
+ * @return {Promise<Any>}
+ */
 export async function setTitle (o) {
   return await ipc.send('title', o)
 }
@@ -119,6 +129,11 @@ export async function setWindowBackgroundColor (opts) {
   await ipc.postMessage(`ipc://background?${o}`)
 }
 
+/**
+ * Opens a native context menu.
+ * @param {object} options - an options object
+ * @return {Promise<Any>}
+ */
 export async function setContextMenu (o) {
   o = Object
     .entries(o)
@@ -133,6 +148,11 @@ export async function setSystemMenuItemEnabled (value) {
 
 /**
  * Set the native menu for the app.
+ *
+ * @param {object} options - an options object
+ * @param {string} options.value - the menu layout
+ * @param {number} options.index - the window to target (if applicable)
+ * @return {Promise<Any>}
  *
  * Socket Runtime provides a minimalist DSL that makes it easy to create
  * cross platform native system and context menus.
@@ -210,10 +230,6 @@ export async function setSystemMenuItemEnabled (value) {
  * })
  * ```
  *
- * @param {object} options - an options object
- * @param {string} options.value - the menu layout
- * @param {number} options.index - the window to target (if applicable)
- * @return {Promise<Any>}
  */
 export async function setSystemMenu (o) {
   const menu = o.value
@@ -261,7 +277,6 @@ export async function setSystemMenu (o) {
     }
   }
 
-  // send the request to set the menu
   return await ipc.send('menu', o)
 }
 
