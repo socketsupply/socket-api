@@ -7,6 +7,7 @@
 
 import { toProperCase } from './util.js'
 import process from './process.js'
+import * as platform from './platform.js'
 import ipc from './ipc.js'
 
 const UNKNOWN = 'unknown'
@@ -32,7 +33,7 @@ export function arch () {
 
   if (typeof window === 'object') {
     value = (
-      window.parent?.arch ||
+      window.__args?.arch ||
       ipc.sendSync('os.arch')?.data ||
       UNKNOWN
     )
@@ -153,9 +154,9 @@ export function platform () {
 
   if (typeof window === 'object') {
     value = (
-      window.parent?.os ||
+      platform.args?.os ||
       ipc.sendSync('os.platform')?.data ||
-      window.parent?.platform ||
+      platform?.platform ||
       UNKNOWN
     )
   }
@@ -189,7 +190,7 @@ export function type () {
 
   if (typeof window === 'object') {
     value = (
-      window?.parent?.platform ||
+      platform?.platform ||
       ipc.sendSync('os.type')?.data ||
       UNKNOWN
     )

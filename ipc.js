@@ -463,7 +463,7 @@ Object.defineProperty(debug, 'enabled', {
     if (debug[kDebugEnabled] === undefined) {
       return typeof window === 'undefined'
         ? false
-        : Boolean(window?.parent?.debug)
+        : Boolean(window?.__args?.debug)
     }
 
     return debug[kDebugEnabled]
