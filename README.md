@@ -1358,6 +1358,71 @@ Computes current working directory for a path
 | code | number | 0 | true | The exit code. Default: 0. |
 
 
+# [Runtime](https://github.com/socketsupply/io/blob/master/runtime.js#L8)
+
+
+ Provides runtime-specific methods
+
+## [args](https://github.com/socketsupply/io/blob/master/runtime.js#L13)
+
+This is a `VariableDeclaration` named `args` in `runtime.js`, it's exported but undocumented.
+
+
+## [`send()`](https://github.com/socketsupply/io/blob/master/runtime.js#L50)
+
+This is a `FunctionDeclaration` named `send` in `runtime.js`, it's exported but undocumented.
+
+
+## [`openExternal()`](https://github.com/socketsupply/io/blob/master/runtime.js#L92)
+
+This is a `FunctionDeclaration` named `openExternal` in `runtime.js`, it's exported but undocumented.
+
+
+## [`exit()`](https://github.com/socketsupply/io/blob/master/runtime.js#L96)
+
+This is a `FunctionDeclaration` named `exit` in `runtime.js`, it's exported but undocumented.
+
+
+## [`setTitle()`](https://github.com/socketsupply/io/blob/master/runtime.js#L100)
+
+This is a `FunctionDeclaration` named `setTitle` in `runtime.js`, it's exported but undocumented.
+
+
+## [`inspect()`](https://github.com/socketsupply/io/blob/master/runtime.js#L104)
+
+This is a `FunctionDeclaration` named `inspect` in `runtime.js`, it's exported but undocumented.
+
+
+## [`show()`](https://github.com/socketsupply/io/blob/master/runtime.js#L108)
+
+This is a `FunctionDeclaration` named `show` in `runtime.js`, it's exported but undocumented.
+
+
+## [`hide()`](https://github.com/socketsupply/io/blob/master/runtime.js#L112)
+
+This is a `FunctionDeclaration` named `hide` in `runtime.js`, it's exported but undocumented.
+
+
+## [`setWindowBackgroundColor()`](https://github.com/socketsupply/io/blob/master/runtime.js#L116)
+
+This is a `FunctionDeclaration` named `setWindowBackgroundColor` in `runtime.js`, it's exported but undocumented.
+
+
+## [`setContextMenu()`](https://github.com/socketsupply/io/blob/master/runtime.js#L122)
+
+This is a `FunctionDeclaration` named `setContextMenu` in `runtime.js`, it's exported but undocumented.
+
+
+## [`setSystemMenuItemEnabled()`](https://github.com/socketsupply/io/blob/master/runtime.js#L130)
+
+This is a `FunctionDeclaration` named `setSystemMenuItemEnabled` in `runtime.js`, it's exported but undocumented.
+
+
+## [`setSystemMenu()`](https://github.com/socketsupply/io/blob/master/runtime.js#L134)
+
+This is a `FunctionDeclaration` named `setSystemMenu` in `runtime.js`, it's exported but undocumented.
+
+
 # [Stream](https://github.com/socketsupply/io/blob/master/stream.js#L5)
 
 
