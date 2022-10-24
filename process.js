@@ -6,17 +6,16 @@ import { send } from './ipc.js'
 
 let didEmitExitEvent = false
 
-const global = typeof window === 'object' ? window : globalThis
-const isNode = global?.process?.versions?.node
+const isNode = globalThis.process?.versions?.node
 const process = isNode
   ? globalThis.process
-  : Object.create(global?.__args, Object.getOwnPropertyDescriptors({
+  : Object.create(globalThis.__args, Object.getOwnPropertyDescriptors({
     ...EventEmitter.prototype,
     homedir,
-    argv0: global?.__args?.argv?.[0] ?? null,
+    argv0: globalThis.__args?.argv?.[0] ?? null,
     exit,
     env: {},
-    ...global?.__args
+    ...globalThis.__args
   }))
 
 if (!isNode) {

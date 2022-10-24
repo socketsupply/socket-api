@@ -2,16 +2,14 @@ import { GLOBAL_TEST_RUNNER } from 'tapzero'
 import process from '@socketsupply/io/process.js'
 import '@socketsupply/io/runtime.js'
 
-const global = typeof window === 'object' ? window : globalThis
-
 // uncomment below to get IPC debug output in stdout
 // import ipc from '@socketsupply/io/ipc.js'
 // ipc.debug.enabled = true
 // ipc.debug.log = (...args) => console.log(...args)
 
-if (typeof global?.addEventListener === 'function') {
-  global.addEventListener('error', onerror)
-  global.addEventListener('unhandledrejection', onerror)
+if (typeof globalThis?.addEventListener === 'function') {
+  globalThis.addEventListener('error', onerror)
+  globalThis.addEventListener('unhandledrejection', onerror)
 }
 
 const pollTimeout = setTimeout(function poll () {
