@@ -30,15 +30,14 @@ export function applyPolyFills (window) {
     }
   }))
 
-  Object.defineProperties(window.document, Object.getOwnPropertyDescriptors({
-    get title () {
+  Object.defineProperty(window.document, 'title', {
+    get () {
       return window.__args.title
     },
-
-    set title (value) {
+    set (value) {
       const index = window.__args.index
       const o = new URLSearchParams({ value, index }).toString()
       ipc.postMessage(`ipc://title?${o}`)
     }
-  }))
+  })
 }
