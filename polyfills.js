@@ -20,21 +20,21 @@ export function applyPolyFills (window) {
 
     // TODO(@heapwolf) the properties do not yet conform to the MDN spec
     async showOpenFilePicker (o) {
-      console.warn('window.showOpenFilePicker may not coform to the standard')
+      console.warn('window.showOpenFilePicker may not conform to the standard')
       const files = await ipc.send('dialog', { type: 'open', ...o })
       return typeof files === 'string' ? files.split('\n') : []
     },
 
     // TODO(@heapwolf) the properties do not yet conform to the MDN spec
     async showSaveFilePicker (o) {
-      console.warn('window.showSaveFilePicker may not coform to the standard')
+      console.warn('window.showSaveFilePicker may not conform to the standard')
       const files = await ipc.send('dialog', { type: 'save', ...o })
       return typeof files === 'string' ? files.split('\n') : []
     },
 
     // TODO(@heapwolf) the properties do not yet conform to the MDN spec
     async showDirectoryFilePicker (o) {
-      console.warn('window.showDirectoryFilePicker may not coform to the standard')
+      console.warn('window.showDirectoryFilePicker may not conform to the standard')
       const files = await ipc.send('dialog', { allowDirs: true, ...o })
       return typeof files === 'string' ? files.split('\n') : []
     }
