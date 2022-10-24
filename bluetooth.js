@@ -52,7 +52,7 @@ export class Bluetooth extends EventEmitter {
 
   /**
    * Start the bluetooth service.
-   * @return {Promise<Any>}
+   * @return {Promise<ipc.Result>}
    *
    */
   start () {
@@ -72,8 +72,8 @@ export class Bluetooth extends EventEmitter {
    * })
    * ```
    *
-   * @param {string} id - A well-known UUID
-   * @return {Promise<any>}
+   * @param {string} [id = ''] - A well-known UUID
+   * @return {Promise<ipc.Result>}
    */
   subscribe (id = '') {
     return ipc.send('bluetooth-subscribe', {
@@ -84,8 +84,9 @@ export class Bluetooth extends EventEmitter {
 
   /**
    * Start advertising a new value for a well-known UUID
-   * @param {string} id - A well-known UUID
-   * @return {Promise<any>}
+   * @param {string} [id=''] - A well-known UUID
+   * @param {string} [value='']
+   * @return {Promise<void>}
    */
   async publish (id = '', value = '') {
     if (!id || id.length !== 36) {

@@ -728,6 +728,7 @@ export async function resolve (seq, ...args) {
  * Sends an async IPC command request with parameters.
  * @param {string} command
  * @param {..Mixed} ...args
+ * @return {Promise<Result>}
  */
 export async function send (command, ...args) {
   await ready()

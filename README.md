@@ -24,10 +24,10 @@ Start the bluetooth service.
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
-| Not specified | Promise<Any> |  |
+| Not specified | Promise<ipc.Result> |  |
 
 
-### [`subscribe(id)`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L78)
+### [`subscribe(id )`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L78)
 
 Start scanning for published values that correspond to a well-known UUID.
  Once subscribed to a UUID, events that correspond to that UUID will be
@@ -49,21 +49,22 @@ Start scanning for published values that correspond to a well-known UUID.
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
-| Not specified | Promise<any> |  |
+| Not specified | Promise<ipc.Result> |  |
 
 
-### [`publish(id)`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L90)
+### [`publish(id, value)`](https://github.com/socketsupply/io/blob/master/bluetooth.js#L91)
 
 Start advertising a new value for a well-known UUID
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | id | string |  | false | A well-known UUID |
+| value | string |  | false |  |
 
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
-| Not specified | Promise<any> |  |
+| Not specified | Promise<void> |  |
 
 
 # [Buffer](https://github.com/socketsupply/io/blob/master/buffer.js#L7)
@@ -974,7 +975,7 @@ Creates a `Message` instance from a variety of input.
 | Not specified | Message |  |
 
 
-### [`isValidInput(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L343)
+### [`isValidInput(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L351)
 
 Predicate to determine if `input` is valid for constructing
  a new `Message` instance.
@@ -989,7 +990,7 @@ Predicate to determine if `input` is valid for constructing
 | Not specified | boolean |  |
 
 
-### [`constructor(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L358)
+### [`constructor(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L366)
 
 `Message` class constructor.
 
@@ -998,39 +999,39 @@ Predicate to determine if `input` is valid for constructing
 | input | string \| URL |  | false |  |
 
 
-### [`command()`](https://github.com/socketsupply/io/blob/master/ipc.js#L371)
+### [`command()`](https://github.com/socketsupply/io/blob/master/ipc.js#L392)
 
 Computed command for the IPC message.
 
-### [`id()`](https://github.com/socketsupply/io/blob/master/ipc.js#L378)
+### [`id()`](https://github.com/socketsupply/io/blob/master/ipc.js#L399)
 
 Computed `id` value for the command.
 
-### [`seq()`](https://github.com/socketsupply/io/blob/master/ipc.js#L385)
+### [`seq()`](https://github.com/socketsupply/io/blob/master/ipc.js#L406)
 
 Computed `seq` (sequence) value for the command.
 
-### [`value()`](https://github.com/socketsupply/io/blob/master/ipc.js#L393)
+### [`value()`](https://github.com/socketsupply/io/blob/master/ipc.js#L414)
 
 Computed message value potentially given in message parameters.
  This value is automatically decoded, but not treated as JSON.
 
-### [`index()`](https://github.com/socketsupply/io/blob/master/ipc.js#L402)
+### [`index()`](https://github.com/socketsupply/io/blob/master/ipc.js#L423)
 
 Computed `index` value for the command potentially referring to
  the window index the command is scoped to or originating from. If not
  specified in the message parameters, then this value defaults to `-1`.
 
-### [`json()`](https://github.com/socketsupply/io/blob/master/ipc.js#L419)
+### [`json()`](https://github.com/socketsupply/io/blob/master/ipc.js#L440)
 
 Computed value parsed as JSON. This value is `null` if the value is not present
  or it is invalid JSON.
 
-### [`params()`](https://github.com/socketsupply/io/blob/master/ipc.js#L426)
+### [`params()`](https://github.com/socketsupply/io/blob/master/ipc.js#L447)
 
 Computed readonly object of message parameters.
 
-### [`entries()`](https://github.com/socketsupply/io/blob/master/ipc.js#L434)
+### [`entries()`](https://github.com/socketsupply/io/blob/master/ipc.js#L455)
 
 Returns computed parameters as entries
 
@@ -1039,7 +1040,7 @@ Returns computed parameters as entries
 | Not specified | Array<Array<string,mixed>> |  |
 
 
-### [`set(key, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L445)
+### [`set(key, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L466)
 
 Set a parameter `value` by `key`.
 
@@ -1049,7 +1050,7 @@ Set a parameter `value` by `key`.
 | value | mixed |  | false |  |
 
 
-### [`get(key, defaultValue)`](https://github.com/socketsupply/io/blob/master/ipc.js#L459)
+### [`get(key, defaultValue)`](https://github.com/socketsupply/io/blob/master/ipc.js#L480)
 
 Get a parameter value by `key`.
 
@@ -1064,7 +1065,7 @@ Get a parameter value by `key`.
 | Not specified | mixed |  |
 
 
-### [`delete(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L472)
+### [`delete(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L493)
 
 Delete a parameter by `key`.
 
@@ -1078,7 +1079,7 @@ Delete a parameter by `key`.
 | Not specified | boolean |  |
 
 
-### [`keys()`](https://github.com/socketsupply/io/blob/master/ipc.js#L484)
+### [`keys()`](https://github.com/socketsupply/io/blob/master/ipc.js#L505)
 
 Computed parameter keys.
 
@@ -1087,7 +1088,7 @@ Computed parameter keys.
 | Not specified | Array<string> |  |
 
 
-### [`values()`](https://github.com/socketsupply/io/blob/master/ipc.js#L492)
+### [`values()`](https://github.com/socketsupply/io/blob/master/ipc.js#L513)
 
 Computed parameter values.
 
@@ -1096,7 +1097,7 @@ Computed parameter values.
 | Not specified | Array<mixed> |  |
 
 
-### [`has(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L501)
+### [`has(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L522)
 
 Predicate to determine if parameter `key` is present in parameters.
 
@@ -1110,18 +1111,18 @@ Predicate to determine if parameter `key` is present in parameters.
 | Not specified | boolean |  |
 
 
-### [`toJSON()`](https://github.com/socketsupply/io/blob/master/ipc.js#L508)
+### [`toJSON()`](https://github.com/socketsupply/io/blob/master/ipc.js#L529)
 
 Converts a `Message` instance into a plain JSON object.
 
-## [Result](https://github.com/socketsupply/io/blob/master/ipc.js#L520)
+## [Result](https://github.com/socketsupply/io/blob/master/ipc.js#L541)
 
 A result type used internally for handling
  IPC result values from the native layer that are in the form
  of `{ err?, data? }`. The `data` and `err` properties on this
  type of object are in tuple form and be accessed at `[data?,err?]`
 
-### [`from(result, maybeError, maybeSource)`](https://github.com/socketsupply/io/blob/master/ipc.js#L530)
+### [`from(result, maybeError, maybeSource)`](https://github.com/socketsupply/io/blob/master/ipc.js#L551)
 
 Creates a `Result` instance from input that may be an object
  like `{ err?, data? }`, an `Error` instance, or just `data`.
@@ -1138,7 +1139,7 @@ Creates a `Result` instance from input that may be an object
 | Not specified | Result |  |
 
 
-### [`constructor(err , data , source )`](https://github.com/socketsupply/io/blob/master/ipc.js#L568)
+### [`constructor(err , data , source )`](https://github.com/socketsupply/io/blob/master/ipc.js#L589)
 
 `Result` class constructor.
 
@@ -1149,20 +1150,20 @@ Creates a `Result` instance from input that may be an object
 | source | ?(string) | undefined | false |  |
 
 
-### [`length()`](https://github.com/socketsupply/io/blob/master/ipc.js#L597)
+### [`length()`](https://github.com/socketsupply/io/blob/master/ipc.js#L618)
 
 Computed result length.
 
-### [`undefined()`](https://github.com/socketsupply/io/blob/master/ipc.js#L604)
+### [`undefined()`](https://github.com/socketsupply/io/blob/master/ipc.js#L625)
 
 Generator for an `Iterable` interface over this instance.
 
-## [`ready()`](https://github.com/socketsupply/io/blob/master/ipc.js#L615)
+## [`ready()`](https://github.com/socketsupply/io/blob/master/ipc.js#L636)
 
 Waits for the native IPC layer to be ready and exposed on the
  global window object.
 
-## [`sendSync(command, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L640)
+## [`sendSync(command, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L661)
 
 Sends a synchronous IPC command over XHR returning a `Result`
  upon success or error.
@@ -1178,7 +1179,7 @@ Sends a synchronous IPC command over XHR returning a `Result`
 | Not specified | Result |  |
 
 
-## [`emit(name)`](https://github.com/socketsupply/io/blob/master/ipc.js#L681)
+## [`emit(name)`](https://github.com/socketsupply/io/blob/master/ipc.js#L702)
 
 Emit event to be dispatched on `window` object.
 
@@ -1188,7 +1189,7 @@ Emit event to be dispatched on `window` object.
 | ...args | ..Mixed |  | false |  |
 
 
-## [`resolve(seq)`](https://github.com/socketsupply/io/blob/master/ipc.js#L696)
+## [`resolve(seq)`](https://github.com/socketsupply/io/blob/master/ipc.js#L717)
 
 Resolves a request by `seq` with possible value.
 
@@ -1198,7 +1199,7 @@ Resolves a request by `seq` with possible value.
 | ...args | ..Mixed |  | false |  |
 
 
-## [`send(command)`](https://github.com/socketsupply/io/blob/master/ipc.js#L711)
+## [`send(command)`](https://github.com/socketsupply/io/blob/master/ipc.js#L733)
 
 Sends an async IPC command request with parameters.
 
@@ -1208,7 +1209,12 @@ Sends an async IPC command request with parameters.
 | ...args | ..Mixed |  | false |  |
 
 
-## [`write(command, params, buffer, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L735)
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<Result> |  |
+
+
+## [`write(command, params, buffer, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L757)
 
 Sends an async IPC command request with parameters and buffered bytes.
 
@@ -1220,7 +1226,7 @@ Sends an async IPC command request with parameters and buffered bytes.
 | options | ?(object) |  | false |  |
 
 
-## [`request(command, params, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L830)
+## [`request(command, params, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L852)
 
 Sends an async IPC command request with parameters requesting a response
  with buffered bytes.
@@ -1232,7 +1238,7 @@ Sends an async IPC command request with parameters requesting a response
 | options | ?(object) |  | false |  |
 
 
-## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L921)
+## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L943)
 
 Factory for creating a proxy based IPC API.
 
@@ -1264,27 +1270,27 @@ This is a `FunctionDeclaration` named `arch` in `os.js`, it's exported but undoc
 This is a `FunctionDeclaration` named `networkInterfaces` in `os.js`, it's exported but undocumented.
 
 
-## [`platform()`](https://github.com/socketsupply/io/blob/master/os.js#L129)
+## [`platform()`](https://github.com/socketsupply/io/blob/master/os.js#L138)
 
 This is a `FunctionDeclaration` named `platform` in `os.js`, it's exported but undocumented.
 
 
-## [`type()`](https://github.com/socketsupply/io/blob/master/os.js#L158)
+## [`type()`](https://github.com/socketsupply/io/blob/master/os.js#L167)
 
 This is a `FunctionDeclaration` named `type` in `os.js`, it's exported but undocumented.
 
 
-## [`isWindows()`](https://github.com/socketsupply/io/blob/master/os.js#L198)
+## [`isWindows()`](https://github.com/socketsupply/io/blob/master/os.js#L207)
 
 This is a `FunctionDeclaration` named `isWindows` in `os.js`, it's exported but undocumented.
 
 
-## [`tmpdir()`](https://github.com/socketsupply/io/blob/master/os.js#L207)
+## [`tmpdir()`](https://github.com/socketsupply/io/blob/master/os.js#L216)
 
 This is a `FunctionDeclaration` named `tmpdir` in `os.js`, it's exported but undocumented.
 
 
-## [EOL](https://github.com/socketsupply/io/blob/master/os.js#L249)
+## [EOL](https://github.com/socketsupply/io/blob/master/os.js#L261)
 
 This is a `VariableDeclaration` named `EOL` in `os.js`, it's exported but undocumented.
 
