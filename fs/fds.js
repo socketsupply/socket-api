@@ -22,11 +22,9 @@ export default new class FileDescriptorsMap {
   }
 
   async syncOpenDescriptors () {
-    const parent = typeof window !== 'undefined' ? window : globalThis
-
     // wait for DOM to be loaded and ready
-    if (typeof parent.document == 'object') {
-      if (parent.document.readyState !== 'complete') {
+    if (typeof globalThis.document == 'object') {
+      if (globalThis.document.readyState !== 'complete') {
         await new Promise((resolve) => {
           document.addEventListener('DOMContentLoaded', resolve, { once: true })
         })

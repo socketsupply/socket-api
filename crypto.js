@@ -7,13 +7,11 @@
 
 import { Buffer } from './buffer.js'
 
-const parent = typeof window === 'object' ? window : globalThis
-
 /**
  * WebCrypto API
  * @see {https://developer.mozilla.org/en-US/docs/Web/API/Crypto}
  */
-export const webcrypto = parent.crypto?.webcrypto ?? parent.crypto
+export const webcrypto = globalThis.crypto?.webcrypto ?? globalThis.crypto
 
 /**
  * Generate cryptographically strong random values into `buffer`
@@ -26,7 +24,7 @@ export function getRandomValues (...args) {
     return webcrypto?.getRandomValues(...args)
   }
 
-  console.warn('Missing implementation for parent.crypto.getRandomValues()')
+  console.warn('Missing implementation for window.crypto.getRandomValues()')
   return null
 }
 
