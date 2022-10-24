@@ -282,6 +282,10 @@ export async function setSystemMenu (o) {
   return await ipc.send('menu', o)
 }
 
+export function reload () {
+  ipc.postMessage('ipc://reload')
+}
+
 // eslint-disable-next-line
 import * as exports from './runtime.js'
 export default exports
