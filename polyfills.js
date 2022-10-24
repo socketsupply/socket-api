@@ -2,16 +2,6 @@ import ipc from './ipc.js'
 
 export function applyPolyFills (window) {
   Object.defineProperties(window, Object.getOwnPropertyDescriptors({
-    get title () {
-      return window?.__args?.title
-    },
-
-    set title (value) {
-      const index = window.__args.index
-      const o = new URLSearchParams({ value, index }).toString()
-      ipc.postMessage(`ipc://title?${o}`)
-    },
-
     async resizeTo (width, height) {
       const index = window.__args.index
       const o = new URLSearchParams({ width, height, index }).toString()
@@ -37,6 +27,18 @@ export function applyPolyFills (window) {
       console.warn('window.showDirectoryFilePicker may not conform to the standard')
       const files = await ipc.send('dialog', { allowDirs: true, ...o })
       return typeof files === 'string' ? files.split('\n') : []
+    }
+  }))
+
+  Object.defineProperties(window.document, Object.getOwnPropertyDescriptors({
+    get title () {
+      return window.__args.title
+    },
+
+    set title (value) {
+      const index = window.__args.index
+      const o = new URLSearchParams({ value, index }).toString()
+      ipc.postMessage(`ipc://title?${o}`)
     }
   }))
 }
