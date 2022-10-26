@@ -41,7 +41,7 @@ export const args = new class Args {
 
   // overloaded in process
   cwd () {
-    return null
+    return window?.__args?.cwd?.() ?? null
   }
 }
 
