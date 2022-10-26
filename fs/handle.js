@@ -994,6 +994,6 @@ export class DirectoryHandle extends EventEmitter {
       throw result.err
     }
 
-    return result.data.entries
+    return result.data
   }
 }
