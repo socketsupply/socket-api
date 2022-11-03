@@ -107,7 +107,7 @@ export async function exit (o) {
 /**
  * Sets the title of the window (if applicable).
  * @param {obnject} options - an options object
- * @return {Promise<Any>}
+ * @return {Promise<ipc.Result>}
  */
 export async function setTitle (o) {
   return await ipc.send('title', o)
@@ -117,11 +117,19 @@ export async function inspect (o) {
   return await ipc.postMessage('ipc://inspect')
 }
 
-export async function show (index = 0) {
+/**
+ * @param {number} [opts.index = window.__args.index] - the index of the window
+ * @return {Promise<ipc.Result>}
+ */
+export async function show (index = window.__args.index) {
   return await ipc.send('show', { index })
 }
 
-export async function hide (index = 0) {
+/**
+ * @param {number} [opts.index = window.__args.index] - the index of the window
+ * @return {Promise<ipc.Result>}
+ */
+export async function hide (index = window.__args.index) {
   return await ipc.send('hide', { index })
 }
 
