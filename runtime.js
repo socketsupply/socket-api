@@ -145,15 +145,6 @@ export async function navigate ({ window: _window, value: _value }) {
   return await ipc.send('navigate', { index, value })
 }
 
-/**
- * @param {object} opts - an options object
- * @param {boolean} [opts.force = false] - whether to force existing process to close
- * @return {Promise<ipc.Result>}
- */
-export async function openProcess ({ force } = { force: false }) {
-  return await ipc.send('process.open', { force })
-}
-
 export async function setWindowBackgroundColor (opts) {
   opts.index = window.__args.index
   const o = new URLSearchParams(opts).toString()

@@ -18,6 +18,7 @@ export * as runtime from './runtime.js'
 export { default as process } from './process.js'
 export * as stream from './stream.js'
 export * as util from './util.js'
+export * as backend from './backend.js'
 
 // eslint-disable-next-line
 import * as exports from './index.js'
