@@ -133,6 +133,22 @@ export async function hide (index = window.__args.index) {
   return await ipc.send('hide', { index })
 }
 
+/**
+ * @param {object} opts - an options object
+ * @param {number} [opts.window = window.__args.index] - the index of the window
+ * @param {number} opts.value - the path to the HTML file to load into the window
+ * @return {Promise<ipc.Result>}
+ */
+export async function navigate ({ window: _window, value: _value }) {
+  const index = _window ?? window.__args.index
+  const value = `file://${window.__args.cwd()}/${_value}`
+  return await ipc.send('navigate', { index, value })
+}
+
+export async function openProcess () {
+  return await ipc.send('process.open')
+}
+
 export async function setWindowBackgroundColor (opts) {
   opts.index = window.__args.index
   const o = new URLSearchParams(opts).toString()
