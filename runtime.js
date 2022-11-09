@@ -118,15 +118,15 @@ export async function inspect (o) {
 }
 
 /**
- * @param {number} [opts.index = window.__args.index] - the index of the window
+ * @param {object} opts - an options object
  * @return {Promise<ipc.Result>}
  */
-export async function show (index = window.__args.index) {
-  return await ipc.send('show', { index })
+export async function show (opts) {
+  return await ipc.send('show', opts)
 }
 
 /**
- * @param {number} [opts.index = window.__args.index] - the index of the window
+ * @param {number} [index = window.__args.index] - the index of the window
  * @return {Promise<ipc.Result>}
  */
 export async function hide (index = window.__args.index) {
