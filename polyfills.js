@@ -5,7 +5,7 @@ export function applyPolyFills (window) {
     async resizeTo (width, height) {
       const index = window.__args.index
       const o = new URLSearchParams({ width, height, index }).toString()
-      return await ipc.send('size', o)
+      return ipc.send('size', o)
     },
 
     // TODO(@heapwolf) the properties do not yet conform to the MDN spec

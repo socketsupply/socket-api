@@ -58,7 +58,7 @@ export async function send (options) {
     return Promise.reject(err.message)
   }
 
-  return await ipc.send('send', { value })
+  return ipc.send('send', { value })
 }
 
 function redirectOutput () {
@@ -101,7 +101,7 @@ export async function openExternal (options) {
  * @return {Promise<Any>}
  */
 export async function exit (o) {
-  return await ipc.send('exit', o)
+  return ipc.send('exit', o)
 }
 
 /**
@@ -110,7 +110,7 @@ export async function exit (o) {
  * @return {Promise<ipc.Result>}
  */
 export async function setTitle (o) {
-  return await ipc.send('title', o)
+  return ipc.send('title', o)
 }
 
 export async function inspect (o) {
@@ -122,7 +122,7 @@ export async function inspect (o) {
  * @return {Promise<ipc.Result>}
  */
 export async function show (opts) {
-  return await ipc.send('show', opts)
+  return ipc.send('show', opts)
 }
 
 /**
@@ -130,7 +130,7 @@ export async function show (opts) {
  * @return {Promise<ipc.Result>}
  */
 export async function hide (index = window.__args.index) {
-  return await ipc.send('hide', { index })
+  return ipc.send('hide', { index })
 }
 
 /**
@@ -142,7 +142,7 @@ export async function hide (index = window.__args.index) {
 export async function navigate ({ window: _window, value: _value }) {
   const index = _window ?? window.__args.index
   const value = `file://${window.__args.cwd()}/${_value}`
-  return await ipc.send('navigate', { index, value })
+  return ipc.send('navigate', { index, value })
 }
 
 export async function setWindowBackgroundColor (opts) {
@@ -161,11 +161,11 @@ export async function setContextMenu (o) {
     .entries(o)
     .flatMap(a => a.join(':'))
     .join('_')
-  return await ipc.send('context', o)
+  return ipc.send('context', o)
 }
 
 export async function setSystemMenuItemEnabled (value) {
-  return await ipc.send('systemMenuItemEnabled', value)
+  return ipc.send('systemMenuItemEnabled', value)
 }
 
 /**
@@ -299,7 +299,7 @@ export async function setSystemMenu (o) {
     }
   }
 
-  return await ipc.send('menu', o)
+  return ipc.send('menu', o)
 }
 
 export function reload () {
