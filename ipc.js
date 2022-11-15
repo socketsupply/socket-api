@@ -642,8 +642,8 @@ export class Result {
    * Creates a `Result` instance from input that may be an object
    * like `{ err?, data? }`, an `Error` instance, or just `data`.
    * @param {(object|Error|mixed)=} result
-   * @param {?(Error)} [maybeError]
-   * @param {?(string)} [maybeSource]
+   * @param {Error=} [maybeError]
+   * @param {string=} [maybeSource]
    * @return {Result}
    */
   static from (result, maybeError, maybeSource, ...args) {
@@ -680,9 +680,9 @@ export class Result {
   /**
    * `Result` class constructor.
    * @private
-   * @param {?(Error)} [err = null]
-   * @param {?(object)} [data = null]
-   * @param {?(string)} [source = undefined]
+   * @param {Error=} [err = null]
+   * @param {object=} [data = null]
+   * @param {string=} [source = undefined]
    */
   constructor (err, data, source) {
     this.err = typeof err !== 'undefined' ? err : null
@@ -796,8 +796,8 @@ export function sendSync (command, params) {
  * Emit event to be dispatched on `window` object.
  * @param {string} name
  * @param {Mixed} value
- * @param {?(EventTarget)} [target = window]
- * @param {?(Object)} options
+ * @param {EventTarget=} [target = window]
+ * @param {Object=} options
  */
 export async function emit (name, value, target, options) {
   let detail = value
@@ -851,8 +851,7 @@ export async function resolve (seq, value) {
 /**
  * Sends an async IPC command request with parameters.
  * @param {string} command
- * @param {Mixed} value
- * @param {..Mixed} ...args
+ * @param {Mixed=} value
  * @return {Promise<Result>}
  */
 export async function send (command, value) {
@@ -903,9 +902,9 @@ export async function send (command, value) {
 /**
  * Sends an async IPC command request with parameters and buffered bytes.
  * @param {string} command
- * @param {?(object)} params
- * @param {?(Buffer|TypeArray|ArrayBuffer|string|Array)} buffer
- * @param {?(object)} options
+ * @param {object=} params
+ * @param {(Buffer|TypeArray|ArrayBuffer|string|Array)=} buffer
+ * @param {object=} options
  */
 export async function write (command, params, buffer, options) {
   if (typeof window === 'undefined') {
@@ -999,8 +998,8 @@ export async function write (command, params, buffer, options) {
  * Sends an async IPC command request with parameters requesting a response
  * with buffered bytes.
  * @param {string} command
- * @param {?(object)} params
- * @param {?(object)} options
+ * @param {object=} params
+ * @param {object=} options
  */
 export async function request (command, params, options) {
   await ready()

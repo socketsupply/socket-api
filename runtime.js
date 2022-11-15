@@ -45,6 +45,10 @@ export const args = new class Args {
   }
 }
 
+function formatFileUrl (url) {
+  return `file://${args.cwd()}/${url}`
+}
+
 if (globalThis.window) {
   applyPolyFills(globalThis.window)
 }
@@ -122,6 +126,9 @@ export async function inspect (o) {
  * @return {Promise<ipc.Result>}
  */
 export async function show (opts) {
+  if (opts?.url) {
+    opts.url = formatFileUrl(opts.url)
+  }
   return ipc.send('show', opts)
 }
 
@@ -141,7 +148,7 @@ export async function hide (index = window.__args.index) {
  */
 export async function navigate ({ window: _window, value: _value }) {
   const index = _window ?? window.__args.index
-  const value = `file://${window.__args.cwd()}/${_value}`
+  const value = formatFileUrl(_value)
   return ipc.send('navigate', { index, value })
 }
 
