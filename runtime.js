@@ -125,31 +125,37 @@ export async function inspect (o) {
  * @param {object} opts - an options object
  * @return {Promise<ipc.Result>}
  */
-export async function show (opts) {
-  if (opts?.url) {
+export async function show (opts = {}) {
+  opts.index = args.index
+  opts.window ??= args.index
+  if (opts.url) {
     opts.url = formatFileUrl(opts.url)
   }
   return ipc.send('show', opts)
 }
 
 /**
- * @param {number} [index = window.__args.index] - the index of the window
+ * @param {object} opts - an options object
  * @return {Promise<ipc.Result>}
  */
-export async function hide (index = window.__args.index) {
-  return ipc.send('hide', { index })
+export async function hide (opts = {}) {
+  opts.index = args.index
+  return ipc.send('hide', opts)
 }
 
 /**
  * @param {object} opts - an options object
- * @param {number} [opts.window = window.__args.index] - the index of the window
- * @param {number} opts.value - the path to the HTML file to load into the window
+ * @param {number} [opts.window = args.index] - the index of the window
+ * @param {number} opts.url - the path to the HTML file to load into the window
  * @return {Promise<ipc.Result>}
  */
-export async function navigate ({ window: _window, value: _value }) {
-  const index = _window ?? window.__args.index
-  const value = formatFileUrl(_value)
-  return ipc.send('navigate', { index, value })
+export async function navigate (opts = {}) {
+  opts.index = args.index
+  opts.window ??= args.index
+  if (opts.url) {
+    opts.url = formatFileUrl(opts.url)
+  }
+  return ipc.send('navigate', opts)
 }
 
 export async function setWindowBackgroundColor (opts) {
