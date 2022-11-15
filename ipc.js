@@ -863,7 +863,7 @@ export async function send (command, value) {
   }
 
   const seq = 'R' + nextSeq++
-  const index = value.index ?? runtime.args.index
+  const index = value?.index ?? runtime.args.index
   let serialized = ''
 
   try {
