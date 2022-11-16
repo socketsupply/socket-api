@@ -12,21 +12,21 @@ import ipc from './ipc.js'
 // eslint-disable-next-line
 export const args = new class Args {
   arch = window?.__args?.arch
-  argv = window?.__args?.argv || []
-  debug = window?.__args?.debug || false
-  env = window?.__args?.env || {}
-  executable = window?.__args?.executable || null
-  index = window?.__args?.index || 0
+  argv = window?.__args?.argv ?? []
+  debug = window?.__args?.debug ?? false
+  env = window?.__args?.env ?? {}
+  executable = window?.__args?.executable ?? null
+  index = window?.__args?.index ?? 0
   os = window?.__args?.os
   platform = window?.__args?.platform
-  port = window?.__args?.port || 0
-  title = window?.__args?.title || null
-  version = window?.__args?.version || null
+  port = window?.__args?.port ?? 0
+  title = window?.__args?.title ?? null
+  version = window?.__args?.version ?? null
 
   // eslint-disable-next-line
   config = new class Config {
     get size () {
-      return Object.keys(this).length
+      return Object.keys(args).length
     }
 
     get (key) {
@@ -35,7 +35,7 @@ export const args = new class Args {
       }
 
       key = key.toLowerCase()
-      return key in this ? this[key] : null
+      return key in args ? args[key] : null
     }
   }
 
