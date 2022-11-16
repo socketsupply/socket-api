@@ -766,7 +766,7 @@ export function sendSync (command, params) {
   }
 
   const request = new window.XMLHttpRequest()
-  const index = window?.__args?.index ?? 0
+  const index = runtime.args.index ?? 0
   const seq = nextSeq++
   const uri = `ipc://${command}`
 
