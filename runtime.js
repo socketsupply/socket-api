@@ -96,7 +96,7 @@ if (args.platform !== 'linux') {
 }
 
 export async function openExternal (options) {
-  return await ipc.postMessage(`ipc://external?value=${encodeURIComponent(options)}`)
+  return ipc.postMessage(`ipc://external?value=${encodeURIComponent(options)}`)
 }
 
 /**
@@ -118,7 +118,7 @@ export async function setTitle (o) {
 }
 
 export async function inspect (o) {
-  return await ipc.postMessage('ipc://inspect')
+  return ipc.postMessage('ipc://inspect')
 }
 
 /**
@@ -159,7 +159,7 @@ export async function navigate (opts = {}) {
 }
 
 export async function setWindowBackgroundColor (opts) {
-  opts.index = window.__args.index
+  opts.index = args.index
   const o = new URLSearchParams(opts).toString()
   await ipc.postMessage(`ipc://background?${o}`)
 }
@@ -178,7 +178,7 @@ export async function setContextMenu (o) {
 }
 
 export async function setSystemMenuItemEnabled (value) {
-  return ipc.send('systemMenuItemEnabled', value)
+  return ipc.send('menuItemEnabled', value)
 }
 
 /**
@@ -315,7 +315,7 @@ export async function setSystemMenu (o) {
   return ipc.send('menu', o)
 }
 
-export function reload () {
+export async function reload () {
   ipc.postMessage('ipc://reload')
 }
 
