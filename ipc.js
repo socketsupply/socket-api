@@ -875,7 +875,7 @@ export async function send (command, value) {
       index,
       seq
     }
-
+    debug.log(params)
     serialized = new URLSearchParams(params).toString()
     serialized = serialized.replace(/\+/g, '%20')
   } catch (err) {

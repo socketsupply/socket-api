@@ -1,6 +1,8 @@
 import runtime from '@socketsupply/io/runtime.js'
 import { test } from 'tapzero'
 
+// Polyfills tests are located in the ./polyfills.js module
+
 const argsKeys = [
   'arch',
   'argv',
@@ -34,8 +36,6 @@ test('args', async (t) => {
     t.equal(runtime.args.config.get(key), runtime.args[key], `args.config.get('${key}') is correct`)
   })
 })
-
-// TODO: test polyfills
 
 // TODO: add resulting ipc message to output and test it?
 
