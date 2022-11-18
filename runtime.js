@@ -315,7 +315,7 @@ export async function setSystemMenu (o) {
   return ipc.send('menu', o)
 }
 
-export async function reload () {
+export function reload () {
   ipc.postMessage('ipc://reload')
 }
 
