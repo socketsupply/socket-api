@@ -26,32 +26,26 @@ export function applyPolyFills (window) {
       console.warn('window.showDirectoryFilePicker may not conform to the standard')
       const files = await ipc.send('dialog', { allowDirs: true, ...o })
       return typeof files === 'string' ? files.split('\n') : []
-    },
-
-    get name () {
-      return window.__args.title
-    },
-
-    // window.document.title is uncofigurable property
-    set name (value) {
-      const index = window.__args.index
-      const o = new URLSearchParams({ value, index }).toString()
-      console.log(`ipc://title?${o}`)
-      ipc.postMessage(`ipc://title?${o}`)
-      args.title = window.__args.title = value
     }
   }))
 
-
-  // TODO: It's not configurable. We'd need to use a Proxy to make it configurable.
-  // Object.defineProperty(window.document, 'title', {
-  //   get () {
-  //     return window.__args.title
-  //   },
-  //   set (value) {
-  //     const index = window.__args.index
-  //     const o = new URLSearchParams({ value, index }).toString()
-  //     ipc.postMessage(`ipc://title?${o}`)
-  //   }
-  // })
+  //
+  // window.document is uncofigurable property so we need to use MutationObserver here
+  //
+  const observer = new MutationObserver((mutationList) => {
+    for (const mutation of mutationList) {
+      if (mutation.type === 'childList') {
+        const index = window.__args.index
+        const title = mutation.addedNodes[0].textContent
+        window.__args.title = title
+        args.title = title
+        const o = new URLSearchParams({ value: title, index }).toString()
+        ipc.postMessage(`ipc://title?${o}`)
+      }
+    }
+  })
+  
+  const titleElement = document.querySelector('head > title')
+  
+  observer.observe(titleElement, { childList: true })
 }
