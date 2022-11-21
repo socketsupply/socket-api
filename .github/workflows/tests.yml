@@ -5,7 +5,7 @@ on: [push]
 jobs:
   linux:
     runs-on: ubuntu-22.04
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v1
@@ -30,7 +30,7 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        git clone --branch master --depth 1 git@github.com:socketsupply/socket.git
+        git clone --branch ipc-cleanup --depth 1 git@github.com:socketsupply/socket.git
         cd socket
         ./bin/install.sh
         cd ..
@@ -48,7 +48,7 @@ jobs:
 
   mac:
     runs-on: macOS-12
-    timeout-minutes: 7
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v1
@@ -71,7 +71,7 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        git clone --branch master --depth 1 git@github.com:socketsupply/socket.git
+        git clone --branch ipc-cleanup --depth 1 git@github.com:socketsupply/socket.git
         cd socket
         ./bin/install.sh
         cd ..
@@ -111,7 +111,7 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        git clone --branch master --depth 1 git@github.com:socketsupply/socket.git
+        git clone --branch ipc-cleanup --depth 1 git@github.com:socketsupply/socket.git
         cd socket
         ./bin/install.sh ios
         cd ..
@@ -128,7 +128,7 @@ jobs:
 
   android:
     runs-on: macos-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
 
     steps:
     - uses: actions/checkout@v3
@@ -155,7 +155,7 @@ jobs:
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
-        git clone --branch master --depth 1 git@github.com:socketsupply/socket.git
+        git clone --branch ipc-cleanup --depth 1 git@github.com:socketsupply/socket.git
         cd socket
         ./bin/install.sh
         cd ..
