@@ -30,11 +30,19 @@ test('window.resizeTo', (t) => {
 //   t.ok(window.showDirectoryPicker())
 // })
 
-test('window.document.title', (t) => {
-  t.equal(typeof window.name, 'string', 'window.name is a string')
-  t.equal( window.name, '', 'window.name is an empty ')
-  window.name = 'foo'
-  t.equal(window.name, 'foo', 'window.name is set to "foo"')
-  t.equal(window.__args.title, 'foo', 'window.name is set to "foo"')
-  t.equal(args.title, 'foo', 'window.name is set to "foo"')
+test('window.document.title', async (t) => {
+  t.equal(typeof window.document.title, 'string', 'window.document.title is a string')
+  t.equal(window.document.title, '@socketsupply/io E2E Tests', 'window.document.title is correct')
+  // TODO: test these two below instead of the above
+  // t.equal(window.document.title, window.__args.title, 'window.document.title equals window.__args.title')
+  // t.equal(window.document.title, args.title, 'window.document.title equals args.title')
+
+  window.document.title = 'test'
+  t.equal(window.document.title, 'test', 'window.document.title is has been changed')
+
+  // because of MutationObserver we need to wait for the next tick
+  await new Promise((resolve) => setTimeout(resolve, 0))
+
+  t.equal(window.__args.title, 'test', 'window.__args.title is set to "test"')
+  t.equal(args.title, 'test', 'args.title is set to "test"')
 })
