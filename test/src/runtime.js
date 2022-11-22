@@ -1,4 +1,5 @@
 import runtime from '@socketsupply/io/runtime.js'
+import { readFile } from '@socketsupply/io/fs/promises.js'
 import { test } from 'tapzero'
 
 // Polyfills tests are located in the ./polyfills.js module
@@ -21,20 +22,32 @@ const argsKeys = [
 test('args', async (t) => {
   t.equal(runtime.args.constructor.name, 'Args', 'args is an Args instance')
   t.deepEqual(Object.keys(runtime.args).sort(), argsKeys.sort(), 'args has expected keys')
-  argsKeys.filter((key) => key !== 'config' && key !== 'cwd').forEach((key) => {
+  argsKeys.filter(key => key !== 'config' && key !== 'cwd').forEach((key) => {
     t.equal(runtime.args[key], window.__args[key], `args.${key} is correct`)
   })
   t.equal(runtime.args.cwd(), window.__args.cwd(), 'args.cwd() is correct')
   t.equal(runtime.args.config.constructor.name, 'Config', 'args.config is a Config instance')
-  t.equal(runtime.args.config.size, Object.keys(runtime.args).length, 'args.config.size is correct')
+  t.equal(runtime.args.config.size, 21, 'args.config.size is correct')
   t.throws(
     () => runtime.args.config.size = 0,
     RegExp('Attempted to assign to readonly property.'),
     'args.config.size is read-only'
   )
-  argsKeys.forEach((key) => {
-    t.equal(runtime.args.config.get(key), runtime.args[key], `args.config.get('${key}') is correct`)
+  const rawConfig = await readFile('ssc.config', 'utf8')
+  const config = rawConfig
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .filter(line => !line.startsWith('#'))
+    .map(line => line.split(':'))
+    .map(([key, value]) => [key.trim(), value.trim()])
+  config.filter(([key]) => !(['name', 'title', 'headless'].includes(key))).forEach(([key, value]) => {
+    t.equal(runtime.args.config.get(key), value, `args.config.get('${key}') is correct`)
   })
+  t.equal(runtime.args.config.get('headless'), true, 'args.config.get(\'headless\') is correct')
+  // TODO: improve
+  t.equal(runtime.args.config.get('name'), `${config.find(([key]) => key === 'name')[1]}-dev`, 'args.config.get(\'name\') is correct')
+  t.equal(runtime.args.config.get('title'), `${config.find(([key]) => key === 'title')[1]}-dev`, 'args.config.get(\'title\') is correct')
 })
 
 // TODO: add resulting ipc message to output and test it?
