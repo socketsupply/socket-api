@@ -12,8 +12,7 @@ import ipc from './ipc.js'
 // eslint-disable-next-line
 export const args = new class Args {
   // TODO all of these should be getters except args.title
-  // some of them could be static getters
-  // Args instance should be a frozen object 
+  // Args instance should be a frozen object as well as window.__args
   title = window?.__args?.title ?? null
   arch = window?.__args?.arch
   argv = window?.__args?.argv ?? []
@@ -29,7 +28,7 @@ export const args = new class Args {
   // eslint-disable-next-line
   config = new class Config {
     get size () {
-      return Object.keys(args).length
+      return Object.keys(window?.__args?.config).length
     }
 
     get (key) {
@@ -38,7 +37,7 @@ export const args = new class Args {
       }
 
       key = key.toLowerCase()
-      return key in args ? args[key] : null
+      return window?.__args?.config?.[key] ?? null
     }
   }
 
