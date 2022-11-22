@@ -11,6 +11,10 @@ import ipc from './ipc.js'
 
 // eslint-disable-next-line
 export const args = new class Args {
+  // TODO all of these should be getters except args.title
+  // some of them could be static getters
+  // Args instance should be a frozen object 
+  title = window?.__args?.title ?? null
   arch = window?.__args?.arch
   argv = window?.__args?.argv ?? []
   debug = window?.__args?.debug ?? false
@@ -20,7 +24,6 @@ export const args = new class Args {
   os = window?.__args?.os
   platform = window?.__args?.platform
   port = window?.__args?.port ?? 0
-  title = window?.__args?.title ?? null
   version = window?.__args?.version ?? null
 
   // eslint-disable-next-line
