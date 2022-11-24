@@ -18,12 +18,9 @@ export const args = new class Args {
   argv = window?.__args?.argv ?? []
   debug = window?.__args?.debug ?? false
   env = window?.__args?.env ?? {}
-  executable = window?.__args?.executable ?? null
   index = window?.__args?.index ?? 0
   os = window?.__args?.os
   platform = window?.__args?.platform
-  port = window?.__args?.port ?? 0
-  version = window?.__args?.version ?? null
 
   // eslint-disable-next-line
   config = new class Config {
