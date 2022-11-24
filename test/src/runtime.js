@@ -45,9 +45,11 @@ test('args', async (t) => {
     t.equal(runtime.args.config.get(key), value, `args.config.get('${key}') is correct`)
   })
   t.equal(runtime.args.config.get('headless'), true, 'args.config.get(\'headless\') is correct')
-  // TODO: improve
-  t.equal(runtime.args.config.get('name'), `${config.find(([key]) => key === 'name')[1]}-dev`, 'args.config.get(\'name\') is correct')
-  t.equal(runtime.args.config.get('title'), `${config.find(([key]) => key === 'title')[1]}-dev`, 'args.config.get(\'title\') is correct')
+  const findValue = (key) => {
+    return config.find(([k]) => k === key)?.[1] ?? null
+  }
+  t.equal(runtime.args.config.get('name'), findValue('name'), 'args.config.get(\'name\') is correct')
+  t.equal(runtime.args.config.get('title'), findValue('title'), 'args.config.get(\'title\') is correct')
 })
 
 // TODO: add resulting ipc message to output and test it?

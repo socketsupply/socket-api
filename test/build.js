@@ -13,6 +13,7 @@ const cp = async (a, b) => fs.cp(
 async function copy (target) {
   await cp('src/index.html', target)
   await cp('fixtures', target)
+  // for testing purposes
   await cp('ssc.config', target)
 }
 
