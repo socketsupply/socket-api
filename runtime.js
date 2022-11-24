@@ -20,7 +20,6 @@ export const args = new class Args {
   env = window?.__args?.env ?? {}
   index = window?.__args?.index ?? 0
   os = window?.__args?.os
-  platform = window?.__args?.platform
 
   // eslint-disable-next-line
   config = new class Config {
@@ -90,7 +89,7 @@ function redirectOutput () {
 }
 
 // FIXME: this should be platform agnostic
-if (args.platform !== 'linux') {
+if (args.os !== 'linux') {
   redirectOutput()
 }
 

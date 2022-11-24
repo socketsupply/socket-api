@@ -17,6 +17,7 @@ const process = isNode
     env: {},
     ...globalThis.__args
   }))
+process.platform = process.os
 
 if (!isNode) {
   EventEmitter.call(process)

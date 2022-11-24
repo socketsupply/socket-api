@@ -12,7 +12,6 @@ const argsKeys = [
   'env',
   'index',
   'os',
-  'platform',
   'title'
 ]
 
