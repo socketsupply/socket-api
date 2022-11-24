@@ -60,7 +60,7 @@ export async function send (options) {
     return Promise.reject(err.message)
   }
 
-  return ipc.send('send', { value })
+  return await ipc.send('send', { value })
 }
 
 function redirectOutput () {
@@ -94,7 +94,7 @@ if (args.os !== 'linux') {
 }
 
 export async function openExternal (options) {
-  return ipc.postMessage(`ipc://external?value=${encodeURIComponent(options)}`)
+  return await ipc.postMessage(`ipc://external?value=${encodeURIComponent(options)}`)
 }
 
 /**
@@ -103,7 +103,7 @@ export async function openExternal (options) {
  * @return {Promise<Any>}
  */
 export async function exit (o) {
-  return ipc.send('exit', o)
+  return await ipc.send('exit', o)
 }
 
 /**
@@ -112,11 +112,11 @@ export async function exit (o) {
  * @return {Promise<ipc.Result>}
  */
 export async function setTitle (o) {
-  return ipc.send('title', o)
+  return await ipc.send('title', o)
 }
 
 export async function inspect (o) {
-  return ipc.postMessage('ipc://inspect')
+  return await ipc.postMessage('ipc://inspect')
 }
 
 /**
@@ -129,7 +129,7 @@ export async function show (opts = {}) {
   if (opts.url) {
     opts.url = formatFileUrl(opts.url)
   }
-  return ipc.send('show', opts)
+  return await ipc.send('show', opts)
 }
 
 /**
@@ -138,7 +138,7 @@ export async function show (opts = {}) {
  */
 export async function hide (opts = {}) {
   opts.index = args.index
-  return ipc.send('hide', opts)
+  return await ipc.send('hide', opts)
 }
 
 /**
@@ -153,7 +153,7 @@ export async function navigate (opts = {}) {
   if (opts.url) {
     opts.url = formatFileUrl(opts.url)
   }
-  return ipc.send('navigate', opts)
+  return await ipc.send('navigate', opts)
 }
 
 export async function setWindowBackgroundColor (opts) {
@@ -172,11 +172,11 @@ export async function setContextMenu (o) {
     .entries(o)
     .flatMap(a => a.join(':'))
     .join('_')
-  return ipc.send('context', o)
+  return await ipc.send('context', o)
 }
 
 export async function setSystemMenuItemEnabled (value) {
-  return ipc.send('menuItemEnabled', value)
+  return await ipc.send('menuItemEnabled', value)
 }
 
 /**
@@ -310,7 +310,7 @@ export async function setSystemMenu (o) {
     }
   }
 
-  return ipc.send('menu', o)
+  return await ipc.send('menu', o)
 }
 
 export function reload () {

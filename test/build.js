@@ -11,10 +11,12 @@ const cp = async (a, b) => fs.cp(
 )
 
 async function copy (target) {
-  await cp('src/index.html', target)
-  await cp('fixtures', target)
-  // for testing purposes
-  await cp('ssc.config', target)
+  await Promise.all([
+    cp('src/index.html', target),
+    cp('fixtures', target),
+    // for testing purposes
+    cp('ssc.config', target)
+  ])
 }
 
 async function main () {
