@@ -13,7 +13,7 @@ import ipc from './ipc.js'
 export const args = new class Args {
   // TODO all of these should be getters except args.title
   // Args instance should be a frozen object as well as window.__args
-  title = window?.__args?.title ?? null
+  title = ''
   arch = window?.__args?.arch
   argv = window?.__args?.argv ?? []
   debug = window?.__args?.debug ?? false
