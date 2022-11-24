@@ -15,12 +15,12 @@
 export async function open (opts = {}) {
   opts.index = args.index
   opts.force ??= false
-  return ipc.send('process.open', opts)
+  return await ipc.send('process.open', opts)
 }
 
 /**
  * @return {Promise<ipc.Result>}
  */ 
 export async function close () {
-  return ipc.send('process.kill', { index: args.index })
+  return await ipc.send('process.kill', { index: args.index })
 }

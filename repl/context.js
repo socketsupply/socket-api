@@ -124,7 +124,7 @@ export async function evaluate ({ cmd, id }) {
     if (/\s*await\s*import\s*\(/.test(cmd)) {
       cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
       const value = await new AsyncFunction(`(${cmd})`)()
-      return ipc.send('repl.eval.result', {
+      return await ipc.send('repl.eval.result', {
         id,
         error: false,
         value: JSON.stringify({ data: io.util.format(value) })
@@ -132,7 +132,7 @@ export async function evaluate ({ cmd, id }) {
     } else if (/\s*import\s*\(/.test(cmd)) {
       cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
       const value = new AsyncFunction(`(${cmd})`)()
-      return ipc.send('repl.eval.result', {
+      return await ipc.send('repl.eval.result', {
         id,
         error: false,
         value: JSON.stringify({ data: io.util.format(value) })
@@ -140,7 +140,7 @@ export async function evaluate ({ cmd, id }) {
     }
 
     const result = await ipc.request('window.eval', { value: cmd })
-    return ipc.send('repl.eval.result', {
+    return await ipc.send('repl.eval.result', {
       id,
       error: Boolean(result.err),
       value: JSON.stringify({
@@ -149,7 +149,7 @@ export async function evaluate ({ cmd, id }) {
       })
     })
   } catch (err) {
-    return ipc.send('repl.eval.result', {
+    return await ipc.send('repl.eval.result', {
       id,
       error: true,
       value: JSON.stringify({
