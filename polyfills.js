@@ -30,8 +30,11 @@ export function applyPolyFills (window) {
   }))
 
   // initial value
-  window.addEventListener('DOMContentLoaded', () => {
-    args.title = window.document.title
+  window.addEventListener('DOMContentLoaded', async () => {
+    const index = window.__args.index
+    const title = window.document.title 
+    args.title = title
+    const o = new URLSearchParams({ value: title, index }).toString()
     ipc.postMessage(`ipc://title?${o}`)
   })
 
@@ -45,7 +48,7 @@ export function applyPolyFills (window) {
         const title = mutation.addedNodes[0].textContent
         args.title = title
         const o = new URLSearchParams({ value: title, index }).toString()
-        ipc.postMessage(`ipc://title?${title}`)
+        ipc.postMessage(`ipc://title?${o}`)
       }
     }
   })
