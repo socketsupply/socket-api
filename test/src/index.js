@@ -10,5 +10,5 @@ import './test-context.js' // this should be first
 // import './os.js'
 // import './path.js'
 // import './process.js'
-import './runtime.js'
-// import './polyfills.js'
+// import './runtime.js'
+import './polyfills.js'

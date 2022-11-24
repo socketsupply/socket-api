@@ -29,6 +29,12 @@ export function applyPolyFills (window) {
     }
   }))
 
+  // initial value
+  window.addEventListener('DOMContentLoaded', () => {
+    args.title = window.document.title
+    ipc.postMessage(`ipc://title?${o}`)
+  })
+
   //
   // window.document is uncofigurable property so we need to use MutationObserver here
   //
@@ -37,10 +43,9 @@ export function applyPolyFills (window) {
       if (mutation.type === 'childList') {
         const index = window.__args.index
         const title = mutation.addedNodes[0].textContent
-        window.__args.title = title
         args.title = title
         const o = new URLSearchParams({ value: title, index }).toString()
-        ipc.postMessage(`ipc://title?${o}`)
+        ipc.postMessage(`ipc://title?${title}`)
       }
     }
   })
