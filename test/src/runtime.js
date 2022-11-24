@@ -31,23 +31,23 @@ test('args', async (t) => {
     'args.config.size is read-only'
   )
   // TODO: improve these tests
-  // const rawConfig = await readFile('ssc.config', 'utf8')
-  // const config = rawConfig
-  //   .split('\n')
-  //   .map(line => line.trim())
-  //   .filter(line => line.length > 0)
-  //   .filter(line => !line.startsWith('#'))
-  //   .map(line => line.split(':'))
-  //   .map(([key, value]) => [key.trim(), value.trim()])
-  // config.filter(([key]) => !(['name', 'title', 'headless'].includes(key))).forEach(([key, value]) => {
-  //   t.equal(runtime.args.config.get(key), value, `args.config.get('${key}') is correct`)
-  // })
-  // t.equal(runtime.args.config.get('headless'), true, 'args.config.get(\'headless\') is correct')
-  // const findValue = (key) => {
-  //   return config.find(([k]) => k === key)?.[1] ?? null
-  // }
-  // t.ok(findValue('name').startsWith(runtime.args.config.get('name')), 'args.config.get(\'name\') is correct')
-  // t.ok(findValue('title').startsWith(runtime.args.config.get('title')), 'args.config.get(\'title\') is correct')
+  const rawConfig = await readFile('ssc.config', 'utf8')
+  const config = rawConfig
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .filter(line => !line.startsWith('#'))
+    .map(line => line.split(':'))
+    .map(([key, value]) => [key.trim(), value.trim()])
+  config.filter(([key]) => !(['name', 'title', 'headless'].includes(key))).forEach(([key, value]) => {
+    t.equal(runtime.args.config.get(key), value, `args.config.get('${key}') is correct`)
+  })
+  t.equal(runtime.args.config.get('headless'), true, 'args.config.get(\'headless\') is correct')
+  const findValue = (key) => {
+    return config.find(([k]) => k === key)?.[1] ?? null
+  }
+  t.ok(findValue('name').startsWith(runtime.args.config.get('name')), 'args.config.get(\'name\') is correct')
+  t.equal(runtime.args.config.get('title'), null, 'args.config.get(\'title\') is null on start')
 })
 
 // TODO: add resulting ipc message to output and test it?
