@@ -86,12 +86,12 @@ function initializeXHRIntercept () {
           typeof body !== 'undefined' &&
           typeof seq !== 'undefined'
         ) {
-          if (/android/i.test(runtime.args?.platform)) {
+          if (/android/i.test(runtime.args?.os)) {
             await postMessage(`ipc://buffer.map?seq=${seq}`, body)
             body = null
           }
 
-          if (/linux/i.test(runtime.args?.platform)) {
+          if (/linux/i.test(runtime.args?.os)) {
             if (body?.buffer instanceof ArrayBuffer) {
               const header = new Uint8Array(24)
               const buffer = new Uint8Array(
