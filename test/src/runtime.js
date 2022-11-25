@@ -4,18 +4,22 @@ import { test } from 'tapzero'
 
 // Polyfills tests are located in the ./polyfills.js module
 
-const argsKeys = [
-  'arch',
-  'argv',
-  'config',
-  'debug',
-  'env',
-  'index',
-  'os',
-  'title'
-]
+test('currentWindow', async (t) => {
+  t.equal(runtime.currentWindow.index, window.__args.index, 'runtime.currentWindow.index equals window.__args.index')
+  t.equal(runtime.currentWindow.index, 0, 'runtime.currentWindow.index equals 0')
+  t.equal(runtime.currentWindow.title, '@socketsupply/io E2E Tests', 'runtime.currentWindow.title equals "@socketsupply/io E2E Tests"')
+  t.throws(() => runtime.currentWindow.index = 1, 'runtime.currentWindow.index is immutable')
+})
 
 test('args', (t) => {
+  const argsKeys = [
+    'arch',
+    'argv',
+    'debug',
+    'env',
+    'os'
+  ]
+
   t.equal(runtime.args.constructor.name, 'Args', 'args is an Args instance')
   t.deepEqual(Object.keys(runtime.args).sort(), argsKeys.sort(), 'args has expected keys')
   argsKeys.filter(key => !(['config', 'cwd', 'title'].includes(key))).forEach((key) => {

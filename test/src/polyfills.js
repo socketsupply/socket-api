@@ -1,6 +1,6 @@
 import { applyPolyFills } from '@socketsupply/io/polyfills.js'
 import { test } from 'tapzero'
-import { args } from '@socketsupply/io/runtime.js'
+import { currentWindow } from '@socketsupply/io/runtime.js'
 
 test('applyPolyFills', (t) => {
   t.equal(typeof applyPolyFills, 'function', 'applyPolyFills is a function')
@@ -31,12 +31,12 @@ test('window.resizeTo', (t) => {
 // })
 
 test('window.document.title', async (t) => {
-  t.equal(window.document.title, args.title, 'window.document.title equals args.title')
+  t.equal(window.document.title, currentWindow.title, 'window.document.title equals args.title')
   window.document.title = 'test'
   t.equal(window.document.title, 'test', 'window.document.title is has been changed')
   // because of MutationObserver we need to wait for the next tick
   await new Promise((resolve) => setTimeout(resolve, 0))
   // TODO: check immutability of window.__args instead
   t.notEqual(window.__args.title, 'test', 'window.__args.title is set to "test"')
-  t.equal(args.title, 'test', 'args.title is set to "test"')
+  t.equal(currentWindow.title, 'test', 'args.title is set to "test"')
 })

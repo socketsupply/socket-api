@@ -78,7 +78,7 @@ function initializeXHRIntercept () {
 
     async send (body) {
       const { method, seq, url } = this
-      const index = runtime.args.index
+      const index = runtime.currentWindow.index
 
       if (url?.protocol === 'ipc:') {
         if (
@@ -842,7 +842,7 @@ export async function resolve (seq, value) {
     debug.log('ipc.resolve:', seq, value)
   }
 
-  const index = runtime.args.index
+  const index = runtime.currentWindow.index
   const eventName = `resolve-${index}-${seq}`
   const event = new window.CustomEvent(eventName, { detail: value })
   window.dispatchEvent(event)
@@ -862,7 +862,7 @@ export async function send (command, value) {
   }
 
   const seq = 'R' + nextSeq++
-  const index = value?.index ?? runtime.args.index
+  const index = value?.index ?? runtime.currentWindow.index
   let serialized = ''
 
   try {
