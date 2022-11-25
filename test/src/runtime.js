@@ -15,21 +15,16 @@ const argsKeys = [
   'title'
 ]
 
-test('args', async (t) => {
+test('args', (t) => {
   t.equal(runtime.args.constructor.name, 'Args', 'args is an Args instance')
   t.deepEqual(Object.keys(runtime.args).sort(), argsKeys.sort(), 'args has expected keys')
   argsKeys.filter(key => !(['config', 'cwd', 'title'].includes(key))).forEach((key) => {
     t.equal(runtime.args[key], window.__args[key], `args.${key} is correct`)
   })
   t.equal(runtime.args.cwd(), window.__args.cwd(), 'args.cwd() is correct')
-  t.equal(runtime.args.config.constructor.name, 'Config', 'args.config is a Config instance')
-  t.equal(runtime.args.config.size, 20, 'args.config.size is correct')
-  t.throws(
-    () => runtime.args.config.size = 0,
-    RegExp('Attempted to assign to readonly property.'),
-    'args.config.size is read-only'
-  )
-  // TODO: improve these tests
+})
+
+test ('config', async (t) => {
   const rawConfig = await readFile('ssc.config', 'utf8')
   const config = rawConfig
     .split('\n')
@@ -38,15 +33,15 @@ test('args', async (t) => {
     .filter(line => !line.startsWith('#'))
     .map(line => line.split(':'))
     .map(([key, value]) => [key.trim(), value.trim()])
-  config.filter(([key]) => !(['name', 'title', 'headless'].includes(key))).forEach(([key, value]) => {
-    t.equal(runtime.args.config.get(key), value, `args.config.get('${key}') is correct`)
+  config.filter(([key]) => !(key = 'headless')).forEach(([key, value]) => {
+    t.equal(runtime.config[key], value, `runtime.config.'${key}' is correct`)
+    t.throws(
+      () => runtime.config[key] = 0,
+      RegExp('Attempted to assign to readonly property.'),
+      `runtime.config.${key} is read-only`
+    )
   })
-  t.equal(runtime.args.config.get('headless'), true, 'args.config.get(\'headless\') is correct')
-  const findValue = (key) => {
-    return config.find(([k]) => k === key)?.[1] ?? null
-  }
-  t.ok(findValue('name').startsWith(runtime.args.config.get('name')), 'args.config.get(\'name\') is correct')
-  t.equal(runtime.args.config.get('title'), null, 'args.config.get(\'title\') is null on start')
+  t.equal(runtime.config.headless, true, 'runtime.config.headless is correct')
 })
 
 // TODO: add resulting ipc message to output and test it?
