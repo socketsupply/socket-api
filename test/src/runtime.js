@@ -13,7 +13,6 @@ test('currentWindow', async (t) => {
 
 test('args', (t) => {
   const argsKeys = [
-    'arch',
     'argv',
     'debug'
   ]
