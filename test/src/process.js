@@ -29,5 +29,7 @@ test('process.cwd', async (t) => {
 })
 
 test('process.platform', (t) => {
-  t.ok(typeof process.platform === 'string', 'process.platform() returns an string')
+  t.ok(typeof process.platform === 'string', 'process.platform returns an string')
+  t.ok(['mac', 'linux', 'android', 'ios', 'win'].includes(process.platform), 'process.platform is correct')
+  t.equal(process.platform, process.os, 'process.platform returns the same value as process.os')
 })
