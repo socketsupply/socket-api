@@ -11,9 +11,9 @@ test('currentWindow', (t) => {
   t.throws(() => runtime.currentWindow.index = 1, 'runtime.currentWindow.index is immutable')
 })
 
-test('args', (t) => {
-  t.equal(runtime.args.debug, window.__args.debug, 'args.debug is correct')
-  t.throws(() => runtime.args.debug = 1, `args.debug is immutable`)
+test('debug', (t) => {
+  t.equal(runtime.debug, window.__args.debug, 'debug is correct')
+  t.throws(() => runtime.debug = 1, 'debug is immutable')
 })
 
 test ('config', async (t) => {
