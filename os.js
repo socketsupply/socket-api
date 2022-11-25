@@ -33,7 +33,7 @@ export function arch () {
 
   if (typeof window === 'object') {
     value = (
-      runtime.args.arch ||
+      window.__args.arch ||
       ipc.sendSync('os.arch')?.data ||
       UNKNOWN
     )
@@ -154,7 +154,7 @@ export function platform () {
 
   if (typeof window === 'object') {
     value = (
-      runtime.args.os ||
+      window.__args.os ||
       ipc.sendSync('os.platform')?.data ||
       platform?.platform ||
       UNKNOWN
