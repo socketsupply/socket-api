@@ -9,41 +9,25 @@ import { applyPolyFills } from './polyfills.js'
 import { format } from './util.js'
 import ipc from './ipc.js'
 
+export const currentWindow = Object.seal({
+  title: window.__args.title,
+  get index() { return window.__args.index ?? 0 }
+})
+
 // eslint-disable-next-line
 export const args = new class Args {
-  // TODO all of these should be getters except args.title
-  // Args instance should be a frozen object as well as window.__args
-  title = ''
-  arch = window?.__args?.arch
-  argv = window?.__args?.argv ?? []
-  debug = window?.__args?.debug ?? false
-  env = window?.__args?.env ?? {}
-  index = window?.__args?.index ?? 0
-  os = window?.__args?.os
-
-  // eslint-disable-next-line
-  config = new class Config {
-    get size () {
-      return Object.keys(window?.__args?.config).length
-    }
-
-    get (key) {
-      if (typeof key !== 'string') {
-        throw new TypeError('Expecting key to be a string.')
-      }
-
-      key = key.toLowerCase()
-      return window?.__args?.config?.[key] ?? null
-    }
-  }
-
+  arch = window.__args.arch
+  argv = window.__args.argv ?? []
+  debug = window.__args.debug ?? false
+  env = window.__args.env ?? {}
+  os = window.__args.os
   // overloaded in process
   cwd () {
-    return window?.__args?.cwd?.() ?? null
+    return window.__args.cwd() ?? null
   }
 }
 
-export const config = Object.freeze(window?.__args?.config ?? {})
+export const config = Object.freeze(window.__args.config ?? {})
 
 function formatFileUrl (url) {
   return `file://${args.cwd()}/${url}`
@@ -126,8 +110,8 @@ export async function inspect (o) {
  * @return {Promise<ipc.Result>}
  */
 export async function show (opts = {}) {
-  opts.index = args.index
-  opts.window ??= args.index
+  opts.index = currentWindow.index
+  opts.window ??= currentWindow.index
   if (opts.url) {
     opts.url = formatFileUrl(opts.url)
   }
@@ -139,19 +123,19 @@ export async function show (opts = {}) {
  * @return {Promise<ipc.Result>}
  */
 export async function hide (opts = {}) {
-  opts.index = args.index
+  opts.index = currentWindow.index
   return await ipc.send('hide', opts)
 }
 
 /**
  * @param {object} opts - an options object
- * @param {number} [opts.window = args.index] - the index of the window
+ * @param {number} [opts.window = currentWindow.index] - the index of the window
  * @param {number} opts.url - the path to the HTML file to load into the window
  * @return {Promise<ipc.Result>}
  */
 export async function navigate (opts = {}) {
-  opts.index = args.index
-  opts.window ??= args.index
+  opts.index = currentWindow.index
+  opts.window ??= currentWindow.index
   if (opts.url) {
     opts.url = formatFileUrl(opts.url)
   }
@@ -159,7 +143,7 @@ export async function navigate (opts = {}) {
 }
 
 export async function setWindowBackgroundColor (opts) {
-  opts.index = args.index
+  opts.index = currentWindow.index
   const o = new URLSearchParams(opts).toString()
   await ipc.postMessage(`ipc://background?${o}`)
 }
