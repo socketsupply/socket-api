@@ -43,6 +43,8 @@ export const args = new class Args {
   }
 }
 
+export const config = Object.freeze(window?.__args?.config ?? {})
+
 function formatFileUrl (url) {
   return `file://${args.cwd()}/${url}`
 }
