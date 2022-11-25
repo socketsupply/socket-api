@@ -28,9 +28,15 @@ test('process.cwd', async (t) => {
   }
 })
 
+test('process.arch', (t) => {
+  t.ok(['x86_64', 'amd64'].includes(process.arch), 'process.arch is correct')
+  t.equal(process.arch, window.__args.arch, 'process.arch equals window.__args.arch')
+})
+
 test('process.platform', (t) => {
   t.ok(typeof process.platform === 'string', 'process.platform returns an string')
   t.ok(['mac', 'linux', 'android', 'ios', 'win'].includes(process.platform), 'process.platform is correct')
+  t.equal(process.platform, window.__args.os, 'process.platform equals window.__args.platform')
   t.equal(process.platform, process.os, 'process.platform returns the same value as process.os')
 })
 
