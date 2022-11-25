@@ -5,7 +5,6 @@
  */
 
  import ipc from './ipc.js'
- import { currentWindow } from './runtime.js'
 
 /**
  * @param {object} opts - an options object
@@ -13,7 +12,6 @@
  * @return {Promise<ipc.Result>}
  */
 export async function open (opts = {}) {
-  opts.index = currentWindow.index
   opts.force ??= false
   return await ipc.send('process.open', opts)
 }
@@ -22,5 +20,5 @@ export async function open (opts = {}) {
  * @return {Promise<ipc.Result>}
  */ 
 export async function close () {
-  return await ipc.send('process.kill', { index: currentWindow.index })
+  return await ipc.send('process.kill')
 }

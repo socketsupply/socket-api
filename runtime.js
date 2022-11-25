@@ -9,11 +9,7 @@ import { applyPolyFills } from './polyfills.js'
 import { format } from './util.js'
 import ipc from './ipc.js'
 
-export const currentWindow = Object.seal({
-  title: window.__args.title,
-  get index() { return window.__args.index ?? 0 }
-})
-
+export const currentWindow = window.__args.index
 // eslint-disable-next-line
 export const debug = window.__args.debug ?? false
 
@@ -100,8 +96,8 @@ export async function inspect (o) {
  * @return {Promise<ipc.Result>}
  */
 export async function show (opts = {}) {
-  opts.index = currentWindow.index
-  opts.window ??= currentWindow.index
+  opts.index = currentWindow
+  opts.window ??= currentWindow
   if (opts.url) {
     opts.url = formatFileUrl(opts.url)
   }
@@ -113,19 +109,19 @@ export async function show (opts = {}) {
  * @return {Promise<ipc.Result>}
  */
 export async function hide (opts = {}) {
-  opts.index = currentWindow.index
+  opts.index = currentWindow
   return await ipc.send('hide', opts)
 }
 
 /**
  * @param {object} opts - an options object
- * @param {number} [opts.window = currentWindow.index] - the index of the window
+ * @param {number} [opts.window = currentWindow] - the index of the window
  * @param {number} opts.url - the path to the HTML file to load into the window
  * @return {Promise<ipc.Result>}
  */
 export async function navigate (opts = {}) {
-  opts.index = currentWindow.index
-  opts.window ??= currentWindow.index
+  opts.index = currentWindow
+  opts.window ??= currentWindow
   if (opts.url) {
     opts.url = formatFileUrl(opts.url)
   }
@@ -133,7 +129,7 @@ export async function navigate (opts = {}) {
 }
 
 export async function setWindowBackgroundColor (opts) {
-  opts.index = currentWindow.index
+  opts.index = currentWindow
   const o = new URLSearchParams(opts).toString()
   await ipc.postMessage(`ipc://background?${o}`)
 }

@@ -1,5 +1,4 @@
 import ipc from './ipc.js'
-import { currentWindow } from './runtime.js'
 
 export function applyPolyFills (window) {
   Object.defineProperties(window, Object.getOwnPropertyDescriptors({
@@ -32,8 +31,7 @@ export function applyPolyFills (window) {
   // initial value
   window.addEventListener('DOMContentLoaded', async () => {
     const index = window.__args.index
-    const title = window.document.title 
-    currentWindow.title = title
+    const title = window.document.title
     const o = new URLSearchParams({ value: title, index }).toString()
     ipc.postMessage(`ipc://title?${o}`)
   })
@@ -46,7 +44,6 @@ export function applyPolyFills (window) {
       if (mutation.type === 'childList') {
         const index = window.__args.index
         const title = mutation.addedNodes[0].textContent
-        currentWindow.title = title
         const o = new URLSearchParams({ value: title, index }).toString()
         ipc.postMessage(`ipc://title?${o}`)
       }

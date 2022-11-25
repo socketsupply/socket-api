@@ -5,10 +5,9 @@ import { test } from 'tapzero'
 // Polyfills tests are located in the ./polyfills.js module
 
 test('currentWindow', (t) => {
-  t.equal(runtime.currentWindow.index, window.__args.index, 'runtime.currentWindow.index equals window.__args.index')
-  t.equal(runtime.currentWindow.index, 0, 'runtime.currentWindow.index equals 0')
-  t.equal(runtime.currentWindow.title, '@socketsupply/io E2E Tests', 'runtime.currentWindow.title equals "@socketsupply/io E2E Tests"')
-  t.throws(() => runtime.currentWindow.index = 1, 'runtime.currentWindow.index is immutable')
+  t.equal(runtime.currentWindow, window.__args.index, 'runtime.currentWindow equals window.__args.index')
+  t.equal(runtime.currentWindow, 0, 'runtime.currentWindow equals 0')
+  t.throws(() => runtime.currentWindow = 1, 'runtime.currentWindow is immutable')
 })
 
 test('debug', (t) => {
