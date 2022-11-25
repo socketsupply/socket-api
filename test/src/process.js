@@ -33,3 +33,7 @@ test('process.platform', (t) => {
   t.ok(['mac', 'linux', 'android', 'ios', 'win'].includes(process.platform), 'process.platform is correct')
   t.equal(process.platform, process.os, 'process.platform returns the same value as process.os')
 })
+
+test('process.env', (t) => {
+  t.deepEqual(process.env, window.__args.env, 'process.env is equal to window.__args.env')
+})
