@@ -43,3 +43,7 @@ test('process.platform', (t) => {
 test('process.env', (t) => {
   t.deepEqual(process.env, window.__args.env, 'process.env is equal to window.__args.env')
 })
+
+test('process.argv', (t) => {
+  t.deepEqual(process.argv, window.__args.argv, 'process.argv is equal to window.__args.argv')
+})

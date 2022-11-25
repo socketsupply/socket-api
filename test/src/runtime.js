@@ -4,7 +4,7 @@ import { test } from 'tapzero'
 
 // Polyfills tests are located in the ./polyfills.js module
 
-test('currentWindow', async (t) => {
+test('currentWindow', (t) => {
   t.equal(runtime.currentWindow.index, window.__args.index, 'runtime.currentWindow.index equals window.__args.index')
   t.equal(runtime.currentWindow.index, 0, 'runtime.currentWindow.index equals 0')
   t.equal(runtime.currentWindow.title, '@socketsupply/io E2E Tests', 'runtime.currentWindow.title equals "@socketsupply/io E2E Tests"')
@@ -12,16 +12,8 @@ test('currentWindow', async (t) => {
 })
 
 test('args', (t) => {
-  const argsKeys = [
-    'argv',
-    'debug'
-  ]
-
-  t.deepEqual(Object.keys(runtime.args).sort(), argsKeys.sort(), 'args has expected keys')
-  argsKeys.forEach((key) => {
-    t.equal(runtime.args[key], window.__args[key], `args.${key} is correct`)
-    t.throws(() => runtime.args[key] = 1, `args.${key} is immutable`)
-  })
+  t.equal(runtime.args.debug, window.__args.debug, 'args.debug is correct')
+  t.throws(() => runtime.args.debug = 1, `args.debug is immutable`)
 })
 
 test ('config', async (t) => {
