@@ -86,12 +86,12 @@ function initializeXHRIntercept () {
           typeof body !== 'undefined' &&
           typeof seq !== 'undefined'
         ) {
-          if (/android/i.test(runtime.args?.os)) {
+          if (/android/i.test(window.__args.os)) {
             await postMessage(`ipc://buffer.map?seq=${seq}`, body)
             body = null
           }
 
-          if (/linux/i.test(runtime.args?.os)) {
+          if (/linux/i.test(window.__args.os)) {
             if (body?.buffer instanceof ArrayBuffer) {
               const header = new Uint8Array(24)
               const buffer = new Uint8Array(
@@ -766,7 +766,7 @@ export function sendSync (command, params) {
   }
 
   const request = new window.XMLHttpRequest()
-  const index = runtime.args.index ?? 0
+  const index = window.__args.index ?? 0
   const seq = nextSeq++
   const uri = `ipc://${command}`
 
