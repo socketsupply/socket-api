@@ -16,7 +16,6 @@ export const currentWindow = Object.seal({
 
 // eslint-disable-next-line
 export const args = Object.freeze({
-  get arch() { return window.__args.arch },
   get argv() { return window.__args.argv ?? [] },
   get debug() { return window.__args.debug ?? false }
 })
