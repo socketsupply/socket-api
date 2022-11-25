@@ -5,7 +5,7 @@
  */
 
  import ipc from './ipc.js'
- import { args, currentWindow } from './runtime.js'
+ import { currentWindow } from './runtime.js'
 
 /**
  * @param {object} opts - an options object

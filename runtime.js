@@ -16,7 +16,6 @@ export const currentWindow = Object.seal({
 
 // eslint-disable-next-line
 export const args = Object.freeze({
-  get argv() { return window.__args.argv ?? [] },
   get debug() { return window.__args.debug ?? false }
 })
 
@@ -68,7 +67,7 @@ function redirectOutput () {
 }
 
 // FIXME: this should be platform agnostic
-if (args.os !== 'linux') {
+if (window.__args.os !== 'linux') {
   redirectOutput()
 }
 
