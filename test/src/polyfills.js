@@ -1,6 +1,6 @@
 import { applyPolyFills } from '@socketsupply/io/polyfills.js'
 import { test } from 'tapzero'
-import { currentWindow } from '@socketsupply/io/runtime.js'
+import { readFile } from '@socketsupply/io/fs/promises.js'
 
 test('applyPolyFills', (t) => {
   t.equal(typeof applyPolyFills, 'function', 'applyPolyFills is a function')
@@ -31,12 +31,9 @@ test('window.resizeTo', (t) => {
 // })
 
 test('window.document.title', async (t) => {
-  t.equal(window.document.title, currentWindow.title, 'window.document.title equals currentWindow.title')
   window.document.title = 'test'
   t.equal(window.document.title, 'test', 'window.document.title is has been changed')
-  // because of MutationObserver we need to wait for the next tick
-  await new Promise((resolve) => setTimeout(resolve, 0))
   // TODO: check immutability of window.__args instead
-  t.notEqual(window.__args.title, 'test', 'window.__args.title is set to "test"')
-  t.equal(currentWindow.title, 'test', 'currentWindow.title is set to "test"')
+  t.notEqual(window.__args.title, 'test', 'window.__args.title is not changed')
+  // TODO: add ipc message to get window title (and other window properties?)
 })
