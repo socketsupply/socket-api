@@ -1,0 +1,8 @@
+.github/
+bin/
+test/
+repl/
+.eslintrc
+.gitignore
+.vimrc
+README.md
