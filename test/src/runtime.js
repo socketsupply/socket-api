@@ -15,8 +15,7 @@ test('args', (t) => {
   const argsKeys = [
     'arch',
     'argv',
-    'debug',
-    'env'
+    'debug'
   ]
 
   t.deepEqual(Object.keys(runtime.args).sort(), argsKeys.sort(), 'args has expected keys')

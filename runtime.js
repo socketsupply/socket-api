@@ -18,8 +18,7 @@ export const currentWindow = Object.seal({
 export const args = Object.freeze({
   get arch() { return window.__args.arch },
   get argv() { return window.__args.argv ?? [] },
-  get debug() { return window.__args.debug ?? false },
-  get env() { return window.__args.env ?? {} },
+  get debug() { return window.__args.debug ?? false }
 })
 
 export const config = Object.freeze(window.__args.config ?? {})
