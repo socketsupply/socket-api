@@ -15,22 +15,17 @@ export const currentWindow = Object.seal({
 })
 
 // eslint-disable-next-line
-export const args = new class Args {
-  arch = window.__args.arch
-  argv = window.__args.argv ?? []
-  debug = window.__args.debug ?? false
-  env = window.__args.env ?? {}
-  os = window.__args.os
-  // overloaded in process
-  cwd () {
-    return window.__args.cwd() ?? null
-  }
-}
+export const args = Object.freeze({
+  get arch() { return window.__args.arch },
+  get argv() { return window.__args.argv ?? [] },
+  get debug() { return window.__args.debug ?? false },
+  get env() { return window.__args.env ?? {} },
+})
 
 export const config = Object.freeze(window.__args.config ?? {})
 
 function formatFileUrl (url) {
-  return `file://${args.cwd()}/${url}`
+  return `file://${window.__args.cwd()}/${url}`
 }
 
 if (globalThis.window) {

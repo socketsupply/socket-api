@@ -16,16 +16,14 @@ test('args', (t) => {
     'arch',
     'argv',
     'debug',
-    'env',
-    'os'
+    'env'
   ]
 
-  t.equal(runtime.args.constructor.name, 'Args', 'args is an Args instance')
   t.deepEqual(Object.keys(runtime.args).sort(), argsKeys.sort(), 'args has expected keys')
-  argsKeys.filter(key => !(['config', 'cwd', 'title'].includes(key))).forEach((key) => {
+  argsKeys.forEach((key) => {
     t.equal(runtime.args[key], window.__args[key], `args.${key} is correct`)
+    t.throws(() => runtime.args[key] = 1, `args.${key} is immutable`)
   })
-  t.equal(runtime.args.cwd(), window.__args.cwd(), 'args.cwd() is correct')
 })
 
 test ('config', async (t) => {
