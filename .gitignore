@@ -21,3 +21,5 @@ build/
 *.mobileprovision
 dist/
 package-lock.json
+
+types/
