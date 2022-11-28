@@ -1,6 +1,5 @@
 import { applyPolyFills } from '@socketsupply/io/polyfills.js'
 import { test } from 'tapzero'
-import { readFile } from '@socketsupply/io/fs/promises.js'
 
 test('applyPolyFills', (t) => {
   t.equal(typeof applyPolyFills, 'function', 'applyPolyFills is a function')
