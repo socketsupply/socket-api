@@ -1,3 +1,4 @@
+/* global MutationObserver */
 import ipc from './ipc.js'
 
 export function applyPolyFills (window) {
@@ -49,8 +50,9 @@ export function applyPolyFills (window) {
       }
     }
   })
-  
+
   const titleElement = document.querySelector('head > title')
-  
-  observer.observe(titleElement, { childList: true })
+  if (titleElement) {
+    observer.observe(titleElement, { childList: true })
+  }
 }
