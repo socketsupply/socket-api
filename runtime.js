@@ -44,7 +44,7 @@ function redirectOutput () {
   for (const name of mapping.stdout) {
     const fn = console[name]
     console[name] = (...args) => {
-      const value = encodeURIComponent(args.map((arg) => format(arg)).join(' '))
+      const value = encodeURIComponent(format(...args))
       ipc.postMessage(`ipc://stdout?value=${value}`)
       return fn.apply(console, args)
     }
@@ -53,7 +53,7 @@ function redirectOutput () {
   for (const name of mapping.stderr) {
     const fn = console[name]
     console[name] = (...args) => {
-      const value = encodeURIComponent(args.map((arg) => format(arg)).join(' '))
+      const value = encodeURIComponent(format(...args))
       ipc.postMessage(`ipc://stderr?value=${value}`)
       return fn.apply(console, args)
     }
@@ -61,9 +61,7 @@ function redirectOutput () {
 }
 
 // FIXME: this should be platform agnostic
-if (window.__args.os !== 'linux') {
   redirectOutput()
-}
 
 export async function openExternal (options) {
   return await ipc.postMessage(`ipc://external?value=${encodeURIComponent(options)}`)
