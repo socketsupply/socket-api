@@ -29,7 +29,7 @@ test('process.cwd', async (t) => {
 })
 
 test('process.arch', (t) => {
-  t.ok(['x86_64', 'amd64', 'arm64'].includes(process.arch), 'process.arch is correct')
+  t.ok(['x86_64', 'arm64'].includes(process.arch), 'process.arch is correct')
   t.equal(process.arch, window.__args.arch, 'process.arch equals window.__args.arch')
 })
 

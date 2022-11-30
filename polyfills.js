@@ -29,12 +29,16 @@ export function applyPolyFills (window) {
     }
   }))
 
+  // create <title> tag in document if it doesn't exist
+  window.document.title ||= ""
   // initial value
   window.addEventListener('DOMContentLoaded', async () => {
-    const index = window.__args.index
     const title = window.document.title
-    const o = new URLSearchParams({ value: title, index }).toString()
-    ipc.postMessage(`ipc://title?${o}`)
+    if (title.length !== 0) {
+      const index = window.__args.index
+      const o = new URLSearchParams({ value: title, index }).toString()
+      ipc.postMessage(`ipc://title?${o}`)
+    }
   })
 
   //
