@@ -4,7 +4,9 @@ import ipc from './ipc.js'
 export function applyPolyFills (window) {
   Object.defineProperties(window, Object.getOwnPropertyDescriptors({
     resizeTo (width, height) {
-      return ipc.postMessage('ipc://size', { width, height })
+      const index = window.__args.index
+      const o = new URLSearchParams({ index, width, height }).toString()
+      return ipc.postMessage(`ipc://size?${o}`)
     },
 
     // TODO(@heapwolf) the properties do not yet conform to the MDN spec

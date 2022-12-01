@@ -60,8 +60,11 @@ function redirectOutput () {
   }
 }
 
-// FIXME: this should be platform agnostic
-  redirectOutput()
+redirectOutput()
+
+export async function windows () {
+  return await ipc.send('windows')
+}
 
 export async function openExternal (options) {
   return await ipc.postMessage(`ipc://external?value=${encodeURIComponent(options)}`)
