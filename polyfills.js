@@ -3,8 +3,8 @@ import ipc from './ipc.js'
 
 export function applyPolyFills (window) {
   Object.defineProperties(window, Object.getOwnPropertyDescriptors({
-    async resizeTo (width, height) {
-      return await ipc.send('size', { width, height })
+    resizeTo (width, height) {
+      return ipc.postMessage('ipc://size', { width, height })
     },
 
     // TODO(@heapwolf) the properties do not yet conform to the MDN spec

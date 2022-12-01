@@ -1,5 +1,6 @@
 import { applyPolyFills } from '@socketsupply/io/polyfills.js'
 import { test } from 'tapzero'
+import ipc from '@socketsupply/io/ipc.js'
 
 test('applyPolyFills', (t) => {
   t.equal(typeof applyPolyFills, 'function', 'applyPolyFills is a function')
@@ -8,7 +9,7 @@ test('applyPolyFills', (t) => {
 
 test('window.resizeTo', (t) => {
   t.equal(typeof window.resizeTo, 'function', 'window.resizeTo is a function')
-  t.ok(window.resizeTo(100, 100), 'succesfully completes')
+  t.ok(window.resizeTo(400, 400), 'succesfully completes')
 })
 
 // FIXME: this test is failing
@@ -30,9 +31,9 @@ test('window.resizeTo', (t) => {
 // })
 
 test('window.document.title', async (t) => {
-  window.document.title = 'test'
-  t.equal(window.document.title, 'test', 'window.document.title is has been changed')
-  // TODO: check immutability of window.__args instead
-  t.notEqual(window.__args.title, 'test', 'window.__args.title is not changed')
-  // TODO: add ipc message to get window title (and other window properties?)
+  window.document.title = 'test111'
+  t.equal(window.document.title, 'test111', 'window.document.title is has been changed')
+  t.notEqual(window.__args.title, window.document.title, 'window.__args.title is not changed')
+  const { data: { title } } = await ipc.send('window')
+  t.equal(title, 'test111', 'window title is correct')
 })
