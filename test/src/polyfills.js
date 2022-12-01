@@ -7,9 +7,12 @@ test('applyPolyFills', (t) => {
   applyPolyFills(globalThis.window)
 })
 
-test('window.resizeTo', (t) => {
+test('window.resizeTo', async (t) => {
   t.equal(typeof window.resizeTo, 'function', 'window.resizeTo is a function')
-  t.ok(window.resizeTo(400, 400), 'succesfully completes')
+  t.ok(window.resizeTo(420, 200), 'succesfully completes')
+  const { data: { width, height } } = await ipc.send('window')
+  t.equal(width, 420, 'width is 420')
+  t.equal(height, 200, 'heigth is 200')
 })
 
 // FIXME: this test is failing
