@@ -100,7 +100,12 @@ test('show', async (t) => {
     height: 400,
   })
   const { data: { status } } = await ipc.send('window.getStatus', { window: 1 })
+  const { data: { title } } = await ipc.send('window.getTitle', { window: 1 })
+  const { data: { height, width } } = await ipc.send('window.getSize', { window: 1 })
   t.equal(status, 31, 'window is shown')
+  t.equal(title, 'Hello World', 'window title is correct')
+  t.equal(height, 400, 'window height is correct')
+  t.equal(width, 400, 'window width is correct')
 })
 
 test('hide', async (t) => {
