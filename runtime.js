@@ -62,8 +62,8 @@ function redirectOutput () {
 
 redirectOutput()
 
-export async function getWindows () {
-  return await ipc.send('getWindows')
+export async function getWindows (options = {}) {
+  return await ipc.send('getWindows', options)
 }
 
 export async function openExternal (options) {
