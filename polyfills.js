@@ -6,7 +6,7 @@ export function applyPolyfills (window) {
     resizeTo (width, height) {
       const index = window.__args.index
       const o = new URLSearchParams({ index, width, height }).toString()
-      return ipc.postMessage(`ipc://size?${o}`)
+      return ipc.postMessage(`ipc://window.setSize?${o}`)
     },
 
     // TODO(@heapwolf) the properties do not yet conform to the MDN spec
@@ -39,7 +39,7 @@ export function applyPolyfills (window) {
     if (title.length !== 0) {
       const index = window.__args.index
       const o = new URLSearchParams({ value: title, index }).toString()
-      ipc.postMessage(`ipc://title?${o}`)
+      ipc.postMessage(`ipc://window.setTitle?${o}`)
     }
   })
 
@@ -52,7 +52,7 @@ export function applyPolyfills (window) {
         const index = window.__args.index
         const title = mutation.addedNodes[0].textContent
         const o = new URLSearchParams({ value: title, index }).toString()
-        ipc.postMessage(`ipc://title?${o}`)
+        ipc.postMessage(`ipc://window.setTitle?${o}`)
       }
     }
   })
