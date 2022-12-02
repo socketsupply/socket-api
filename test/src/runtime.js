@@ -7,9 +7,9 @@ import { test } from 'tapzero'
 test('window.resizeTo', async (t) => {
   t.equal(typeof window.resizeTo, 'function', 'window.resizeTo is a function')
   t.ok(window.resizeTo(420, 200), 'succesfully completes')
-  const { data: { width, height } } = await ipc.send('window')
+  const { data: { width, height } } = await ipc.send('window.getSize')
   t.equal(width, 420, 'width is 420')
-  t.equal(height, 200, 'heigth is 200')
+  t.equal(height, 200, 'height is 200')
 })
 
 test('window.showOpenFilePicker', (t) => {
@@ -32,11 +32,11 @@ test('window.showDirectoryFilePicker', (t) => {
 })
 
 test('window.document.title', async (t) => {
-  window.document.title = 'test111'
-  t.equal(window.document.title, 'test111', 'window.document.title is has been changed')
+  window.document.title = 'idkfa'
+  t.equal(window.document.title, 'idkfa', 'window.document.title is has been changed')
   t.notEqual(window.__args.title, window.document.title, 'window.__args.title is not changed')
-  const { data: { title } } = await ipc.send('window')
-  t.equal(title, 'test111', 'window title is correct')
+  const { data: { title } } = await ipc.send('window.getTitle')
+  t.equal(title, 'idkfa', 'window title is correct')
 })
 
 // Other runtime tests
@@ -72,8 +72,6 @@ test ('config', async (t) => {
   t.equal(runtime.config.headless, true, 'runtime.config.headless is correct')
 })
 
-// TODO: add resulting ipc message to output and test it?
-
 test('openExternal', async (t) => {
   t.equal(typeof runtime.openExternal, 'function', 'openExternal is a function')
   // can't test results without browser
@@ -94,20 +92,22 @@ test('inspect', async (t) => {
 
 test('show', async (t) => {
   t.equal(typeof runtime.show, 'function', 'show is a function')
-  const result = await runtime.show({ 
+  await runtime.show({ 
     window: 1,
     url: 'index2.html',
     title: 'Hello World',
     width: 400,
     height: 400,
   })
-  t.equal(result.err, null, 'show succeeds')
+  const { data: { status } } = await ipc.send('window.getStatus', { window: 1 })
+  t.equal(status, 31, 'window is shown')
 })
 
 test('hide', async (t) => {
   t.equal(typeof runtime.hide, 'function', 'hide is a function')
-  const result = await runtime.hide({ window: 1 })
-  t.equal(result.err, null, 'hide succeeds')
+  await runtime.hide({ window: 1 })
+  const { data: { status } } = await ipc.send('window.getStatus', { window: 1 })
+  t.equal(status, 21, 'window is hidden')
 })
 
 test('getWindows', async (t) => {
