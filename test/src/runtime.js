@@ -127,14 +127,14 @@ test('getWindows with props', async (t) => {
       "title": "test",
       "width": 420,
       "height": 200,
-      "status": 11,
+      "status": 31,
       "index": 0
     },
     {
       "title": "Hello World",
       "width": 400,
       "height": 400,
-      "status": 11,
+      "status": 21,
       "index": 1
     }
   ], 'windows are correct')
