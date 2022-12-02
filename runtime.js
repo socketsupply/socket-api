@@ -62,8 +62,8 @@ function redirectOutput () {
 
 redirectOutput()
 
-export async function windows () {
-  return await ipc.send('windows')
+export async function getWindows () {
+  return await ipc.send('getWindows')
 }
 
 export async function openExternal (options) {
@@ -85,7 +85,7 @@ export async function exit (o) {
  * @return {Promise<ipc.Result>}
  */
 export async function setTitle (o) {
-  return await ipc.send('title', o)
+  return await ipc.send('window.setTitle', o)
 }
 
 export async function inspect (o) {
@@ -102,7 +102,7 @@ export async function show (opts = {}) {
   if (opts.url) {
     opts.url = formatFileUrl(opts.url)
   }
-  return await ipc.send('show', opts)
+  return await ipc.send('window.show', opts)
 }
 
 /**
@@ -111,7 +111,7 @@ export async function show (opts = {}) {
  */
 export async function hide (opts = {}) {
   opts.index = currentWindow
-  return await ipc.send('hide', opts)
+  return await ipc.send('window.hide', opts)
 }
 
 /**
@@ -126,13 +126,13 @@ export async function navigate (opts = {}) {
   if (opts.url) {
     opts.url = formatFileUrl(opts.url)
   }
-  return await ipc.send('navigate', opts)
+  return await ipc.send('window.navigate', opts)
 }
 
 export async function setWindowBackgroundColor (opts) {
   opts.index = currentWindow
   const o = new URLSearchParams(opts).toString()
-  await ipc.postMessage(`ipc://background?${o}`)
+  await ipc.postMessage(`ipc://window.setBackground?${o}`)
 }
 
 /**
