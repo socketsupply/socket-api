@@ -40,13 +40,6 @@ test('window.document.title', async (t) => {
 })
 
 // Other runtime tests
-test('windows', async (t) => {
-  const { data: windows } = await runtime.windows()
-  t.ok(Array.isArray(windows), 'windows is an array')
-  t.ok(windows.length > 0, 'windows is not empty')
-  t.ok(windows.every(w => Number.isInteger(w)), 'windows are integers')
-  t.deepEqual(windows, [0, 1], 'windows are correct') 
-})
 
 test('currentWindow', (t) => {
   t.equal(runtime.currentWindow, window.__args.index, 'runtime.currentWindow equals window.__args.index')
@@ -99,7 +92,6 @@ test('inspect', async (t) => {
   t.equal(typeof runtime.inspect, 'function', 'inspect is a function')
 })
 
-// TODO: test in non-headless mode
 test('show', async (t) => {
   t.equal(typeof runtime.show, 'function', 'show is a function')
   const result = await runtime.show({ 
@@ -116,6 +108,36 @@ test('hide', async (t) => {
   t.equal(typeof runtime.hide, 'function', 'hide is a function')
   const result = await runtime.hide({ window: 1 })
   t.equal(result.err, null, 'hide succeeds')
+})
+
+test('getWindows', async (t) => {
+  const { data: windows } = await runtime.getWindows()
+  t.ok(Array.isArray(windows), 'windows is an array')
+  t.ok(windows.length > 0, 'windows is not empty')
+  t.ok(windows.every(w => Number.isInteger(w)), 'windows are integers')
+  t.deepEqual(windows, [0, 1], 'windows are correct') 
+})
+test('getWindows with props', async (t) => {
+  await runtime.show()
+  const { data: windows1 } = await runtime.getWindows({ title: true, size: true, status: true })
+  t.ok(Array.isArray(windows1), 'windows is an array')
+  t.ok(windows1.length > 0, 'windows is not empty')
+  t.deepEqual(windows1,       [
+    {
+      "title": "test",
+      "width": 420,
+      "height": 200,
+      "status": 11,
+      "index": 0
+    },
+    {
+      "title": "Hello World",
+      "width": 400,
+      "height": 400,
+      "status": 11,
+      "index": 1
+    }
+  ], 'windows are correct')
 })
 
 test('navigate', async (t) => {
