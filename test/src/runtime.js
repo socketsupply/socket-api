@@ -99,13 +99,16 @@ test('show', async (t) => {
     width: 400,
     height: 400,
   })
-  const { data: { status } } = await ipc.send('window.getStatus', { window: 1 })
-  const { data: { title } } = await ipc.send('window.getTitle', { window: 1 })
-  const { data: { height, width } } = await ipc.send('window.getSize', { window: 1 })
+  const { data: { status, index: i1 } } = await ipc.send('window.getStatus', { window: 1 })
+  const { data: { title, index: i2 }, } = await ipc.send('window.getTitle', { window: 1 })
+  const { data: { height, width, index: i3 } } = await ipc.send('window.getSize', { window: 1 })
   t.equal(status, 31, 'window is shown')
   t.equal(title, 'Hello World', 'window title is correct')
   t.equal(height, 400, 'window height is correct')
   t.equal(width, 400, 'window width is correct')
+  t.equal(i1, 1, 'window index is correct')
+  t.equal(i2, 1, 'window index is correct')
+  t.equal(i3, 1, 'window index is correct')
 })
 
 test('hide', async (t) => {
