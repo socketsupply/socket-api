@@ -12,23 +12,24 @@ test('window.resizeTo', async (t) => {
   t.equal(height, 200, 'heigth is 200')
 })
 
-// FIXME: this test is failing
-// test('window.showOpenFilePicker', (t) => {
-//   t.equal(typeof window.showOpenFilePicker, 'function', 'window.showOpenFilePicker is a function')
-//   t.ok(window.showOpenFilePicker())
-// })
+test('window.showOpenFilePicker', (t) => {
+  t.equal(typeof window.showOpenFilePicker, 'function', 'window.showOpenFilePicker is a function')
+  // FIXME: this test is failing
+  // t.ok(window.showOpenFilePicker())
+})
+
+test('window.showSaveFilePicker', (t) => {
+  t.equal(typeof window.showSaveFilePicker, 'function', 'window.showSaveFilePicker is a function')
+  // FIXME: this test is failing
+  // t.ok(window.showSaveFilePicker())
+})
 
 // FIXME: this test is failing
-// test('window.showSaveFilePicker', (t) => {
-//   t.equal(typeof window.showSaveFilePicker, 'function', 'window.showSaveFilePicker is a function')
-//   t.ok(window.showSaveFilePicker())
-// })
-
-// FIXME: this test is failing
-// test('window.showDirectoryPicker', (t) => {
-//   t.equal(typeof window.showDirectoryPicker, 'function', 'window.showDirectoryPicker is a function')
-//   t.ok(window.showDirectoryPicker())
-// })
+test('window.showDirectoryFilePicker', (t) => {
+  t.equal(typeof window.showDirectoryFilePicker, 'function', 'window.showDirectoryFilePicker is a function')
+  // FIXME: this test is failing
+  // t.ok(window.showDirectoryFilePicker())
+})
 
 test('window.document.title', async (t) => {
   window.document.title = 'test111'
