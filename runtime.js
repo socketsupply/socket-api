@@ -5,7 +5,7 @@
  */
 
 /* global window */
-import { applyPolyFills } from './polyfills.js'
+import { applyPolyfills } from './polyfills.js'
 import { format } from './util.js'
 import ipc from './ipc.js'
 
@@ -20,7 +20,7 @@ function formatFileUrl (url) {
 }
 
 if (globalThis.window) {
-  applyPolyFills(globalThis.window)
+  applyPolyfills(globalThis.window)
 }
 
 export async function send (options) {
