@@ -1,7 +1,7 @@
 /* global MutationObserver */
 import ipc from './ipc.js'
 
-export function applyPolyFills (window) {
+export function applyPolyfills (window) {
   Object.defineProperties(window, Object.getOwnPropertyDescriptors({
     resizeTo (width, height) {
       const index = window.__args.index
