@@ -1,5 +1,4 @@
 import { Buffer } from '@socketsupply/io'
-import process from '@socketsupply/io/process.js'
 import crypto from '@socketsupply/io/crypto.js'
 import fs from '@socketsupply/io/fs.js'
 import os from '@socketsupply/io/os.js'
