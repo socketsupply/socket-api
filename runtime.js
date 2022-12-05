@@ -23,20 +23,16 @@ if (globalThis.window) {
   applyPolyFills(globalThis.window)
 }
 
-export async function send (o) {
-  o.index = currentWindow
-  o.window ??= -1
+export async function send (options) {
+  let value = ''
 
-  if (typeof o.value !== 'string') {
-    o.value = JSON.stringify(o.value)
+  try {
+    value = JSON.stringify(options)
+  } catch (err) {
+    return Promise.reject(err.message)
   }
-  
-  return await ipc.send('send', {
-    index: o.index,
-    window: o.window,
-    event: encodeURIComponent(o.event),
-    value: encodeURIComponent(o.value)
-  })
+
+  return await ipc.send('send', { value })
 }
 
 function redirectOutput () {
