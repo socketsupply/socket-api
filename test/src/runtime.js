@@ -123,6 +123,14 @@ test('setSystemMenu', async (t) => {
   t.equal(result.err, null, 'setSystemMenuItemVisible succeeds')
 })
 
+test('send', async (t) => {
+  t.equal(typeof runtime.send, 'function', 'send is a function')
+  const value = { firstname: 'Rick', secondname: 'Sanchez' }
+  runtime.send({ event: 'character', value })
+  const result = await new Promise(resolve => window.addEventListener('character', e => resolve(e.detail)))
+  t.deepEqual(result, value, 'send succeeds')
+})
+
 // TODO: can we improve this test?
 test('reload', (t) => {
   t.equal(typeof runtime.reload, 'function', 'reload is a function')
