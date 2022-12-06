@@ -94,7 +94,7 @@ test('show', async (t) => {
   t.equal(typeof runtime.show, 'function', 'show is a function')
   await runtime.show({ 
     window: 1,
-    url: 'index2.html',
+    url: 'index_second_window.html',
     title: 'Hello World',
     width: 400,
     height: 400,
@@ -111,6 +111,21 @@ test('show', async (t) => {
   t.equal(i3, 1, 'window index is correct')
 })
 
+test('send', async (t) => {
+  // wait for window to load
+  await new Promise(resolve => window.addEventListener('second window loaded', resolve))
+
+  t.equal(typeof runtime.send, 'function', 'send is a function')
+  const value = { firstname: 'Rick', secondname: 'Sanchez' }
+  runtime.send({ event: 'character', value })
+  const [result, pong] = await Promise.all([
+    new Promise(resolve => window.addEventListener('character', e => resolve(e.detail))),
+    new Promise(resolve => window.addEventListener('message from second window', e => resolve(e.detail)))
+  ])
+  t.deepEqual(result, value, 'send succeeds')
+  t.deepEqual(pong, value, 'send back from window 1 succeeds')
+})
+
 test('hide', async (t) => {
   t.equal(typeof runtime.hide, 'function', 'hide is a function')
   await runtime.hide({ window: 1 })
@@ -125,6 +140,7 @@ test('getWindows', async (t) => {
   t.ok(windows.every(w => Number.isInteger(w)), 'windows are integers')
   t.deepEqual(windows, [0, 1], 'windows are correct') 
 })
+
 test('getWindows with props', async (t) => {
   await runtime.show()
   const { data: windows1 } = await runtime.getWindows({ title: true, size: true, status: true })
@@ -150,8 +166,14 @@ test('getWindows with props', async (t) => {
 
 test('navigate', async (t) => {
   t.equal(typeof runtime.navigate, 'function', 'navigate is a function')
-  const result = await runtime.navigate({ window: 1, url: 'index2.html' })
+  const result = await runtime.navigate({ window: 1, url: 'index_second_window2.html' })
   t.equal(result.err, null, 'navigate succeeds')
+})
+
+test('hide', async (t) => {
+  t.equal(typeof runtime.hide, 'function', 'hide is a function')
+  const result = await runtime.hide({ window: 1 })
+  t.equal(result.err, null, 'hide succeeds')
 })
 
 // TODO: allow this function to work with other windows besides the current one
@@ -195,14 +217,6 @@ test('setSystemMenu', async (t) => {
       Bazz: s + Meta, Control, Alt;
   `})
   t.equal(result.err, null, 'setSystemMenuItemVisible succeeds')
-})
-
-test('send', async (t) => {
-  t.equal(typeof runtime.send, 'function', 'send is a function')
-  const value = { firstname: 'Rick', secondname: 'Sanchez' }
-  runtime.send({ event: 'character', value })
-  const result = await new Promise(resolve => window.addEventListener('character', e => resolve(e.detail)))
-  t.deepEqual(result, value, 'send succeeds')
 })
 
 // TODO: can we improve this test?
