@@ -132,7 +132,7 @@ export async function navigate (opts = {}) {
 export async function setWindowBackgroundColor (opts) {
   opts.index = currentWindow
   const o = new URLSearchParams(opts).toString()
-  await ipc.postMessage(`ipc://window.setBackground?${o}`)
+  await ipc.postMessage(`ipc://window.setBackgroundColor?${o}`)
 }
 
 /**
