@@ -23,7 +23,7 @@ async function copy (target) {
 
 async function main () {
   const params = {
-    entryPoints: ['src/index.js'],
+    entryPoints: ['src/index.js', 'src/index_second_window.js'],
     format: 'esm',
     bundle: true,
     keepNames: true,
@@ -32,11 +32,8 @@ async function main () {
     outdir: path.resolve(process.argv[2])
   }
 
-  await Promise.all([
-    esbuild.build(params),
-    esbuild.build({ ...params, entryPoints: ['src/index_second_window.js'] }),
-  ])
-  copy(params.outdir)
+  await esbuild.build({ ...params, entryPoints: ['src/index_second_window.js'] })
+  await copy(params.outdir)
 }
 
 main()
