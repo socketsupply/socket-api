@@ -22,3 +22,7 @@ export async function open (opts = {}) {
 export async function close () {
   return await ipc.send('process.kill')
 }
+
+// eslint-disable-next-line
+import * as exports from './backend.js'
+export default exports
