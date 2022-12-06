@@ -13,6 +13,8 @@ const cp = async (a, b) => fs.cp(
 async function copy (target) {
   await Promise.all([
     cp('src/index.html', target),
+    cp('src/index_second_window.html', target),
+    cp('src/index_second_window2.html', target),
     cp('fixtures', target),
     // for testing purposes
     cp('ssc.config', target)
@@ -30,7 +32,10 @@ async function main () {
     outdir: path.resolve(process.argv[2])
   }
 
-  await esbuild.build({ ...params })
+  await Promise.all([
+    esbuild.build(params),
+    esbuild.build({ ...params, entryPoints: ['src/index_second_window.js'] }),
+  ])
   copy(params.outdir)
 }
 
