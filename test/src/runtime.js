@@ -126,13 +126,6 @@ test('send', async (t) => {
   t.deepEqual(pong, value, 'send back from window 1 succeeds')
 })
 
-test('hide', async (t) => {
-  t.equal(typeof runtime.hide, 'function', 'hide is a function')
-  await runtime.hide({ window: 1 })
-  const { data: { status } } = await ipc.send('window.getStatus', { window: 1 })
-  t.equal(status, 21, 'window is hidden')
-})
-
 test('getWindows', async (t) => {
   const { data: windows } = await runtime.getWindows()
   t.ok(Array.isArray(windows), 'windows is an array')
@@ -158,7 +151,7 @@ test('getWindows with props', async (t) => {
       "title": "Second window",
       "width": 400,
       "height": 400,
-      "status": 21,
+      "status": 31,
       "index": 1
     }
   ], 'windows are correct')
@@ -172,8 +165,9 @@ test('navigate', async (t) => {
 
 test('hide', async (t) => {
   t.equal(typeof runtime.hide, 'function', 'hide is a function')
-  const result = await runtime.hide({ window: 1 })
-  t.equal(result.err, null, 'hide succeeds')
+  await runtime.hide({ window: 1 })
+  const { data: { status } } = await ipc.send('window.getStatus', { window: 1 })
+  t.equal(status, 21, 'window is hidden')
 })
 
 // TODO: allow this function to work with other windows besides the current one
