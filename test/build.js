@@ -32,7 +32,7 @@ async function main () {
     outdir: path.resolve(process.argv[2])
   }
 
-  await esbuild.build({ ...params, entryPoints: ['src/index_second_window.js'] })
+  await esbuild.build(params)
   await copy(params.outdir)
 }
 
