@@ -24,7 +24,6 @@ test('window.showSaveFilePicker', (t) => {
   // t.ok(window.showSaveFilePicker())
 })
 
-// FIXME: this test is failing
 test('window.showDirectoryFilePicker', (t) => {
   t.equal(typeof window.showDirectoryFilePicker, 'function', 'window.showDirectoryFilePicker is a function')
   // FIXME: this test is failing
@@ -78,7 +77,6 @@ test('openExternal', async (t) => {
   // t.equal(await runtime.openExternal('https://sockets.sh'), null, 'succesfully completes')
 })
 
-// TODO: allow this function to work with other windows besides the current one
 test('setTitle', async (t) => {
   t.equal(typeof runtime.setTitle, 'function', 'setTitle is a function')
   const result = await runtime.setTitle('test')
@@ -170,7 +168,6 @@ test('hide', async (t) => {
   t.equal(status, 21, 'window is hidden')
 })
 
-// TODO: allow this function to work with other windows besides the current one
 test('setWindowBackgroundColor', async (t) => {
   t.equal(typeof runtime.setWindowBackgroundColor, 'function', 'setWindowBackgroundColor is a function')
   const result = await runtime.setWindowBackgroundColor({ red: 0, green: 0, blue: 0, alpha: 0 })
