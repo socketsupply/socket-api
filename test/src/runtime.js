@@ -110,15 +110,25 @@ test('show', async (t) => {
 })
 
 test('send', async (t) => {
+  await runtime.show({ 
+    window: 2,
+    url: 'index_second_window.html',
+    title: 'Hello World',
+    width: 400,
+    height: 400,
+  })
   // wait for window to load
-  await new Promise(resolve => window.addEventListener('second window loaded', resolve))
+  await Promise.all([
+    new Promise(resolve => window.addEventListener('secondary window 1 loaded', resolve)),
+    new Promise(resolve => window.addEventListener('secondary window 2 loaded', resolve))
+  ])
 
   t.equal(typeof runtime.send, 'function', 'send is a function')
   const value = { firstname: 'Rick', secondname: 'Sanchez' }
   runtime.send({ event: 'character', value })
   const [result, pong] = await Promise.all([
-    new Promise(resolve => window.addEventListener('character', e => resolve(e.detail))),
-    new Promise(resolve => window.addEventListener('message from second window', e => resolve(e.detail)))
+    new Promise(resolve => window.addEventListener('message from secondary window 1', e => resolve(e.detail))),
+    new Promise(resolve => window.addEventListener('message from secondary window 2', e => resolve(e.detail)))
   ])
   t.deepEqual(result, value, 'send succeeds')
   t.deepEqual(pong, value, 'send back from window 1 succeeds')
@@ -129,7 +139,7 @@ test('getWindows', async (t) => {
   t.ok(Array.isArray(windows), 'windows is an array')
   t.ok(windows.length > 0, 'windows is not empty')
   t.ok(windows.every(w => Number.isInteger(w)), 'windows are integers')
-  t.deepEqual(windows, [0, 1], 'windows are correct') 
+  t.deepEqual(windows, [0, 1, 2], 'windows are correct') 
 })
 
 test('getWindows with props', async (t) => {
@@ -146,11 +156,18 @@ test('getWindows with props', async (t) => {
       "index": 0
     },
     {
-      "title": "Second window",
+      "title": "Secondary window",
       "width": 400,
       "height": 400,
       "status": 31,
       "index": 1
+    },
+    {
+      "title": "Secondary window",
+      "width": 400,
+      "height": 400,
+      "status": 31,
+      "index": 2
     }
   ], 'windows are correct')
 })
@@ -164,8 +181,22 @@ test('navigate', async (t) => {
 test('hide', async (t) => {
   t.equal(typeof runtime.hide, 'function', 'hide is a function')
   await runtime.hide({ window: 1 })
-  const { data: { status } } = await ipc.send('window.getStatus', { window: 1 })
-  t.equal(status, 21, 'window is hidden')
+  await runtime.hide({ window: 2 })
+  const { data: statuses } = await runtime.getWindows({ status: true })
+  t.deepEqual(statuses, [
+    {
+      "status": 31,
+      "index": 0
+    },
+    {
+      "status": 21,
+      "index": 1
+    },
+    {
+      "status": 21,
+      "index": 2
+    }
+  ], 'statuses are correct')
 })
 
 test('setWindowBackgroundColor', async (t) => {

@@ -1,7 +1,9 @@
 import runtime from '@socketsupply/io/runtime.js';
 
-runtime.send({ event: 'second window loaded', window: 0 })
+runtime.send({ event: `secondary window ${runtime.currentWindow} loaded`, window: 0 })
+
+document.querySelector('body > h1').textContent += ` ${runtime.currentWindow}`
 
 window.addEventListener('character', e => {
-  runtime.send({ event: 'message from second window', value: e.detail, window: 0 })
+  runtime.send({ event: `message from secondary window ${runtime.currentWindow}`, value: e.detail, window: 0 })
 });
