@@ -155,7 +155,7 @@ test('getWindows with props', async (t) => {
       "index": 0
     },
     {
-      "title": "Hello World",
+      "title": "Second window",
       "width": 400,
       "height": 400,
       "status": 21,
