@@ -6,7 +6,7 @@ declare pid=""
 id="co.socketsupply.io.tests"
 
 ## Start application
-adb shell am start -n "$id/.MainWebViewActivity" || exit $?
+adb shell am start -n "$id/.MainActivity" || exit $?
 
 echo "polling for '$id' PID in adb"
 while [ -z "$pid" ]; do
@@ -17,8 +17,8 @@ done
 
 ## Process logs from 'adb logcat'
 while read -r line; do
-  if grep 'ExternalWebViewInterface' < <(echo "$line") >/dev/null; then
-    line="$(echo "$line" | sed 's/.*ExternalWebViewInterface:\s*//g')"
+  if grep 'Console' < <(echo "$line") >/dev/null; then
+    line="$(echo "$line" | sed 's/.*Console:\s*//g')"
 
     if [[ "$line" =~ __EXIT_SIGNAL__ ]]; then
       status="${line//__EXIT_SIGNAL__=/}"
