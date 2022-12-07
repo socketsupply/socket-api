@@ -41,7 +41,6 @@ import {
 
 import * as errors from './errors.js'
 import { Buffer } from './buffer.js'
-import runtime from './runtime.js'
 
 let nextSeq = 1
 
@@ -52,6 +51,10 @@ export async function postMessage (...args) {
 
   if (isFunction(window?.chrome?.webview?.postMessage)) {
     return await window.chrome.webview.postMessage(...args)
+  }
+
+  if (isFunction(window?.external?.postMessage)) {
+    return await window.external.postMessage(...args)
   }
 
   throw new TypeError(
