@@ -27,7 +27,7 @@ test('backend.open() again', async (t) => {
   t.deepEqual(Object.keys(openResult.data).sort(), ['argv', 'cmd', 'path'], 'returns a result with the correct keys')
   const doesNotRestart = await Promise.race([
     new Promise(resolve => window.addEventListener('backend:ready', () => resolve(false), { once: true })),
-    new Promise(resolve => setTimeout(() => resolve(true), 128))
+    new Promise(resolve => setTimeout(() => resolve(true), 256))
   ])
   t.ok(doesNotRestart, 'does not emit a backend:ready event')
 })
@@ -37,13 +37,15 @@ test('backend.open({ force: true })', async (t) => {
   t.deepEqual(Object.keys(openResult.data).sort(), ['argv', 'cmd', 'path'], 'returns a result with the correct keys')
   const doesRestart = await Promise.race([
     new Promise(resolve => window.addEventListener('backend:ready', () => resolve(true), { once: true })),
-    new Promise(resolve => setTimeout(() => resolve(false), 128))
+    new Promise(resolve => setTimeout(() => resolve(false), 256))
   ])
   t.ok(doesRestart, 'emits a backend:ready event')
 })
 
 test('backend.sendToProcess()', async (t) => {
-  const sendResult = await backend.sendToProcess({ test: 'test' })
+  const sendResult = await backend.sendToProcess({ firstname: 'Morty', secondname: 'Smith' })
   // TODO: what is the correct result?
   t.ok(sendResult.err == null, 'returns correct result')
+  const character = await new Promise(resolve => window.addEventListener('character.backend', ({ detail }) => resolve(detail), { once: true }))
+  t.deepEqual(character, { character: { firstname: 'Summer', secondname: 'Smith' }}, 'send data to process')
 })
