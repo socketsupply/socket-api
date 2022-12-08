@@ -17,7 +17,9 @@ async function copy (target) {
     cp('src/index_second_window2.html', target),
     cp('fixtures', target),
     // for testing purposes
-    cp('ssc.config', target)
+    cp('ssc.config', target),
+    // backend
+    cp('src/backend/backend.js', target)
   ])
 }
 

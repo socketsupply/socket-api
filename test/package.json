@@ -10,7 +10,8 @@
     "start": "npm test"
   },
   "dependencies": {
-    "@socketsupply/io": "../"
+    "@socketsupply/io": "../",
+    "@socketsupply/ssc-node": "github:socketsupply/ssc-node"
   },
   "devDependencies": {
     "path-browserify": "^1.0.1"
