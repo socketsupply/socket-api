@@ -41,3 +41,9 @@ test('backend.open({ force: true })', async (t) => {
   ])
   t.ok(doesRestart, 'emits a backend:ready event')
 })
+
+test('backend.sendToProcess()', async (t) => {
+  const sendResult = await backend.sendToProcess({ test: 'test' })
+  // TODO: what is the correct result?
+  t.ok(sendResult.err == null, 'returns correct result')
+})
