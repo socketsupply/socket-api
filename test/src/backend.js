@@ -49,3 +49,13 @@ test('backend.sendToProcess()', async (t) => {
   const character = await new Promise(resolve => window.addEventListener('character.backend', ({ detail }) => resolve(detail), { once: true }))
   t.deepEqual(character, { character: { firstname: 'Summer', secondname: 'Smith' }}, 'send data to process')
 })
+
+test('backend.close()', async (t) => {
+  const closeResult = await backend.close()
+  t.ok(closeResult.err == null, 'returns correct result')
+  const doesNotRestart = await Promise.race([
+    new Promise(resolve => window.addEventListener('backend:ready', () => resolve(false), { once: true })),
+    new Promise(resolve => setTimeout(() => resolve(true), 256))
+  ])
+  t.ok(doesNotRestart, 'does not emit a backend:ready event')
+})
