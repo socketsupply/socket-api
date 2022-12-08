@@ -23,6 +23,13 @@ export async function close () {
   return await ipc.send('process.kill')
 }
 
+/**
+ * @return {Promise<ipc.Result>}
+ */ 
+export async function sendToProcess (opts) {
+  return await ipc.send('process.write', opts)
+}
+
 // eslint-disable-next-line
 import * as exports from './backend.js'
 export default exports
