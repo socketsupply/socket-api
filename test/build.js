@@ -12,9 +12,9 @@ const cp = async (a, b) => fs.cp(
 
 async function copy (target) {
   await Promise.all([
-    cp('src/index.html', target),
-    cp('src/index_second_window.html', target),
-    cp('src/index_second_window2.html', target),
+    cp('src/frontend/index.html', target),
+    cp('src/frontend/index_second_window.html', target),
+    cp('src/frontend/index_second_window2.html', target),
     cp('fixtures', target),
     // for testing purposes
     cp('ssc.config', target),
@@ -25,7 +25,7 @@ async function copy (target) {
 
 async function main () {
   const params = {
-    entryPoints: ['src/index.js', 'src/index_second_window.js'],
+    entryPoints: ['src/index.js', 'src/frontend/index_second_window.js'],
     format: 'esm',
     bundle: true,
     keepNames: true,
