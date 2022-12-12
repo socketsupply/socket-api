@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@socketsupply/io": "../",
-    "@socketsupply/ssc-node": "github:socketsupply/ssc-node"
+    "@socketsupply/ssc-node": "github:socketsupply/ssc-node",
+    "buffer": "^6.0.3"
   },
   "devDependencies": {
     "esbuild": "^0.16.4",
