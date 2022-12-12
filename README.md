@@ -79,11 +79,11 @@ External docs: https://nodejs.org/api/buffer.html#buffer_class_buffer
  Some high level methods around the `crypto.subtle` api for getting
  random bytes and hashing.
 
-## [webcrypto](https://github.com/socketsupply/io/blob/master/crypto.js#L16)
+## [webcrypto](https://github.com/socketsupply/io/blob/master/crypto.js#L14)
 
 WebCrypto API
 
-## [`getRandomValues(buffer)`](https://github.com/socketsupply/io/blob/master/crypto.js#L24)
+## [`getRandomValues(buffer)`](https://github.com/socketsupply/io/blob/master/crypto.js#L22)
 
 External docs: https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues
 
@@ -99,19 +99,19 @@ Generate cryptographically strong random values into `buffer`
 | Not specified | TypedArray |  |
 
 
-## [RANDOM_BYTES_QUOTA](https://github.com/socketsupply/io/blob/master/crypto.js#L36)
+## [RANDOM_BYTES_QUOTA](https://github.com/socketsupply/io/blob/master/crypto.js#L34)
 
 Maximum total size of random bytes per page
 
-## [MAX_RANDOM_BYTES](https://github.com/socketsupply/io/blob/master/crypto.js#L41)
+## [MAX_RANDOM_BYTES](https://github.com/socketsupply/io/blob/master/crypto.js#L39)
 
 Maximum total size for random bytes.
 
-## [MAX_RANDOM_BYTES_PAGES](https://github.com/socketsupply/io/blob/master/crypto.js#L46)
+## [MAX_RANDOM_BYTES_PAGES](https://github.com/socketsupply/io/blob/master/crypto.js#L44)
 
 Maximum total amount of allocated per page of bytes (max/quota)
 
-## [`randomBytes(size)`](https://github.com/socketsupply/io/blob/master/crypto.js#L53)
+## [`randomBytes(size)`](https://github.com/socketsupply/io/blob/master/crypto.js#L51)
 
 Generate `size` random bytes.
 
@@ -125,7 +125,7 @@ Generate `size` random bytes.
 | Not specified | Buffer | A promise that resolves with an instance of io.Buffer with random bytes. |
 
 
-## [`createDigest(algorithm, message)`](https://github.com/socketsupply/io/blob/master/crypto.js#L80)
+## [`createDigest(algorithm, message)`](https://github.com/socketsupply/io/blob/master/crypto.js#L78)
 
 
 
@@ -887,7 +887,7 @@ This is a `VariableDeclaration` named `FileReadStream` in `fs/stream.js`, it's e
 This is a `VariableDeclaration` named `FileWriteStream` in `fs/stream.js`, it's exported but undocumented.
 
 
-# [IPC](https://github.com/socketsupply/io/blob/master/ipc.js#L27)
+# [IPC](https://github.com/socketsupply/io/blob/master/ipc.js#L28)
 
 
  This is a low level API which you don't need unless you are implementing
@@ -905,29 +905,35 @@ This is a `VariableDeclaration` named `FileWriteStream` in `fs/stream.js`, it's 
  Data written to the write-end of the pipe is buffered by the OS until it is
  read from the read-end of the pipe.
 
- The IPC protocol uses a simple URI-like scheme. Data is passed as ArrayBuffers.
+ The IPC protocol uses a simple URI-like scheme. Data is passed as
+ ArrayBuffers.
 
  ```uri
  ipc://command?key1=value1&key2=value2...
  ```
 
-## [OK](https://github.com/socketsupply/io/blob/master/ipc.js#L218)
+## [`postMessage()`](https://github.com/socketsupply/io/blob/master/ipc.js#L47)
+
+This is a `FunctionDeclaration` named `postMessage` in `ipc.js`, it's exported but undocumented.
+
+
+## [OK](https://github.com/socketsupply/io/blob/master/ipc.js#L321)
 
 Represents an OK IPC status.
 
-## [ERROR](https://github.com/socketsupply/io/blob/master/ipc.js#L223)
+## [ERROR](https://github.com/socketsupply/io/blob/master/ipc.js#L326)
 
 Represents an ERROR IPC status.
 
-## [TIMEOUT](https://github.com/socketsupply/io/blob/master/ipc.js#L228)
+## [TIMEOUT](https://github.com/socketsupply/io/blob/master/ipc.js#L331)
 
 Timeout in milliseconds for IPC requests.
 
-## [kDebugEnabled](https://github.com/socketsupply/io/blob/master/ipc.js#L233)
+## [kDebugEnabled](https://github.com/socketsupply/io/blob/master/ipc.js#L336)
 
 Symbol for the `ipc.debug.enabled` property
 
-## [`parseSeq(seq, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L241)
+## [`parseSeq(seq, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L344)
 
 Parses `seq` as integer value
 
@@ -938,7 +944,7 @@ Parses `seq` as integer value
 | options.bigint | boolean | false | false |  |
 
 
-## [`debug(enable)`](https://github.com/socketsupply/io/blob/master/ipc.js#L251)
+## [`debug(enable)`](https://github.com/socketsupply/io/blob/master/ipc.js#L354)
 
 If `debug.enabled === true`, then debug output will be printed to console.
 
@@ -952,15 +958,15 @@ If `debug.enabled === true`, then debug output will be printed to console.
 | Not specified | boolean |  |
 
 
-## [`Message` (extends `URL`)](https://github.com/socketsupply/io/blob/master/ipc.js#L283)
+## [`Message` (extends `URL`)](https://github.com/socketsupply/io/blob/master/ipc.js#L386)
 
 A container for a IPC message based on a `ipc://` URI scheme.
 
-### [`PROTOCOL()`](https://github.com/socketsupply/io/blob/master/ipc.js#L288)
+### [`PROTOCOL()`](https://github.com/socketsupply/io/blob/master/ipc.js#L390)
 
 The expected protocol for an IPC message.
 
-### [`from(input, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L298)
+### [`from(input, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L400)
 
 Creates a `Message` instance from a variety of input.
 
@@ -975,7 +981,7 @@ Creates a `Message` instance from a variety of input.
 | Not specified | Message |  |
 
 
-### [`isValidInput(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L351)
+### [`isValidInput(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L453)
 
 Predicate to determine if `input` is valid for constructing
  a new `Message` instance.
@@ -990,7 +996,7 @@ Predicate to determine if `input` is valid for constructing
 | Not specified | boolean |  |
 
 
-### [`constructor(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L366)
+### [`constructor(input)`](https://github.com/socketsupply/io/blob/master/ipc.js#L468)
 
 `Message` class constructor.
 
@@ -999,39 +1005,39 @@ Predicate to determine if `input` is valid for constructing
 | input | string \| URL |  | false |  |
 
 
-### [`command()`](https://github.com/socketsupply/io/blob/master/ipc.js#L392)
+### [`command()`](https://github.com/socketsupply/io/blob/master/ipc.js#L494)
 
 Computed command for the IPC message.
 
-### [`id()`](https://github.com/socketsupply/io/blob/master/ipc.js#L399)
+### [`id()`](https://github.com/socketsupply/io/blob/master/ipc.js#L501)
 
 Computed `id` value for the command.
 
-### [`seq()`](https://github.com/socketsupply/io/blob/master/ipc.js#L406)
+### [`seq()`](https://github.com/socketsupply/io/blob/master/ipc.js#L508)
 
 Computed `seq` (sequence) value for the command.
 
-### [`value()`](https://github.com/socketsupply/io/blob/master/ipc.js#L414)
+### [`value()`](https://github.com/socketsupply/io/blob/master/ipc.js#L516)
 
 Computed message value potentially given in message parameters.
  This value is automatically decoded, but not treated as JSON.
 
-### [`index()`](https://github.com/socketsupply/io/blob/master/ipc.js#L423)
+### [`index()`](https://github.com/socketsupply/io/blob/master/ipc.js#L525)
 
 Computed `index` value for the command potentially referring to
  the window index the command is scoped to or originating from. If not
  specified in the message parameters, then this value defaults to `-1`.
 
-### [`json()`](https://github.com/socketsupply/io/blob/master/ipc.js#L440)
+### [`json()`](https://github.com/socketsupply/io/blob/master/ipc.js#L542)
 
 Computed value parsed as JSON. This value is `null` if the value is not present
  or it is invalid JSON.
 
-### [`params()`](https://github.com/socketsupply/io/blob/master/ipc.js#L447)
+### [`params()`](https://github.com/socketsupply/io/blob/master/ipc.js#L549)
 
 Computed readonly object of message parameters.
 
-### [`entries()`](https://github.com/socketsupply/io/blob/master/ipc.js#L455)
+### [`entries()`](https://github.com/socketsupply/io/blob/master/ipc.js#L557)
 
 Returns computed parameters as entries
 
@@ -1040,7 +1046,7 @@ Returns computed parameters as entries
 | Not specified | Array<Array<string,mixed>> |  |
 
 
-### [`set(key, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L466)
+### [`set(key, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L568)
 
 Set a parameter `value` by `key`.
 
@@ -1050,7 +1056,7 @@ Set a parameter `value` by `key`.
 | value | mixed |  | false |  |
 
 
-### [`get(key, defaultValue)`](https://github.com/socketsupply/io/blob/master/ipc.js#L480)
+### [`get(key, defaultValue)`](https://github.com/socketsupply/io/blob/master/ipc.js#L582)
 
 Get a parameter value by `key`.
 
@@ -1065,7 +1071,7 @@ Get a parameter value by `key`.
 | Not specified | mixed |  |
 
 
-### [`delete(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L493)
+### [`delete(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L595)
 
 Delete a parameter by `key`.
 
@@ -1079,7 +1085,7 @@ Delete a parameter by `key`.
 | Not specified | boolean |  |
 
 
-### [`keys()`](https://github.com/socketsupply/io/blob/master/ipc.js#L505)
+### [`keys()`](https://github.com/socketsupply/io/blob/master/ipc.js#L607)
 
 Computed parameter keys.
 
@@ -1088,7 +1094,7 @@ Computed parameter keys.
 | Not specified | Array<string> |  |
 
 
-### [`values()`](https://github.com/socketsupply/io/blob/master/ipc.js#L513)
+### [`values()`](https://github.com/socketsupply/io/blob/master/ipc.js#L615)
 
 Computed parameter values.
 
@@ -1097,7 +1103,7 @@ Computed parameter values.
 | Not specified | Array<mixed> |  |
 
 
-### [`has(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L522)
+### [`has(key)`](https://github.com/socketsupply/io/blob/master/ipc.js#L624)
 
 Predicate to determine if parameter `key` is present in parameters.
 
@@ -1111,18 +1117,18 @@ Predicate to determine if parameter `key` is present in parameters.
 | Not specified | boolean |  |
 
 
-### [`toJSON()`](https://github.com/socketsupply/io/blob/master/ipc.js#L529)
+### [`toJSON()`](https://github.com/socketsupply/io/blob/master/ipc.js#L631)
 
 Converts a `Message` instance into a plain JSON object.
 
-## [Result](https://github.com/socketsupply/io/blob/master/ipc.js#L541)
+## [Result](https://github.com/socketsupply/io/blob/master/ipc.js#L643)
 
 A result type used internally for handling
  IPC result values from the native layer that are in the form
  of `{ err?, data? }`. The `data` and `err` properties on this
  type of object are in tuple form and be accessed at `[data?,err?]`
 
-### [`from(result, maybeError, maybeSource)`](https://github.com/socketsupply/io/blob/master/ipc.js#L551)
+### [`from(result, maybeError, maybeSource)`](https://github.com/socketsupply/io/blob/master/ipc.js#L652)
 
 Creates a `Result` instance from input that may be an object
  like `{ err?, data? }`, an `Error` instance, or just `data`.
@@ -1130,8 +1136,8 @@ Creates a `Result` instance from input that may be an object
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | result | object \| Error \| mixed |  | true |  |
-| maybeError | ?(Error) |  | false |  |
-| maybeSource | ?(string) |  | false |  |
+| maybeError | Error |  | true |  |
+| maybeSource | string |  | true |  |
 
 
 | Return Value | Type | Description |
@@ -1139,31 +1145,31 @@ Creates a `Result` instance from input that may be an object
 | Not specified | Result |  |
 
 
-### [`constructor(err , data , source )`](https://github.com/socketsupply/io/blob/master/ipc.js#L589)
+### [`constructor(err , data , source )`](https://github.com/socketsupply/io/blob/master/ipc.js#L690)
 
 `Result` class constructor.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| err | ?(Error) | null | false |  |
-| data | ?(object) | null | false |  |
-| source | ?(string) | undefined | false |  |
+| err | Error | null | true |  |
+| data | object | null | true |  |
+| source | string | undefined | true |  |
 
 
-### [`length()`](https://github.com/socketsupply/io/blob/master/ipc.js#L618)
+### [`length()`](https://github.com/socketsupply/io/blob/master/ipc.js#L719)
 
 Computed result length.
 
-### [`undefined()`](https://github.com/socketsupply/io/blob/master/ipc.js#L625)
+### [`undefined()`](https://github.com/socketsupply/io/blob/master/ipc.js#L726)
 
 Generator for an `Iterable` interface over this instance.
 
-## [`ready()`](https://github.com/socketsupply/io/blob/master/ipc.js#L636)
+## [`ready()`](https://github.com/socketsupply/io/blob/master/ipc.js#L737)
 
 Waits for the native IPC layer to be ready and exposed on the
  global window object.
 
-## [`sendSync(command, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L661)
+## [`sendSync(command, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L762)
 
 Sends a synchronous IPC command over XHR returning a `Result`
  upon success or error.
@@ -1179,34 +1185,36 @@ Sends a synchronous IPC command over XHR returning a `Result`
 | Not specified | Result |  |
 
 
-## [`emit(name)`](https://github.com/socketsupply/io/blob/master/ipc.js#L702)
+## [`emit(name, value, target , options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L805)
 
 Emit event to be dispatched on `window` object.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | name | string |  | false |  |
-| ...args | ..Mixed |  | false |  |
+| value | Mixed |  | false |  |
+| target | EventTarget | window | true |  |
+| options | Object |  | true |  |
 
 
-## [`resolve(seq)`](https://github.com/socketsupply/io/blob/master/ipc.js#L717)
+## [`resolve(seq, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L841)
 
 Resolves a request by `seq` with possible value.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | seq | string |  | false |  |
-| ...args | ..Mixed |  | false |  |
+| value | Mixed |  | false |  |
 
 
-## [`send(command)`](https://github.com/socketsupply/io/blob/master/ipc.js#L733)
+## [`send(command, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L860)
 
 Sends an async IPC command request with parameters.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | command | string |  | false |  |
-| ...args | ..Mixed |  | false |  |
+| value | Mixed |  | true |  |
 
 
 | Return Value | Type | Description |
@@ -1214,19 +1222,19 @@ Sends an async IPC command request with parameters.
 | Not specified | Promise<Result> |  |
 
 
-## [`write(command, params, buffer, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L757)
+## [`write(command, params, buffer, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L911)
 
 Sends an async IPC command request with parameters and buffered bytes.
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | command | string |  | false |  |
-| params | ?(object) |  | false |  |
-| buffer | ?(Buffer \| TypeArray \| ArrayBuffer \| string \| Array) |  | false |  |
-| options | ?(object) |  | false |  |
+| params | object |  | true |  |
+| buffer | Buffer \| TypeArray \| ArrayBuffer \| string \| Array |  | true |  |
+| options | object |  | true |  |
 
 
-## [`request(command, params, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L852)
+## [`request(command, params, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L1006)
 
 Sends an async IPC command request with parameters requesting a response
  with buffered bytes.
@@ -1234,11 +1242,11 @@ Sends an async IPC command request with parameters requesting a response
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
 | command | string |  | false |  |
-| params | ?(object) |  | false |  |
-| options | ?(object) |  | false |  |
+| params | object |  | true |  |
+| options | object |  | true |  |
 
 
-## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L943)
+## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L1097)
 
 Factory for creating a proxy based IPC API.
 
@@ -1270,27 +1278,27 @@ This is a `FunctionDeclaration` named `arch` in `os.js`, it's exported but undoc
 This is a `FunctionDeclaration` named `networkInterfaces` in `os.js`, it's exported but undocumented.
 
 
-## [`platform()`](https://github.com/socketsupply/io/blob/master/os.js#L138)
+## [`platform()`](https://github.com/socketsupply/io/blob/master/os.js#L141)
 
 This is a `FunctionDeclaration` named `platform` in `os.js`, it's exported but undocumented.
 
 
-## [`type()`](https://github.com/socketsupply/io/blob/master/os.js#L167)
+## [`type()`](https://github.com/socketsupply/io/blob/master/os.js#L170)
 
 This is a `FunctionDeclaration` named `type` in `os.js`, it's exported but undocumented.
 
 
-## [`isWindows()`](https://github.com/socketsupply/io/blob/master/os.js#L207)
+## [`isWindows()`](https://github.com/socketsupply/io/blob/master/os.js#L210)
 
 This is a `FunctionDeclaration` named `isWindows` in `os.js`, it's exported but undocumented.
 
 
-## [`tmpdir()`](https://github.com/socketsupply/io/blob/master/os.js#L216)
+## [`tmpdir()`](https://github.com/socketsupply/io/blob/master/os.js#L219)
 
 This is a `FunctionDeclaration` named `tmpdir` in `os.js`, it's exported but undocumented.
 
 
-## [EOL](https://github.com/socketsupply/io/blob/master/os.js#L261)
+## [EOL](https://github.com/socketsupply/io/blob/master/os.js#L263)
 
 This is a `VariableDeclaration` named `EOL` in `os.js`, it's exported but undocumented.
 
@@ -1340,7 +1348,7 @@ Computes current working directory for a path
 
 
 
-## [`homedir()`](https://github.com/socketsupply/io/blob/master/process.js#L12)
+## [`homedir()`](https://github.com/socketsupply/io/blob/master/process.js#L31)
 
 
 
@@ -1349,7 +1357,7 @@ Computes current working directory for a path
 | Not specified | string | The home directory of the current user. |
 
 
-## [`exit(code)`](https://github.com/socketsupply/io/blob/master/process.js#L19)
+## [`exit(code)`](https://github.com/socketsupply/io/blob/master/process.js#L38)
 
 
 
@@ -1363,22 +1371,37 @@ Computes current working directory for a path
 
  Provides runtime-specific methods
 
-## [args](https://github.com/socketsupply/io/blob/master/runtime.js#L13)
+## [currentWindow](https://github.com/socketsupply/io/blob/master/runtime.js#L12)
 
-This is a `VariableDeclaration` named `args` in `runtime.js`, it's exported but undocumented.
+This is a `VariableDeclaration` named `currentWindow` in `runtime.js`, it's exported but undocumented.
 
 
-## [`send()`](https://github.com/socketsupply/io/blob/master/runtime.js#L50)
+## [debug](https://github.com/socketsupply/io/blob/master/runtime.js#L14)
+
+This is a `VariableDeclaration` named `debug` in `runtime.js`, it's exported but undocumented.
+
+
+## [config](https://github.com/socketsupply/io/blob/master/runtime.js#L16)
+
+This is a `VariableDeclaration` named `config` in `runtime.js`, it's exported but undocumented.
+
+
+## [`send()`](https://github.com/socketsupply/io/blob/master/runtime.js#L26)
 
 This is a `FunctionDeclaration` named `send` in `runtime.js`, it's exported but undocumented.
 
 
-## [`openExternal()`](https://github.com/socketsupply/io/blob/master/runtime.js#L92)
+## [`getWindows()`](https://github.com/socketsupply/io/blob/master/runtime.js#L69)
+
+This is a `FunctionDeclaration` named `getWindows` in `runtime.js`, it's exported but undocumented.
+
+
+## [`openExternal()`](https://github.com/socketsupply/io/blob/master/runtime.js#L73)
 
 This is a `FunctionDeclaration` named `openExternal` in `runtime.js`, it's exported but undocumented.
 
 
-## [`exit(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L101)
+## [`exit(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L82)
 
 Quits the backend process and then quits the render process, the exit code used is the final exit code to the OS.
 
@@ -1392,7 +1415,7 @@ Quits the backend process and then quits the render process, the exit code used 
 | Not specified | Promise<Any> |  |
 
 
-## [`setTitle(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L110)
+## [`setTitle(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L91)
 
 Sets the title of the window (if applicable).
 
@@ -1403,30 +1426,64 @@ Sets the title of the window (if applicable).
 
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
-| Not specified | Promise<Any> |  |
+| Not specified | Promise<ipc.Result> |  |
 
 
-## [`inspect()`](https://github.com/socketsupply/io/blob/master/runtime.js#L114)
+## [`inspect()`](https://github.com/socketsupply/io/blob/master/runtime.js#L95)
 
 This is a `FunctionDeclaration` named `inspect` in `runtime.js`, it's exported but undocumented.
 
 
-## [`show()`](https://github.com/socketsupply/io/blob/master/runtime.js#L118)
-
-This is a `FunctionDeclaration` named `show` in `runtime.js`, it's exported but undocumented.
+## [`show(opts)`](https://github.com/socketsupply/io/blob/master/runtime.js#L103)
 
 
-## [`hide()`](https://github.com/socketsupply/io/blob/master/runtime.js#L122)
 
-This is a `FunctionDeclaration` named `hide` in `runtime.js`, it's exported but undocumented.
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| opts | object |  | false | an options object |
 
 
-## [`setWindowBackgroundColor()`](https://github.com/socketsupply/io/blob/master/runtime.js#L126)
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<ipc.Result> |  |
+
+
+## [`hide(opts)`](https://github.com/socketsupply/io/blob/master/runtime.js#L116)
+
+
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| opts | object |  | false | an options object |
+
+
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<ipc.Result> |  |
+
+
+## [`navigate(opts)`](https://github.com/socketsupply/io/blob/master/runtime.js#L127)
+
+
+
+| Argument | Type | Default | Optional | Description |
+| :---     | :--- | :---:   | :---:    | :---        |
+| opts | object |  | false | an options object |
+| opts.window | number | currentWindow | false | the index of the window |
+| opts.url | number |  | false | the path to the HTML file to load into the window |
+
+
+| Return Value | Type | Description |
+| :---         | :--- | :---        |
+| Not specified | Promise<ipc.Result> |  |
+
+
+## [`setWindowBackgroundColor()`](https://github.com/socketsupply/io/blob/master/runtime.js#L136)
 
 This is a `FunctionDeclaration` named `setWindowBackgroundColor` in `runtime.js`, it's exported but undocumented.
 
 
-## [`setContextMenu(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L137)
+## [`setContextMenu(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L147)
 
 Opens a native context menu.
 
@@ -1440,12 +1497,12 @@ Opens a native context menu.
 | Not specified | Promise<Any> |  |
 
 
-## [`setSystemMenuItemEnabled()`](https://github.com/socketsupply/io/blob/master/runtime.js#L145)
+## [`setSystemMenuItemEnabled()`](https://github.com/socketsupply/io/blob/master/runtime.js#L155)
 
 This is a `FunctionDeclaration` named `setSystemMenuItemEnabled` in `runtime.js`, it's exported but undocumented.
 
 
-## [`setSystemMenu(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L234)
+## [`setSystemMenu(options)`](https://github.com/socketsupply/io/blob/master/runtime.js#L244)
 
 Set the native menu for the app.
 
@@ -1536,6 +1593,11 @@ Set the native menu for the app.
 | Return Value | Type | Description |
 | :---         | :--- | :---        |
 | Not specified | Promise<Any> |  |
+
+
+## [`reload()`](https://github.com/socketsupply/io/blob/master/runtime.js#L293)
+
+This is a `FunctionDeclaration` named `reload` in `runtime.js`, it's exported but undocumented.
 
 
 # [Stream](https://github.com/socketsupply/io/blob/master/stream.js#L5)
