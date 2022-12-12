@@ -119,10 +119,9 @@ test('send', async (t) => {
   })
   // wait for window to load
   await Promise.all([
-    new Promise(resolve => window.addEventListener('secondary window 1 loaded', resolve)),
-    new Promise(resolve => window.addEventListener('secondary window 2 loaded', resolve))
+    new Promise(resolve => window.addEventListener('secondary window 1 loaded', resolve, { once: true })),
+    new Promise(resolve => window.addEventListener('secondary window 2 loaded', resolve, { once: true }))
   ])
-
   t.equal(typeof runtime.send, 'function', 'send is a function')
   const value = { firstname: 'Rick', secondname: 'Sanchez' }
   runtime.send({ event: 'character', value })
