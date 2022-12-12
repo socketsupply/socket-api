@@ -20,13 +20,13 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Install Socket SDK deps
+    - name: Install Socket Runtime deps
       run: |
         sudo apt install software-properties-common
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt install gcc-12 g++-12 libwebkit2gtk-4.1-dev
 
-    - name: Setup Socket SDK
+    - name: Setup Socket Runtime
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
@@ -63,9 +63,10 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Install Socket SDK deps
+    - name: install Socket Runtime deps
       run: |
         brew install automake
+        brew install coreutils
 
     - name: Setup Socket SDK
       run: |
@@ -103,11 +104,12 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Install Socket SDK deps
+    - name: install Socket Runtime deps
       run: |
         brew install automake
+        brew install coreutils
 
-    - name: Setup Socket SDK
+    - name: Setup Socket Runtime
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
@@ -147,11 +149,12 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Install Socket SDK deps
+    - name: install Socket Runtime deps
       run: |
         brew install automake
+        brew install coreutils
 
-    - name: Setup Socket SDK
+    - name: Setup Socket Runtime
       run: |
         git config --global user.email "devops@socketsupply.co"
         git config --global user.name "Socket Supply, Co - Github Actions"
