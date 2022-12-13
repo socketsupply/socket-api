@@ -5,7 +5,7 @@ on: [push]
 jobs:
   linux:
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 4
 
     steps:
     - uses: actions/checkout@v1
@@ -48,7 +48,7 @@ jobs:
 
   mac:
     runs-on: macOS-12
-    timeout-minutes: 15
+    timeout-minutes: 8
 
     steps:
     - uses: actions/checkout@v1
@@ -89,7 +89,7 @@ jobs:
 
   ios:
     runs-on: macOS-12
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     steps:
     - uses: actions/checkout@v1
