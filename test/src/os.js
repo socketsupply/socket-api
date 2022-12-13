@@ -3,7 +3,7 @@ import { test } from 'tapzero'
 
 const archs = ['arm64', 'ia32', 'x64',  'unknown']
 const platforms = ['android', 'cygwin', 'freebsd', 'linux', 'darwin', 'ios', 'openbsd', 'win32', 'unknown']
-const types = ['CYGWIN_NT', 'Mac', 'FreeBSD', 'Linux', 'OpenBSD', 'Windows_NT', 'Unknown']
+const types = ['CYGWIN_NT', 'Darwin', 'FreeBSD', 'Linux', 'OpenBSD', 'Windows_NT', 'Unknown']
 
 test('os.arch()', (t) => {
   t.ok(archs.includes(os.arch()), 'os.arch() value is valid')

@@ -77,39 +77,41 @@ test('ipc.Message', (t) => {
   t.ok(!ipc.Message.isValidInput('foo://test'), 'is valid input')
 })
 
-test('ipc.sendSync not found', (t) => {
-  const response = ipc.sendSync('test', { foo: 'bar' })
-  t.ok(response instanceof ipc.Result)
-  const { err } = response
-  t.equal(err?.toString(), 'NotFoundError: Not found')
-  t.equal(err?.name, 'NotFoundError')
-  t.equal(err?.message, 'Not found')
-  t.ok(err?.url.startsWith('ipc://test?foo=bar&index=0&seq=R'))
-  t.equal(err?.code, 'NOT_FOUND_ERR')
-})
+if (window.__args.os !== 'ios' && window.__args.os !== 'android') {
+  test('ipc.sendSync not found', (t) => {
+    const response = ipc.sendSync('test', { foo: 'bar' })
+    t.ok(response instanceof ipc.Result)
+    const { err } = response
+    t.equal(err?.toString(), 'NotFoundError: Not found')
+    t.equal(err?.name, 'NotFoundError')
+    t.equal(err?.message, 'Not found')
+    t.ok(err?.url.startsWith('ipc://test?foo=bar&index=0&seq=R'))
+    t.equal(err?.code, 'NOT_FOUND_ERR')
+  })
 
-test('ipc.sendSync success', (t) => {
-  const response = ipc.sendSync('os.arch')
-  t.ok(response instanceof ipc.Result)
-  const { data } = response
-  t.ok(['x86_64', 'arm64'].includes(data))
-})
+  test('ipc.sendSync success', (t) => {
+    const response = ipc.sendSync('os.arch')
+    t.ok(response instanceof ipc.Result)
+    const { data } = response
+    t.ok(['x86_64', 'arm64'].includes(data))
+  })
 
-//
-// TODO: ipc.send error should match ipc.sendSync error
-//
-test('ipc.send not found', async (t) => {
-  const response = await ipc.send('test', { foo: 'bar' })
-  t.ok(response instanceof ipc.Result, 'response is an ipc.Result')
-  t.ok(response.err instanceof Error, 'response.err is an Error')
-  t.equal(response.err.toString(), 'Error: unsupported IPC message: test')
-  t.equal(response.err.name, 'Error')
-  t.equal(response.err.message, 'unsupported IPC message: test')
-})
+  //
+  // TODO: ipc.send error should match ipc.sendSync error
+  //
+  test('ipc.send not found', async (t) => {
+    const response = await ipc.send('test', { foo: 'bar' })
+    t.ok(response instanceof ipc.Result, 'response is an ipc.Result')
+    t.ok(response.err instanceof Error, 'response.err is an Error')
+    t.equal(response.err.toString(), 'Error: unsupported IPC message: test')
+    t.equal(response.err.name, 'Error')
+    t.equal(response.err.message, 'unsupported IPC message: test')
+  })
 
-test('ipc.send success', async (t) => {
-  const response = await ipc.send('os.arch')
-  t.ok(response instanceof ipc.Result)
-  const { data } = response
-  t.ok(['x86_64', 'arm64'].includes(data))
-})
+  test('ipc.send success', async (t) => {
+    const response = await ipc.send('os.arch')
+    t.ok(response instanceof ipc.Result)
+    const { data } = response
+    t.ok(['x86_64', 'arm64'].includes(data))
+  })
+}
