@@ -183,7 +183,7 @@ export function type () {
       case 'openbsd': return 'OpenBSD'
       case 'win32': return 'Windows_NT'
 
-      case 'ios': case 'mac': case 'darwin': return 'Darwin'
+      case 'ios': case 'mac': case 'Mac': case 'darwin': return 'Darwin'
     }
   }
 
