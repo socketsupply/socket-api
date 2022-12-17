@@ -55,15 +55,24 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
 
   test ('config', async (t) => {
     const rawConfig = await readFile('socket.ini', 'utf8')
-    const config = rawConfig
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
-      .filter(line => !line.startsWith(';'))
-      .map(line => line.split(' = '))
-      .map(([key, value]) => [key.trim(), value.trim().replace(/\"/g, '')])
-    config.filter(([key]) => !(key = 'headless')).forEach(([key, value]) => {
-      t.equal(runtime.config[key], value, `runtime.config.'${key}' is correct`)
+    let prefix = ''
+    const lines = rawConfig.split('\n')
+    const config = []
+    for (let line of lines) {
+      line = line.trim()
+      if (line.length === 0 || line.startsWith(';')) continue
+      if (line.startsWith('[') && line.endsWith(']')) {
+        prefix = line.slice(1, -1)
+        continue
+      }
+      let [key, value] = line.split('=')
+      key = key.trim()
+      value = value.trim().replace(/\"/g, '')
+      config.push([prefix.length === 0 ? key : prefix + '_' + key, value])
+    }
+    config.filter(([key]) => key !== 'headless').forEach(([key, value]) => {
+      if (key === 'name') value += '-test'
+      t.equal(runtime.config[key], value, `runtime.config.${key} is correct`)
       t.throws(
         () => runtime.config[key] = 0,
         RegExp('Attempted to assign to readonly property.'),
