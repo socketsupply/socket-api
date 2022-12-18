@@ -722,6 +722,7 @@ export class Result {
 
   /**
    * Generator for an `Iterable` interface over this instance.
+   * @ignore
    */
   * [Symbol.iterator] () {
     yield this.err

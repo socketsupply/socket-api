@@ -1151,16 +1151,12 @@ Creates a `Result` instance from input that may be an object
 
 Computed result length.
 
-### [`undefined()`](https://github.com/socketsupply/io/blob/master/ipc.js#L726)
-
-Generator for an `Iterable` interface over this instance.
-
-## [`ready()`](https://github.com/socketsupply/io/blob/master/ipc.js#L737)
+## [`ready()`](https://github.com/socketsupply/io/blob/master/ipc.js#L738)
 
 Waits for the native IPC layer to be ready and exposed on the
  global window object.
 
-## [`sendSync(command, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L762)
+## [`sendSync(command, params)`](https://github.com/socketsupply/io/blob/master/ipc.js#L763)
 
 Sends a synchronous IPC command over XHR returning a `Result`
  upon success or error.
@@ -1176,7 +1172,7 @@ Sends a synchronous IPC command over XHR returning a `Result`
 | Not specified | Result |  |
 
 
-## [`emit(name, value, target , options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L805)
+## [`emit(name, value, target , options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L806)
 
 Emit event to be dispatched on `window` object.
 
@@ -1188,7 +1184,7 @@ Emit event to be dispatched on `window` object.
 | options | Object |  | true |  |
 
 
-## [`resolve(seq, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L841)
+## [`resolve(seq, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L842)
 
 Resolves a request by `seq` with possible value.
 
@@ -1198,7 +1194,7 @@ Resolves a request by `seq` with possible value.
 | value | Mixed |  | false |  |
 
 
-## [`send(command, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L860)
+## [`send(command, value)`](https://github.com/socketsupply/io/blob/master/ipc.js#L861)
 
 Sends an async IPC command request with parameters.
 
@@ -1213,7 +1209,7 @@ Sends an async IPC command request with parameters.
 | Not specified | Promise<Result> |  |
 
 
-## [`write(command, params, buffer, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L911)
+## [`write(command, params, buffer, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L912)
 
 Sends an async IPC command request with parameters and buffered bytes.
 
@@ -1225,7 +1221,7 @@ Sends an async IPC command request with parameters and buffered bytes.
 | options | object |  | true |  |
 
 
-## [`request(command, params, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L1006)
+## [`request(command, params, options)`](https://github.com/socketsupply/io/blob/master/ipc.js#L1007)
 
 Sends an async IPC command request with parameters requesting a response
  with buffered bytes.
@@ -1237,7 +1233,7 @@ Sends an async IPC command request with parameters requesting a response
 | options | object |  | true |  |
 
 
-## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L1097)
+## [`createBinding(domain, ctx)`](https://github.com/socketsupply/io/blob/master/ipc.js#L1098)
 
 Factory for creating a proxy based IPC API.
 
