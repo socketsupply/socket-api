@@ -677,6 +677,7 @@ export class Socket extends EventEmitter {
   /**
    * Implements `gc.finalizer` for gc'd resource cleanup.
    * @return {gc.Finalizer}
+   * @ignore
    */
   [gc.finalizer] (options) {
     return {
