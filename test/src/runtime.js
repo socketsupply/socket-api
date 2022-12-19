@@ -70,8 +70,7 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
       value = value.trim().replace(/\"/g, '')
       config.push([prefix.length === 0 ? key : prefix + '_' + key, value])
     }
-    config.filter(([key]) => key !== 'headless').forEach(([key, value]) => {
-      if (key === 'name') value += '-test'
+    config.filter(([key]) => key !== 'headless' && key !== 'name').forEach(([key, value]) => {
       t.equal(runtime.config[key], value, `runtime.config.${key} is correct`)
       t.throws(
         () => runtime.config[key] = 0,
@@ -80,6 +79,17 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
       )
     })
     t.equal(runtime.config.headless, true, 'runtime.config.headless is correct')
+    t.throws(
+      () => runtime.config.hedless = 0,
+      RegExp('Attempting to define property on object that is not extensible.'),
+      `runtime.config.headless is read-only`
+    )
+    t.ok(runtime.config.name.startsWith(config.find(([key]) => key === 'name')[1]), 'runtime.config.name is correct')
+    t.throws(
+      () => runtime.config.name = 0,
+      RegExp('Attempted to assign to readonly property.'),
+      `runtime.config.name is read-only`
+    )
   })
 
   test('setTitle', async (t) => {
