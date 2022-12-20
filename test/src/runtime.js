@@ -16,20 +16,17 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
 
   test('window.showOpenFilePicker', (t) => {
     t.equal(typeof window.showOpenFilePicker, 'function', 'window.showOpenFilePicker is a function')
-    // FIXME: this test is failing
-    // t.ok(window.showOpenFilePicker())
+    t.ok(window.showOpenFilePicker())
   })
 
   test('window.showSaveFilePicker', (t) => {
     t.equal(typeof window.showSaveFilePicker, 'function', 'window.showSaveFilePicker is a function')
-    // FIXME: this test is failing
-    // t.ok(window.showSaveFilePicker())
+    t.ok(window.showSaveFilePicker())
   })
 
   test('window.showDirectoryFilePicker', (t) => {
     t.equal(typeof window.showDirectoryFilePicker, 'function', 'window.showDirectoryFilePicker is a function')
-    // FIXME: this test is failing
-    // t.ok(window.showDirectoryFilePicker())
+    t.ok(window.showDirectoryFilePicker())
   })
 
   test('window.document.title', async (t) => {
