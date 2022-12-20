@@ -6,8 +6,8 @@
 
 /* global window */
 import { applyPolyfills } from './polyfills.js'
-import { format } from './util.js'
 import ipc from './ipc.js'
+import './runtime/redirectOutput.js'
 
 export const currentWindow = window.__args.index
 // eslint-disable-next-line
@@ -38,33 +38,6 @@ export async function send (o) {
     value: encodeURIComponent(o.value)
   })
 }
-
-function redirectOutput () {
-  const mapping = {
-    stdout: ['info', 'log'],
-    stderr: ['debug', 'error', 'warn']
-  }
-
-  for (const name of mapping.stdout) {
-    const fn = console[name]
-    console[name] = (...args) => {
-      const value = encodeURIComponent(format(...args))
-      ipc.postMessage(`ipc://stdout?value=${value}`)
-      return fn.apply(console, args)
-    }
-  }
-
-  for (const name of mapping.stderr) {
-    const fn = console[name]
-    console[name] = (...args) => {
-      const value = encodeURIComponent(format(...args))
-      ipc.postMessage(`ipc://stderr?value=${value}`)
-      return fn.apply(console, args)
-    }
-  }
-}
-
-redirectOutput()
 
 export async function getWindows (options = {}) {
   return await ipc.send('getWindows', options)

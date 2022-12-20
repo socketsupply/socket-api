@@ -44,23 +44,7 @@ import { Buffer } from './buffer.js'
 
 let nextSeq = 1
 
-export async function postMessage (...args) {
-  if (isFunction(window?.webkit?.messageHandlers?.external?.postMessage)) {
-    return await window.webkit.messageHandlers.external.postMessage(...args)
-  }
-
-  if (isFunction(window?.chrome?.webview?.postMessage)) {
-    return await window.chrome.webview.postMessage(...args)
-  }
-
-  if (isFunction(window?.external?.postMessage)) {
-    return await window.external.postMessage(...args)
-  }
-
-  throw new TypeError(
-    'Could not determine UserMessageHandler.postMessage in Window'
-  )
-}
+export const postMessage = window.__ipc.postMessage
 
 function initializeXHRIntercept () {
   const { send, open } = window.XMLHttpRequest.prototype
