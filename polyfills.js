@@ -26,7 +26,7 @@ export function applyPolyfills (window) {
     // TODO(@heapwolf) the properties do not yet conform to the MDN spec
     async showDirectoryFilePicker (o) {
       console.warn('window.showDirectoryFilePicker may not conform to the standard')
-      const { data a} = await ipc.send('dialog', { allowDirs: true, ...o })
+      const { data } = await ipc.send('dialog', { allowDirs: true, ...o })
       return typeof data === 'string' ? data.split('\n') : []
     }
   }))
