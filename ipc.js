@@ -388,7 +388,7 @@ export class Message extends URL {
    * The expected protocol for an IPC message.
    */
   static get PROTOCOL () {
-    return 'ipc:'
+    return window?.__args?.os === 'win' ? 'http:' : 'ipc:'
   }
 
   /**
@@ -769,10 +769,11 @@ export function sendSync (command, params) {
     return {}
   }
 
+  const protocol = Message.PROTOCOL
   const request = new window.XMLHttpRequest()
   const index = window.__args.index ?? 0
   const seq = nextSeq++
-  const uri = `ipc://${command}`
+  const uri = `${protocol}//${command}`
 
   params = new URLSearchParams(params)
   params.set('index', index)
@@ -785,6 +786,7 @@ export function sendSync (command, params) {
   }
 
   request.open('GET', uri + query, false)
+  request.setRequestHeader('x-ipc-request', command)
   request.send()
 
   const result = Result.from(getRequestResponse(request), null, command)
@@ -917,11 +919,12 @@ export async function write (command, params, buffer, options) {
 
   await ready()
 
-  const signal = options?.signal
+  const protocol = Message.PROTOCOL
   const request = new window.XMLHttpRequest()
-  const index = window?.__args?.index ?? 0
+  const signal = options?.signal
+  const index = window.__args.index ?? 0
   const seq = nextSeq++
-  const uri = `ipc://${command}`
+  const uri = `${protocol}//${command}`
 
   let resolved = false
   let aborted = false
@@ -947,6 +950,7 @@ export async function write (command, params, buffer, options) {
   const query = `?${params}`
 
   request.open('POST', uri + query, true)
+  request.setRequestHeader('x-ipc-request', command)
   await request.send(buffer || null)
 
   if (debug.enabled) {
@@ -1007,11 +1011,12 @@ export async function write (command, params, buffer, options) {
 export async function request (command, params, options) {
   await ready()
 
+  const protocol = Message.PROTOCOL
   const request = new window.XMLHttpRequest()
   const signal = options?.signal
-  const index = window?.__args?.index ?? 0
+  const index = window.__args.index ?? 0
   const seq = nextSeq++
-  const uri = `ipc://${command}`
+  const uri = `${protocol}//${command}`
 
   let resolved = false
   let aborted = false
@@ -1038,6 +1043,7 @@ export async function request (command, params, options) {
 
   request.responseType = options?.responseType ?? ''
   request.open('GET', uri + query)
+  request.setRequestHeader('x-ipc-request', command)
   request.send(null)
 
   if (debug.enabled) {
