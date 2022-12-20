@@ -7,7 +7,7 @@
 /* global window */
 import { applyPolyfills } from './polyfills.js'
 import ipc from './ipc.js'
-import './runtime/redirectOutput.js'
+import './redirectOutput.js'
 
 export const currentWindow = window.__args.index
 // eslint-disable-next-line
