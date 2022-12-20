@@ -14,21 +14,6 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
     t.equal(height, 200, 'height is 200')
   })
 
-  test('window.showOpenFilePicker', (t) => {
-    t.equal(typeof window.showOpenFilePicker, 'function', 'window.showOpenFilePicker is a function')
-    t.ok(window.showOpenFilePicker())
-  })
-
-  test('window.showSaveFilePicker', (t) => {
-    t.equal(typeof window.showSaveFilePicker, 'function', 'window.showSaveFilePicker is a function')
-    t.ok(window.showSaveFilePicker())
-  })
-
-  test('window.showDirectoryFilePicker', (t) => {
-    t.equal(typeof window.showDirectoryFilePicker, 'function', 'window.showDirectoryFilePicker is a function')
-    t.ok(window.showDirectoryFilePicker())
-  })
-
   test('window.document.title', async (t) => {
     window.document.title = 'idkfa'
     t.equal(window.document.title, 'idkfa', 'window.document.title is has been changed')
@@ -258,6 +243,21 @@ test('openExternal', async (t) => {
   t.equal(typeof runtime.openExternal, 'function', 'openExternal is a function')
   // can't test results without browser
   // t.equal(await runtime.openExternal('https://sockets.sh'), null, 'succesfully completes')
+})
+
+test('window.showOpenFilePicker', async (t) => {
+  t.equal(typeof window.showOpenFilePicker, 'function', 'window.showOpenFilePicker is a function')
+  t.ok(window.showOpenFilePicker())
+})
+
+test('window.showSaveFilePicker', (t) => {
+  t.equal(typeof window.showSaveFilePicker, 'function', 'window.showSaveFilePicker is a function')
+  t.ok(window.showSaveFilePicker())
+})
+
+test('window.showDirectoryFilePicker', (t) => {
+  t.equal(typeof window.showDirectoryFilePicker, 'function', 'window.showDirectoryFilePicker is a function')
+  t.ok(window.showDirectoryFilePicker())
 })
 
 // TODO: can we improve this test?
