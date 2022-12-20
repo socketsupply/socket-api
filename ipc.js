@@ -388,7 +388,7 @@ export class Message extends URL {
    * The expected protocol for an IPC message.
    */
   static get PROTOCOL () {
-    return window?.__args?.os === 'win' ? 'http:' : 'ipc:'
+    return window?.__args?.os === 'win32' ? 'http:' : 'ipc:'
   }
 
   /**
