@@ -1,15 +1,16 @@
 import { Buffer } from '@socketsupply/io'
 import crypto from '@socketsupply/io/crypto.js'
+import path from '@socketsupply/io/path.js'
 import fs from '@socketsupply/io/fs.js'
 import os from '@socketsupply/io/os.js'
 
 import deepEqual from 'tapzero/fast-deep-equal.js'
 import { test } from 'tapzero'
 
-const TMPDIR = `${os.tmpdir()}/`
+const TMPDIR = `${os.tmpdir()}${path.sep}`
 const FIXTURES = /android/i.test(os.platform())
   ? '/data/local/tmp/ssc-io-test-fixtures/'
-  : `${os.tmpdir()}/ssc-io-test-fixtures/`
+  : `${TMPDIR}ssc-io-test-fixtures${path.sep}`
 
 // node compat
 /*
