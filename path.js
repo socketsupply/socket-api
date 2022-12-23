@@ -3,11 +3,7 @@ import os from './os.js'
 
 export * from './path/index.js'
 
-const path = {
-  ...(os.platform() === 'win32' ? win32 : posix),
-  // make `win32` and `posix` still accessible from top level
-  win32,
-  posix
+export default class Path extends (os.platform() === 'win32' ? win32 : posix) {
+  static get win32 () { return win32 }
+  static get posix () { return posix }
 }
-
-export default path
