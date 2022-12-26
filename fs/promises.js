@@ -222,10 +222,17 @@ export async function rm (path, options) {
 }
 
 /**
- * @TODO
- * @ignore
+ * @see {@link https://nodejs.org/api/fs.html#fspromisesstatpath-options}
+ * @param {string | Buffer | URL} path
+ * @param {object=} [options]
+ * @param {boolean=} [options.bigint = false]
+ * @return {Promise<Stats>}
  */
 export async function stat (path, options) {
+  return await visit(path, {}, async (handle) => {
+    return await handle.stat(options)
+  })
+  
 }
 
 /**
