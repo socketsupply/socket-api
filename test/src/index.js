@@ -5,8 +5,8 @@ import './test-context.js' // this should be first
 
 import './ipc.js'
 import './os.js'
-import './path.js'
 import './process.js'
+import './path.js'
 import './fs.js'
 import './dgram.js'
 import './dns.js'
