@@ -1,4 +1,4 @@
-import { GLOBAL_TEST_RUNNER } from 'tapzero'
+import { GLOBAL_TEST_RUNNER } from '@socketsupply/tapzero'
 import process from '@socketsupply/io/process.js'
 import '@socketsupply/io/runtime.js'
 
@@ -12,14 +12,11 @@ if (typeof globalThis?.addEventListener === 'function') {
   globalThis.addEventListener('unhandledrejection', onerror)
 }
 
-const pollTimeout = setTimeout(function poll () {
-  if (GLOBAL_TEST_RUNNER.completed) {
-    clearTimeout(pollTimeout)
-    return process.exit(0)
-  }
-
-  setTimeout(poll, 500)
-}, 500)
+GLOBAL_TEST_RUNNER.onFinish(() => {
+  setTimeout(() => {
+    process.exit(0)
+  }, 10)
+})
 
 function onerror (err) {
   console.error(err.stack || err.reason || err.message || err)

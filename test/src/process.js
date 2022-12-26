@@ -1,4 +1,4 @@
-import { test } from 'tapzero'
+import { test } from '@socketsupply/tapzero'
 import process from '@socketsupply/io/process.js'
 import path from `path-browserify`
 
