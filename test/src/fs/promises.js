@@ -26,6 +26,11 @@ test('fs.promises.access', async (t) => {
   t.equal(access, true, '(X_OK) fixtures/ directory is "executable" - can list items')
 })
 
+test('fs.promises.chmod', async (t) => {
+  let chmod = await fs.chmod(FIXTURES + 'file.txt', 0o777)
+  t.equal(chmod, undefined, 'file.txt is chmod 777')
+})
+
 test('fs.promises.open', async (t) => {
   let fd = await fs.open(FIXTURES + 'file.txt', 'r')
   t.ok(fd instanceof FileHandle, 'FileHandle is returned')

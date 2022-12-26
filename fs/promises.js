@@ -3,6 +3,7 @@
  */
 import { DirectoryHandle, FileHandle } from './handle.js'
 import { Dir, sortDirectoryEntries } from './dir.js'
+import * as ipc from '../ipc.js'
 
 async function visit (path, options, callback) {
   if (typeof options === 'function') {
@@ -45,10 +46,21 @@ export async function appendFile (path, data, options) {
 }
 
 /**
- * @TODO
- * @ignore
+ * @see {@link https://nodejs.org/api/fs.html#fspromiseschmodpath-mode}
+ * @param {string | Buffer | URL} path
+ * @param {number} mode
+ * @returns {Promise<void>}
  */
 export async function chmod (path, mode) {
+  if (typeof mode !== 'number') {
+    throw new TypeError(`The argument \'mode\' must be a 32-bit unsigned integer or an octal string. Received ${mode}`)
+  }
+
+  if (mode < 0 || !Number.isInteger(mode)) {
+    throw new RangeError(`The value of "mode" is out of range. It must be an integer. Received ${mode}`)
+  }
+
+  await ipc.send('fs.chmod', { mode, path })
 }
 
 /**
