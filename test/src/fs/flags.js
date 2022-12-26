@@ -1,6 +1,6 @@
-import { normalizeFlags } from '@socketsupply/io/fs/flags.js'
+import { normalizeFlags } from '../../../fs/flags.js'
 import { test } from '@socketsupply/tapzero'
-import * as fs from '@socketsupply/io/fs.js'
+import * as fs from '../../../fs.js'
 
 test('flags', (t) => {
   t.ok(

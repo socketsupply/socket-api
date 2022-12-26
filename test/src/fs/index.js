@@ -1,8 +1,8 @@
-import { Buffer } from '@socketsupply/io'
-import crypto from '@socketsupply/io/crypto.js'
-import path from '@socketsupply/io/path.js'
-import fs from '@socketsupply/io/fs.js'
-import os from '@socketsupply/io/os.js'
+import { Buffer } from '../../..'
+import crypto from '../../../crypto.js'
+import path from '../../../path.js'
+import fs from '../../../fs.js'
+import os from '../../../os.js'
 
 import deepEqual from '@socketsupply/tapzero/fast-deep-equal.js'
 import { test } from '@socketsupply/tapzero'
@@ -157,6 +157,7 @@ test('fs.readFile', async (t) => {
   const expected = { data: 'test 123' }
   const promises = Array.from(Array(iterations), (_, i) => new Promise((resolve) => {
     if (failed) return resolve(false)
+    console.log(FIXTURES + 'file.json')
     fs.readFile(FIXTURES + 'file.json', (err, buf) => {
       if (failed) return resolve(false)
 

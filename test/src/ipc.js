@@ -1,6 +1,6 @@
-import * as ipc from '@socketsupply/io/ipc.js'
+import * as ipc from '../../ipc.js'
 import { test } from '@socketsupply/tapzero'
-import { Buffer } from '@socketsupply/io/buffer.js'
+import { Buffer } from '../../buffer.js'
 
 // node compat
 // import { Buffer } from 'node:buffer'

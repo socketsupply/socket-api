@@ -1,4 +1,4 @@
-import * as os from '@socketsupply/io/os.js'
+import * as os from '../../os.js'
 import { test } from '@socketsupply/tapzero'
 
 const archs = ['arm64', 'ia32', 'x64',  'unknown']

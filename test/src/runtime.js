@@ -1,6 +1,6 @@
-import runtime from '@socketsupply/io/runtime.js'
-import { readFile } from '@socketsupply/io/fs/promises.js'
-import ipc from '@socketsupply/io/ipc.js'
+import runtime from '../../runtime.js'
+import { readFile } from '../../fs/promises.js'
+import ipc from '../../ipc.js'
 import { test } from '@socketsupply/tapzero'
 
 // Desktop-only runtime functions
