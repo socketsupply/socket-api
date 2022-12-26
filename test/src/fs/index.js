@@ -53,7 +53,18 @@ test('fs.access', async (t) => {
 })
 
 test('fs.appendFile', async (t) => {})
-test('fs.chmod', async (t) => {})
+test('fs.chmod', async (t) => {
+  await new Promise((resolve, reject) => {
+    fs.chmod(FIXTURES + 'file.txt', 0o777, (err) => {
+      if (err) t.fail(err)
+      fs.stat(FIXTURES + 'file.txt', (err, stats) => {
+        if (err) t.fail(err)
+        t.equal(stats.mode & 0o777, 0o777, 'file.txt mode is 777')
+        resolve()
+      })
+    })
+  })
+})
 test('fs.chown', async (t) => {})
 test('fs.close', async (t) => {
   if (os.platform() === 'android') {
