@@ -4,8 +4,8 @@ import path from '@socketsupply/io/path.js'
 import fs from '@socketsupply/io/fs.js'
 import os from '@socketsupply/io/os.js'
 
-import deepEqual from 'tapzero/fast-deep-equal.js'
-import { test } from 'tapzero'
+import deepEqual from '@socketsupply/tapzero/fast-deep-equal.js'
+import { test } from '@socketsupply/tapzero'
 
 const TMPDIR = `${os.tmpdir()}${path.sep}`
 const FIXTURES = /android/i.test(os.platform())

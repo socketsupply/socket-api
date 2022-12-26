@@ -4,7 +4,7 @@ import Buffer from '@socketsupply/io/buffer.js'
 import dgram from '@socketsupply/io/dgram.js'
 import util from '@socketsupply/io/util.js'
 
-import { test } from 'tapzero'
+import { test } from '@socketsupply/tapzero'
 
 // node compat
 /*

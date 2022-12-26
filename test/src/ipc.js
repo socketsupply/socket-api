@@ -1,5 +1,5 @@
 import * as ipc from '@socketsupply/io/ipc.js'
-import { test } from 'tapzero'
+import { test } from '@socketsupply/tapzero'
 import { Buffer } from '@socketsupply/io/buffer.js'
 
 // node compat

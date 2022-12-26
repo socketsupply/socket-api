@@ -1,5 +1,5 @@
 import backend from '@socketsupply/io/backend.js'
-import { test } from 'tapzero'
+import { test } from '@socketsupply/tapzero'
 
 if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
   test('backend.open()', async (t) => {

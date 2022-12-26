@@ -1,7 +1,7 @@
 import dns from '@socketsupply/io/dns.js'
 import fs from '@socketsupply/io/fs.js'
 
-import { test } from 'tapzero'
+import { test } from '@socketsupply/tapzero'
 
 // node compat
 //import dns from 'node:dns'
