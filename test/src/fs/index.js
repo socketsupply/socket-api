@@ -157,7 +157,6 @@ test('fs.readFile', async (t) => {
   const expected = { data: 'test 123' }
   const promises = Array.from(Array(iterations), (_, i) => new Promise((resolve) => {
     if (failed) return resolve(false)
-    console.log(FIXTURES + 'file.json')
     fs.readFile(FIXTURES + 'file.json', (err, buf) => {
       if (failed) return resolve(false)
 
