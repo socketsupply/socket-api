@@ -293,4 +293,5 @@ export async function writeFile (path, data, options) {
 }
 
 import * as exports from './promises.js'
+export * as constants from './constants.js'
 export default exports

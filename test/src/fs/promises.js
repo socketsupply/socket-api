@@ -9,6 +9,20 @@ const FIXTURES = /android/i.test(os.platform())
   ? '/data/local/tmp/ssc-io-test-fixtures/'
   : `${TMPDIR}ssc-io-test-fixtures${path.sep}`
 
+test('fs.promises.access', async (t) => {
+  let access = await fs.access(FIXTURES, fs.constants.F_OK)
+  t.equal(access, true, '(F_OK) fixtures/ directory is accessible')
+
+  access = await fs.access(FIXTURES, fs.constants.F_OK | fs.constants.R_OK)
+  t.equal(access, true, '(F_OK | R_OK) fixtures/ directory is readable')
+
+  access = await fs.access('.', fs.constants.W_OK)
+  t.equal(access, true, '(W_OK) ./ directory is writable')
+
+  access = await fs.access(FIXTURES, fs.constants.X_OK)
+  t.equal(access, true, '(X_OK) fixtures/ directory is "executable" - can list items')
+})
+
 test('fs.promises.stat', async (t) => {
   let stats = await fs.stat(FIXTURES + 'file.txt')
   t.ok(stats, 'stats are returned')
