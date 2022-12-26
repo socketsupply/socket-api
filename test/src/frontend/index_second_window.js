@@ -1,4 +1,4 @@
-import runtime from '@socketsupply/io/runtime.js';
+import runtime from '../../../runtime.js';
 
 runtime.send({ event: `secondary window ${runtime.currentWindow} loaded`, window: 0 })
 

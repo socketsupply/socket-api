@@ -10,7 +10,6 @@
     "start": "npm test"
   },
   "dependencies": {
-    "@socketsupply/io": "../",
     "@socketsupply/ssc-node": "github:socketsupply/ssc-node"
   },
   "devDependencies": {

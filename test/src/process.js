@@ -1,5 +1,5 @@
 import { test } from '@socketsupply/tapzero'
-import process from '@socketsupply/io/process.js'
+import process from '../../process.js'
 import path from `path-browserify`
 
 test('process', (t) => {
