@@ -108,11 +108,11 @@ export function appendFile (path, data, options, callback) {
  */
 export function chmod (path, mode, callback) {
   if (typeof mode !== 'number') {
-    throw new TypeError('mode must be a number.')
+    throw new TypeError(`The argument \'mode\' must be a 32-bit unsigned integer or an octal string. Received ${mode}`)
   }
 
-  if (mode < 0 || !Number.isFinite(mode)) {
-    throw new RangeError('mode must be a positive finite number.')
+  if (mode < 0 || !Number.isInteger(mode)) {
+    throw new RangeError(`The value of "mode" is out of range. It must be an integer. Received ${mode}`)
   }
 
   if (typeof callback !== 'function') {
