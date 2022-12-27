@@ -315,7 +315,7 @@ export function mkdir (path, options, callback) {
   }
 
   ipc
-    .request('fsMkdir', { mode, path, recursive })
+    .request('fs.mkdir', { mode, path, recursive })
     .then(result => result?.err ? callback(result.err) : callback(null))
     .catch(err => callback(err))
 }

@@ -31,6 +31,12 @@ test('fs.promises.chmod', async (t) => {
   t.equal(chmod, undefined, 'file.txt is chmod 777')
 })
 
+test('fs.promises.mkdir', async (t) => {
+  const dirname = FIXTURES + Math.random().toString(16).slice(2)
+  const { err } = fs.mkdir(dirname, {})
+  t.equal(err, undefined, 'mkdir does not throw')
+})
+
 test('fs.promises.open', async (t) => {
   let fd = await fs.open(FIXTURES + 'file.txt', 'r')
   t.ok(fd instanceof FileHandle, 'FileHandle is returned')

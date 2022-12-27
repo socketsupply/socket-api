@@ -132,7 +132,7 @@ export async function mkdir (path, options = {}) {
     throw new RangeError('mode must be a positive finite number.')
   }
 
-  return await ipc.request('fsMkdir', { mode, path, recursive })
+  return await ipc.request('fs.mkdir', { mode, path, recursive })
 }
 
 /**
