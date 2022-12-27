@@ -310,7 +310,7 @@ export function mkdir (path, options, callback) {
     throw new TypeError('mode must be a number.')
   }
 
-  if (mode < 0 || !Number.isFinite(mode)) {
+  if (mode < 0 || !Number.isInteger(mode)) {
     throw new RangeError('mode must be a positive finite number.')
   }
 
