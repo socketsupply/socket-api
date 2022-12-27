@@ -42,6 +42,7 @@ export const MAX_RANDOM_BYTES = 0xFFFF_FFFF_FFFF
  * Maximum total amount of allocated per page of bytes (max/quota)
  */
 export const MAX_RANDOM_BYTES_PAGES = MAX_RANDOM_BYTES / RANDOM_BYTES_QUOTA
+// note: should it do Math.ceil() / Math.round()?
 
 /**
  * Generate `size` random bytes.
