@@ -158,10 +158,9 @@ test('fs.lutimes', async (t) => {})
 test('fs.link', async (t) => {})
 test('fs.lstat', async (t) => {})
 test('fs.mkdir', async (t) => {
-  const filename = Math.random().toString(16).slice(2)
-
-  await new Promise((resolveMkdir, reject) => {
-    fs.mkdir(filename, {}, (err) => {
+  const dirname = FIXTURES + Math.random().toString(16).slice(2)
+  await new Promise((resolve, reject) => {
+    fs.mkdir(dirname, {}, (err) => {
       if (err) reject(err)
 
       fs.stat(dirname, (err) => {
