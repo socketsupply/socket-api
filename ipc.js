@@ -44,7 +44,9 @@ import { Buffer } from './buffer.js'
 
 let nextSeq = 1
 
-export const postMessage = window.__ipc.postMessage
+export async function postMessage (...args) {
+  return await window.__ipc.postMessage(...args)
+}
 
 function initializeXHRIntercept () {
   const { send, open } = window.XMLHttpRequest.prototype
