@@ -19,7 +19,7 @@
  * The IPC protocol uses a simple URI-like scheme. Data is passed as
  * ArrayBuffers.
  *
- * ```uri
+ * ```
  * ipc://command?key1=value1&key2=value2...
  * ```
  */
