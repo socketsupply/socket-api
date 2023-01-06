@@ -3,7 +3,7 @@
 declare id=""
 declare root=""
 
-id="co.socketsupply.io.tests"
+id="co.socketsupply.socket.tests"
 root="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
 
 "$root/scripts/bootstrap-android-emulator.sh" &
@@ -24,8 +24,8 @@ ssc build --headless --platform=android -r -o . >/dev/null || {
   exit "$rc"
 }
 
-adb shell rm -rf "/data/local/tmp/ssc-io-test-fixtures"
-adb push "$root/fixtures/" "/data/local/tmp/ssc-io-test-fixtures"
+adb shell rm -rf "/data/local/tmp/ssc-socket-test-fixtures"
+adb push "$root/fixtures/" "/data/local/tmp/ssc-socket-test-fixtures"
 
 "$root/scripts/poll-adb-logcat.sh"
 

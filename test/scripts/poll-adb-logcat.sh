@@ -3,7 +3,7 @@
 declare id=""
 declare pid=""
 
-id="co.socketsupply.io.tests"
+id="co.socketsupply.socket.tests"
 
 ## Start application
 adb shell am start -n "$id/.MainActivity" || exit $?

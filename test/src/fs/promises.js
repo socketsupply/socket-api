@@ -9,8 +9,8 @@ import { Dir } from '../../../fs/dir.js'
 
 const TMPDIR = `${os.tmpdir()}${path.sep}`
 const FIXTURES = /android/i.test(os.platform())
-  ? '/data/local/tmp/ssc-io-test-fixtures/'
-  : `${TMPDIR}ssc-io-test-fixtures${path.sep}`
+  ? '/data/local/tmp/ssc-socket-test-fixtures/'
+  : `${TMPDIR}ssc-socket-test-fixtures${path.sep}`
 
 test('fs.promises.access', async (t) => {
   let access = await fs.access(FIXTURES, fs.constants.F_OK)

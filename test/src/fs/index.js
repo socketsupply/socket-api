@@ -9,8 +9,8 @@ import { test } from '@socketsupply/tapzero'
 
 const TMPDIR = `${os.tmpdir()}${path.sep}`
 const FIXTURES = /android/i.test(os.platform())
-  ? '/data/local/tmp/ssc-io-test-fixtures/'
-  : `${TMPDIR}ssc-io-test-fixtures${path.sep}`
+  ? '/data/local/tmp/ssc-socket-test-fixtures/'
+  : `${TMPDIR}ssc-socket-test-fixtures${path.sep}`
 
 // node compat
 /*

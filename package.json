@@ -1,5 +1,5 @@
 {
-  "name": "@socketsupply/io",
+  "name": "@socketsupply/socket-api",
   "version": "0.1.22",
   "main": "index.js",
   "type": "module",
@@ -21,12 +21,12 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/socketsupply/io.git"
+    "url": "git+https://github.com/socketsupply/socket-api.git"
   },
   "bugs": {
-    "url": "https://github.com/socketsupply/io/issues"
+    "url": "https://github.com/socketsupply/socket-api/issues"
   },
-  "homepage": "https://github.com/socketsupply/io#readme",
+  "homepage": "https://github.com/socketsupply/socket-api#readme",
   "description": "Socket Runtime JavaScript interface",
   "devDependencies": {
     "acorn": "8.8.0",
