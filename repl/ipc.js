@@ -5,9 +5,9 @@ import { format } from 'util'
 const ipc = {
   seq: 0,
   server: createServer(onconnection),
-  write (command, params) {
-    params = { ...params, seq: this.seq++ }
-    const message = Message.from(command, params)
+  write (name, params) {
+    params = { ...params, index: 0, seq: this.seq++ }
+    const message = Message.from(name, params)
 
     console.log('%s', message)
   },
@@ -29,14 +29,19 @@ ipc.server.listen(0, () => {
 function ondata (data) {
   const buffers = String(data).split('\n').filter(Boolean)
 
-  for (const buffer of buffers) {
+  for (let buffer of buffers) {
     let message = null
 
     if (buffer.startsWith('ipc://')) {
       message = Message.from(buffer)
     }
 
-    if (message?.command === 'repl.context.ready') {
+    if (message?.name === 'process.write') {
+      message = Message.from(message.value)
+      buffer = message.toString()
+    }
+
+    if (message?.name === 'repl.context.ready') {
       setTimeout(() => {
         ipc.write('send', { event: 'repl.context.init', value: {} })
       }, 512)
@@ -46,16 +51,16 @@ function ondata (data) {
   }
 }
 
-function onconnection (socket) {
-  socket.on('close', () => {
+function onconnection (connection) {
+  connection.on('close', () => {
     process.exit()
   })
 
   process.stdin.on('data', (buffer) => {
-    socket.write(buffer)
+    connection.write(buffer)
   })
 
-  socket.on('data', (buffer) => {
+  connection.on('data', (buffer) => {
     console.log('%s', String(buffer))
   })
 }

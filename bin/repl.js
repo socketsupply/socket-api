@@ -25,23 +25,32 @@ if (!process.env.DEBUG) {
 }
 
 if (!process.env.DEBUG && !process.env.VERBOSE) {
-  console.log('• warning! waiting for build to complete')
+  console.log('• loading...')
 }
 
 process.chdir(cwd)
 
-const proc = spawn('ssc', args, {
+const controller = new AbortController()
+const child = spawn('ssc', args, {
   cwd: '.',
-  stdio: ['ignore', 'pipe', 'inherit']
+  stdio: ['ignore', 'pipe', 'inherit'],
+  signal: controller.signal
 })
 
-let nextId = 0
-let conn = null
+let connection = null
 let server = null
 let port = null
 
-proc.on('exit', onexit)
-proc.stdout.on('data', ondata)
+let exiting = false
+let nextId = 0
+
+child.on('exit', () => {
+  setTimeout(() => {
+    process.exit()
+  })
+})
+
+child.stdout.on('data', ondata)
 
 process.on('exit', onexit)
 process.on('SIGINT', onsignal)
@@ -53,20 +62,19 @@ async function sleep (ms) {
 }
 
 function onerror (err) {
-  proc.kill(9)
+  child.kill('SIGINT')
   console.error(err.stack || err)
 }
 
 function onsignal () {
-  proc.kill(9)
+  child.kill('SIGINT')
   process.exit()
 }
 
 function onexit () {
-  proc.kill(9)
-  setTimeout(() => {
-    process.exit()
-  })
+  if (exiting) return
+  exiting = true
+  child.kill(9)
 }
 
 function ondata (data) {
@@ -85,10 +93,10 @@ function ondata (data) {
 }
 
 async function onmessage (message) {
-  const { id, command } = message
+  const { id, name } = message
   let { value } = message
 
-  if (command === 'repl.eval.result') {
+  if (name === 'repl.eval.result') {
     if (id in callbacks) {
       const hasError = message.get('error')
       const { computed, callback } = callbacks[id]
@@ -160,8 +168,9 @@ async function onmessage (message) {
     }
   }
 
-  if (message.command === 'repl.server.listening') {
+  if (message.name === 'repl.server.listening') {
     port = message.get('port')
+
     if (!Number.isFinite(port)) {
       console.error('Port received is not valid: Got %s', message.params.port)
       process.exit(1)
@@ -174,9 +183,9 @@ async function onmessage (message) {
 
     await sleep(512)
 
-    conn = createConnection(port)
-    conn.on('close', onexit)
-    conn.on('data', ondata)
+    connection = createConnection(port)
+      .on('close', onexit)
+      .on('data', ondata)
 
     server = new REPLServer({
       eval: evaluate,
@@ -192,8 +201,8 @@ async function onmessage (message) {
     })
 
     server.on('exit', () => {
-      conn.write('ipc://exit?index=0\n')
-      setTimeout(() => conn.destroy(), 32)
+      connection.write('ipc://send?event=exit&index=0&value={}\n')
+      setTimeout(() => connection.destroy(), 32)
     })
   }
 }
@@ -264,6 +273,6 @@ async function evaluate (cmd, ctx, file, callback) {
     cmd
   }))
 
-  conn.write(`ipc://send?event=repl.eval&index=0&value=${value}\n`)
+  connection.write(`ipc://send?event=repl.eval&index=0&value=${value}\n`)
   callbacks[id] = { callback }
 }
