@@ -42,9 +42,7 @@ function ondata (data) {
     }
 
     if (message?.name === 'repl.context.ready') {
-      setTimeout(() => {
-        ipc.write('send', { event: 'repl.context.init', value: {} })
-      }, 512)
+      ipc.write('send', { event: 'repl.context.init', value: {} })
     }
 
     ipc.log(buffer)
