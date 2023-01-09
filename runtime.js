@@ -9,14 +9,14 @@ import { applyPolyfills } from './polyfills.js'
 import console from './console.js'
 import ipc from './ipc.js'
 
-export const currentWindow = window.__args.index
+export const currentWindow = globalThis?.window?.__args?.index ?? 0
 // eslint-disable-next-line
-export const debug = window.__args.debug ?? false
+export const debug = globalThis?.window?.__args?.debug ?? false
 
-export const config = Object.freeze(window.__args.config ?? {})
+export const config = Object.freeze(globalThis?.window?.__args?.config ?? {})
 
 function formatFileUrl (url) {
-  return `file://${window.__args.cwd()}/${url}`
+  return `file://${globalThis?.window?.__args?.cwd()}/${url}`
 }
 
 if (globalThis.window) {
@@ -30,7 +30,7 @@ export async function send (o) {
   if (typeof o.value !== 'string') {
     o.value = JSON.stringify(o.value)
   }
-  
+
   return await ipc.send('send', {
     index: o.index,
     window: o.window,
@@ -68,6 +68,8 @@ export async function setTitle (o) {
 export async function inspect (o) {
   return await ipc.postMessage('ipc://inspect')
 }
+
+inspect[Symbol.for('socket.util.inspect.ignore')] = true
 
 /**
  * @param {object} opts - an options object
