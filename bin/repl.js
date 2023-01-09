@@ -36,7 +36,7 @@ const proc = spawn('ssc', args, {
 })
 
 let nextId = 0
-let sock = null
+let conn = null
 let server = null
 let port = null
 
@@ -174,9 +174,9 @@ async function onmessage (message) {
 
     await sleep(512)
 
-    sock = createConnection(port)
-    sock.on('close', onexit)
-    sock.on('data', ondata)
+    conn = createConnection(port)
+    conn.on('close', onexit)
+    conn.on('data', ondata)
 
     server = new REPLServer({
       eval: evaluate,
@@ -192,8 +192,8 @@ async function onmessage (message) {
     })
 
     server.on('exit', () => {
-      sock.write('ipc://exit?index=0\n')
-      setTimeout(() => sock.destroy(), 32)
+      conn.write('ipc://exit?index=0\n')
+      setTimeout(() => conn.destroy(), 32)
     })
   }
 }
@@ -264,6 +264,6 @@ async function evaluate (cmd, ctx, file, callback) {
     cmd
   }))
 
-  sock.write(`ipc://send?event=repl.eval&index=0&value=${value}\n`)
+  conn.write(`ipc://send?event=repl.eval&index=0&value=${value}\n`)
   callbacks[id] = { callback }
 }
