@@ -9,6 +9,7 @@ const AsyncFunction = (async () => {}).constructor
 const TypedArray = TypedArrayPrototype.constructor
 
 const kCustomInspect = inspect.custom = Symbol.for('nodejs.util.inspect.custom')
+const kIgnoreInspect = inspect.ignore = Symbol.for('socket.util.inspect.ignore')
 
 export function hasOwnProperty (object, property) {
   return ObjectPrototype.hasOwnProperty.call(object, String(property))
@@ -275,7 +276,8 @@ export function inspect (value, options) {
         value?.inspect !== inspect &&
         value !== globalThis &&
         value !== globalThis?.system &&
-        value !== globalThis?.__args
+        value !== globalThis?.__args &&
+        value?.inspect[kIgnoreInspect] !== true
       ) {
         const formatted = value.inspect(depth, ctx)
 
