@@ -15,7 +15,7 @@
     "postpublish": "npm publish --registry https://npm.pkg.github.com"
   },
   "bin": {
-    "ssc-repl": "bin/repl.js"
+    "socket-repl": "bin/repl.js"
   },
   "author": "",
   "license": "ISC",
