@@ -591,8 +591,13 @@ export class Message extends URL {
     }
 
     const value = this.searchParams.get(key)
+    const json = value && parseJSON(value)
 
-    return parseJSON(value) ?? value ?? null
+    if (json === null || json === undefined) {
+      return value
+    }
+
+    return json
   }
 
   /**
@@ -1160,6 +1165,7 @@ export default {
   createBinding,
   debug,
   emit,
+  Message,
   postMessage,
   ready,
   resolve,
