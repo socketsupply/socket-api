@@ -1,6 +1,6 @@
-import * as socket from '../index.js'
 import { format } from '../util.js'
 import console from '../console.js'
+import socket from '../index.js'
 import ipc from '../ipc.js'
 
 let didInit = false
@@ -9,15 +9,16 @@ const AsyncFunction = (async () => void 0).constructor
 
 socket.backend.open().then(() => {
   setTimeout(() => {
-    //ipc.postMessage(`ipc://process.write?value=${encodeURIComponent(ipc.Message.from('repl.context.ready').toString())}`)
-    ipc.send('process.write', { value: ipc.Message.from('repl.context.ready').toString() })
-  }, 1000)
+    ipc.send('process.write', {
+      value: ipc.Message.from('repl.context.ready').toString()
+    })
+  })
 })
 
 // init from event
 window.addEventListener('repl.context.init', (event) => {
   init(event.detail)
-  console.log('Welcome to SSC %s', process.version)
+  console.log('• Welcome to Socket Runtime %s', process.version)
 })
 
 window.addEventListener('error', onerror)
@@ -66,6 +67,8 @@ export function init (opts) {
   ]
 
   window.socket = socket
+  window.Socket = socket
+  window.global = window
 
   for (const fn of disabledFunctions) {
     window[fn] = () => console.warn(`WARN: ${fn}() is not available in the REPL context`)
@@ -123,15 +126,35 @@ function makeError (err) {
   return error
 }
 
+function encode (data, err) {
+  return JSON.stringify({
+    // double encode to prevent JSON text from causing decodeURIComponent issues
+    data: encodeURIComponent(encodeURIComponent(socket.util.format(data))),
+    err: err || null
+  })
+}
+
 export async function evaluate ({ cmd, id }) {
+  try { cmd = decodeURIComponent(cmd) }
+  catch (err) {}
+
   try {
-    if (/\s*await\s*import\s*\(/.test(cmd)) {
+    if (/\s*await/.test(cmd)) {
+      const value = await new AsyncFunction(`return (${cmd})`)()
+      return await send('repl.eval.result', {
+        id,
+        error: false,
+        async: true,
+        value: encode(value)
+      })
+    } else if (/\s*await\s*import\s*\(/.test(cmd)) {
       cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
       const value = await new AsyncFunction(`(${cmd})`)()
       return await send('repl.eval.result', {
         id,
         error: false,
-        value: JSON.stringify({ data: socket.util.format(value) })
+        async: true,
+        value: encode(value)
       })
     } else if (/\s*import\s*\(/.test(cmd)) {
       cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
@@ -139,19 +162,43 @@ export async function evaluate ({ cmd, id }) {
       return await send('repl.eval.result', {
         id,
         error: false,
-        value: JSON.stringify({ data: socket.util.format(value) })
+        async: true,
+        value: encode(value)
       })
     }
 
     const result = await ipc.request('window.eval', { value: cmd })
-    return await send('repl.eval.result', {
-      id,
-      error: Boolean(result.err),
-      value: JSON.stringify({
-        data: socket.util.format(result.data),
-        err: makeError(result.err)
+    const parts = []
+    const data = socket.util.format(result.data)
+    const err = makeError(result.err)
+    const max = 1024
+
+    if (data.length > max) {
+      let i = 0
+
+      for (; i < data.length; i += max) {
+        const offset = Math.min(data.length, i + max)
+        parts.push(data.slice(i, offset))
+      }
+    } else {
+      parts.push(data)
+    }
+
+    while (parts.length) {
+      const part = parts.shift()
+      if (!part) continue
+      await send('repl.eval.result', {
+        id,
+        error: Boolean(err),
+        value: encode(part, err),
+        continue: parts.length > 0
       })
-    })
+
+      if (err) {
+        // just send the error
+        break
+      }
+    }
   } catch (err) {
     return await send('repl.eval.result', {
       id,
