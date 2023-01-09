@@ -12,6 +12,7 @@
 import { EventEmitter } from './events.js'
 import { Duplex } from './stream.js'
 import { rand64 } from './util.js'
+import console from './console.js'
 
 const _require = typeof require !== 'undefined' && require
 

@@ -1,4 +1,5 @@
 import { GLOBAL_TEST_RUNNER } from '@socketsupply/tapzero'
+import console from '../../console.js'
 import process from '../../process.js'
 import '../../runtime.js'
 

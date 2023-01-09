@@ -41,14 +41,16 @@ import {
 
 import * as errors from './errors.js'
 import { Buffer } from './buffer.js'
+import console from './console.js'
 
 let nextSeq = 1
 
 export async function postMessage (...args) {
-  return await window.__ipc.postMessage(...args)
+  return await window?.__ipc?.postMessage(...args)
 }
 
 function initializeXHRIntercept () {
+  if (typeof window === 'undefined') return
   const { send, open } = window.XMLHttpRequest.prototype
 
   const B5_PREFIX_BUFFER = new Uint8Array([0x62, 0x35]) // literally, 'b5'
@@ -122,17 +124,19 @@ function initializeXHRIntercept () {
   })
 }
 
-initializeXHRIntercept()
+if (typeof window !== 'undefined') {
+  initializeXHRIntercept()
 
-document.addEventListener('DOMContentLoaded', () => {
-  queueMicrotask(async () => {
-    try {
-      await send('platform.event', 'domcontentloaded')
-    } catch (err) {
-      console.error('ERR:', err)
-    }
+  document.addEventListener('DOMContentLoaded', () => {
+    queueMicrotask(async () => {
+      try {
+        await send('platform.event', 'domcontentloaded')
+      } catch (err) {
+        console.error('ERR:', err)
+      }
+    })
   })
-})
+}
 
 function getErrorClass (type, fallback) {
   if (typeof window !== 'undefined' && typeof window[type] === 'function') {
@@ -483,9 +487,17 @@ export class Message extends URL {
   }
 
   /**
-   * Computed command for the IPC message.
+   * Computed IPC message name.
    */
   get command () {
+    // TODO(jwerle): issue deprecation notice
+    return this.name
+  }
+
+  /**
+   * Computed IPC message name.
+   */
+  get name () {
     return this.hostname || this.host || this.pathname.slice(2)
   }
 
@@ -508,7 +520,7 @@ export class Message extends URL {
    * This value is automatically decoded, but not treated as JSON.
    */
   get value () {
-    return this.has('value') ? this.get('value') : null
+    return this.get('value') ?? null
   }
 
   /**
@@ -578,7 +590,9 @@ export class Message extends URL {
       return defaultValue
     }
 
-    return parseJSON(this.searchParams.get(key)) || null
+    const value = this.searchParams.get(key)
+
+    return parseJSON(value) ?? value ?? null
   }
 
   /**

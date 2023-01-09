@@ -1,4 +1,5 @@
 import { EventEmitter } from '../../events.js'
+import console from '../../console.js'
 import crypto from '../../crypto.js'
 import Buffer from '../../buffer.js'
 import dgram from '../../dgram.js'
