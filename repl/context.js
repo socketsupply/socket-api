@@ -1,11 +1,18 @@
-import { format } from '../util.js'
-import * as ipc from '../ipc.js'
 import * as socket from '../index.js'
+import { format } from '../util.js'
+import console from '../console.js'
+import ipc from '../ipc.js'
 
-let marker = -1
 let didInit = false
 
 const AsyncFunction = (async () => void 0).constructor
+
+socket.backend.open().then(() => {
+  setTimeout(() => {
+    //ipc.postMessage(`ipc://process.write?value=${encodeURIComponent(ipc.Message.from('repl.context.ready').toString())}`)
+    ipc.send('process.write', { value: ipc.Message.from('repl.context.ready').toString() })
+  }, 1000)
+})
 
 // init from event
 window.addEventListener('repl.context.init', (event) => {
@@ -30,7 +37,6 @@ function onerror (err) {
 
 export function init (opts) {
   const ctx = {
-    patchConsole,
     evaluate,
     ...opts
   }
@@ -72,20 +78,18 @@ export function init (opts) {
     })
   }
 
-  ctx.patchConsole('log')
-  ctx.patchConsole('info')
-  ctx.patchConsole('warn')
-  ctx.patchConsole('error')
-  ctx.patchConsole('debug')
-
   window.addEventListener('repl.eval', (event) => {
     ctx.evaluate(event.detail)
   })
+
+  window.addEventListener('exit', () => {
+    ipc.send('exit')
+  })
 }
 
-function patchConsole (method) {
-  const original = console[method].bind(console)
-  console[method] = (...args) => original(format(...args))
+async function send (name, args) {
+  const message = ipc.Message.from(name, args)
+  return await ipc.send('process.write', { value: message.toString() })
 }
 
 function makeError (err) {
@@ -124,7 +128,7 @@ export async function evaluate ({ cmd, id }) {
     if (/\s*await\s*import\s*\(/.test(cmd)) {
       cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
       const value = await new AsyncFunction(`(${cmd})`)()
-      return await ipc.send('repl.eval.result', {
+      return await send('repl.eval.result', {
         id,
         error: false,
         value: JSON.stringify({ data: socket.util.format(value) })
@@ -132,7 +136,7 @@ export async function evaluate ({ cmd, id }) {
     } else if (/\s*import\s*\(/.test(cmd)) {
       cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
       const value = new AsyncFunction(`(${cmd})`)()
-      return await ipc.send('repl.eval.result', {
+      return await send('repl.eval.result', {
         id,
         error: false,
         value: JSON.stringify({ data: socket.util.format(value) })
@@ -140,7 +144,7 @@ export async function evaluate ({ cmd, id }) {
     }
 
     const result = await ipc.request('window.eval', { value: cmd })
-    return await ipc.send('repl.eval.result', {
+    return await send('repl.eval.result', {
       id,
       error: Boolean(result.err),
       value: JSON.stringify({
@@ -149,7 +153,7 @@ export async function evaluate ({ cmd, id }) {
       })
     })
   } catch (err) {
-    return await ipc.send('repl.eval.result', {
+    return await send('repl.eval.result', {
       id,
       error: true,
       value: JSON.stringify({
