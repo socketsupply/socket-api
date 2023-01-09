@@ -6,6 +6,7 @@
  */
 
 import { Buffer } from './buffer.js'
+import console from './console.js'
 
 /**
  * WebCrypto API

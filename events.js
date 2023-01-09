@@ -19,6 +19,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import console from './console.js'
+
 const R = typeof Reflect === 'object' ? Reflect : null
 const ReflectApply = R && typeof R.apply === 'function'
   ? R.apply

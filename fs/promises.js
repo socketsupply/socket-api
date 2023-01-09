@@ -3,7 +3,8 @@
  */
 import { DirectoryHandle, FileHandle } from './handle.js'
 import { Dir, sortDirectoryEntries } from './dir.js'
-import * as ipc from '../ipc.js'
+import console from '../console.js'
+import ipc from '../ipc.js'
 
 async function visit (path, options, callback) {
   if (typeof options === 'function') {

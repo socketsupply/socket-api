@@ -1,4 +1,5 @@
-import * as ipc from '../ipc.js'
+import console from '../console.js'
+import ipc from '../ipc.js'
 
 /**
  * Static contsiner to map file descriptors to internal

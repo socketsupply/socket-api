@@ -1,4 +1,5 @@
-import { Buffer } from '../../..'
+import { Buffer } from '../../../buffer.js'
+import console from '../../../console.js'
 import crypto from '../../../crypto.js'
 import path from '../../../path.js'
 import fs from '../../../fs.js'

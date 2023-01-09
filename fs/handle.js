@@ -15,8 +15,9 @@ import { AbortError } from '../errors.js'
 import { Buffer } from 'buffer'
 import { Stats } from './stats.js'
 import { F_OK } from './constants.js'
-import * as ipc from '../ipc.js'
+import console from '../console.js'
 import fds from './fds.js'
+import ipc from '../ipc.js'
 import gc from '../gc.js'
 
 export const kOpening = Symbol.for('fs.FileHandle.opening')
