@@ -6,7 +6,7 @@ import { send } from './ipc.js'
 
 let didEmitExitEvent = false
 
-const isNode = globalThis.process?.versions?.node
+const isNode = Boolean(globalThis.process?.versions?.node)
 const process = isNode
   ? globalThis.process
   : Object.create(globalThis.__args, Object.getOwnPropertyDescriptors({
@@ -15,9 +15,9 @@ const process = isNode
     argv0: globalThis.__args?.argv?.[0] ?? null,
     exit,
     env: {},
+    platform: globalThis?.__args?.os ?? '',
     ...globalThis.__args
   }))
-process.platform = process.os
 
 if (!isNode) {
   EventEmitter.call(process)
