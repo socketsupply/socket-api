@@ -1,4 +1,5 @@
 import { FinalizationRegistryCallbackError } from './errors.js'
+import console from './console.js'
 
 if (typeof FinalizationRegistry === 'undefined') {
   console.warn(

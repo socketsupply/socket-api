@@ -1,4 +1,5 @@
 /* global MutationObserver */
+import console from './console.js'
 import ipc from './ipc.js'
 
 export function applyPolyfills (window) {
