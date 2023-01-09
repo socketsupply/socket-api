@@ -1,6 +1,6 @@
 import { format } from '../util.js'
 import * as ipc from '../ipc.js'
-import * as io from '../index.js'
+import * as socket from '../index.js'
 
 let marker = -1
 let didInit = false
@@ -17,13 +17,13 @@ window.addEventListener('error', onerror)
 window.addEventListener('unhandledrejection', onerror)
 
 // uncomment below to get IPC debug output in stdout
-if (io.process.env.DEBUG) {
+if (socket.process.env.DEBUG) {
   ipc.debug.enabled = true
   ipc.debug.log = (...args) => console.log(...args)
 }
 
 function onerror (err) {
-  if (io.process.env.DEBUG) {
+  if (socket.process.env.DEBUG) {
     console.error(makeError(err))
   }
 }
@@ -59,16 +59,16 @@ export function init (opts) {
     'stop'
   ]
 
-  window.io = io
+  window.socket = socket
 
   for (const fn of disabledFunctions) {
     window[fn] = () => console.warn(`WARN: ${fn}() is not available in the REPL context`)
   }
 
-  for (const key in io) {
+  for (const key in socket) {
     if (window[key] !== undefined) { continue }
     Object.defineProperty(window, key, {
-      get: () => io[key]
+      get: () => socket[key]
     })
   }
 
@@ -127,7 +127,7 @@ export async function evaluate ({ cmd, id }) {
       return await ipc.send('repl.eval.result', {
         id,
         error: false,
-        value: JSON.stringify({ data: io.util.format(value) })
+        value: JSON.stringify({ data: socket.util.format(value) })
       })
     } else if (/\s*import\s*\(/.test(cmd)) {
       cmd = cmd.replace(/^\s*(let|const|var)\s+/, '')
@@ -135,7 +135,7 @@ export async function evaluate ({ cmd, id }) {
       return await ipc.send('repl.eval.result', {
         id,
         error: false,
-        value: JSON.stringify({ data: io.util.format(value) })
+        value: JSON.stringify({ data: socket.util.format(value) })
       })
     }
 
@@ -144,7 +144,7 @@ export async function evaluate ({ cmd, id }) {
       id,
       error: Boolean(result.err),
       value: JSON.stringify({
-        data: io.util.format(result.data),
+        data: socket.util.format(result.data),
         err: makeError(result.err)
       })
     })

@@ -9,7 +9,7 @@ import os from 'node:os'
 
 import { Message } from '../ipc.js'
 
-const HISTORY_PATH = path.join(os.homedir(), '.ssc_io_repl_history')
+const HISTORY_PATH = path.join(os.homedir(), '.ssc_socket_repl_history')
 
 const callbacks = {}
 const dirname = path.dirname(import.meta.url.replace('file://', ''))
@@ -36,7 +36,7 @@ const proc = spawn('ssc', args, {
 })
 
 let nextId = 0
-let socket = null
+let conn = null
 let server = null
 let port = null
 
@@ -174,9 +174,9 @@ async function onmessage (message) {
 
     await sleep(512)
 
-    socket = createConnection(port)
-    socket.on('close', onexit)
-    socket.on('data', ondata)
+    conn = createConnection(port)
+    conn.on('close', onexit)
+    conn.on('data', ondata)
 
     server = new REPLServer({
       eval: evaluate,
@@ -192,8 +192,8 @@ async function onmessage (message) {
     })
 
     server.on('exit', () => {
-      socket.write('ipc://exit?index=0\n')
-      setTimeout(() => socket.destroy(), 32)
+      conn.write('ipc://exit?index=0\n')
+      setTimeout(() => conn.destroy(), 32)
     })
   }
 }
@@ -245,16 +245,16 @@ async function evaluate (cmd, ctx, file, callback) {
   if (!isTry && !/import\s*\(/.test(cmd)) {
     if (/^\s*await/.test(cmd)) {
       cmd = cmd.replace(/^\s*await\s*/, '')
-      cmd = `void Promise.resolve(${cmd}).then((result) => console.log(io.util.format(result)))`
+      cmd = `void Promise.resolve(${cmd}).then((result) => console.log(socket.util.format(result)))`
     } else if (lastName) {
-      cmd = `${cmd}; io.util.format(${lastName});`
+      cmd = `${cmd}; socket.util.format(${lastName});`
     } else if (!/^\s*((throw\s)|(with\s*\()|(try\s*{)|(const\s)|(let\s)|(var\s)|(if\s*\()|(for\s*\()|(while\s*\()|(do\s*{)|(return\s)|(import\s*\())/.test(cmd)) {
       cmd = cmd.replace(/\s*;$/g, '')
       if (Array.isArray(root)) {
         const last = root.slice(-1)[0]
-        cmd = cmd.slice(0, last.start) + `;io.util.format((${cmd.slice(last.start, last.end)}))`
+        cmd = cmd.slice(0, last.start) + `;socket.util.format((${cmd.slice(last.start, last.end)}))`
       } else {
-        cmd = `io.util.format((${cmd}))`
+        cmd = `socket.util.format((${cmd}))`
       }
     }
   }
@@ -264,6 +264,6 @@ async function evaluate (cmd, ctx, file, callback) {
     cmd
   }))
 
-  socket.write(`ipc://send?event=repl.eval&index=0&value=${value}\n`)
+  conn.write(`ipc://send?event=repl.eval&index=0&value=${value}\n`)
   callbacks[id] = { callback }
 }

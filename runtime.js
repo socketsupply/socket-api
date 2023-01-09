@@ -150,7 +150,7 @@ export async function setSystemMenuItemEnabled (value) {
  *
  *
  * ```js
- * io.runtime.setSystemMenu({ index: 0, value: `
+ * socket.runtime.setSystemMenu({ index: 0, value: `
  *   App:
  *     Foo: f;
  *

@@ -234,7 +234,7 @@ export function transform (filename) {
     return (table + '\n')
   }
 
-  const base = 'https://github.com/socketsupply/io/blob/master'
+  const base = 'https://github.com/socketsupply/socket-api/blob/master'
 
   for (const doc of docs) {
     let h = doc.export ? '##' : '###'

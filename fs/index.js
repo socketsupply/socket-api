@@ -11,13 +11,13 @@
  * To use the promise-based APIs:
  *
  * ```js
- * import * as fs from '@socketsupply/io/fs/promises.js';
+ * import * as fs from '@socketsupply/socket-api/fs/promises.js';
  * ```
  *
  * To use the callback and async APIs:
  *
  * ```js
- * import * as fs from '@socketsupply/io/fs/index.js';
+ * import * as fs from '@socketsupply/socket-api/fs/index.js';
  * ```
  */
 
