@@ -1,6 +1,6 @@
-import { format } from './util'
+import { format } from './util.js'
 
-const console = window?.console ?? {}
+const console = typeof window !== 'undefined' ? window.console ?? {} : {}
 
 const mapping = {
   stdout: ['info', 'log'],
