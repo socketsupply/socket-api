@@ -20,6 +20,20 @@ export * as runtime from './runtime.js'
 export * as stream from './stream.js'
 export * as util from './util.js'
 
+export const Socket = Object.create(Object.prototype, {
+  constructor: {
+    value: class Socket {}
+  }
+})
+
+export default Socket
+
 // eslint-disable-next-line
 import * as exports from './index.js'
-export default exports
+for (const key in exports ) {
+  if (key !== 'default') {
+    Socket[key] = exports[key]
+  }
+}
+
+Object.freeze(Socket)
