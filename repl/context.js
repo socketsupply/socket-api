@@ -67,8 +67,11 @@ export function init (opts) {
   ]
 
   window.socket = socket
-  window.Socket = socket
-  window.global = window
+  Object.defineProperties(window, {
+    socket: { enumerable: true, configurable: false, value: socket },
+    Socket: { enumerable: true, get: () => socket },
+    global: { enumerable: true, get: () => window }
+  })
 
   for (const fn of disabledFunctions) {
     window[fn] = () => console.warn(`WARN: ${fn}() is not available in the REPL context`)
