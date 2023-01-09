@@ -7,6 +7,8 @@ import { spawn } from 'node:child_process'
 import path from 'node:path'
 import os from 'node:os'
 
+import socket from '../index.js'
+
 import { Message } from '../ipc.js'
 
 const HISTORY_PATH = path.join(os.homedir(), '.ssc_socket_repl_history')
@@ -22,10 +24,6 @@ if (!process.env.DEBUG) {
   if (!process.env.VERBOSE) {
     args.push('--quiet')
   }
-}
-
-if (!process.env.DEBUG && !process.env.VERBOSE) {
-  console.log('• loading...')
 }
 
 process.chdir(cwd)
@@ -99,9 +97,12 @@ async function onmessage (message) {
   if (name === 'repl.eval.result') {
     if (id in callbacks) {
       const hasError = message.get('error')
+      const hasContinue = message.get("continue")
       const { computed, callback } = callbacks[id]
 
-      delete callbacks[id]
+      if (!hasContinue) {
+        delete callbacks[id]
+      }
 
       if (value.err) {
         if (/^(Unexpected end of input|Unexpected token)/i.test(value.err.message)) {
@@ -109,13 +110,21 @@ async function onmessage (message) {
         }
       }
 
-      if (!hasError && !value.err && value && 'data' in value) {
-        value = value.data
+      if (typeof value === 'string') {
+        try { value = JSON.parse(value) }
+        catch (err) { }
       }
 
-      if (typeof value === 'string') {
-        try { value = new Function(`return ${value}`)() }
-        catch (err) {}
+      if (typeof value?.data === 'string') {
+        try {
+          value.data = decodeURIComponent(value.data)
+          value.data = JSON.parse(value.data)
+        } catch (err) {
+        }
+      }
+
+      if (!hasError && !value.err && value && typeof value === 'object' && 'data' in value) {
+        value = value.data
       }
 
       if (value === 'undefined') {
@@ -159,8 +168,12 @@ async function onmessage (message) {
         callback(null, value)
       } else {
         if (typeof value === 'string') {
-          console.log(value)
-          callback(null)
+          if (!hasContinue) {
+            console.log(value)
+            callback(null)
+          } else {
+            process.stdout.write(value)
+          }
         } else {
           callback(null, value)
         }
@@ -172,13 +185,8 @@ async function onmessage (message) {
     port = message.get('port')
 
     if (!Number.isFinite(port)) {
-      console.error('Port received is not valid: Got %s', message.params.port)
+      console.error('x Port received is not valid: Got %s', message.params.port)
       process.exit(1)
-    }
-
-    if (!process.argv.includes('--quiet')) {
-      console.log('• repl context initialized')
-      console.log('')
     }
 
     await sleep(512)
@@ -191,8 +199,11 @@ async function onmessage (message) {
       eval: evaluate,
       prompt: '# ',
       preview: false,
-      useGlobal: false
+      useGlobal: true
     })
+
+    server.on('reset', initContext)
+    initContext(server.context)
 
     server.setupHistory(HISTORY_PATH, (err) => {
       if (err) {
@@ -205,6 +216,10 @@ async function onmessage (message) {
       setTimeout(() => connection.destroy(), 32)
     })
   }
+}
+
+function initContext (context) {
+  context.socket = socket
 }
 
 async function evaluate (cmd, ctx, file, callback) {
@@ -224,7 +239,7 @@ async function evaluate (cmd, ctx, file, callback) {
       sourceType: 'module'
     })
   } catch (err) {
-    void err
+    return callback(new Recoverable())
   }
 
   const isTry = ast?.body?.[0]?.type === 'TryStatement'
@@ -252,25 +267,30 @@ async function evaluate (cmd, ctx, file, callback) {
   const lastName = names.pop()
 
   if (!isTry && !/import\s*\(/.test(cmd)) {
-    if (/^\s*await/.test(cmd)) {
-      cmd = cmd.replace(/^\s*await\s*/, '')
-      cmd = `void Promise.resolve(${cmd}).then((result) => console.log(socket.util.format(result)))`
-    } else if (lastName) {
-      cmd = `${cmd}; socket.util.format(${lastName});`
-    } else if (!/^\s*((throw\s)|(with\s*\()|(try\s*{)|(const\s)|(let\s)|(var\s)|(if\s*\()|(for\s*\()|(while\s*\()|(do\s*{)|(return\s)|(import\s*\())/.test(cmd)) {
-      cmd = cmd.replace(/\s*;$/g, '')
-      if (Array.isArray(root)) {
-        const last = root.slice(-1)[0]
-        cmd = cmd.slice(0, last.start) + `;socket.util.format((${cmd.slice(last.start, last.end)}))`
-      } else {
-        cmd = `socket.util.format((${cmd}))`
+    if (!/\s*await/.test(cmd)) {
+      if (lastName) {
+        cmd = `${cmd}; socket.util.format(${lastName});`
+      } else if (!/^\s*((throw\s)|(with\s*\()|(try\s*{)|(const\s)|(let\s)|(var\s)|(if\s*\()|(for\s*\()|(while\s*\()|(do\s*{)|(return\s)|(import\s*\())/.test(cmd)) {
+        cmd = cmd.replace(/\s*;$/g, '')
+        if (Array.isArray(root) && cmd.length) {
+          const last = root.slice(-1)[0]
+          cmd = [
+            cmd.slice(0, last.start),
+            `socket.util.format((${cmd.slice(last.start, last.end)}))`
+          ]
+            .filter(Boolean)
+            .join(';')
+        } else {
+          cmd = `socket.util.format((${cmd}))`
+        }
       }
     }
   }
 
+  cmd = cmd.replace(/"/g, '\\"')
   const value = encodeURIComponent(JSON.stringify({
     id,
-    cmd
+    cmd: encodeURIComponent(cmd)
   }))
 
   connection.write(`ipc://send?event=repl.eval&index=0&value=${value}\n`)
