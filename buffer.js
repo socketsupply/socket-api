@@ -5,6 +5,6 @@
  */
 
 import buffer from 'buffer'
-const Buffer = buffer.Buffer ?? buffer
+export const Buffer = buffer.Buffer ?? buffer
 export * from 'buffer'
 export default Buffer
