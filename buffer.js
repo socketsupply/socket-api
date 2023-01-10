@@ -13,6 +13,11 @@
 
 'use strict'
 
+const base64 = {
+  toByteArray,
+  fromByteArray
+}
+
 const lookup = []
 const revLookup = []
 const Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
@@ -45,14 +50,6 @@ function getLens (b64) {
     : 4 - (validLen % 4)
 
   return [validLen, placeHoldersLen]
-}
-
-// base64 is 4/3 + up to two characters of the original data
-function byteLength (b64) {
-  const lens = getLens(b64)
-  const validLen = lens[0]
-  const placeHoldersLen = lens[1]
-  return ((validLen + placeHoldersLen) * 3 / 4) - placeHoldersLen
 }
 
 function _byteLength (b64, validLen, placeHoldersLen) {
@@ -156,12 +153,6 @@ function fromByteArray (uint8) {
   }
 
   return parts.join('')
-}
-
-const base64 = {
-  byteLength
-  toByteArray
-  fromByteArray
 }
 
 const ieee754 = {}
@@ -269,8 +260,9 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-// const base64 = require('./base64')
-// const ieee754 = require('./ieee754')
+//
+// Buffer module
+//
 const customInspectSymbol =
   (typeof Symbol === 'function' && typeof Symbol['for'] === 'function') // eslint-disable-line dot-notation
     ? Symbol['for']('nodejs.util.inspect.custom') // eslint-disable-line dot-notation

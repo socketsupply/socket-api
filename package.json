@@ -30,7 +30,8 @@
   "description": "Socket Runtime JavaScript interface",
   "devDependencies": {
     "acorn": "8.8.0",
-    "acorn-walk": "8.2.0"
+    "acorn-walk": "8.2.0",
+    "standard": "^17.0.0"
   },
   "dependencies": {
     "buffer": "6.0.3"
