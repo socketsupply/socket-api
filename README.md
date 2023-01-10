@@ -461,7 +461,7 @@ Broadcasts a datagram on the socket. For connectionless sockets, the
 | callback | Function |  | true | Called when the message has been sent. |
 
 
-### [`close(callback)`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L932)
+### [`close(callback)`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L936)
 
 External docs: https://nodejs.org/api/dgram.html#socketclosecallback
 
@@ -475,7 +475,7 @@ Close the underlying socket and stop listening for data on it. If a
 | callback | function |  | true | Called when the connection is completed or on error. |
 
 
-### [`address()`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L990)
+### [`address()`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L994)
 
 External docs: https://nodejs.org/api/dgram.html#socketaddress
 
@@ -493,7 +493,7 @@ Returns an object containing the address information for a socket. For
 | socketInfo.family | string | The IP family of the socket |
 
 
-### [`remoteAddress()`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1025)
+### [`remoteAddress()`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1029)
 
 External docs: https://nodejs.org/api/dgram.html#socketremoteaddress
 
@@ -510,7 +510,7 @@ Returns an object containing the address, family, and port of the remote
 | socketInfo.family | string | The IP family of the socket |
 
 
-### [`setRecvBufferSize(size)`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1056)
+### [`setRecvBufferSize(size)`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1060)
 
 External docs: https://nodejs.org/api/dgram.html#socketsetrecvbuffersizesize
 
@@ -523,7 +523,7 @@ Sets the SO_RCVBUF socket option. Sets the maximum socket receive buffer in
 | size | number |  | false | The size of the new receive buffer |
 
 
-### [`setSendBufferSize(size)`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1073)
+### [`setSendBufferSize(size)`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1077)
 
 External docs: https://nodejs.org/api/dgram.html#socketsetsendbuffersizesize
 
@@ -536,13 +536,13 @@ Sets the SO_SNDBUF socket option. Sets the maximum socket send buffer in
 | size | number |  | false | The size of the new send buffer |
 
 
-### [`getRecvBufferSize()`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1086)
+### [`getRecvBufferSize()`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1090)
 
 External docs: https://nodejs.org/api/dgram.html#socketgetrecvbuffersize
 
 
 
-### [`getSendBufferSize()`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1094)
+### [`getSendBufferSize()`](https://github.com/socketsupply/socket-api/blob/master/dgram.js#L1098)
 
 External docs: https://nodejs.org/api/dgram.html#socketgetsendbuffersize
 
