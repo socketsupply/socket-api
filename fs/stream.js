@@ -2,7 +2,8 @@
  * @module FS.Stream
  */
 import { Readable, Writable } from '../stream.js'
-import { Buffer } from 'buffer'
+import { AbortError } from '../errors.js'
+import { Buffer } from '../buffer.js'
 
 export const DEFAULT_STREAM_HIGH_WATER_MARK = 64 * 1024
 

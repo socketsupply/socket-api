@@ -12,7 +12,7 @@ import { ReadStream, WriteStream } from './stream.js'
 import { normalizeFlags } from './flags.js'
 import { EventEmitter } from '../events.js'
 import { AbortError } from '../errors.js'
-import { Buffer } from 'buffer'
+import { Buffer } from '../buffer.js'
 import { Stats } from './stats.js'
 import { F_OK } from './constants.js'
 import console from '../console.js'
@@ -265,7 +265,6 @@ export class FileHandle extends EventEmitter {
     this.fd = null
 
     this[kClosing].resolve(true)
-
 
     this[kOpening] = null
     this[kClosing] = null
@@ -938,7 +937,7 @@ export class DirectoryHandle extends EventEmitter {
       throw new Error('DirectoryHandle is not opened')
     }
 
-    const { id  } = this
+    const { id } = this
 
     if (options?.signal?.aborted) {
       throw new AbortError(options.signal)
@@ -946,7 +945,7 @@ export class DirectoryHandle extends EventEmitter {
 
     this[kClosing] = new InvertedPromise()
 
-    const result = await ipc.send('fs.closedir', { id, }, options)
+    const result = await ipc.send('fs.closedir', { id }, options)
 
     if (result.err) {
       return this[kClosing].reject(result.err)

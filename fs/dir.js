@@ -1,5 +1,5 @@
 import { DirectoryHandle } from './handle.js'
-import { Buffer } from 'buffer'
+import { Buffer } from '../buffer.js'
 import {
   UV_DIRENT_UNKNOWN,
   UV_DIRENT_FILE,
@@ -145,7 +145,7 @@ export class Dir {
    * AsyncGenerator which yields directory entries.
    * @param {object=} options
    */
-  async *entries (options) {
+  async * entries (options) {
     try {
       while (true) {
         const results = await this.read(options)
