@@ -11,6 +11,8 @@
 
 /* eslint-disable no-proto */
 
+import console from './console.js'
+
 'use strict'
 
 const base64 = {
@@ -271,6 +273,8 @@ const customInspectSymbol =
 const INSPECT_MAX_BYTES = 50
 const K_MAX_LENGTH = 0x7fffffff
 const kMaxLength = K_MAX_LENGTH
+
+export default Buffer
 
 export {
   Buffer,
