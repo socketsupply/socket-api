@@ -8,6 +8,8 @@
 import { Buffer } from './buffer.js'
 import console from './console.js'
 
+import * as exports from './crypto.js'
+
 /**
  * WebCrypto API
  * @see {https://developer.mozilla.org/en-US/docs/Web/API/Crypto}
@@ -55,7 +57,7 @@ export function randomBytes (size) {
 
   if (size < 0 || size >= MAX_RANDOM_BYTES || !Number.isInteger(size)) {
     throw Object.assign(new RangeError(
-      `The value of "size" is out of range. It must be >= 0 && <= ${max}. ` +
+      `The value of "size" is out of range. It must be >= 0 && <= ${MAX_RANDOM_BYTES}. ` +
       `Received ${size}`
     ), {
       code: 'ERR_OUT_OF_RANGE'
@@ -67,7 +69,7 @@ export function randomBytes (size) {
     const bytes = getRandomValues(new Int8Array(length))
     buffers.push(Buffer.from(bytes))
     size = Math.max(0, size - RANDOM_BYTES_QUOTA)
-  } while (size > 0);
+  } while (size > 0)
 
   return Buffer.concat(buffers)
 }
@@ -80,6 +82,4 @@ export function randomBytes (size) {
 export async function createDigest (algorithm, buf) {
   return Buffer.from(await webcrypto.subtle.digest(algorithm, buf))
 }
-
-import * as exports from './crypto.js'
 export default exports

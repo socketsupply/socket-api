@@ -7,7 +7,6 @@ import os from '../os.js'
 const isWin32 = os.platform() === 'win32'
 
 export class Path {
-
   /**
    * Computes current working directory for a path
    * @param {object=} [opts]

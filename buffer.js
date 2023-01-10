@@ -13,8 +13,6 @@
 
 import console from './console.js'
 
-'use strict'
-
 const base64 = {
   toByteArray,
   fromByteArray

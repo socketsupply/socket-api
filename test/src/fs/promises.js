@@ -27,7 +27,7 @@ test('fs.promises.access', async (t) => {
 })
 
 test('fs.promises.chmod', async (t) => {
-  let chmod = await fs.chmod(FIXTURES + 'file.txt', 0o777)
+  const chmod = await fs.chmod(FIXTURES + 'file.txt', 0o777)
   t.equal(chmod, undefined, 'file.txt is chmod 777')
 })
 
@@ -38,26 +38,26 @@ test('fs.promises.mkdir', async (t) => {
 })
 
 test('fs.promises.open', async (t) => {
-  let fd = await fs.open(FIXTURES + 'file.txt', 'r')
+  const fd = await fs.open(FIXTURES + 'file.txt', 'r')
   t.ok(fd instanceof FileHandle, 'FileHandle is returned')
   await fd.close()
 })
 
 test('fs.promises.opendir', async (t) => {
-  let dir = await fs.opendir(FIXTURES + 'directory')
+  const dir = await fs.opendir(FIXTURES + 'directory')
   t.ok(dir instanceof Dir, 'fs.Dir is returned')
   await dir.close()
 })
 
 test('fs.promises.readdir', async (t) => {
-  let files = await fs.readdir(FIXTURES + 'directory')
+  const files = await fs.readdir(FIXTURES + 'directory')
   t.ok(Array.isArray(files), 'array is returned')
   t.equal(files.length, 6, 'array contains 2 items')
   t.deepEqual(files.map(file => file.name), ['0', '1', '2', 'a', 'b', 'c'].map(name => `${name}.txt`), 'array contains files')
 })
 
 test('fs.promises.readFile', async (t) => {
-  let data = await fs.readFile(FIXTURES + 'file.txt')
+  const data = await fs.readFile(FIXTURES + 'file.txt')
   t.ok(Buffer.isBuffer(data), 'buffer is returned')
   t.equal(data.toString(), 'test 123\n', 'buffer contains file contents')
 })
@@ -85,9 +85,9 @@ test('fs.promises.stat', async (t) => {
 })
 
 test('fs.promises.writeFile', async (t) => {
-  let file = FIXTURES + 'write-file.txt'
-  let data = 'test 123\n'
+  const file = FIXTURES + 'write-file.txt'
+  const data = 'test 123\n'
   await fs.writeFile(file, data)
-  let contents = await fs.readFile(file)
+  const contents = await fs.readFile(file)
   t.equal(contents.toString(), data, 'file contents are correct')
 })

@@ -4,9 +4,7 @@
  * Provides runtime-specific methods
  */
 
-/* global window */
 import { applyPolyfills } from './polyfills.js'
-import console from './console.js'
 import ipc from './ipc.js'
 
 export const currentWindow = globalThis?.window?.__args?.index ?? 0

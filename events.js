@@ -232,7 +232,7 @@ function onceWrapper () {
 }
 
 function _onceWrap (target, type, listener) {
-  const state = { fired: false, wrapFn: undefined, target: target, type: type, listener: listener }
+  const state = { fired: false, wrapFn: undefined, target, type, listener }
   const wrapped = onceWrapper.bind(state)
   wrapped.listener = listener
   state.wrapFn = wrapped

@@ -24,7 +24,7 @@
 import { Dir, Dirent, sortDirectoryEntries } from './dir.js'
 import { DirectoryHandle, FileHandle } from './handle.js'
 import { ReadStream, WriteStream } from './stream.js'
-import { isBufferLike, isFunction } from '../util.js'
+import { isBufferLike, isFunction, noop } from '../util.js'
 import * as constants from './constants.js'
 import * as promises from './promises.js'
 import { Stats } from './stats.js'
@@ -33,7 +33,9 @@ import ipc from '../ipc.js'
 import fds from './fds.js'
 import gc from '../gc.js'
 
-export * from './stream.js'
+import * as exports from './index.js'
+
+// export * from './stream.js'
 export { default as binding } from './binding.js'
 
 function defaultCallback (err) {
@@ -97,19 +99,19 @@ export function appendFile (path, data, options, callback) {
 }
 
 /**
- * 
+ *
  * Asynchronously changes the permissions of a file.
  * No arguments other than a possible exception are given to the completion callback
- * 
+ *
  * @see {@link https://nodejs.org/api/fs.html#fschmodpath-mode-callback}
- * 
+ *
  * @param {string | Buffer | URL} path
  * @param {number} mode
  * @param {function(err)} callback
  */
 export function chmod (path, mode, callback) {
   if (typeof mode !== 'number') {
-    throw new TypeError(`The argument \'mode\' must be a 32-bit unsigned integer or an octal string. Received ${mode}`)
+    throw new TypeError(`The argument 'mode' must be a 32-bit unsigned integer or an octal string. Received ${mode}`)
   }
 
   if (mode < 0 || !Number.isInteger(mode)) {
@@ -161,7 +163,7 @@ export function copyFile (src, dst, mode, callback) {
  * @param {string | Buffer | URL} path
  * @param {object=} options
  * @returns {fs.ReadStream}
- */ 
+ */
 export function createReadStream (path, options) {
   if (path?.fd) {
     options = path
@@ -241,7 +243,7 @@ export function createWriteStream (path, options) {
  * the POSIX fstat(2) documentation for more detail.
  *
  * @see {@link https://nodejs.org/dist/latest-v16.x/docs/api/fs.html#fsfstatfd-options-callback}
- * 
+ *
  * @param {number} fd - A file descriptor.
  * @param {Object=} options - An options object.
  * @param {function} callback - The function to call after completion.
@@ -476,7 +478,7 @@ export function readdir (path, options, callback) {
         return callback(err)
       } finally {
         if (!dir.closing && !dir.closed) {
-          dir.close().catch((err) => void err)
+          dir.close().catch(noop)
         }
       }
 
@@ -558,13 +560,13 @@ export function rm (path, options, callback) {
 }
 
 /**
- * 
+ *
  * @param {string | Buffer | URL | number } path - filename or file descriptor
- * @param {object=} options 
+ * @param {object=} options
  * @param {string=} [options.encoding = 'utf8']
  * @param {string=} [options.flag = 'r']
  * @param {AbortSignal=} [options.signal]
- * @param {function(err, data)} callback 
+ * @param {function(err, data)} callback
  */
 export function stat (path, options, callback) {
   if (typeof options === 'function') {
@@ -689,8 +691,6 @@ export {
   Stats,
   WriteStream
 }
-
-import * as exports from './index.js'
 export default exports
 
 for (const key in exports) {

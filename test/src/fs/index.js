@@ -1,5 +1,5 @@
 import { Buffer } from '../../../buffer.js'
-import console from '../../../console.js'
+// import console from '../../../console.js'
 import crypto from '../../../crypto.js'
 import path from '../../../path.js'
 import fs from '../../../fs.js'
@@ -120,7 +120,7 @@ test('fs.createReadStream', async (t) => {
       }
 
       t.ok(
-        Buffer.compare(expected, actual) == 0,
+        Buffer.compare(expected, actual) === 0,
         `fixtures/file.txt contents match "${expected}"`
       )
     })
@@ -129,9 +129,9 @@ test('fs.createReadStream', async (t) => {
 
 test('fs.createWriteStream', async (t) => {
   if (os.platform() === 'android') return t.comment('TODO')
-  const writer = fs.createWriteStream(TMPDIR+ 'new-file.txt')
+  const writer = fs.createWriteStream(TMPDIR + 'new-file.txt')
   const bytes = crypto.randomBytes(32 * 1024 * 1024)
-  writer.write(bytes.slice(0 , 512 * 1024))
+  writer.write(bytes.slice(0, 512 * 1024))
   writer.write(bytes.slice(512 * 1024))
   writer.end()
   await new Promise((resolve) => {
@@ -141,7 +141,7 @@ test('fs.createWriteStream', async (t) => {
       resolve()
     })
     writer.once('close', () => {
-      const reader = fs.createReadStream(TMPDIR+ 'new-file.txt')
+      const reader = fs.createReadStream(TMPDIR + 'new-file.txt')
       const buffers = []
       reader.on('data', (buffer) => buffers.push(buffer))
       reader.on('end', () => {
@@ -184,7 +184,7 @@ test('fs.readFile', async (t) => {
     fs.readFile(FIXTURES + 'file.json', (err, buf) => {
       if (failed) return resolve(false)
 
-      const message = `fs.readFile('fixtures/file.json') [iteration=${i+1}]`
+      const message = `fs.readFile('fixtures/file.json') [iteration=${i + 1}]`
 
       try {
         if (err) {
@@ -225,11 +225,11 @@ test('fs.writeFile', async (t) => {
   const large = Array.from({ length: 16 }, (_, i) => i * 2 * 1024 * 1024).map(alloc)
   const buffers = [...small, ...large]
 
-  let pending = buffers.length
+  // const pending = buffers.length
   let failed = false
   const writes = []
 
-  const now = Date.now()
+  // const now = Date.now()
   while (!failed && buffers.length) {
     writes.push(testWrite(buffers.length - 1, buffers.pop()))
   }
@@ -241,13 +241,13 @@ test('fs.writeFile', async (t) => {
     small.length + large.length,
     Date.now() - now,
     [...small, ...large].reduce((n, a) => n + a.length, 0)
-  )*/
+  ) */
 
   t.ok(!failed, 'all bytes match')
 
   async function testWrite (i, buffer) {
     await new Promise((resolve) => {
-      const filename = TMPDIR+ `new-file-${i}.txt`
+      const filename = TMPDIR + `new-file-${i}.txt`
       fs.writeFile(filename, buffer, async (err) => {
         if (err) {
           failed = true
@@ -259,7 +259,7 @@ test('fs.writeFile', async (t) => {
           if (err) {
             failed = true
             t.fail(err.message)
-          } else if (Buffer.compare(result, buffer) != 0) {
+          } else if (Buffer.compare(result, buffer) !== 0) {
             failed = true
             t.fail('bytes do not match')
           }

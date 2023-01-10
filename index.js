@@ -30,7 +30,7 @@ export default Socket
 
 // eslint-disable-next-line
 import * as exports from './index.js'
-for (const key in exports ) {
+for (const key in exports) {
   if (key !== 'default') {
     Socket[key] = exports[key]
   }

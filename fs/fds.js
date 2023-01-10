@@ -24,7 +24,7 @@ export default new class FileDescriptorsMap {
 
   async syncOpenDescriptors () {
     // wait for DOM to be loaded and ready
-    if (typeof globalThis.document == 'object') {
+    if (typeof globalThis.document === 'object') {
       if (globalThis.document.readyState !== 'complete') {
         await new Promise((resolve) => {
           document.addEventListener('DOMContentLoaded', resolve, { once: true })
@@ -42,7 +42,7 @@ export default new class FileDescriptorsMap {
 
   set (id, fd, type) {
     if (!type) {
-      type = id == fd ? 'directory' : 'file'
+      type = id === fd ? 'directory' : 'file'
     }
 
     this.fds.set(id, fd)
@@ -137,4 +137,4 @@ export default new class FileDescriptorsMap {
   entries () {
     return this.ids.entries()
   }
-}
+}()

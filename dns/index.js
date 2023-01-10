@@ -13,6 +13,8 @@ import * as ipc from '../ipc.js'
 import { rand64, isFunction } from '../util.js'
 import * as promises from './promises.js'
 
+import * as exports from './index.js'
+
 /**
  * Resolves a host name (e.g. `example.org`) into the first found A (IPv4) or
  * AAAA (IPv6) record. All option properties are optional. If options is an
@@ -85,8 +87,6 @@ export function lookup (hostname, opts, cb) {
 export {
   promises
 }
-
-import * as exports from './index.js'
 export default exports
 
 for (const key in exports) {

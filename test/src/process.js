@@ -16,11 +16,11 @@ test('process.exit()', (t) => {
 
 test('process.cwd', async (t) => {
   t.ok(typeof process.cwd() === 'string', 'process.cwd() returns a string')
-  if (process.platform  === 'mac') {
+  if (process.platform === 'mac') {
     t.equal(process.cwd(), path.resolve(process.argv0, '../../Resources'), 'process.cwd() returns a correct value')
-  } else if (process.platform  === 'linux') {
+  } else if (process.platform === 'linux') {
     t.equal(process.cwd(), path.resolve(process.argv0, '../../socketsupply-socket-tests'), 'process.cwd() returns a correct value')
-  } else if (process.platform  === 'android') {
+  } else if (process.platform === 'android') {
     t.ok(process.cwd(), 'process.cwd() returns a correct value')
   } else {
     // TODO: iOS, Windows

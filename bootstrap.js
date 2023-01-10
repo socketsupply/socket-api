@@ -4,7 +4,7 @@ import { PassThrough } from './stream.js'
 import { createDigest } from './crypto.js'
 import { EventEmitter } from './events.js'
 
-async function* streamAsyncIterable(stream) {
+async function * streamAsyncIterable (stream) {
   const reader = stream.getReader()
   try {
     while (true) {
@@ -19,7 +19,7 @@ async function* streamAsyncIterable(stream) {
 
 /**
  * @param {Buffer|String} buf
- * @param {string} hashAlgorithm 
+ * @param {string} hashAlgorithm
  * @returns {Promise<string>}
  */
 async function getHash (buf, hashAlgorithm) {
@@ -30,7 +30,7 @@ async function getHash (buf, hashAlgorithm) {
 /**
  * @param {string} dest - file path
  * @param {string} hash - hash string
- * @param {string} hashAlgorithm - hash algorithm 
+ * @param {string} hashAlgorithm - hash algorithm
  * @returns {Promise<boolean>}
  */
 export async function checkHash (dest, hash, hashAlgorithm) {

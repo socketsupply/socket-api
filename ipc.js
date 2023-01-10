@@ -32,7 +32,6 @@ import {
 } from './errors.js'
 
 import {
-  isFunction,
   isBufferLike,
   isPlainObject,
   format,

@@ -1,11 +1,10 @@
-import { format } from '../util.js'
 import console from '../console.js'
 import socket from '../index.js'
 import ipc from '../ipc.js'
 
 let didInit = false
 
-const AsyncFunction = (async () => void 0).constructor
+const AsyncFunction = (async () => {}).constructor
 
 socket.backend.open().then(() => {
   setTimeout(() => {
@@ -114,6 +113,7 @@ function makeError (err) {
     ...(err.stack || '').split('\n').slice(1).map((s) => `    at ${s}`)
   ]
 
+  // eslint-disable-next-line no-useless-escape
   const stack = (message.match(RegExp(`(${window.location.href}:[0-9]+:[0-9]+):\s*`)) || [])[1]
 
   if (stack) {
@@ -138,8 +138,7 @@ function encode (data, err) {
 }
 
 export async function evaluate ({ cmd, id }) {
-  try { cmd = decodeURIComponent(cmd) }
-  catch (err) {}
+  try { cmd = decodeURIComponent(cmd) } catch (err) {}
 
   try {
     if (/\s*await/.test(cmd)) {
