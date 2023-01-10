@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "lint": "standardx -v",
+    "lint": "standard -v",
     "readme": "node ./bin/generate-docs.js",
     "test": "cd test && npm install --silent --no-audit && npm test",
     "test:node": "node ./test/node/index.js",
@@ -33,7 +33,7 @@
     "acorn-walk": "8.2.0",
     "standard": "^17.0.0"
   },
-  "dependencies": {
-    "buffer": "6.0.3"
+  "optionalDependencies": {
+    "@socketsupply/stream-relay": "^1.0.0"
   }
 }

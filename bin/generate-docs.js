@@ -13,7 +13,7 @@ export function transform (filename) {
   const destFile = path.relative(process.cwd(), 'README.md')
 
   let accumulateComments = []
-  let comments = {}
+  const comments = {}
   const src = fs.readFileSync(srcFile)
   const ast = acorn.parse(String(src), {
     tokens: true,
@@ -21,7 +21,7 @@ export function transform (filename) {
     ecmaVersion: 'latest',
     sourceType: 'module',
     onToken: (token) => {
-      comments[token.start] = accumulateComments;
+      comments[token.start] = accumulateComments
       accumulateComments = []
     },
     onComment: (block, comment) => {
@@ -42,7 +42,7 @@ export function transform (filename) {
   const docs = []
 
   const onNode = node => {
-    let item = {
+    const item = {
       sort: node.loc.start.line,
       location: `/${srcFile}#L${node.loc.start.line}`,
       type: node.type,
@@ -91,7 +91,6 @@ export function transform (filename) {
       }
 
       if (item.type === 'FunctionDeclaration') {
-        item.name = item.name
         item.params = [] // node.declaration.params
         item.signature = []
       }
@@ -131,7 +130,7 @@ export function transform (filename) {
           item.signature = item.signature || []
           const parts = attr.split(/-\s+(.*)/)
           const { 1: rawType, 2: rawName } = parts[0].match(/{([^}]+)}(.*)/)
-          const [name, defaultValue] = rawName.replace(/[\[\]']+/g, '').trim().split('=')
+          const [name, defaultValue] = rawName.replace(/[[\]']+/g, '').trim().split('=')
 
           // type could be [(string|number)=]
           const parenthasisedType = rawType
@@ -170,8 +169,8 @@ export function transform (filename) {
           if (match) {
             const { 1: type, 2: rawName } = match
             const [name, description] = /\w\s*-\s*(.*)/.test(rawName) ? rawName.split(/-\s+/) : ['Not specified', rawName]
-            const param = { name: name.trim() || 'Not specified' , type, description: description?.trim() }
-            if (['undefined', 'void'].includes(type)) continue;
+            const param = { name: name.trim() || 'Not specified', type, description: description?.trim() }
+            if (['undefined', 'void'].includes(type)) continue
             if (!item[propType]) item[propType] = []
             item[propType].push(param)
           }
@@ -198,7 +197,7 @@ export function transform (filename) {
     if (!arr || !arr.length) return []
 
     const tableHeader = [
-      `| Argument | Type | Default | Optional | Description |`,
+      '| Argument | Type | Default | Optional | Description |',
       '| :---     | :--- | :---:   | :---:    | :---        |'
     ].join('\n')
 
@@ -218,8 +217,8 @@ export function transform (filename) {
     if (!arr?.length) return []
 
     const tableHeader = [
-      `| Return Value | Type | Description |`,
-      '| :---         | :--- | :---        |',
+      '| Return Value | Type | Description |',
+      '| :---         | :--- | :---        |'
     ].join('\n')
 
     let table = `${tableHeader}\n`
@@ -267,11 +266,10 @@ export function transform (filename) {
   'fs/promises.js',
   'fs/stream.js',
   'ipc.js',
-  'network.js',
   'os.js',
+  'p2p.js',
   'path/path.js',
   'process.js',
   'runtime.js',
   'stream.js'
 ].forEach(transform)
-
