@@ -31,10 +31,10 @@
   "devDependencies": {
     "acorn": "8.8.0",
     "acorn-walk": "8.2.0",
-    "standard": "^17.0.0",
-    "esbuild": "^0.16.16"
+    "esbuild": "^0.16.16",
+    "standard": "^17.0.0"
   },
   "optionalDependencies": {
-    "@socketsupply/stream-relay": "^1.0.0"
+    "@socketsupply/stream-relay": "^1.0.3"
   }
 }
