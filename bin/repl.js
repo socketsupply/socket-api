@@ -212,7 +212,7 @@ async function onmessage (message) {
     })
 
     server.on('exit', () => {
-      connection.write('ipc://send?event=exit&index=0&value={}\n')
+      connection.write('ipc://send?event=exit&index=0&value=0\n')
       setTimeout(() => connection.destroy(), 32)
     })
   }
