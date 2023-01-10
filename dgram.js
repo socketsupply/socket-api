@@ -855,7 +855,11 @@ export class Socket extends EventEmitter {
    */
   send (buffer, ...args) {
     const id = this.id || rand64()
-    let offset = 0; let length; let port; let address; let cb = defaultCallback(this)
+    let offset = 0
+    let length
+    let port
+    let address
+    let cb = defaultCallback(this)
 
     if (Array.isArray(buffer)) {
       buffer = fromBufferList(buffer)
