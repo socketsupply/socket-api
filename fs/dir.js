@@ -55,7 +55,7 @@ export class Dir {
     this.path = handle?.path ?? null
     this.handle = handle
     this.encoding = options?.encoding || 'utf8'
-    this.withFileTypes = options?.withFileTypes === false ? false : true
+    this.withFileTypes = options?.withFileTypes !== false
   }
 
   /**
@@ -162,8 +162,6 @@ export class Dir {
           yield results
         }
       }
-    } catch (err) {
-      throw err
     } finally {
       await this.close()
     }

@@ -1,12 +1,12 @@
 import { FinalizationRegistryCallbackError } from './errors.js'
 import console from './console.js'
+import { noop } from './util.js'
 
 if (typeof FinalizationRegistry === 'undefined') {
   console.warn(
     'FinalizationRegistry is not implemented in this environment. ' +
     'gc.ref() will have no effect.'
   )
-  class FinalizationRegistry {}
 }
 
 export const finalizers = new WeakMap()
@@ -53,9 +53,9 @@ async function finalizationRegistryCallback (finalizer) {
   if (typeof finalizer.handle === 'function') {
     try {
       await finalizer.handle(...finalizer.args)
-    } catch (err) {
-      err = new FinalizationRegistryCallbackError(err.message, {
-        cause: err
+    } catch (e) {
+      const err = new FinalizationRegistryCallbackError(e.message, {
+        cause: e
       })
 
       if (typeof Error.captureStackTrace === 'function') {
@@ -64,7 +64,6 @@ async function finalizationRegistryCallback (finalizer) {
 
       console.warn(err.name, err.message, err.stack, err.cause)
     }
-
   }
 
   for (const weakRef of pool) {
@@ -95,10 +94,10 @@ export class Finalizer {
       return new this([], handler)
     }
 
-    let { handle , args } = handler
+    let { handle, args } = handler
 
     if (typeof handle !== 'function') {
-      handle = () => void 0
+      handle = noop
     }
 
     if (!Array.isArray(args)) {
@@ -129,7 +128,7 @@ export class Finalizer {
 export async function ref (object, ...args) {
   if (object && typeof object[kFinalizer] === 'function') {
     const finalizer = Finalizer.from(await object[kFinalizer](...args))
-    const weakRef  = new WeakRef(finalizer)
+    const weakRef = new WeakRef(finalizer)
 
     finalizers.set(object, weakRef)
     pool.add(weakRef)
@@ -185,16 +184,17 @@ export async function finalize (object, ...args) {
 
   registry.unregister(object)
 
-  if (finalizer instanceof Finalizer && await unref(object)) {
-    await finalizationRegistryCallback(finalizer)
+  try {
+    if (finalizer instanceof Finalizer && await unref(object)) {
+      await finalizationRegistryCallback(finalizer)
+    } else {
+      const finalizer = Finalizer.from(await object[kFinalizer](...args))
+      await finalizationRegistryCallback(finalizer)
+    }
     return true
-  } else {
-    const finalizer = Finalizer.from(await object[kFinalizer](...args))
-    await finalizationRegistryCallback(finalizer)
-    return true
+  } catch (err) {
+    return false
   }
-
-  return false
 }
 
 /**

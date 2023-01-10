@@ -20,7 +20,7 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
     const [successOpen, backendReady, backendSendData] = await Promise.all([successOpenPromise, backendReadyPromise, backenSendDataPromise])
     t.ok(successOpen, 'does not emit a process-error event')
     t.ok(backendReady, 'can send events to window 0')
-    t.deepEqual(backendSendData, { character: { firstname: 'Morty', secondname: 'Smith' }}, 'can send events with data')
+    t.deepEqual(backendSendData, { character: { firstname: 'Morty', secondname: 'Smith' } }, 'can send events with data')
   })
 
   test('backend.open() again', async (t) => {
@@ -48,7 +48,7 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
     // TODO: what is the correct result?
     t.ok(sendResult.err == null, 'returns correct result')
     const character = await new Promise(resolve => window.addEventListener('character.backend', ({ detail }) => resolve(detail), { once: true }))
-    t.deepEqual(character, { character: { firstname: 'Summer', secondname: 'Smith' }}, 'send data to process')
+    t.deepEqual(character, { character: { firstname: 'Summer', secondname: 'Smith' } }, 'send data to process')
   })
 
   test('backend.close()', async (t) => {

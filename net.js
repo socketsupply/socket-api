@@ -14,8 +14,6 @@ import { Duplex } from './stream.js'
 import { rand64 } from './util.js'
 import console from './console.js'
 
-const _require = typeof require !== 'undefined' && require
-
 const assertType = (name, expected, actual, code) => {
   const msg = `'${name}' must be a '${expected}', received '${actual}'`
   const err = new TypeError(msg)

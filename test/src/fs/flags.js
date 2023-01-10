@@ -15,18 +15,21 @@ test('flags', (t) => {
 
   t.throws(
     () => normalizeFlags(null),
+    // eslint-disable-next-line prefer-regex-literals
     RegExp('Expecting flags to be a string or number: Got object'),
     'normalizeFlags() throws on null'
   )
 
   t.throws(() =>
     normalizeFlags({}),
-    RegExp('Expecting flags to be a string or number: Got object'),
-    'normalizeFlags() throws on object'
+  // eslint-disable-next-line prefer-regex-literals
+  RegExp('Expecting flags to be a string or number: Got object'),
+  'normalizeFlags() throws on object'
   )
 
   t.throws(
     () => normalizeFlags(true),
+    // eslint-disable-next-line prefer-regex-literals
     RegExp('Expecting flags to be a string or number: Got boolean'),
     'normalizeFlags() throws on boolean'
   )

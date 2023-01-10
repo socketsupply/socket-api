@@ -33,7 +33,7 @@ export function applyPolyfills (window) {
   }))
 
   // create <title> tag in document if it doesn't exist
-  window.document.title ||= ""
+  window.document.title ||= ''
   // initial value
   window.addEventListener('DOMContentLoaded', async () => {
     const title = window.document.title

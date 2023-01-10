@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Recoverable, REPLServer }from 'node:repl'
+import { Recoverable, REPLServer } from 'node:repl'
 import { createConnection } from 'net'
 import * as acorn from 'acorn'
 import { spawn } from 'node:child_process'
@@ -97,7 +97,7 @@ async function onmessage (message) {
   if (name === 'repl.eval.result') {
     if (id in callbacks) {
       const hasError = message.get('error')
-      const hasContinue = message.get("continue")
+      const hasContinue = message.get('continue')
       const { computed, callback } = callbacks[id]
 
       if (!hasContinue) {
@@ -111,8 +111,7 @@ async function onmessage (message) {
       }
 
       if (typeof value === 'string') {
-        try { value = JSON.parse(value) }
-        catch (err) { }
+        try { value = JSON.parse(value) } catch (err) { }
       }
 
       if (typeof value?.data === 'string') {
@@ -150,10 +149,12 @@ async function onmessage (message) {
 
           let error = null
           try {
+            // eslint-disable-next-line no-new-func
             error = new Function('message', `return new ${name || 'Error'}(message)`)(message)
             error.name = value.err.name || name
           } catch (err) {
-            error = new Function('message', `return new Error(message)`)(name + message)
+            // eslint-disable-next-line no-new-func
+            error = new Function('message', 'return new Error(message)')(name + message)
           }
 
           if (value.err.stack) {
@@ -224,7 +225,7 @@ function initContext (context) {
 
 async function evaluate (cmd, ctx, file, callback) {
   let ast = null
-  let id = nextId++
+  const id = nextId++
 
   cmd = cmd.trimEnd()
 

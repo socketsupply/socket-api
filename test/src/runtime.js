@@ -27,15 +27,15 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
   test('currentWindow', (t) => {
     t.equal(runtime.currentWindow, window.__args.index, 'runtime.currentWindow equals window.__args.index')
     t.equal(runtime.currentWindow, 0, 'runtime.currentWindow equals 0')
-    t.throws(() => runtime.currentWindow = 1, 'runtime.currentWindow is immutable')
+    t.throws(() => { runtime.currentWindow = 1 }, 'runtime.currentWindow is immutable')
   })
 
   test('debug', (t) => {
     t.equal(runtime.debug, window.__args.debug, 'debug is correct')
-    t.throws(() => runtime.debug = 1, 'debug is immutable')
+    t.throws(() => { runtime.debug = 1 }, 'debug is immutable')
   })
 
-  test ('config', async (t) => {
+  test('config', async (t) => {
     const rawConfig = await readFile('socket.ini', 'utf8')
     let prefix = ''
     const lines = rawConfig.split('\n')
@@ -49,28 +49,31 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
       }
       let [key, value] = line.split('=')
       key = key.trim()
-      value = value.trim().replace(/\"/g, '')
+      value = value.trim().replace(/"/g, '')
       config.push([prefix.length === 0 ? key : prefix + '_' + key, value])
     }
     config.filter(([key]) => key !== 'headless' && key !== 'name').forEach(([key, value]) => {
       t.equal(runtime.config[key], value, `runtime.config.${key} is correct`)
       t.throws(
-        () => runtime.config[key] = 0,
+        () => { runtime.config[key] = 0 },
+        // eslint-disable-next-line prefer-regex-literals
         RegExp('Attempted to assign to readonly property.'),
         `runtime.config.${key} is read-only`
       )
     })
     t.equal(runtime.config.headless, true, 'runtime.config.headless is correct')
     t.throws(
-      () => runtime.config.hedless = 0,
+      () => { runtime.config.hedless = 0 },
+      // eslint-disable-next-line prefer-regex-literals
       RegExp('Attempting to define property on object that is not extensible.'),
-      `runtime.config.headless is read-only`
+      'runtime.config.headless is read-only'
     )
     t.ok(runtime.config.name.startsWith(config.find(([key]) => key === 'name')[1]), 'runtime.config.name is correct')
     t.throws(
-      () => runtime.config.name = 0,
+      () => { runtime.config.name = 0 },
+      // eslint-disable-next-line prefer-regex-literals
       RegExp('Attempted to assign to readonly property.'),
-      `runtime.config.name is read-only`
+      'runtime.config.name is read-only'
     )
   })
 
@@ -87,15 +90,15 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
 
   test('show', async (t) => {
     t.equal(typeof runtime.show, 'function', 'show is a function')
-    await runtime.show({ 
+    await runtime.show({
       window: 1,
       url: 'index_second_window.html',
       title: 'Hello World',
       width: 400,
-      height: 400,
+      height: 400
     })
     const { data: { status, index: i1 } } = await ipc.send('window.getStatus', { window: 1 })
-    const { data: { title, index: i2 }, } = await ipc.send('window.getTitle', { window: 1 })
+    const { data: { title, index: i2 } } = await ipc.send('window.getTitle', { window: 1 })
     const { data: { height, width, index: i3 } } = await ipc.send('window.getSize', { window: 1 })
     t.equal(status, 31, 'window is shown')
     t.equal(title, 'Hello World', 'window title is correct')
@@ -107,12 +110,12 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
   })
 
   test('send', async (t) => {
-    await runtime.show({ 
+    await runtime.show({
       window: 2,
       url: 'index_second_window.html',
       title: 'Hello World',
       width: 400,
-      height: 400,
+      height: 400
     })
     // wait for window to load
     await Promise.all([
@@ -135,7 +138,7 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
     t.ok(Array.isArray(windows), 'windows is an array')
     t.ok(windows.length > 0, 'windows is not empty')
     t.ok(windows.every(w => Number.isInteger(w)), 'windows are integers')
-    t.deepEqual(windows, [0, 1, 2], 'windows are correct') 
+    t.deepEqual(windows, [0, 1, 2], 'windows are correct')
   })
 
   test('getWindows with props', async (t) => {
@@ -143,27 +146,27 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
     const { data: windows1 } = await runtime.getWindows({ title: true, size: true, status: true })
     t.ok(Array.isArray(windows1), 'windows is an array')
     t.ok(windows1.length > 0, 'windows is not empty')
-    t.deepEqual(windows1,       [
+    t.deepEqual(windows1, [
       {
-        "title": "test",
-        "width": 420,
-        "height": 200,
-        "status": 31,
-        "index": 0
+        title: 'test',
+        width: 420,
+        height: 200,
+        status: 31,
+        index: 0
       },
       {
-        "title": "Secondary window",
-        "width": 400,
-        "height": 400,
-        "status": 31,
-        "index": 1
+        title: 'Secondary window',
+        width: 400,
+        height: 400,
+        status: 31,
+        index: 1
       },
       {
-        "title": "Secondary window",
-        "width": 400,
-        "height": 400,
-        "status": 31,
-        "index": 2
+        title: 'Secondary window',
+        width: 400,
+        height: 400,
+        status: 31,
+        index: 2
       }
     ], 'windows are correct')
   })
@@ -181,16 +184,16 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
     const { data: statuses } = await runtime.getWindows({ status: true })
     t.deepEqual(statuses, [
       {
-        "status": 31,
-        "index": 0
+        status: 31,
+        index: 0
       },
       {
-        "status": 21,
-        "index": 1
+        status: 21,
+        index: 1
       },
       {
-        "status": 21,
-        "index": 2
+        status: 21,
+        index: 2
       }
     ], 'statuses are correct')
   })
@@ -217,7 +220,8 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
 
   test('setSystemMenu', async (t) => {
     t.equal(typeof runtime.setSystemMenu, 'function', 'setSystemMenuItemVisible is a function')
-    const result = await runtime.setSystemMenu({ index: 0, value: `
+    const result = await runtime.setSystemMenu({
+      index: 0, value: `
       App:
         Foo: f;
         Edit:
@@ -233,7 +237,8 @@ if (window.__args.os !== 'android' && window.__args.os !== 'ios') {
         Some Thing: S + Meta
         ---
         Bazz: s + Meta, Control, Alt;
-    `})
+    `
+    })
     t.equal(result.err, null, 'setSystemMenuItemVisible succeeds')
   })
 }

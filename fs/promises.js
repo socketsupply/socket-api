@@ -6,6 +6,8 @@ import { Dir, sortDirectoryEntries } from './dir.js'
 import console from '../console.js'
 import ipc from '../ipc.js'
 
+import * as exports from './promises.js'
+
 async function visit (path, options, callback) {
   if (typeof options === 'function') {
     callback = options
@@ -14,6 +16,8 @@ async function visit (path, options, callback) {
 
   const { flags, flag, mode } = options || {}
 
+  const handle = await FileHandle.open(path, flags || flag, mode, options)
+
   // just visit `FileHandle`, without closing if given
   if (path instanceof FileHandle) {
     return await callback(handle)
@@ -21,7 +25,6 @@ async function visit (path, options, callback) {
     return await callback(FileHandle.from(path.fd))
   }
 
-  const handle = await FileHandle.open(path, flags || flag, mode, options)
   const value = await callback(handle)
   await handle.close(options)
 
@@ -54,7 +57,7 @@ export async function appendFile (path, data, options) {
  */
 export async function chmod (path, mode) {
   if (typeof mode !== 'number') {
-    throw new TypeError(`The argument \'mode\' must be a 32-bit unsigned integer or an octal string. Received ${mode}`)
+    throw new TypeError(`The argument 'mode' must be a 32-bit unsigned integer or an octal string. Received ${mode}`)
   }
 
   if (mode < 0 || !Number.isInteger(mode)) {
@@ -261,7 +264,6 @@ export async function stat (path, options) {
   return await visit(path, {}, async (handle) => {
     return await handle.stat(options)
   })
-  
 }
 
 /**
@@ -320,7 +322,5 @@ export async function writeFile (path, data, options) {
     return await handle.writeFile(data, options)
   })
 }
-
-import * as exports from './promises.js'
 export * as constants from './constants.js'
 export default exports

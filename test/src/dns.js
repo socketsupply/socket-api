@@ -3,7 +3,7 @@ import dns from '../../dns.js'
 import { test } from '@socketsupply/tapzero'
 
 // node compat
-//import dns from 'node:dns'
+// import dns from 'node:dns'
 
 const IPV4_REGEX = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
 const IPV6_REGEX = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/
@@ -23,7 +23,7 @@ test('dns.lookup', async t => {
   }
 
   await Promise.all([
-    new Promise (resolve => {
+    new Promise(resolve => {
       dns.lookup('google.com', (err, address, family) => {
         if (err) return t.fail(err)
 
@@ -38,7 +38,7 @@ test('dns.lookup', async t => {
         resolve()
       })
     }),
-    new Promise (resolve => {
+    new Promise(resolve => {
       dns.lookup('google.com', 4, (err, address, family) => {
         if (err) return t.fail(err)
         t.equal(family, 4, 'is IPv4 family')
@@ -46,7 +46,7 @@ test('dns.lookup', async t => {
         resolve()
       })
     }),
-    new Promise (resolve => {
+    new Promise(resolve => {
       dns.lookup('cloudflare.com', 6, (err, address, family) => {
         if (err) return t.fail(err)
         t.equal(family, 6, 'is IPv6 family')
@@ -54,7 +54,7 @@ test('dns.lookup', async t => {
         resolve()
       })
     }),
-    new Promise (resolve => {
+    new Promise(resolve => {
       dns.lookup('google.com', { family: 4 }, (err, address, family) => {
         if (err) return t.fail(err)
         t.equal(family, 4, 'is IPv4 family')
@@ -62,14 +62,14 @@ test('dns.lookup', async t => {
         resolve()
       })
     }),
-    new Promise (resolve => {
+    new Promise(resolve => {
       dns.lookup('cloudflare.com', { family: 6 }, (err, address, family) => {
         if (err) return t.fail(err)
         t.equal(family, 6, 'is IPv6 family')
         t.ok(IPV6_REGEX.test(address), 'has valid IPv6 address')
         resolve()
       })
-    }),
+    })
     // TODO: call with other options
   ])
 })
@@ -81,7 +81,7 @@ test('dns.lookup bad hostname', async t => {
     return t.comment('skipping offline')
   }
 
-  await new Promise (resolve => {
+  await new Promise(resolve => {
     dns.lookup(BAD_HOSTNAME, (err, info) => {
       t.equal(err.message, `getaddrinfo EAI_AGAIN ${BAD_HOSTNAME}`, 'returns an error on unexisting hostname')
       resolve()
@@ -135,7 +135,6 @@ test('dns.promises.lookup', async t => {
     t.fail(err)
   }
 })
-
 
 test('dns.promises.lookup bad hostname', async t => {
   if (!isOnline) {

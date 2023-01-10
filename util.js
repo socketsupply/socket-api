@@ -1,6 +1,8 @@
 import { getRandomValues } from './crypto.js'
 import { Buffer } from './buffer.js'
 
+import * as exports from './util.js'
+
 const ObjectPrototype = Object.prototype
 const Uint8ArrayPrototype = Uint8Array.prototype
 const TypedArrayPrototype = Object.getPrototypeOf(Uint8ArrayPrototype)
@@ -224,7 +226,7 @@ export function promisify (original) {
     return await new Promise((resolve, reject) => {
       return Reflect.apply(original, this, args.concat(callback))
       function callback (err, ...values) {
-        let [ result ] = values
+        let [result] = values
 
         if (err) {
           return reject(err)
@@ -255,8 +257,8 @@ export function inspect (value, options) {
     showHidden: options?.showHidden || false,
     customInspect: (
       options?.customInspect === undefined
-      ? true
-      : options.customInspect
+        ? true
+        : options.customInspect
     ),
 
     ...options,
@@ -325,12 +327,12 @@ export function inspect (value, options) {
       return String(value) + 'n'
     }
 
-    if (value instanceof WeakSet){
-      return `WeakSet { <items unknown> }`
+    if (value instanceof WeakSet) {
+      return 'WeakSet { <items unknown> }'
     }
 
-    if (value instanceof WeakMap){
-      return `WeakMap { <items unknown> }`
+    if (value instanceof WeakMap) {
+      return 'WeakMap { <items unknown> }'
     }
 
     let typename = ''
@@ -345,8 +347,8 @@ export function inspect (value, options) {
     }
 
     const keys = value instanceof Map
-    ? Array.from(value.keys())
-    : new Set(Object.keys(value))
+      ? Array.from(value.keys())
+      : new Set(Object.keys(value))
 
     const enumerableKeys = value instanceof Set
       ? Array(value.size).fill(0).map((_, i) => i)
@@ -358,9 +360,7 @@ export function inspect (value, options) {
         for (const key of hidden) {
           keys.add(key)
         }
-      } catch (errr) {
-        void err
-      }
+      } catch (err) {}
     }
 
     if (isArrayLikeValue) {
@@ -386,8 +386,8 @@ export function inspect (value, options) {
 
     if (value instanceof Error) {
       typename = `${Error.prototype.toString.call(value)}`
-      braces[0] =  ''
-      braces[1] =  ''
+      braces[0] = ''
+      braces[1] = ''
 
       if (value.cause) {
         keys.add('cause')
@@ -424,7 +424,7 @@ export function inspect (value, options) {
         return RegExp.prototype.toString.call(value)
       }
 
-      return `[Object]`
+      return '[Object]'
     }
 
     ctx.seen.push(value)
@@ -432,7 +432,7 @@ export function inspect (value, options) {
     const output = []
 
     if (isArrayLikeValue || value instanceof Set) {
-      const items = isArrayLikeValue ? value : Array.from(value.values())
+      // const items = isArrayLikeValue ? value : Array.from(value.values())
       const size = isArrayLikeValue ? value.length : value.size
       for (let i = 0; i < size; ++i) {
         const key = String(i)
@@ -527,7 +527,7 @@ export function inspect (value, options) {
     }
 
     if (length > 80) {
-      return `${braces[0]}\n${!typename ? '' : ` ${typename}\n`}  ${output.join(',\n  ') }\n${braces[1]}`
+      return `${braces[0]}\n${!typename ? '' : ` ${typename}\n`}  ${output.join(',\n  ')}\n${braces[1]}`
     }
 
     return `${braces[0]}${typename}${output.length ? ` ${output.join(', ')} ` : ''}${braces[1]}`
@@ -546,15 +546,11 @@ export function inspect (value, options) {
 
     try {
       descriptor.value = value[key]
-    } catch (err) {
-      void err
-    }
+    } catch (err) {}
 
     try {
       Object.assign(descriptor, Object.getOwnPropertyDescriptor(value, key))
-    } catch (err) {
-      void err
-    }
+    } catch (err) {}
 
     if (descriptor.get && descriptor.set) {
       output[1] = '[Getter/Setter]'
@@ -694,13 +690,12 @@ export function parseJSON (string) {
   if (string !== null) {
     try {
       return JSON.parse(String(string))
-    } catch (err) {
-      void err
-    }
+    } catch (err) {}
   }
 
   return null
 }
 
-import * as exports from './util.js'
+export function noop () {}
+
 export default exports

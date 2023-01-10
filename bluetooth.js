@@ -7,11 +7,13 @@
 import * as ipc from './ipc.js'
 import { EventEmitter } from './events.js'
 
+import * as exports from './bluetooth.js'
+
 /**
  * Create an instance of a Bluetooth service.
  */
 export class Bluetooth extends EventEmitter {
-  static isInitalized = false;
+  static isInitalized = false
 
   /**
    * constructor is an example property that is set to `true`
@@ -115,6 +117,4 @@ export class Bluetooth extends EventEmitter {
     }
   }
 }
-
-import * as exports from './bluetooth.js'
 export default exports

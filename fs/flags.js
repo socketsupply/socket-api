@@ -6,7 +6,7 @@ import {
   O_CREAT,
   O_RDWR,
   O_EXCL,
-  O_SYNC,
+  O_SYNC
 } from './constants.js'
 
 export function normalizeFlags (flags) {

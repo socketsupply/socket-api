@@ -1,11 +1,11 @@
-import util from '../../util.js'
+import util, { hasOwnProperty } from '../../util.js'
 import Buffer from '../../buffer.js'
 import { test } from '@socketsupply/tapzero'
 
 test('util.hasOwnProperty', (t) => {
   const obj = { foo: 'bar' }
-  t.ok(util.hasOwnProperty(obj, 'foo'), 'util.hasOwnProperty returns true for own properties')
-  t.ok(!util.hasOwnProperty(obj, 'bar'), 'util.hasOwnProperty returns false for non-own properties')
+  t.ok(hasOwnProperty(obj, 'foo'), 'util.hasOwnProperty returns true for own properties')
+  t.ok(!hasOwnProperty(obj, 'bar'), 'util.hasOwnProperty returns false for non-own properties')
 })
 
 test('util.isTypedArray', (t) => {
@@ -92,7 +92,7 @@ test('util.isFunction', (t) => {
   t.ok(!util.isFunction(undefined), 'util.isFunction returns false for undefined')
   t.ok(!util.isFunction({}), 'util.isFunction returns false for objects')
   t.ok(!util.isFunction([]), 'util.isFunction returns false for arrays')
-  
+
   const asyncFn = async () => {}
   t.ok(util.isFunction(asyncFn), 'util.isFunction returns true for async functions')
 })

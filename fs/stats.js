@@ -6,9 +6,9 @@ const isWindows = /win/i.test(os.type())
 function checkMode (mode, property) {
   if (isWindows) {
     if (
-      property == constants.S_IFIFO ||
-      property == constants.S_IFBLK ||
-      property == constants.S_IFSOCK
+      property === constants.S_IFIFO ||
+      property === constants.S_IFBLK ||
+      property === constants.S_IFSOCK
     ) {
       return false
     }

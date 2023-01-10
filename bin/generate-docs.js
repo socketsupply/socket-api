@@ -135,6 +135,7 @@ export function transform (filename) {
           // type could be [(string|number)=]
           const parenthasisedType = rawType
             .replace(/\s*\|\s*/g, ' \\| ')
+            // eslint-disable-next-line no-empty-character-class
             .replace(/[]+/g, '')
           // now it is (string|number)=
           const optional = parenthasisedType.endsWith('=')

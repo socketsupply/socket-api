@@ -5,7 +5,7 @@
  * not (yet) provide any of the multicast methods or properties.
  */
 
-import { isArrayBufferView, isFunction, rand64 } from './util.js'
+import { isArrayBufferView, isFunction, rand64, noop } from './util.js'
 import { InternalError } from './errors.js'
 import { EventEmitter } from './events.js'
 import { Buffer } from './buffer.js'
@@ -14,6 +14,8 @@ import * as ipc from './ipc.js'
 import console from './console.js'
 import dns from './dns.js'
 import gc from './gc.js'
+
+import * as exports from './dgram.js'
 
 const BIND_STATE_UNBOUND = 0
 const BIND_STATE_BINDING = 1
@@ -178,6 +180,7 @@ function getSocketState (socket) {
   return result.data || null
 }
 
+// eslint-disable-next-line no-unused-vars
 function healhCheck (socket) {
   // @TODO(jwerle)
 }
@@ -186,7 +189,7 @@ async function startReading (socket, callback) {
   let result = null
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   try {
@@ -206,7 +209,7 @@ async function stopReading (socket, callback) {
   let result = null
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   try {
@@ -226,7 +229,7 @@ async function getRecvBufferSize (socket, callback) {
   let result = null
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   try {
@@ -248,7 +251,7 @@ async function getSendBufferSize (socket, callback) {
   let result = null
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   try {
@@ -272,7 +275,7 @@ async function bind (socket, options, callback) {
   options = { ...options }
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   if (typeof options.address !== 'string') {
@@ -296,8 +299,8 @@ async function bind (socket, options, callback) {
       id: socket.id,
       port: options.port || 0,
       address: options.address,
-      ipv6Only: options.ipv6Only ? true : false,
-      reuseAddr: options.reuseAddr ? true : false
+      ipv6Only: !!options.ipv6Only,
+      reuseAddr: !!options.reuseAddr
     })
 
     socket.state.bindState = BIND_STATE_BOUND
@@ -308,7 +311,7 @@ async function bind (socket, options, callback) {
       const result = await getSendBufferSize(socket)
       if (result.err) {
         callback(result.err)
-        return { err }
+        return { err: result.err }
       }
 
       socket.state.sendBufferSize = result.data.size
@@ -320,7 +323,7 @@ async function bind (socket, options, callback) {
       const result = await getRecvBufferSize(socket)
       if (result.err) {
         callback(result.err)
-        return { err }
+        return { err: result.err }
       }
 
       socket.state.recvBufferSize = result.data.size
@@ -342,7 +345,7 @@ async function connect (socket, options, callback) {
   options = { ...options }
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   if (typeof options.address !== 'string') {
@@ -373,7 +376,7 @@ async function connect (socket, options, callback) {
     result = await ipc.send('udp.connect', {
       id: socket.id,
       port: options?.port ?? 0,
-      address: options?.address,
+      address: options?.address
     })
 
     socket.state.connectState = CONNECT_STATE_CONNECTED
@@ -416,7 +419,7 @@ function disconnect (socket, callback) {
   let result = null
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   try {
@@ -440,7 +443,7 @@ async function send (socket, options, callback) {
   let result = null
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   options = { ...options }
@@ -540,7 +543,7 @@ async function close (socket, callback) {
   let result = null
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   socket.state.connectState = CONNECT_STATE_DISCONNECTED
@@ -571,7 +574,7 @@ function getPeerName (socket, callback) {
   let result = null
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   try {
@@ -592,7 +595,7 @@ function getSockName (socket, callback) {
   let result = null
 
   if (!isFunction(callback)) {
-    callback = () => void 0
+    callback = noop
   }
 
   try {
@@ -656,8 +659,8 @@ export class Socket extends EventEmitter {
       sendBufferSize: options.sendBufferSize,
       bindState: BIND_STATE_UNBOUND,
       connectState: CONNECT_STATE_DISCONNECTED,
-      reuseAddr: options.reuseAddr === true ? true : false,
-      ipv6Only: options.ipv6Only === true ? true : false
+      reuseAddr: options.reuseAddr === true,
+      ipv6Only: options.ipv6Only === true
     }
 
     if (isFunction(callback)) {
@@ -706,8 +709,10 @@ export class Socket extends EventEmitter {
   bind (arg1, arg2, arg3) {
     const options = {}
     const cb = isFunction(arg2)
-      ? arg2 : isFunction(arg3)
-      ? arg3 : defaultCallback(this)
+      ? arg2
+      : isFunction(arg3)
+        ? arg3
+        : defaultCallback(this)
 
     if (typeof arg1 === 'number' || typeof arg2 === 'string') {
       options.port = parseInt(arg1)
@@ -733,7 +738,6 @@ export class Socket extends EventEmitter {
           this.emit('listening')
         }
       })
-
     })
 
     return this
@@ -759,8 +763,10 @@ export class Socket extends EventEmitter {
     const address = isFunction(arg2) ? undefined : arg2
     const port = parseInt(arg1)
     const cb = isFunction(arg2)
-      ? arg2 : isFunction(arg3)
-      ? arg3 : defaultCallback(this)
+      ? arg2
+      : isFunction(arg3)
+        ? arg3
+        : defaultCallback(this)
 
     if (!Number.isInteger(port) || port <= 0 || port > MAX_PORT) {
       throw new ERR_SOCKET_BAD_PORT(
@@ -849,12 +855,12 @@ export class Socket extends EventEmitter {
    */
   send (buffer, ...args) {
     const id = this.id || rand64()
-    let offset = 0, length, port, address, cb = defaultCallback(this)
+    let offset = 0; let length; let port; let address; let cb = defaultCallback(this)
 
     if (Array.isArray(buffer)) {
       buffer = fromBufferList(buffer)
     } else if (typeof buffer === 'string' || isArrayBufferView(buffer)) {
-      buffer  = Buffer.from(buffer)
+      buffer = Buffer.from(buffer)
     }
 
     if (!Buffer.isBuffer(buffer)) {
@@ -881,7 +887,7 @@ export class Socket extends EventEmitter {
       // parse possible port as string
       port = parseInt(port)
 
-      if (!Number.isInteger(port) || port <= 0 || port > (64*1024)) {
+      if (!Number.isInteger(port) || port <= 0 || port > (64 * 1024)) {
         throw new ERR_SOCKET_BAD_PORT(
           `Port should be > 0 and < 65536. Received ${port}.`
         )
@@ -904,7 +910,7 @@ export class Socket extends EventEmitter {
 
     buffer = buffer.slice(offset)
 
-    if (!Number.isInteger(length) || length < 0 || length > buffer.length ) {
+    if (!Number.isInteger(length) || length < 0 || length > buffer.length) {
       throw new RangeError(
         `Length should be >= 0 and <= ${buffer.length} Received ${length}.`
       )
@@ -1144,6 +1150,4 @@ export class Socket extends EventEmitter {
     return this
   }
 }
-
-import *  as exports from './dgram.js'
 export default exports
