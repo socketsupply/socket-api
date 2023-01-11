@@ -14,9 +14,6 @@
     "test:clean": "cd test && rm -rf dist",
     "postpublish": "npm publish --registry https://npm.pkg.github.com"
   },
-  "bin": {
-    "socket-repl": "bin/repl.js"
-  },
   "author": "",
   "license": "ISC",
   "repository": {
