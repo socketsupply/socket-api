@@ -1,5 +1,4 @@
 .github/
-bin/
 test/
 .eslintrc
 .gitignore
