@@ -9,8 +9,10 @@ try {
 } catch {}
 
 export function transform (filename) {
-  const srcFile = path.relative(process.cwd(), filename)
-  const destFile = path.relative(process.cwd(), 'README.md')
+  const __dirname = new URL(path.dirname(import.meta.url)).pathname
+  const basedir = path.join(__dirname, '..')
+  const srcFile = path.join(basedir, filename)
+  const destFile = path.join(basedir, 'README.md')
 
   let accumulateComments = []
   const comments = {}
