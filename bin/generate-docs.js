@@ -9,10 +9,8 @@ try {
 } catch {}
 
 export function transform (filename) {
-  const __dirname = new URL(path.dirname(import.meta.url)).pathname
-  const basedir = path.join(__dirname, '..')
-  const srcFile = path.join(basedir, filename)
-  const destFile = path.join(basedir, 'README.md')
+  const srcFile = path.relative(process.cwd(), filename)
+  const destFile = path.relative(process.cwd(), 'README.md')
 
   let accumulateComments = []
   const comments = {}
@@ -137,7 +135,6 @@ export function transform (filename) {
           // type could be [(string|number)=]
           const parenthasisedType = rawType
             .replace(/\s*\|\s*/g, ' \\| ')
-            // eslint-disable-next-line no-empty-character-class
             .replace(/[]+/g, '')
           // now it is (string|number)=
           const optional = parenthasisedType.endsWith('=')
