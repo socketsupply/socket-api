@@ -7,4 +7,4 @@
  * @see {@link https://github.com/socketsupply/stream-relay}
  *
  */
-export * from '@socketsupply/stream-relay.js'
+export * from '@socketsupply/stream-relay'
