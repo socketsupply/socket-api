@@ -32,6 +32,6 @@
     "standard": "^17.0.0"
   },
   "optionalDependencies": {
-    "@socketsupply/stream-relay": "^1.0.6"
+    "@socketsupply/stream-relay": "^1.0.7"
   }
 }

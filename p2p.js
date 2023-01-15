@@ -7,4 +7,9 @@
  * @see {@link https://github.com/socketsupply/stream-relay}
  *
  */
+import { createPeer } from '@socketsupply/stream-relay'
+import dgram from './dgram.js'
+
 export * from '@socketsupply/stream-relay'
+const Peer = createPeer(dgram)
+export { Peer }
