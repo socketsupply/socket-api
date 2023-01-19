@@ -86,7 +86,7 @@ If `Buffer.TYPED_ARRAY_SUPPORT`:
  Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
  Opera 11.6+, iOS 4.2+.
 
- We report that the browser does not support typed arrays if the are not subclassable
+ We report that the browser does not support typed arrays if they are not subclassable
  using __proto__. Firefox 4-29 lacks support for adding new properties to `Uint8Array`
  (See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438). IE 10 lacks support
  for __proto__ and has a buggy typed array implementation.
@@ -101,7 +101,7 @@ If `Buffer.TYPED_ARRAY_SUPPORT`:
  Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
  Opera 11.6+, iOS 4.2+.
 
- We report that the browser does not support typed arrays if the are not subclassable
+ We report that the browser does not support typed arrays if they are not subclassable
  using __proto__. Firefox 4-29 lacks support for adding new properties to `Uint8Array`
  (See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438). IE 10 lacks support
  for __proto__ and has a buggy typed array implementation.
@@ -116,7 +116,7 @@ If `Buffer.TYPED_ARRAY_SUPPORT`:
  Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
  Opera 11.6+, iOS 4.2+.
 
- We report that the browser does not support typed arrays if the are not subclassable
+ We report that the browser does not support typed arrays if they are not subclassable
  using __proto__. Firefox 4-29 lacks support for adding new properties to `Uint8Array`
  (See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438). IE 10 lacks support
  for __proto__ and has a buggy typed array implementation.
@@ -131,7 +131,7 @@ If `Buffer.TYPED_ARRAY_SUPPORT`:
  Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
  Opera 11.6+, iOS 4.2+.
 
- We report that the browser does not support typed arrays if the are not subclassable
+ We report that the browser does not support typed arrays if they are not subclassable
  using __proto__. Firefox 4-29 lacks support for adding new properties to `Uint8Array`
  (See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438). IE 10 lacks support
  for __proto__ and has a buggy typed array implementation.
@@ -372,7 +372,7 @@ Listen for datagram messages on a named port and optional address
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| port | number |  | false | The port to to listen for messages on |
+| port | number |  | false | The port to listen for messages on |
 | address | string |  | false | The address to bind to (0.0.0.0) |
 | callback | function |  | false | With no parameters. Called when binding is complete. |
 
@@ -1097,8 +1097,8 @@ This is a `VariableDeclaration` named `FileWriteStream` in `fs/stream.js`, it's 
  a library on top of Socket SDK. A Socket SDK app has two or three processes.
 
  - The `Render` process, the UI where the HTML, CSS and JS is run.
- - The `Bridge` process, the thin layer of code that managers everything.
- - The `Main` processs, for apps that need to run heavier compute jobs. And
+ - The `Bridge` process, the thin layer of code that manages everything.
+ - The `Main` process, for apps that need to run heavier compute jobs. And
    unlike electron it's optional.
 
  The Bridge process manages the Render and Main process, it may also broker
@@ -1624,7 +1624,7 @@ Sets the title of the window (if applicable).
 
 | Argument | Type | Default | Optional | Description |
 | :---     | :--- | :---:   | :---:    | :---        |
-| options | obnject |  | false | an options object |
+| options | object |  | false | an options object |
 
 
 | Return Value | Type | Description |
@@ -1714,12 +1714,12 @@ Set the native menu for the app.
  cross platform native system and context menus.
 
  Menus are created at run time. They can be created from either the Main or
- Render process. The can be recreated instantly by calling the `setSystemMenu` method.
+ Render process. They can be recreated instantly by calling the `setSystemMenu` method.
 
  The method takes a string. Here's an example of a menu. The semi colon is
  significant indicates the end of the menu. Use an underscore when there is no
  accelerator key. Modifiers are optional. And well known OS menu options like
- the edit menu will automatically get accelerators you dont need to specify them.
+ the edit menu will automatically get accelerators you don't need to specify them.
 
 
  ```js
