@@ -321,9 +321,7 @@ export function patchGlobalConsole (globalConsole, options) {
   }
 
   if (!isPatched(globalConsole)) {
-    const defaultConsole = new Console({
-      async postMessage (...args) { return await postMessage(...args) }
-    })
+    const defaultConsole = new Console({ postMessage })
 
     globalConsole[Symbol.for('socket.console.patched')] = true
 
@@ -342,10 +340,6 @@ export function patchGlobalConsole (globalConsole, options) {
 }
 
 export default new Console({
-  console: globalConsole,
-  async postMessage (...args) {
-    return await postMessage(...args)
-  }
+  postMessage,
+  console: patchGlobalConsole(globalConsole)
 })
-
-patchGlobalConsole(globalConsole)
