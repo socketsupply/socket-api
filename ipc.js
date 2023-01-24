@@ -216,7 +216,7 @@ function getRequestResponse (request) {
     }
 
     const { status, responseURL, statusText } = request
-    const message = Message.from(responseURL?.replace('http:', Message.PROTOCOL))
+    const message = Message.from(responseURL)
     const source = message.command
 
     if (status >= 100 && status < 400) {
@@ -304,14 +304,6 @@ function maybeMakeError (error, caller) {
   return err
 }
 
-function createUri (protocol, command) {
-  if (typeof window === 'object' && window?.__args.os === 'win32') {
-    protocol = 'http:'
-  }
-
-  return `${protocol}//${command}`
-}
-
 /**
  * Represents an OK IPC status.
  */
@@ -385,7 +377,7 @@ export class Message extends URL {
    * The expected protocol for an IPC message.
    */
   static get PROTOCOL () {
-    return 'ipc:'
+    return window?.__args?.os === 'win32' ? 'http:' : 'ipc:'
   }
 
   /**
@@ -785,7 +777,7 @@ export function sendSync (command, params) {
   const request = new window.XMLHttpRequest()
   const index = window.__args.index ?? 0
   const seq = nextSeq++
-  const uri = createUri(protocol, command)
+  const uri = `${protocol}//${command}`
 
   params = new URLSearchParams(params)
   params.set('index', index)
@@ -936,7 +928,7 @@ export async function write (command, params, buffer, options) {
   const signal = options?.signal
   const index = window.__args.index ?? 0
   const seq = nextSeq++
-  const uri = createUri(protocol, command)
+  const uri = `${protocol}//${command}`
 
   let resolved = false
   let aborted = false
@@ -1028,7 +1020,7 @@ export async function request (command, params, options) {
   const signal = options?.signal
   const index = window.__args.index ?? 0
   const seq = nextSeq++
-  const uri = createUri(protocol, command)
+  const uri = `${protocol}//${command}`
 
   let resolved = false
   let aborted = false
