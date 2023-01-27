@@ -789,6 +789,7 @@ export function sendSync (command, params) {
   }
 
   request.open('GET', uri + query, false)
+  request.setRequestHeader('Origin', 'http://socket.ssc')
   request.send()
 
   const result = Result.from(getRequestResponse(request), null, command)
@@ -951,6 +952,7 @@ export async function write (command, params, buffer, options) {
   const query = `?${params}`
 
   request.open('POST', uri + query, true)
+  request.setRequestHeader('Origin', 'http://socket.ssc')
   await request.send(buffer || null)
 
   if (debug.enabled) {
@@ -1042,6 +1044,7 @@ export async function request (command, params, options) {
 
   request.responseType = options?.responseType ?? ''
   request.open('GET', uri + query)
+  request.setRequestHeader('Origin', 'http://socket.ssc')
   request.send(null)
 
   if (debug.enabled) {
